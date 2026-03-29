@@ -60,6 +60,7 @@ packages = ["src/vindicara"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 asyncio_mode = "auto"
 markers = ["adversarial: tests for adversarial/bypass inputs"]
 
