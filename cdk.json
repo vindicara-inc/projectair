@@ -1,0 +1,10 @@
+{
+  "app": "python3 -m vindicara.infra.app",
+  "watch": {
+    "include": ["src/vindicara/infra/**"]
+  },
+  "context": {
+    "@aws-cdk/aws-lambda:recognizeVersionProps": true,
+    "@aws-cdk/core:newStyleStackSynthesis": true
+  }
+}
