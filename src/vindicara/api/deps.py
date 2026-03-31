@@ -4,6 +4,7 @@ from functools import lru_cache
 
 from vindicara.engine.evaluator import Evaluator
 from vindicara.engine.policy import PolicyRegistry
+from vindicara.mcp.scanner import MCPScanner
 
 
 @lru_cache(maxsize=1)
@@ -14,3 +15,9 @@ def get_evaluator() -> Evaluator:
 @lru_cache(maxsize=1)
 def get_registry() -> PolicyRegistry:
     return PolicyRegistry.with_builtins()
+
+
+@lru_cache(maxsize=1)
+def get_scanner() -> MCPScanner:
+    """Get the singleton MCP scanner instance."""
+    return MCPScanner()

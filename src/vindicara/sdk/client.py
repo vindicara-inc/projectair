@@ -4,9 +4,37 @@ import structlog
 
 from vindicara.config.settings import VindicaraSettings
 from vindicara.engine.evaluator import Evaluator
+from vindicara.mcp.findings import ScanMode, ScanReport
+from vindicara.mcp.scanner import MCPScanner
 from vindicara.sdk.types import GuardResult
 
 logger = structlog.get_logger()
+
+
+class MCPNamespace:
+    """MCP security scanning methods."""
+
+    def __init__(self, scanner: MCPScanner) -> None:
+        self._scanner = scanner
+
+    async def scan(
+        self,
+        server_url: str = "",
+        config: dict[str, object] | None = None,
+        mode: str = "auto",
+        timeout: float = 30.0,
+        dry_run: bool = False,
+    ) -> ScanReport:
+        return await self._scanner.scan(
+            server_url=server_url,
+            config=config,
+            mode=ScanMode(mode),
+            timeout=timeout,
+            dry_run=dry_run,
+        )
+
+    async def scan_config(self, config: dict[str, object]) -> ScanReport:
+        return await self._scanner.scan(config=config, mode=ScanMode.STATIC)
 
 
 class VindicaraClient:
@@ -26,6 +54,8 @@ class VindicaraClient:
         self._offline = offline or settings.offline_mode
         self._base_url = base_url or settings.api_base_url
         self._evaluator = Evaluator.with_builtins()
+        self._scanner = MCPScanner()
+        self.mcp = MCPNamespace(self._scanner)
         self._http_client: object | None = None
 
         logger.info(
