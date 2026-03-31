@@ -1,6 +1,6 @@
 """Lambda function and API Gateway for Vindicara API."""
 
-from aws_cdk import Duration, Stack
+from aws_cdk import BundlingOptions, Duration, Stack
 from aws_cdk import aws_apigatewayv2 as apigw
 from aws_cdk import aws_apigatewayv2_integrations as integrations
 from aws_cdk import aws_dynamodb as dynamodb
@@ -31,20 +31,7 @@ class APIStack(Stack):
             function_name="vindicara-api",
             runtime=lambda_.Runtime.PYTHON_3_13,
             handler="vindicara.lambda_handler.handler",
-            code=lambda_.Code.from_asset(
-                ".",
-                exclude=[
-                    "tests",
-                    "scripts",
-                    "site",
-                    "docs",
-                    "*.md",
-                    ".venv",
-                    ".git",
-                    "node_modules",
-                    "cdk.out",
-                ],
-            ),
+            code=lambda_.Code.from_asset("lambda_package"),
             memory_size=256,
             timeout=Duration.seconds(30),
             environment={

@@ -34,3 +34,5 @@ cdk.context.json
 # Environment variables
 .env
 .env.*
+lambda_package/
+cdk.out/
