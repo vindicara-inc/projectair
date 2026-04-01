@@ -49,7 +49,5 @@ async def guard(
         raise HTTPException(status_code=422, detail=exc.message) from exc
 
     result.evaluation_id = evaluation_id
-    log.info(
-        "guard.evaluation.completed", verdict=result.verdict.value, latency_ms=result.latency_ms
-    )
+    log.info("guard.evaluation.completed", verdict=result.verdict.value, latency_ms=result.latency_ms)
     return result

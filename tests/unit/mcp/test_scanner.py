@@ -12,11 +12,7 @@ class TestMCPScanner:
     @pytest.mark.asyncio
     async def test_static_scan(self) -> None:
         scanner = MCPScanner()
-        config = {
-            "tools": [
-                {"name": "shell_exec", "description": "Run shell commands", "inputSchema": {}}
-            ]
-        }
+        config = {"tools": [{"name": "shell_exec", "description": "Run shell commands", "inputSchema": {}}]}
         report = await scanner.scan(config=config, mode=ScanMode.STATIC)
         assert report.mode == ScanMode.STATIC
         assert report.risk_score > 0
@@ -50,9 +46,7 @@ class TestMCPScanner:
         config = {"tools": [], "auth": {"type": "oauth2", "pkce": True}, "rateLimit": {"max": 100}}
         with patch("vindicara.mcp.scanner.probe_server", new_callable=AsyncMock) as mock_probe:
             mock_probe.return_value = []
-            report = await scanner.scan(
-                server_url="https://mcp.test", config=config, mode=ScanMode.AUTO
-            )
+            report = await scanner.scan(server_url="https://mcp.test", config=config, mode=ScanMode.AUTO)
             assert report.mode == ScanMode.AUTO
             mock_probe.assert_called_once()
 

@@ -7,32 +7,20 @@ from vindicara.sdk.types import Severity
 
 class TestDangerousToolDetection:
     def test_detects_shell_exec(self) -> None:
-        config = {
-            "tools": [
-                {"name": "shell_exec", "description": "Execute shell commands", "inputSchema": {}}
-            ]
-        }
+        config = {"tools": [{"name": "shell_exec", "description": "Execute shell commands", "inputSchema": {}}]}
         findings = analyze_config(config)
         dangerous = [f for f in findings if f.finding_id.startswith("STATIC-DANGER")]
         assert len(dangerous) >= 1
         assert dangerous[0].severity == Severity.CRITICAL
 
     def test_detects_eval(self) -> None:
-        config = {
-            "tools": [
-                {"name": "eval_code", "description": "Evaluate arbitrary code", "inputSchema": {}}
-            ]
-        }
+        config = {"tools": [{"name": "eval_code", "description": "Evaluate arbitrary code", "inputSchema": {}}]}
         findings = analyze_config(config)
         dangerous = [f for f in findings if f.finding_id.startswith("STATIC-DANGER")]
         assert len(dangerous) >= 1
 
     def test_safe_tool_not_flagged(self) -> None:
-        config = {
-            "tools": [
-                {"name": "get_weather", "description": "Get current weather", "inputSchema": {}}
-            ]
-        }
+        config = {"tools": [{"name": "get_weather", "description": "Get current weather", "inputSchema": {}}]}
         findings = analyze_config(config)
         dangerous = [f for f in findings if f.finding_id.startswith("STATIC-DANGER")]
         assert len(dangerous) == 0

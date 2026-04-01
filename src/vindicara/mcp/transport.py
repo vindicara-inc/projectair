@@ -41,9 +41,7 @@ class MCPClient:
             headers["Authorization"] = self._auth_header
         return headers
 
-    def _build_request(
-        self, method: str, params: dict[str, object] | None = None
-    ) -> dict[str, object]:
+    def _build_request(self, method: str, params: dict[str, object] | None = None) -> dict[str, object]:
         req: dict[str, object] = {
             "jsonrpc": "2.0",
             "id": self._next_id(),

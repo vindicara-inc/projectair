@@ -55,6 +55,20 @@ Homepage = "https://vindicara.io"
 Repository = "https://github.com/get-sltr/vindicara-ai"
 Documentation = "https://docs.vindicara.io"
 
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "site/",
+    "docs/",
+    "lambda_package/",
+    "cdk.out/",
+    "*.pptx",
+    "*.docx",
+    "*.png",
+    "Nullify_*",
+    "download*",
+    "vindicara_slides*",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/vindicara"]
 

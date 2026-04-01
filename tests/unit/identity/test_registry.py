@@ -2,14 +2,18 @@
 
 import pytest
 
-from vindicara.identity.models import AgentStatus
 from vindicara.identity.registry import AgentNotFoundError, AgentRegistry
 
 
 class TestAgentRegistry:
     def test_register_agent(self) -> None:
         registry = AgentRegistry()
-        agent = registry.register(name="sales-bot", permitted_tools=["crm_read"], data_scope=["accounts"], limits={"max_actions_per_minute": 60})
+        agent = registry.register(
+            name="sales-bot",
+            permitted_tools=["crm_read"],
+            data_scope=["accounts"],
+            limits={"max_actions_per_minute": 60},
+        )
         assert agent.name == "sales-bot"
         assert agent.agent_id.startswith("agent_")
         assert agent.is_active

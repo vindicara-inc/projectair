@@ -10,9 +10,7 @@ from vindicara.sdk.types import Verdict
 class TestEvaluator:
     def test_evaluate_clean_input(self) -> None:
         evaluator = Evaluator.with_builtins()
-        result = evaluator.evaluate(
-            text="Summarize Q4 earnings for the board", policy_id="content-safety"
-        )
+        result = evaluator.evaluate(text="Summarize Q4 earnings for the board", policy_id="content-safety")
         assert result.verdict == Verdict.ALLOWED
 
     def test_evaluate_pii_blocked(self) -> None:
@@ -45,7 +43,5 @@ class TestEvaluator:
 
     def test_latency_under_10ms(self) -> None:
         evaluator = Evaluator.with_builtins()
-        result = evaluator.evaluate(
-            text="Normal business query about revenue", policy_id="content-safety"
-        )
+        result = evaluator.evaluate(text="Normal business query about revenue", policy_id="content-safety")
         assert result.latency_ms < 10

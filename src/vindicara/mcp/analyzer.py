@@ -19,9 +19,7 @@ _DESCRIPTION_INJECTION_PATTERNS = re.compile(
     r"you must use|do not use any other|override|disregard)"
 )
 
-_BROAD_INPUT_PATTERNS = re.compile(
-    r"(?i)(query|sql|command|script|code|expression|eval|shell|exec)"
-)
+_BROAD_INPUT_PATTERNS = re.compile(r"(?i)(query|sql|command|script|code|expression|eval|shell|exec)")
 
 _MAX_TOOLS_THRESHOLD = 25
 

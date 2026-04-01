@@ -1,7 +1,7 @@
 """In-memory agent registry."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 
@@ -38,7 +38,7 @@ class AgentRegistry:
             data_scope=data_scope or [],
             limits=limits or {},
             status=AgentStatus.ACTIVE,
-            created_at=datetime.now(timezone.utc).isoformat(),
+            created_at=datetime.now(UTC).isoformat(),
         )
         self._agents[agent_id] = agent
         logger.info("agent.registered", agent_id=agent_id, name=name)
