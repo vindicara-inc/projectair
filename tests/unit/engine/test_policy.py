@@ -12,11 +12,7 @@ class TestPolicy:
         policy = Policy(
             policy_id="test",
             name="Test Policy",
-            rules=[
-                KeywordBlocklistRule(
-                    rule_id="kw", keywords=["hack"], severity=Severity.HIGH, message="blocked"
-                )
-            ],
+            rules=[KeywordBlocklistRule(rule_id="kw", keywords=["hack"], severity=Severity.HIGH, message="blocked")],
         )
         result = policy.evaluate("This is clean text")
         assert result.verdict == Verdict.ALLOWED

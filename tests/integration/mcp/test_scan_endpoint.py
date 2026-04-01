@@ -17,11 +17,7 @@ async def test_static_scan(app) -> None:
         response = await client.post(
             "/v1/mcp/scan",
             json={
-                "config": {
-                    "tools": [
-                        {"name": "shell_exec", "description": "Run commands", "inputSchema": {}}
-                    ]
-                },
+                "config": {"tools": [{"name": "shell_exec", "description": "Run commands", "inputSchema": {}}]},
                 "mode": "static",
             },
             headers={"X-Vindicara-Key": "vnd_test"},

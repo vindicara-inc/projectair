@@ -18,7 +18,9 @@ class AuthzEngine:
         if agent.is_suspended:
             logger.warning("authz.denied.suspended", agent_id=agent_id, tool=tool)
             return CheckResult(
-                agent_id=agent_id, tool=tool, allowed=False,
+                agent_id=agent_id,
+                tool=tool,
+                allowed=False,
                 reason=f"Agent is suspended: {agent.suspended_reason}",
             )
 
@@ -29,7 +31,9 @@ class AuthzEngine:
             return CheckResult(agent_id=agent_id, tool=tool, allowed=True)
 
         return CheckResult(
-            agent_id=agent_id, tool=tool, allowed=False,
+            agent_id=agent_id,
+            tool=tool,
+            allowed=False,
             reason=f"Tool '{tool}' not in permitted list: {agent.permitted_tools}",
         )
 
@@ -38,7 +42,9 @@ class AuthzEngine:
 
         if agent.is_suspended:
             return CheckResult(
-                agent_id=agent_id, tool=scope, allowed=False,
+                agent_id=agent_id,
+                tool=scope,
+                allowed=False,
                 reason=f"Agent is suspended: {agent.suspended_reason}",
             )
 
@@ -50,6 +56,8 @@ class AuthzEngine:
                 return CheckResult(agent_id=agent_id, tool=scope, allowed=True)
 
         return CheckResult(
-            agent_id=agent_id, tool=scope, allowed=False,
+            agent_id=agent_id,
+            tool=scope,
+            allowed=False,
             reason=f"Data scope '{scope}' not within permitted scopes: {agent.data_scope}",
         )

@@ -16,7 +16,12 @@ async def test_register_agent(app) -> None:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.post(
             "/v1/agents",
-            json={"name": "sales-bot", "permitted_tools": ["crm_read", "email_send"], "data_scope": ["accounts.sales"], "limits": {"max_actions_per_minute": 60}},
+            json={
+                "name": "sales-bot",
+                "permitted_tools": ["crm_read", "email_send"],
+                "data_scope": ["accounts.sales"],
+                "limits": {"max_actions_per_minute": 60},
+            },
             headers={"X-Vindicara-Key": "vnd_test"},
         )
     assert response.status_code == 200
@@ -38,9 +43,13 @@ async def test_list_agents(app) -> None:
 @pytest.mark.asyncio
 async def test_check_permission_allowed(app) -> None:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        reg = await client.post("/v1/agents", json={"name": "bot", "permitted_tools": ["crm_read"]}, headers={"X-Vindicara-Key": "vnd_test"})
+        reg = await client.post(
+            "/v1/agents", json={"name": "bot", "permitted_tools": ["crm_read"]}, headers={"X-Vindicara-Key": "vnd_test"}
+        )
         agent_id = reg.json()["agent_id"]
-        response = await client.post(f"/v1/agents/{agent_id}/check", json={"tool": "crm_read"}, headers={"X-Vindicara-Key": "vnd_test"})
+        response = await client.post(
+            f"/v1/agents/{agent_id}/check", json={"tool": "crm_read"}, headers={"X-Vindicara-Key": "vnd_test"}
+        )
     assert response.status_code == 200
     assert response.json()["allowed"] is True
 
@@ -48,9 +57,13 @@ async def test_check_permission_allowed(app) -> None:
 @pytest.mark.asyncio
 async def test_check_permission_denied(app) -> None:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        reg = await client.post("/v1/agents", json={"name": "bot", "permitted_tools": ["crm_read"]}, headers={"X-Vindicara-Key": "vnd_test"})
+        reg = await client.post(
+            "/v1/agents", json={"name": "bot", "permitted_tools": ["crm_read"]}, headers={"X-Vindicara-Key": "vnd_test"}
+        )
         agent_id = reg.json()["agent_id"]
-        response = await client.post(f"/v1/agents/{agent_id}/check", json={"tool": "admin_delete"}, headers={"X-Vindicara-Key": "vnd_test"})
+        response = await client.post(
+            f"/v1/agents/{agent_id}/check", json={"tool": "admin_delete"}, headers={"X-Vindicara-Key": "vnd_test"}
+        )
     assert response.status_code == 200
     assert response.json()["allowed"] is False
 
@@ -58,9 +71,15 @@ async def test_check_permission_denied(app) -> None:
 @pytest.mark.asyncio
 async def test_suspend_agent(app) -> None:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        reg = await client.post("/v1/agents", json={"name": "bot", "permitted_tools": ["crm_read"]}, headers={"X-Vindicara-Key": "vnd_test"})
+        reg = await client.post(
+            "/v1/agents", json={"name": "bot", "permitted_tools": ["crm_read"]}, headers={"X-Vindicara-Key": "vnd_test"}
+        )
         agent_id = reg.json()["agent_id"]
-        response = await client.post(f"/v1/agents/{agent_id}/suspend", json={"reason": "Anomalous behavior detected"}, headers={"X-Vindicara-Key": "vnd_test"})
+        response = await client.post(
+            f"/v1/agents/{agent_id}/suspend",
+            json={"reason": "Anomalous behavior detected"},
+            headers={"X-Vindicara-Key": "vnd_test"},
+        )
     assert response.status_code == 200
     assert response.json()["status"] == "suspended"
 
@@ -68,10 +87,16 @@ async def test_suspend_agent(app) -> None:
 @pytest.mark.asyncio
 async def test_suspended_agent_denied_permission(app) -> None:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        reg = await client.post("/v1/agents", json={"name": "bot", "permitted_tools": ["crm_read"]}, headers={"X-Vindicara-Key": "vnd_test"})
+        reg = await client.post(
+            "/v1/agents", json={"name": "bot", "permitted_tools": ["crm_read"]}, headers={"X-Vindicara-Key": "vnd_test"}
+        )
         agent_id = reg.json()["agent_id"]
-        await client.post(f"/v1/agents/{agent_id}/suspend", json={"reason": "Kill switch"}, headers={"X-Vindicara-Key": "vnd_test"})
-        response = await client.post(f"/v1/agents/{agent_id}/check", json={"tool": "crm_read"}, headers={"X-Vindicara-Key": "vnd_test"})
+        await client.post(
+            f"/v1/agents/{agent_id}/suspend", json={"reason": "Kill switch"}, headers={"X-Vindicara-Key": "vnd_test"}
+        )
+        response = await client.post(
+            f"/v1/agents/{agent_id}/check", json={"tool": "crm_read"}, headers={"X-Vindicara-Key": "vnd_test"}
+        )
     assert response.status_code == 200
     assert response.json()["allowed"] is False
 

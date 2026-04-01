@@ -19,9 +19,7 @@ class Evaluator:
         if not text:
             raise VindicaraValidationError("Text must not be empty")
         if len(text) > max_length:
-            raise VindicaraValidationError(
-                f"Text exceeds maximum length of {max_length} characters"
-            )
+            raise VindicaraValidationError(f"Text exceeds maximum length of {max_length} characters")
         policy = self._registry.get(policy_id)
         return policy.evaluate(text)
 

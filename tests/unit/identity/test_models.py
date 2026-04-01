@@ -11,15 +11,18 @@ class TestAgentIdentity:
 
     def test_suspended_agent(self) -> None:
         agent = AgentIdentity(
-            agent_id="a1", name="test-agent",
-            status=AgentStatus.SUSPENDED, suspended_reason="Anomalous behavior",
+            agent_id="a1",
+            name="test-agent",
+            status=AgentStatus.SUSPENDED,
+            suspended_reason="Anomalous behavior",
         )
         assert agent.is_suspended
         assert not agent.is_active
 
     def test_agent_with_permissions(self) -> None:
         agent = AgentIdentity(
-            agent_id="a1", name="sales-bot",
+            agent_id="a1",
+            name="sales-bot",
             permitted_tools=["crm_read", "email_send"],
             data_scope=["accounts.sales"],
             limits={"max_actions_per_minute": 60},
