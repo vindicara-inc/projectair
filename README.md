@@ -101,6 +101,12 @@ agent = vc.agents.register(
 ### 4. Behavioral Drift Detection
 Baseline agent behavior in production. Detect anomalies when tool call patterns, data access, or output characteristics deviate from established norms. Circuit breakers auto-suspend rogue agents.
 
+```python
+vc.monitor.record(agent.agent_id, "crm_read", data_scope="accounts.sales")
+drift = vc.monitor.get_drift(agent.agent_id)
+vc.monitor.set_breaker(agent.agent_id, threshold=0.8, auto_suspend=True)
+```
+
 ### 5. Compliance-as-Code
 Automated evidence generation for EU AI Act Article 72, NIST AI RMF, SOC 2, and ISO 42001. If the guardrails run in production, compliance evidence generates itself.
 
@@ -242,11 +248,11 @@ Not a feature inside someone else's enterprise stack. Not a gateway. Not an obse
 - [x] FastAPI backend on AWS Lambda
 - [x] Live production API
 - [x] Marketing site with interactive demo
+- [x] MCP Security Scanner (8 static checks, 8 live probes, risk scoring)
+- [x] Agent Identity & IAM (registration, scoped permissions, kill switch)
+- [x] Behavioral drift detection (baselines, z-score analysis, circuit breakers)
+- [x] Compliance-as-Code engine (EU AI Act Article 72, NIST AI RMF, SOC 2)
 - [ ] PyPI package distribution
-- [ ] MCP Security Scanner (standalone tool)
-- [ ] Agent Identity & IAM module
-- [ ] Behavioral drift detection
-- [ ] Compliance-as-Code engine (EU AI Act, NIST, SOC 2)
 - [ ] Managed dashboard
 - [ ] SOC 2 Type I certification
 
