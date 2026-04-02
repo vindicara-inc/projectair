@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from vindicara.api.middleware.auth import APIKeyAuthMiddleware
 from vindicara.api.middleware.request_id import RequestIDMiddleware
-from vindicara.api.routes import agents, guard, health, policies, scans
+from vindicara.api.routes import agents, guard, health, monitor, policies, reports, scans
 
 
 def create_app() -> FastAPI:
@@ -32,5 +32,7 @@ def create_app() -> FastAPI:
     app.include_router(policies.router)
     app.include_router(scans.router)
     app.include_router(agents.router)
+    app.include_router(reports.router)
+    app.include_router(monitor.router)
 
     return app
