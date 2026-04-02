@@ -1255,7 +1255,7 @@
 <!-- FOOTER -->
 <footer class="w-full border-t border-white/5 bg-obsidian relative z-20">
   <div class="max-w-screen-xl mx-auto px-6 py-16">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
       <div class="col-span-2 md:col-span-1">
         <div class="flex items-center gap-2 mb-4">
           <div class="w-7 h-7 rounded-md bg-brand-red flex items-center justify-center">
@@ -1296,6 +1296,15 @@
           <li><a href="mailto:legal@vindicara.io?subject=Terms%20of%20Service" class="hover:text-white transition-colors">Terms of Service</a></li>
           <li><a href="mailto:security@vindicara.io" class="hover:text-white transition-colors">Security</a></li>
           <li><a href="mailto:legal@vindicara.io" class="hover:text-white transition-colors">DPA</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-sm font-semibold mb-4">Sources</h4>
+        <ul class="space-y-2 text-sm text-zinc-500">
+          <li><a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">EU AI Act (2024/1689)</a></li>
+          <li><a href="https://www.rsaconference.com/library/presentation/usa/2026/the-state-of-mcp-security" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">RSA Conference 2026</a></li>
+          <li><a href="https://www.gartner.com/en/newsroom/press-releases/2025-03-agentic-ai-predictions" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Gartner Predicts 2025</a></li>
         </ul>
       </div>
     </div>
