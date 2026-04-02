@@ -93,7 +93,15 @@ async def _probe_auth_bypass(
 ) -> None:
     for label, token in _AUTH_BYPASS_TOKENS:
         bypass_client = _create_client(client._server_url, client._timeout, auth_header=token)
-        resp = await bypass_client.send("tools/list")
+        try:
+            resp = await bypass_client.send("tools/list")
+        except Exception as exc:
+            logger.info(
+                "prober.auth_bypass.rejected",
+                label=label,
+                error=str(exc),
+            )
+            continue
         if resp.is_success and resp.has_result:
             findings.append(
                 Finding(
