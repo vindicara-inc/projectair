@@ -499,31 +499,102 @@
       </div>
 
       <div>
-        <div class="code-block glow-cyan text-left">
-          <div class="flex items-center gap-2 mb-3 text-zinc-500 text-xs">
-            <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
-            <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
-            <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
-            <span class="ml-2">mcp_scan.py</span>
+        <!-- Live scan output badge -->
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel text-xs text-zinc-400 mb-4">
+          <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          Live Scan Output
+        </div>
+
+        <div class="glass-panel rounded-xl p-5 glow-cyan text-left overflow-y-auto max-h-[520px]">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-medium text-zinc-500 uppercase tracking-wider font-mono">Scan Result</span>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-bold font-mono text-brand-red">0.85</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20">critical</span>
+            </div>
           </div>
-          <pre class="text-sm leading-relaxed"><code><span class="text-zinc-500"># Scan any MCP server in seconds</span>
-<span class="text-white">report</span> <span class="text-brand-pink">=</span> <span class="text-white">vc</span><span class="text-zinc-400">.</span><span class="text-white">mcp</span><span class="text-zinc-400">.</span><span class="text-white">scan</span><span class="text-zinc-400">(</span>
-    <span class="text-white">server_url</span><span class="text-brand-pink">=</span><span class="text-green-400">"https://mcp.internal.co"</span>
-<span class="text-zinc-400">)</span>
 
-<span class="text-brand-purple">print</span><span class="text-zinc-400">(</span><span class="text-white">report</span><span class="text-zinc-400">.</span><span class="text-white">risk_score</span><span class="text-zinc-400">)</span>    <span class="text-zinc-500"># 0.73 (HIGH)</span>
-<span class="text-brand-purple">print</span><span class="text-zinc-400">(</span><span class="text-white">report</span><span class="text-zinc-400">.</span><span class="text-white">findings</span><span class="text-zinc-400">)</span>
-<span class="text-zinc-500"># [</span>
-<span class="text-zinc-500">#   "No OAuth configured",</span>
-<span class="text-zinc-500">#   "3 tools with write access lack scoping",</span>
-<span class="text-zinc-500">#   "delete_all tool has no rate limit"</span>
-<span class="text-zinc-500"># ]</span>
+          <!-- Findings -->
+          <div class="mb-4">
+            <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Findings (5)</p>
+            <div class="space-y-2">
+              <div class="glass-panel rounded-lg px-3 py-2">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-mono text-white">No authentication configured</span>
+                  <span class="text-[10px] font-mono uppercase text-brand-red">critical</span>
+                </div>
+                <p class="text-xs text-zinc-500">Server exposes tools without any auth mechanism</p>
+                <p class="text-[10px] text-zinc-600 mt-1 font-mono">CWE-306</p>
+              </div>
+              <div class="glass-panel rounded-lg px-3 py-2">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-mono text-white">Dangerous tool: shell_exec</span>
+                  <span class="text-[10px] font-mono uppercase text-brand-red">critical</span>
+                </div>
+                <p class="text-xs text-zinc-500">Tool allows arbitrary command execution on host</p>
+                <p class="text-[10px] text-zinc-600 mt-1 font-mono">CWE-78</p>
+              </div>
+              <div class="glass-panel rounded-lg px-3 py-2">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-mono text-white">Dangerous tool: delete_records</span>
+                  <span class="text-[10px] font-mono uppercase text-orange-400">high</span>
+                </div>
+                <p class="text-xs text-zinc-500">Tool allows unrestricted database record deletion</p>
+                <p class="text-[10px] text-zinc-600 mt-1 font-mono">CWE-862</p>
+              </div>
+              <div class="glass-panel rounded-lg px-3 py-2">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-mono text-white">Dangerous tool: read_file</span>
+                  <span class="text-[10px] font-mono uppercase text-orange-400">high</span>
+                </div>
+                <p class="text-xs text-zinc-500">Tool allows reading arbitrary files from disk</p>
+                <p class="text-[10px] text-zinc-600 mt-1 font-mono">CWE-22</p>
+              </div>
+              <div class="glass-panel rounded-lg px-3 py-2">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-mono text-white">No rate limiting detected</span>
+                  <span class="text-[10px] font-mono uppercase text-yellow-400">medium</span>
+                </div>
+                <p class="text-xs text-zinc-500">No request throttling configured</p>
+                <p class="text-[10px] text-zinc-600 mt-1 font-mono">CWE-770</p>
+              </div>
+            </div>
+          </div>
 
-<span class="text-zinc-500"># Runtime: inspect live MCP traffic</span>
-<span class="text-white">vc</span><span class="text-zinc-400">.</span><span class="text-white">mcp</span><span class="text-zinc-400">.</span><span class="text-white">inspect</span><span class="text-zinc-400">(</span>
-    <span class="text-white">server</span><span class="text-brand-pink">=</span><span class="text-green-400">"crm-connector"</span><span class="text-zinc-400">,</span>
-    <span class="text-white">on_violation</span><span class="text-brand-pink">=</span><span class="text-green-400">"block_and_alert"</span>
-<span class="text-zinc-400">)</span></code></pre>
+          <!-- Remediation -->
+          <div class="mb-4 pt-2 border-t border-white/5">
+            <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Remediation</p>
+            <div class="space-y-1.5">
+              <div class="flex items-start gap-2">
+                <span class="text-[10px] font-mono text-brand-cyan shrink-0 mt-0.5">#1</span>
+                <p class="text-xs text-zinc-400">Implement OAuth 2.0 with PKCE for all MCP connections</p>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-[10px] font-mono text-brand-cyan shrink-0 mt-0.5">#2</span>
+                <p class="text-xs text-zinc-400">Remove or sandbox shell_exec tool</p>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-[10px] font-mono text-brand-cyan shrink-0 mt-0.5">#3</span>
+                <p class="text-xs text-zinc-400">Add row-level access controls to delete_records</p>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-[10px] font-mono text-brand-cyan shrink-0 mt-0.5">#4</span>
+                <p class="text-xs text-zinc-400">Restrict read_file to an allowlist of paths</p>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-[10px] font-mono text-brand-cyan shrink-0 mt-0.5">#5</span>
+                <p class="text-xs text-zinc-400">Add server-side rate limiting (HTTP 429)</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="pt-2 border-t border-white/5 flex items-center gap-4">
+            <span class="text-[10px] font-mono text-zinc-600">scan_id: 10c940b5</span>
+            <span class="text-[10px] font-mono text-zinc-600">duration: 47ms</span>
+            <span class="text-[10px] font-mono text-zinc-600">tools: 3</span>
+          </div>
         </div>
       </div>
     </div>
