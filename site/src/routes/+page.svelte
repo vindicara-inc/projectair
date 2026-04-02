@@ -668,6 +668,125 @@
       </p>
     </div>
 
+    <!-- Architecture Flow Diagram -->
+    <div class="mb-16">
+      <!-- Desktop: horizontal flow -->
+      <div class="hidden md:flex items-center justify-center gap-0">
+        <!-- Your App node -->
+        <div class="glass-panel rounded-xl p-5 text-center min-w-[140px]">
+          <div class="w-10 h-10 rounded-lg bg-brand-purple/10 flex items-center justify-center mx-auto mb-2">
+            <svg class="w-5 h-5 text-brand-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-white">Your App</p>
+          <p class="text-[10px] text-zinc-500 mt-1">Any AI application</p>
+        </div>
+
+        <!-- Arrow 1 -->
+        <div class="flex items-center px-2">
+          <div class="w-12 h-px border-t-2 border-dashed border-zinc-600"></div>
+          <svg class="w-4 h-4 text-zinc-500 -ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+        </div>
+
+        <!-- Vindicara SDK node (center, emphasized) -->
+        <div class="glass-panel rounded-xl p-5 text-center min-w-[180px] border-brand-red/20 glow-red relative">
+          <div class="w-10 h-10 rounded-lg bg-brand-red/10 flex items-center justify-center mx-auto mb-2">
+            <svg class="w-5 h-5 text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+          </div>
+          <p class="text-sm font-bold text-white">Vindicara SDK</p>
+          <p class="text-[10px] text-zinc-500 mt-1">Runtime security layer</p>
+          <div class="flex flex-wrap justify-center gap-1.5 mt-3">
+            <span class="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-zinc-400">Input Guard</span>
+            <span class="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-zinc-400">Output Guard</span>
+            <span class="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-zinc-400">MCP Inspector</span>
+            <span class="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-zinc-400">Agent IAM</span>
+            <span class="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-zinc-400">Drift Monitor</span>
+          </div>
+        </div>
+
+        <!-- Arrow 2 -->
+        <div class="flex items-center px-2">
+          <div class="w-12 h-px border-t-2 border-dashed border-zinc-600"></div>
+          <svg class="w-4 h-4 text-zinc-500 -ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+        </div>
+
+        <!-- AI Model / Tools / MCP node -->
+        <div class="glass-panel rounded-xl p-5 text-center min-w-[160px]">
+          <div class="w-10 h-10 rounded-lg bg-brand-cyan/10 flex items-center justify-center mx-auto mb-2">
+            <svg class="w-5 h-5 text-brand-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-white">AI Systems</p>
+          <div class="mt-2 space-y-1">
+            <p class="text-[10px] text-zinc-500">LLM / Model</p>
+            <p class="text-[10px] text-zinc-500">Tools / APIs</p>
+            <p class="text-[10px] text-zinc-500">MCP Servers</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile: vertical flow -->
+      <div class="flex md:hidden flex-col items-center gap-0">
+        <!-- Your App node -->
+        <div class="glass-panel rounded-xl p-4 text-center w-full max-w-[260px]">
+          <div class="w-8 h-8 rounded-lg bg-brand-purple/10 flex items-center justify-center mx-auto mb-2">
+            <svg class="w-4 h-4 text-brand-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-white">Your App</p>
+        </div>
+
+        <!-- Down arrow -->
+        <div class="flex flex-col items-center py-1">
+          <div class="h-8 border-l-2 border-dashed border-zinc-600"></div>
+          <svg class="w-4 h-4 text-zinc-500 -mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+        </div>
+
+        <!-- Vindicara SDK node -->
+        <div class="glass-panel rounded-xl p-4 text-center w-full max-w-[260px] border-brand-red/20 glow-red">
+          <div class="w-8 h-8 rounded-lg bg-brand-red/10 flex items-center justify-center mx-auto mb-2">
+            <svg class="w-4 h-4 text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+          </div>
+          <p class="text-sm font-bold text-white">Vindicara SDK</p>
+          <div class="flex flex-wrap justify-center gap-1 mt-2">
+            <span class="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-zinc-400">Input Guard</span>
+            <span class="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-zinc-400">Output Guard</span>
+            <span class="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-zinc-400">MCP Inspector</span>
+            <span class="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-zinc-400">Agent IAM</span>
+            <span class="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-zinc-400">Drift Monitor</span>
+          </div>
+        </div>
+
+        <!-- Down arrow -->
+        <div class="flex flex-col items-center py-1">
+          <div class="h-8 border-l-2 border-dashed border-zinc-600"></div>
+          <svg class="w-4 h-4 text-zinc-500 -mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+        </div>
+
+        <!-- AI Systems node -->
+        <div class="glass-panel rounded-xl p-4 text-center w-full max-w-[260px]">
+          <div class="w-8 h-8 rounded-lg bg-brand-cyan/10 flex items-center justify-center mx-auto mb-2">
+            <svg class="w-4 h-4 text-brand-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-white">AI Systems</p>
+          <div class="mt-1 space-y-0.5">
+            <p class="text-[10px] text-zinc-500">LLM / Model</p>
+            <p class="text-[10px] text-zinc-500">Tools / APIs</p>
+            <p class="text-[10px] text-zinc-500">MCP Servers</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
       <div class="text-center">
         <div class="w-14 h-14 rounded-2xl bg-brand-red/10 border border-brand-red/20 flex items-center justify-center mx-auto mb-5">
