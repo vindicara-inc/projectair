@@ -8,7 +8,7 @@ from pydantic import BaseModel, model_validator
 
 from vindicara.api.deps import get_evaluator
 from vindicara.engine.evaluator import Evaluator
-from vindicara.sdk.exceptions import VindicaraValidationError
+from vindicara.sdk.exceptions import PolicyNotFoundError, VindicaraValidationError
 from vindicara.sdk.types import GuardResult
 
 logger = structlog.get_logger()
@@ -43,8 +43,8 @@ async def guard(
             output_text=request.output,
             policy_id=request.policy,
         )
-    except KeyError as err:
-        raise HTTPException(status_code=404, detail=f"Policy '{request.policy}' not found") from err
+    except PolicyNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=exc.message) from exc
     except VindicaraValidationError as exc:
         raise HTTPException(status_code=422, detail=exc.message) from exc
 

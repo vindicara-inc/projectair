@@ -1,0 +1,57 @@
+<nav class="sidebar">
+  <!-- Logo -->
+  <div style="padding:20px 16px;border-bottom:1px solid #1A1A28;display:flex;align-items:center;gap:10px;">
+    <div style="width:28px;height:28px;background:#E63946;display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="#fff" fill-opacity="0.9"/><path d="M12 5L6 8.5v4.5c0 3.88 2.56 7.52 6 8.5 3.44-.98 6-4.62 6-8.5V8.5L12 5z" fill="#E63946"/></svg>
+    </div>
+    <span style="color:#EFEFEF;font-weight:600;font-size:13px;letter-spacing:0.3px;">VINDICARA</span>
+  </div>
+
+  <!-- Dashboard -->
+  <div style="padding:16px 0 4px 0;">
+    <div class="sidebar-section-label">Dashboard</div>
+    <a href="/dashboard/" class="sidebar-link {% if active_page == 'overview' %}sidebar-link-active{% endif %}">Overview</a>
+  </div>
+
+  <!-- Five Pillars -->
+  <div style="padding:12px 0 4px 0;">
+    <div class="sidebar-section-label">Five Pillars</div>
+    <a href="/dashboard/guard" class="sidebar-link {% if active_page == 'guard' %}sidebar-link-active{% endif %}">Policy Engine</a>
+    <a href="/dashboard/mcp" class="sidebar-link {% if active_page == 'mcp' %}sidebar-link-active{% endif %}">MCP Scanner</a>
+    <a href="/dashboard/agents" class="sidebar-link {% if active_page == 'agents' %}sidebar-link-active{% endif %}">Agent Registry</a>
+    <a href="/dashboard/monitor" class="sidebar-link {% if active_page == 'monitor' %}sidebar-link-active{% endif %}">Drift Monitor</a>
+    <a href="/dashboard/compliance" class="sidebar-link {% if active_page == 'compliance' %}sidebar-link-active{% endif %}">Compliance</a>
+  </div>
+
+  <!-- Platform -->
+  <div style="padding:12px 0 4px 0;">
+    <div class="sidebar-section-label">Platform</div>
+    <a href="/dashboard/applications" class="sidebar-link {% if active_page == 'applications' %}sidebar-link-active{% endif %}">Applications</a>
+    <a href="/dashboard/authentication" class="sidebar-link {% if active_page == 'authentication' %}sidebar-link-active{% endif %}">Authentication</a>
+    <a href="/dashboard/api-keys" class="sidebar-link {% if active_page == 'api-keys' %}sidebar-link-active{% endif %}">API Keys</a>
+    <a href="/dashboard/team" class="sidebar-link {% if active_page == 'team' %}sidebar-link-active{% endif %}">Team</a>
+    <a href="/dashboard/event-streams" class="sidebar-link {% if active_page == 'event-streams' %}sidebar-link-active{% endif %}">Event Streams</a>
+    <a href="/dashboard/monitoring" class="sidebar-link {% if active_page == 'monitoring' %}sidebar-link-active{% endif %}">Monitoring</a>
+    <a href="/dashboard/security-center" class="sidebar-link {% if active_page == 'security-center' %}sidebar-link-active{% endif %}">Security Center</a>
+    <a href="/dashboard/marketplace" class="sidebar-link {% if active_page == 'marketplace' %}sidebar-link-active{% endif %}">Marketplace</a>
+  </div>
+
+  <!-- System -->
+  <div style="padding:12px 0 4px 0;">
+    <div class="sidebar-section-label">System</div>
+    <a href="/dashboard/docs" class="sidebar-link {% if active_page == 'docs' %}sidebar-link-active{% endif %}">Docs</a>
+    <a href="/dashboard/billing" class="sidebar-link {% if active_page == 'billing' %}sidebar-link-active{% endif %}">Billing</a>
+    <a href="/dashboard/settings" class="sidebar-link {% if active_page == 'settings' %}sidebar-link-active{% endif %}">Settings</a>
+  </div>
+
+  <!-- Live Demo CTA -->
+  <div style="padding:16px;margin-top:auto;">
+    <a href="/dashboard/demo" class="btn-red" style="display:block;text-align:center;padding:10px;font-size:12px;letter-spacing:0.5px;">LIVE DEMO</a>
+  </div>
+
+  <!-- Footer -->
+  <div style="padding:12px 16px;border-top:1px solid #1A1A28;">
+    <div class="mono" style="font-size:11px;color:#444458;">v0.1.0</div>
+    <div style="font-size:10px;color:#E63946;margin-top:2px;">DEMO MODE</div>
+  </div>
+</nav>

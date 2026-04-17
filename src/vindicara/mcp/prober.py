@@ -2,10 +2,11 @@
 
 import asyncio
 
+import httpx
 import structlog
 
 from vindicara.mcp.findings import Finding, FindingCategory
-from vindicara.mcp.transport import MCPClient, MCPResponse
+from vindicara.mcp.transport import MCPClient, MCPResponse, MCPTransportError
 from vindicara.sdk.types import Severity
 
 logger = structlog.get_logger()
@@ -95,7 +96,7 @@ async def _probe_auth_bypass(
         bypass_client = _create_client(client._server_url, client._timeout, auth_header=token)
         try:
             resp = await bypass_client.send("tools/list")
-        except Exception as exc:
+        except (httpx.HTTPError, MCPTransportError) as exc:
             logger.info(
                 "prober.auth_bypass.rejected",
                 label=label,

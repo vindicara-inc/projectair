@@ -59,9 +59,7 @@ class TestBreakerConfig:
         assert config.enabled is True
 
     def test_custom(self) -> None:
-        config = BreakerConfig(
-            agent_id="a1", threshold=0.5, auto_suspend=False
-        )
+        config = BreakerConfig(agent_id="a1", threshold=0.5, auto_suspend=False)
         assert config.threshold == 0.5
         assert config.auto_suspend is False
 

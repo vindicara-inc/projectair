@@ -22,9 +22,7 @@ class BaselineStore:
     def record(self, event: BehaviorEvent) -> BehaviorEvent:
         """Record a behavior event for an agent."""
         if not event.timestamp:
-            event = event.model_copy(
-                update={"timestamp": datetime.now(UTC).isoformat()}
-            )
+            event = event.model_copy(update={"timestamp": datetime.now(UTC).isoformat()})
         self._events[event.agent_id].append(event)
         logger.info(
             "monitor.event.recorded",
@@ -33,9 +31,7 @@ class BaselineStore:
         )
         return event
 
-    def get_events(
-        self, agent_id: str, window_minutes: int = 60
-    ) -> list[BehaviorEvent]:
+    def get_events(self, agent_id: str, window_minutes: int = 60) -> list[BehaviorEvent]:
         """Get events for agent within the time window."""
         cutoff = datetime.now(UTC).timestamp() - (window_minutes * 60)
         result: list[BehaviorEvent] = []
@@ -50,9 +46,7 @@ class BaselineStore:
                 result.append(event)
         return result
 
-    def compute_baseline(
-        self, agent_id: str, window_minutes: int = 60
-    ) -> Baseline:
+    def compute_baseline(self, agent_id: str, window_minutes: int = 60) -> Baseline:
         """Compute statistical baseline from recorded events."""
         events = self.get_events(agent_id, window_minutes)
 
@@ -68,13 +62,8 @@ class BaselineStore:
         num_buckets = max(len(buckets), 1)
 
         call_counts = [float(len(b)) for b in buckets.values()]
-        unique_tools_counts = [
-            float(len({e.tool for e in b})) for b in buckets.values()
-        ]
-        unique_scopes_counts = [
-            float(len({e.data_scope for e in b if e.data_scope}))
-            for b in buckets.values()
-        ]
+        unique_tools_counts = [float(len({e.tool for e in b})) for b in buckets.values()]
+        unique_scopes_counts = [float(len({e.data_scope for e in b if e.data_scope})) for b in buckets.values()]
 
         now = datetime.now(UTC).isoformat()
         metrics = [
@@ -110,9 +99,7 @@ class BaselineStore:
         )
 
 
-def _bucket_events(
-    events: list[BehaviorEvent], bucket_minutes: int
-) -> dict[int, list[BehaviorEvent]]:
+def _bucket_events(events: list[BehaviorEvent], bucket_minutes: int) -> dict[int, list[BehaviorEvent]]:
     """Group events into time buckets."""
     buckets: dict[int, list[BehaviorEvent]] = defaultdict(list)
     for event in events:

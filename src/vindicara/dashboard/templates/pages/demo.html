@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Live Demo - Vindicara{% endblock %}
+{% block content %}
+<div style="margin-bottom:24px;">
+  <h1 style="font-size:20px;font-weight:600;color:#EFEFEF;">Live Demo</h1>
+  <p style="color:#9090A8;font-size:13px;margin-top:4px;">Watch Vindicara detect and stop a rogue AI agent in real time</p>
+</div>
+
+{% if demo.phase.value == "idle" %}
+<div class="card" style="padding:32px;text-align:center;">
+  <div style="margin-bottom:16px;">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style="display:inline-block;"><path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="#E63946"/></svg>
+  </div>
+  <h2 style="color:#EFEFEF;font-size:18px;margin-bottom:8px;">The Autonomous Agent Scenario</h2>
+  <p style="color:#9090A8;font-size:13px;max-width:500px;margin:0 auto 24px;">An AI research agent is deployed with scoped permissions. It operates normally, then begins accessing unauthorized systems. Vindicara detects the behavioral drift and auto-suspends the agent before damage occurs.</p>
+  <form hx-post="/dashboard/api/demo/start" hx-target="#demo-area" hx-swap="innerHTML">
+    <button type="submit" class="btn-red" style="padding:12px 32px;font-size:14px;">Start Demo</button>
+  </form>
+  <div id="demo-area"></div>
+</div>
+{% else %}
+<div id="demo-area" {% if demo.phase.value != "complete" %}hx-get="/dashboard/api/demo/status" hx-trigger="every 500ms" hx-swap="innerHTML"{% endif %}>
+  {% include "components/demo_live.html" %}
+</div>
+{% endif %}
+{% endblock %}

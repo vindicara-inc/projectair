@@ -35,3 +35,23 @@ class VindicaraConnectionError(VindicaraError):
 
 class VindicaraValidationError(VindicaraError):
     """Raised when input validation fails before evaluation."""
+
+
+class VindicaraMCPRiskDetected(VindicaraError):
+    """Raised when an MCP scan detects critical security risks."""
+
+    def __init__(self, message: str, risk_score: float) -> None:
+        self.risk_score = risk_score
+        super().__init__(message)
+
+
+class VindicaraAgentSuspended(VindicaraError):
+    """Raised when an operation targets a suspended agent."""
+
+    def __init__(self, message: str, agent_id: str) -> None:
+        self.agent_id = agent_id
+        super().__init__(message)
+
+
+class PolicyNotFoundError(VindicaraError):
+    """Raised when a requested policy does not exist in the registry."""

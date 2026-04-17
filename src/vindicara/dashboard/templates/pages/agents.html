@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Agent Registry - Vindicara{% endblock %}
+{% block content %}
+<div style="margin-bottom:24px;">
+  <h1 style="font-size:20px;font-weight:600;color:#EFEFEF;">Agent Registry</h1>
+  <p style="color:#9090A8;font-size:13px;margin-top:4px;">Register, monitor, and control AI agents</p>
+</div>
+
+<div class="card" style="margin-bottom:24px;">
+  <div style="padding:12px 16px;border-bottom:1px solid #1A1A28;">
+    <span style="font-size:13px;font-weight:600;color:#EFEFEF;">Register Agent</span>
+  </div>
+  <div style="padding:16px;">
+    <form hx-post="/dashboard/api/agents/register" hx-target="#agent-list" hx-swap="innerHTML" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
+      <div>
+        <label style="font-size:11px;color:#444458;display:block;margin-bottom:4px;">NAME</label>
+        <input type="text" name="name" placeholder="agent-name" required style="width:180px;">
+      </div>
+      <div>
+        <label style="font-size:11px;color:#444458;display:block;margin-bottom:4px;">PERMITTED TOOLS</label>
+        <input type="text" name="permitted_tools" placeholder="tool1,tool2" style="width:220px;">
+      </div>
+      <div>
+        <label style="font-size:11px;color:#444458;display:block;margin-bottom:4px;">DATA SCOPE</label>
+        <input type="text" name="data_scope" placeholder="scope1,scope2" style="width:180px;">
+      </div>
+      <button type="submit" class="btn-red">Register</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div style="padding:12px 16px;border-bottom:1px solid #1A1A28;">
+    <span style="font-size:13px;font-weight:600;color:#EFEFEF;">Registered Agents</span>
+  </div>
+  <div id="agent-list">
+    <table>
+      <thead><tr><th>Name</th><th>Status</th><th>ID</th><th>Tools</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for agent in agents %}
+        <tr>
+          <td style="color:#EFEFEF;">{{ agent.name }}</td>
+          <td>{% if agent.status.value == "active" %}<span class="dot-active"></span> <span style="color:#4ADE80;font-size:12px;">Active</span>{% else %}<span class="dot-alert"></span> <span style="color:#E63946;font-size:12px;">Suspended</span>{% endif %}</td>
+          <td class="mono" style="font-size:11px;color:#9090A8;">{{ agent.agent_id }}</td>
+          <td class="mono" style="font-size:12px;">{{ agent.permitted_tools | join(", ") }}</td>
+          <td>{% if agent.status.value == "active" %}<button hx-post="/dashboard/api/agents/{{ agent.agent_id }}/suspend" hx-target="#agent-list" hx-swap="innerHTML" hx-confirm="Suspend agent {{ agent.name }}?" style="background:transparent;border:1px solid #E63946;color:#E63946;padding:4px 10px;cursor:pointer;font-size:11px;">Kill</button>{% else %}<span style="color:#444458;font-size:11px;">Suspended</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+        {% if not agents %}<tr><td colspan="5" style="color:#444458;text-align:center;padding:24px;">No agents registered</td></tr>{% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

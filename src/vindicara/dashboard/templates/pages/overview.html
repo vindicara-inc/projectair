@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Command Center - Vindicara{% endblock %}
+{% block content %}
+<div class="mb-24">
+  <h1 style="font-size:20px;font-weight:600;color:#EFEFEF;margin:0;">Command Center</h1>
+  <p style="color:#9090A8;font-size:13px;margin-top:4px;">Runtime security for autonomous AI</p>
+</div>
+
+<!-- Stat Cards -->
+<div class="grid-4 mb-24">
+  <div class="card p-16">
+    <div style="font-size:11px;color:#444458;text-transform:uppercase;letter-spacing:0.5px;">Active Policies</div>
+    <div class="mono" style="font-size:28px;color:#EFEFEF;margin-top:4px;">{{ stats.policy_count }}</div>
+  </div>
+  <div class="card p-16">
+    <div style="font-size:11px;color:#444458;text-transform:uppercase;letter-spacing:0.5px;">Active Agents</div>
+    <div class="mono" style="font-size:28px;color:#60A5FA;margin-top:4px;">{{ stats.agent_count }}</div>
+  </div>
+  <div class="card p-16">
+    <div style="font-size:11px;color:#444458;text-transform:uppercase;letter-spacing:0.5px;">Events Recorded</div>
+    <div class="mono" style="font-size:28px;color:#EFEFEF;margin-top:4px;">{{ stats.event_count }}</div>
+  </div>
+  <div class="card p-16">
+    <div style="font-size:11px;color:#444458;text-transform:uppercase;letter-spacing:0.5px;">System Status</div>
+    <div style="margin-top:8px;"><span class="pill-active">HEALTHY</span></div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="flex-row mb-24">
+  <a href="/dashboard/demo" class="btn-red">Run Live Demo</a>
+  <a href="/dashboard/guard" class="btn-outline">Test Policy</a>
+  <a href="/dashboard/agents" class="btn-outline">View Agents</a>
+</div>
+
+<!-- Two columns -->
+<div class="grid-2">
+  <!-- Active Agents -->
+  <div class="card">
+    <div style="padding:12px 16px;border-bottom:1px solid #1A1A28;">
+      <span style="font-size:13px;font-weight:600;color:#EFEFEF;">Active Agents</span>
+    </div>
+    <table>
+      <thead><tr><th>Agent</th><th>Status</th><th>Tools</th><th>ID</th></tr></thead>
+      <tbody>
+        {% for agent in agents %}
+        <tr>
+          <td style="color:#EFEFEF;">{{ agent.name }}</td>
+          <td>{% if agent.status.value == "active" %}<span class="dot-active"></span> <span style="color:#4ADE80;font-size:12px;">Active</span>{% elif agent.status.value == "suspended" %}<span class="dot-alert"></span> <span style="color:#E63946;font-size:12px;">Suspended</span>{% else %}<span class="dot-idle"></span> <span style="color:#444458;font-size:12px;">Idle</span>{% endif %}</td>
+          <td class="mono" style="font-size:12px;">{{ agent.permitted_tools | length }}</td>
+          <td class="mono" style="font-size:11px;color:#9090A8;">{{ agent.agent_id }}</td>
+        </tr>
+        {% endfor %}
+        {% if not agents %}<tr><td colspan="4" style="color:#444458;text-align:center;padding:24px;">No agents registered</td></tr>{% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Policies -->
+  <div class="card">
+    <div style="padding:12px 16px;border-bottom:1px solid #1A1A28;">
+      <span style="font-size:13px;font-weight:600;color:#EFEFEF;">Policies</span>
+    </div>
+    <table>
+      <thead><tr><th>Policy</th><th>Rules</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for policy in policies %}
+        <tr>
+          <td style="color:#EFEFEF;">{{ policy.name }}</td>
+          <td class="mono" style="font-size:12px;">{{ policy.rule_count }}</td>
+          <td>{% if policy.enabled %}<span class="pill-active">Enabled</span>{% else %}<span class="pill-suspended">Disabled</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

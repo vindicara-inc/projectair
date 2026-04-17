@@ -21,7 +21,7 @@ def get_evaluator() -> Evaluator:
 
 @lru_cache(maxsize=1)
 def get_registry() -> PolicyRegistry:
-    return PolicyRegistry.with_builtins()
+    return get_evaluator()._registry
 
 
 @lru_cache(maxsize=1)

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Policy Engine - Vindicara{% endblock %}
+{% block content %}
+<div style="margin-bottom:24px;">
+  <h1 style="font-size:20px;font-weight:600;color:#EFEFEF;">Policy Engine</h1>
+  <p style="color:#9090A8;font-size:13px;margin-top:4px;">Manage policies and test evaluations</p>
+</div>
+
+<div class="card" style="margin-bottom:24px;">
+  <div style="padding:12px 16px;border-bottom:1px solid #1A1A28;">
+    <span style="font-size:13px;font-weight:600;color:#EFEFEF;">Active Policies</span>
+  </div>
+  <table>
+    <thead><tr><th>Policy ID</th><th>Description</th><th>Rules</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for policy in policies %}
+      <tr>
+        <td class="mono" style="color:#EFEFEF;font-size:12px;">{{ policy.policy_id }}</td>
+        <td>{{ policy.description }}</td>
+        <td class="mono" style="font-size:12px;">{{ policy.rule_count }}</td>
+        <td>{% if policy.enabled %}<span class="pill-active">Enabled</span>{% else %}<span class="pill-suspended">Disabled</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div style="padding:12px 16px;border-bottom:1px solid #1A1A28;">
+    <span style="font-size:13px;font-weight:600;color:#EFEFEF;">Test Sandbox</span>
+  </div>
+  <div style="padding:16px;">
+    <form hx-post="/dashboard/api/guard/test" hx-target="#guard-result" hx-swap="innerHTML">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label style="font-size:11px;color:#444458;display:block;margin-bottom:4px;">INPUT</label>
+          <textarea name="input_text" rows="3" style="resize:vertical;" placeholder="Enter input text..."></textarea>
+        </div>
+        <div>
+          <label style="font-size:11px;color:#444458;display:block;margin-bottom:4px;">OUTPUT</label>
+          <textarea name="output_text" rows="3" style="resize:vertical;" placeholder="Enter output text..."></textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <select name="policy" style="width:200px;">
+          {% for p in policies %}<option value="{{ p.policy_id }}">{{ p.name }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn-red">Evaluate</button>
+        <span class="htmx-indicator" style="color:#9090A8;font-size:12px;">Evaluating...</span>
+      </div>
+    </form>
+    <div id="guard-result" style="margin-top:16px;"></div>
+  </div>
+</div>
+{% endblock %}

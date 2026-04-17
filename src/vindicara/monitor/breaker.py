@@ -14,9 +14,7 @@ logger = structlog.get_logger()
 class CircuitBreaker:
     """Monitors drift and auto-suspends agents that exceed thresholds."""
 
-    def __init__(
-        self, detector: DriftDetector, registry: AgentRegistry
-    ) -> None:
+    def __init__(self, detector: DriftDetector, registry: AgentRegistry) -> None:
         self._detector = detector
         self._registry = registry
         self._configs: dict[str, BreakerConfig] = {}
@@ -42,15 +40,11 @@ class CircuitBreaker:
         if config is None:
             config = BreakerConfig(agent_id=agent_id, enabled=False)
 
-        drift = self._detector.check_drift(
-            agent_id, config.window_minutes
-        )
+        drift = self._detector.check_drift(agent_id, config.window_minutes)
         tripped = config.enabled and drift.score >= config.threshold
 
         if tripped and config.auto_suspend:
-            self._registry.suspend(
-                agent_id, reason=config.suspend_reason
-            )
+            self._registry.suspend(agent_id, reason=config.suspend_reason)
             logger.warning(
                 "monitor.breaker.tripped",
                 agent_id=agent_id,

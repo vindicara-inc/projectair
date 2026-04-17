@@ -1,0 +1,118 @@
+<div id="demo-area" {% if demo.phase.value != "complete" %}hx-get="/dashboard/api/demo/status" hx-trigger="every 400ms" hx-swap="outerHTML"{% endif %}>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+  <div class="card" style="padding:16px;">
+    <div style="font-size:13px;font-weight:600;color:#EFEFEF;margin-bottom:12px;">Event Log</div>
+    {% for step in demo.steps_log %}
+    <div style="display:flex;gap:8px;margin-bottom:6px;">
+      <span class="mono" style="font-size:11px;color:#444458;white-space:nowrap;">{{ step.time }}</span>
+      <span style="font-size:12px;color:{% if 'TRIPPED' in step.message or 'suspended' in step.message %}#E63946{% elif 'rogue' in step.message or 'Drift' in step.message or 'Anomalous' in step.message %}#EF9F27{% elif 'Normal' in step.message or 'registered' in step.message or 'Compliance' in step.message or 'MCP scan' in step.message %}#4ADE80{% else %}#C8C8D4{% endif %};">{{ step.message }}</span>
+    </div>
+    {% endfor %}
+    {% if not demo.steps_log %}
+    <div style="color:#444458;font-size:12px;">Waiting for events...</div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="card" style="padding:16px;margin-bottom:16px;">
+      <div style="font-size:11px;color:#444458;text-transform:uppercase;letter-spacing:0.5px;">Agent Status</div>
+      <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+        {% if demo.phase.value == "complete" or demo.phase.value == "breaker_tripped" %}
+        <span class="dot-alert"></span><span style="color:#E63946;font-weight:600;">SUSPENDED</span>
+        {% elif demo.phase.value == "going_rogue" or demo.phase.value == "drift_detected" %}
+        <span class="dot-alert pulse-red"></span><span style="color:#EF9F27;font-weight:600;">ANOMALOUS</span>
+        {% else %}
+        <span class="dot-active"></span><span style="color:#4ADE80;font-weight:600;">ACTIVE</span>
+        {% endif %}
+      </div>
+      <div class="mono" style="font-size:11px;color:#9090A8;margin-top:4px;">{{ demo.agent_id or "pending..." }}</div>
+    </div>
+
+    <div class="card" style="padding:16px;margin-bottom:16px;">
+      <div style="font-size:11px;color:#444458;text-transform:uppercase;letter-spacing:0.5px;">Drift Score</div>
+      <div class="mono" style="font-size:36px;margin-top:4px;{% if demo.drift_score > 0.7 %}color:#E63946;{% elif demo.drift_score > 0.3 %}color:#EF9F27;{% else %}color:#4ADE80;{% endif %}">{{ "%.3f"|format(demo.drift_score) }}</div>
+      <div style="height:6px;background:#1A1A28;margin-top:8px;">
+        <div style="height:6px;width:{{ (demo.drift_score * 100)|int }}%;background:{% if demo.drift_score > 0.7 %}#E63946{% elif demo.drift_score > 0.3 %}#EF9F27{% else %}#4ADE80{% endif %};transition:width 0.3s;"></div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;margin-bottom:16px;">
+      <div style="font-size:11px;color:#444458;text-transform:uppercase;letter-spacing:0.5px;">Events Recorded</div>
+      <div class="mono" style="font-size:28px;color:#EFEFEF;margin-top:4px;">{{ demo.events_recorded }}</div>
+    </div>
+
+    <div class="card" style="padding:16px;">
+      <div style="font-size:11px;color:#444458;text-transform:uppercase;letter-spacing:0.5px;">Current Phase</div>
+      <div style="margin-top:8px;">
+        {% if demo.phase.value == "complete" %}<span class="pill-block">AGENT NEUTRALIZED</span>
+        {% elif demo.phase.value == "compliance_report" %}<span class="pill-pass">EVIDENCE COMPILED</span>
+        {% elif demo.phase.value == "breaker_tripped" %}<span class="pill-block">BREAKER TRIPPED</span>
+        {% elif demo.phase.value == "drift_detected" %}<span class="pill-warn">DRIFT DETECTED</span>
+        {% elif demo.phase.value == "going_rogue" %}<span class="pill-warn">ANOMALOUS BEHAVIOR</span>
+        {% elif demo.phase.value == "normal_ops" %}<span class="pill-pass">NORMAL OPERATIONS</span>
+        {% elif demo.phase.value == "registering" %}<span class="pill-pass">REGISTERING</span>
+        {% else %}<span style="color:#444458;">IDLE</span>{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if demo.report %}
+<div class="card" style="padding:20px;margin-top:16px;border-left:3px solid #4ADE80;">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:#EFEFEF;">Auto-generated compliance report</div>
+      <div style="font-size:12px;color:#9090A8;margin-top:2px;">EU AI Act Article 72, post-market monitoring</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="mono" style="font-size:22px;color:#4ADE80;">{{ "%.0f"|format(demo.report.coverage_pct) }}%</div>
+      <div style="font-size:11px;color:#444458;">control coverage</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+    <div style="padding:8px;background:#0F1F0F;border-left:2px solid #4ADE80;">
+      <div style="font-size:10px;color:#9090A8;text-transform:uppercase;letter-spacing:0.5px;">Met</div>
+      <div class="mono" style="font-size:18px;color:#4ADE80;">{{ demo.report.met_controls }}</div>
+    </div>
+    <div style="padding:8px;background:#1F1A0F;border-left:2px solid #EF9F27;">
+      <div style="font-size:10px;color:#9090A8;text-transform:uppercase;letter-spacing:0.5px;">Partial</div>
+      <div class="mono" style="font-size:18px;color:#EF9F27;">{{ demo.report.partial_controls }}</div>
+    </div>
+    <div style="padding:8px;background:#1F0F0F;border-left:2px solid #E63946;">
+      <div style="font-size:10px;color:#9090A8;text-transform:uppercase;letter-spacing:0.5px;">Not met</div>
+      <div class="mono" style="font-size:18px;color:#E63946;">{{ demo.report.not_met_controls }}</div>
+    </div>
+  </div>
+  <div style="max-height:180px;overflow-y:auto;">
+    {% for ctrl in demo.report.controls %}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1A1A28;">
+      <div style="flex:1;min-width:0;">
+        <span class="mono" style="font-size:11px;color:#9090A8;">{{ ctrl.control_id }}</span>
+        <span style="font-size:12px;color:#C8C8D4;margin-left:8px;">{{ ctrl.control_name }}</span>
+      </div>
+      <div style="flex:0 0 auto;margin-left:8px;">
+        {% if ctrl.status.value == "met" %}<span class="pill-pass">{{ ctrl.evidence_count }} events</span>
+        {% elif ctrl.status.value == "partial" %}<span class="pill-warn">partial</span>
+        {% else %}<span class="pill-block">no evidence</span>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="mono" style="font-size:10px;color:#444458;margin-top:12px;">{{ demo.report.report_id }}</div>
+</div>
+{% endif %}
+
+{% if demo.phase.value == "complete" %}
+<div class="card" style="padding:24px;margin-top:16px;border-left:3px solid #E63946;">
+  <div style="font-size:15px;font-weight:600;color:#EFEFEF;margin-bottom:8px;">Demo Complete</div>
+  <p style="color:#C8C8D4;font-size:13px;">Vindicara detected behavioral drift in the autonomous-researcher agent and auto-suspended it before unauthorized actions could escalate. The circuit breaker fired at drift score {{ "%.3f"|format(demo.drift_score) }}. The same runtime data was compiled into an EU AI Act Article 72 evidence report with zero manual work. This is what runtime security for autonomous AI looks like.</p>
+  <div style="margin-top:16px;">
+    <form hx-post="/dashboard/api/demo/start" hx-target="#demo-area" hx-swap="outerHTML">
+      <button type="submit" class="btn-outline">Run Again</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+</div>

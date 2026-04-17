@@ -4,6 +4,7 @@ import pytest
 
 from vindicara.engine.policy import Policy, PolicyRegistry
 from vindicara.engine.rules.deterministic import KeywordBlocklistRule, PIIDetectionRule
+from vindicara.sdk.exceptions import PolicyNotFoundError
 from vindicara.sdk.types import Severity, Verdict
 
 
@@ -36,7 +37,7 @@ class TestPolicyRegistry:
 
     def test_get_missing_raises(self) -> None:
         registry = PolicyRegistry()
-        with pytest.raises(KeyError):
+        with pytest.raises(PolicyNotFoundError):
             registry.get("nonexistent")
 
     def test_list_policies(self) -> None:

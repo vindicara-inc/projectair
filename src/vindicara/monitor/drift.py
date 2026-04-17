@@ -6,6 +6,7 @@ import structlog
 
 from vindicara.monitor.baseline import BaselineStore
 from vindicara.monitor.models import (
+    BehaviorEvent,
     DriftAlert,
     DriftCategory,
     DriftScore,
@@ -30,9 +31,7 @@ class DriftDetector:
     def __init__(self, store: BaselineStore) -> None:
         self._store = store
 
-    def check_drift(
-        self, agent_id: str, window_minutes: int = 60
-    ) -> DriftScore:
+    def check_drift(self, agent_id: str, window_minutes: int = 60) -> DriftScore:
         """Compute drift score for an agent."""
         baseline = self._store.compute_baseline(agent_id, window_minutes)
 
@@ -43,9 +42,7 @@ class DriftDetector:
                 checked_at=datetime.now(UTC).isoformat(),
             )
 
-        current_events = self._store.get_events(
-            agent_id, window_minutes=CURRENT_WINDOW_MINUTES
-        )
+        current_events = self._store.get_events(agent_id, window_minutes=CURRENT_WINDOW_MINUTES)
 
         current_metrics = _compute_current_metrics(current_events)
         alerts: list[DriftAlert] = []
@@ -58,9 +55,7 @@ class DriftDetector:
             z_scores.append(z)
 
             if z > ALERT_THRESHOLD_STDDEVS:
-                category = METRIC_CATEGORY_MAP.get(
-                    metric.metric_name, DriftCategory.PATTERN
-                )
+                category = METRIC_CATEGORY_MAP.get(metric.metric_name, DriftCategory.PATTERN)
                 alerts.append(
                     DriftAlert(
                         category=category,
@@ -97,13 +92,11 @@ class DriftDetector:
 
 
 def _compute_current_metrics(
-    events: list,
+    events: list[BehaviorEvent],
 ) -> dict[str, float]:
     """Compute current metric values from recent events."""
     return {
         "tool_call_count": float(len(events)),
         "unique_tools": float(len({e.tool for e in events})),
-        "unique_scopes": float(
-            len({e.data_scope for e in events if e.data_scope})
-        ),
+        "unique_scopes": float(len({e.data_scope for e in events if e.data_scope})),
     }

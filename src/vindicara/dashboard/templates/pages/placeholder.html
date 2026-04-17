@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} - Vindicara{% endblock %}
+{% block content %}
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;gap:16px;">
+  <div style="width:48px;height:48px;background:rgba(230,57,70,0.1);display:flex;align-items:center;justify-content:center;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="#E63946" fill-opacity="0.6"/></svg>
+  </div>
+  <h2 style="color:#EFEFEF;font-size:18px;font-weight:600;">{{ page_title }}</h2>
+  <p style="color:#9090A8;font-size:14px;">Coming Soon</p>
+</div>
+{% endblock %}
