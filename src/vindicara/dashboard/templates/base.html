@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Vindicara{% endblock %}</title>
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { background: #08080D; color: #EFEFEF; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.5; }
+    .mono { font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; }
+
+    /* Layout */
+    .dashboard-layout { display: flex; min-height: 100vh; }
+    .sidebar { width: 220px; min-height: 100vh; background: #0C0C14; border-right: 1px solid #1A1A28; display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; overflow-y: auto; z-index: 100; }
+    .main-content { margin-left: 220px; padding: 24px; flex: 1; min-height: 100vh; }
+
+    /* Cards */
+    .card { background: #10101A; border: 1px solid #1A1A28; border-radius: 0; }
+
+    /* Pills */
+    .pill-pass { background: rgba(96,165,250,0.08); color: #60A5FA; padding: 2px 8px; font-size: 11px; font-weight: 600; display: inline-block; letter-spacing: 0.3px; }
+    .pill-block { background: rgba(230,57,70,0.10); color: #E63946; padding: 2px 8px; font-size: 11px; font-weight: 600; display: inline-block; letter-spacing: 0.3px; }
+    .pill-warn { background: rgba(239,159,39,0.10); color: #EF9F27; padding: 2px 8px; font-size: 11px; font-weight: 600; display: inline-block; letter-spacing: 0.3px; }
+    .pill-active { background: rgba(74,222,128,0.10); color: #4ADE80; padding: 2px 8px; font-size: 11px; font-weight: 600; display: inline-block; letter-spacing: 0.3px; }
+    .pill-suspended { background: rgba(230,57,70,0.10); color: #E63946; padding: 2px 8px; font-size: 11px; font-weight: 600; display: inline-block; letter-spacing: 0.3px; }
+
+    /* Dots - 7px squares */
+    .dot-active { width: 7px; height: 7px; background: #60A5FA; display: inline-block; vertical-align: middle; }
+    .dot-alert { width: 7px; height: 7px; background: #E63946; display: inline-block; vertical-align: middle; }
+    .dot-idle { width: 7px; height: 7px; background: #444458; display: inline-block; vertical-align: middle; }
+
+    /* Buttons */
+    .btn-red { background: #E63946; color: #EFEFEF; padding: 8px 16px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; display: inline-block; text-decoration: none; }
+    .btn-red:hover { background: #d32f3c; }
+    .btn-outline { background: transparent; color: #C8C8D4; padding: 8px 16px; border: 1px solid #1A1A28; cursor: pointer; font-size: 13px; font-family: inherit; display: inline-block; text-decoration: none; }
+    .btn-outline:hover { border-color: #60A5FA; color: #60A5FA; }
+
+    /* Forms */
+    input, textarea, select { background: #10101A; border: 1px solid #1A1A28; color: #EFEFEF; padding: 8px 12px; font-size: 13px; font-family: SFMono-Regular, Consolas, monospace; outline: none; }
+    input:focus, textarea:focus, select:focus { border-color: #60A5FA; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; color: #444458; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #1A1A28; }
+    td { padding: 8px 12px; font-size: 13px; color: #C8C8D4; border-bottom: 1px solid #151520; }
+
+    /* Links */
+    a { color: #60A5FA; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Grid helpers */
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .flex-row { display: flex; gap: 12px; align-items: center; }
+    .flex-wrap { flex-wrap: wrap; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-24 { margin-bottom: 24px; }
+    .p-16 { padding: 16px; }
+    .p-24 { padding: 24px; }
+
+    /* HTMX */
+    .htmx-indicator { display: none; }
+    .htmx-request .htmx-indicator { display: inline-block; }
+    .htmx-request.htmx-indicator { display: inline-block; }
+
+    /* Animation */
+    @keyframes pulse-red { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .pulse-red { animation: pulse-red 1s infinite; }
+
+    /* Sidebar nav */
+    .sidebar-section-label { padding: 0 16px 6px; font-size: 10px; font-weight: 600; letter-spacing: 1px; color: #444458; text-transform: uppercase; }
+    .sidebar-link { display: flex; align-items: center; gap: 8px; padding: 8px 16px; color: #C8C8D4; text-decoration: none; font-size: 13px; border-left: 3px solid transparent; transition: background 0.1s; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.03); text-decoration: none; color: #EFEFEF; }
+    .sidebar-link-active { color: #E63946; border-left: 3px solid #E63946; background: rgba(230,57,70,0.06); }
+    .sidebar-link-active:hover { color: #E63946; }
+  </style>
+</head>
+<body>
+  <div class="dashboard-layout">
+    {% include "components/sidebar.html" %}
+    <main class="main-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

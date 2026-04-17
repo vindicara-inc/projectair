@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Drift Monitor - Vindicara{% endblock %}
+{% block content %}
+<div style="margin-bottom:24px;">
+  <h1 style="font-size:20px;font-weight:600;color:#EFEFEF;">Drift Monitor</h1>
+  <p style="color:#9090A8;font-size:13px;margin-top:4px;">Behavioral anomaly detection for AI agents</p>
+</div>
+
+<div class="card" style="margin-bottom:24px;">
+  <div style="padding:12px 16px;border-bottom:1px solid #1A1A28;">
+    <span style="font-size:13px;font-weight:600;color:#EFEFEF;">Agent Drift Scores</span>
+  </div>
+  <table>
+    <thead><tr><th>Agent</th><th>Drift Score</th><th>Visual</th><th>Alerts</th><th>Breaker</th></tr></thead>
+    <tbody>
+      {% for item in drift_data %}
+      <tr>
+        <td style="color:#EFEFEF;">{{ item.agent_name }}</td>
+        <td class="mono" style="font-size:14px;{% if item.score > 0.7 %}color:#E63946;{% elif item.score > 0.4 %}color:#EF9F27;{% else %}color:#4ADE80;{% endif %}">{{ "%.3f"|format(item.score) }}</td>
+        <td style="width:200px;">
+          <div style="height:6px;background:#1A1A28;width:100%;">
+            <div style="height:6px;width:{{ (item.score * 100)|int }}%;background:{% if item.score > 0.7 %}#E63946{% elif item.score > 0.4 %}#EF9F27{% else %}#4ADE80{% endif %};"></div>
+          </div>
+        </td>
+        <td class="mono" style="font-size:12px;">{{ item.alert_count }}</td>
+        <td>{% if item.breaker_tripped %}<span class="pill-block">TRIPPED</span>{% else %}<span class="pill-pass">Armed</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+      {% if not drift_data %}<tr><td colspan="5" style="color:#444458;text-align:center;padding:24px;">No agent data. Register agents and record events to see drift scores.</td></tr>{% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

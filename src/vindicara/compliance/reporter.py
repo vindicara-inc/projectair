@@ -50,9 +50,7 @@ class ComplianceReporter:
                     found_types.append(req_type)
                     total_evidence += len(type_events)
                     for evt in type_events:
-                        evt_ts = datetime.fromtimestamp(
-                            evt.timestamp, tz=UTC
-                        ).isoformat()
+                        evt_ts = datetime.fromtimestamp(evt.timestamp, tz=UTC).isoformat()
                         if evt_ts > last_ts:
                             last_ts = evt_ts
 
@@ -70,9 +68,7 @@ class ComplianceReporter:
             else:
                 not_met_count += 1
 
-            summary = _build_summary(
-                control_def.control_name, status, total_evidence
-            )
+            summary = _build_summary(control_def.control_name, status, total_evidence)
 
             controls.append(
                 ControlEvidence(
@@ -144,9 +140,7 @@ def _build_summary(
     return f"{control_name}: no evidence collected"
 
 
-def _compute_coverage(
-    met: int, partial: int, total: int
-) -> float:
+def _compute_coverage(met: int, partial: int, total: int) -> float:
     """Compute coverage percentage. Partial controls count as half."""
     if total == 0:
         return 0.0

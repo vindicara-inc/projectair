@@ -36,3 +36,4 @@ cdk.context.json
 .env.*
 lambda_package/
 cdk.out/
+.superpowers/

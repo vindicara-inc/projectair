@@ -120,8 +120,8 @@ class MCPResponse:
         return "error" in self.json_body
 
     @property
-    def result(self) -> object:
-        return self.json_body.get("result")
+    def result(self) -> dict[str, object] | list[object] | str | int | float | bool | None:
+        return self.json_body.get("result")  # type: ignore[return-value]
 
     @property
     def error_message(self) -> str:

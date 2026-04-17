@@ -3,7 +3,7 @@
 import pytest
 
 from vindicara.engine.evaluator import Evaluator
-from vindicara.sdk.exceptions import VindicaraValidationError
+from vindicara.sdk.exceptions import PolicyNotFoundError, VindicaraValidationError
 from vindicara.sdk.types import Verdict
 
 
@@ -28,7 +28,7 @@ class TestEvaluator:
 
     def test_evaluate_unknown_policy_raises(self) -> None:
         evaluator = Evaluator.with_builtins()
-        with pytest.raises(KeyError):
+        with pytest.raises(PolicyNotFoundError):
             evaluator.evaluate(text="test", policy_id="nonexistent")
 
     def test_evaluate_empty_text_raises(self) -> None:

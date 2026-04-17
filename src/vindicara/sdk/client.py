@@ -130,9 +130,7 @@ class MonitorNamespace:
         )
         return self._store.record(event)
 
-    def get_drift(
-        self, agent_id: str, window_minutes: int = 60
-    ) -> DriftScore:
+    def get_drift(self, agent_id: str, window_minutes: int = 60) -> DriftScore:
         """Get drift score for an agent."""
         return self._detector.check_drift(agent_id, window_minutes)
 
@@ -232,21 +230,30 @@ class VindicaraClient:
         """Evaluate via the remote API (synchronous)."""
         import httpx
 
-        with httpx.Client(
-            base_url=self._base_url,
-            headers={"X-Vindicara-Key": self._api_key},
-            timeout=10.0,
-        ) as client:
-            response = client.post(
-                "/v1/guard",
-                json={
-                    "input": input_text,
-                    "output": output_text,
-                    "policy": policy_id,
-                },
-            )
-            response.raise_for_status()
-            return GuardResult.model_validate(response.json())
+        from vindicara.sdk.exceptions import VindicaraConnectionError
+
+        try:
+            with httpx.Client(
+                base_url=self._base_url,
+                headers={"X-Vindicara-Key": self._api_key},
+                timeout=10.0,
+            ) as client:
+                response = client.post(
+                    "/v1/guard",
+                    json={
+                        "input": input_text,
+                        "output": output_text,
+                        "policy": policy_id,
+                    },
+                )
+                response.raise_for_status()
+                return GuardResult.model_validate(response.json())
+        except httpx.HTTPStatusError as exc:
+            _raise_typed_error(exc)
+        except httpx.ConnectError as exc:
+            raise VindicaraConnectionError(f"Cannot reach Vindicara API at {self._base_url}: {exc}") from exc
+        except httpx.TimeoutException as exc:
+            raise VindicaraConnectionError(f"Request to Vindicara API timed out: {exc}") from exc
 
     async def _evaluate_remote_async(
         self,
@@ -257,18 +264,49 @@ class VindicaraClient:
         """Evaluate via the remote API (asynchronous)."""
         import httpx
 
-        async with httpx.AsyncClient(
-            base_url=self._base_url,
-            headers={"X-Vindicara-Key": self._api_key},
-            timeout=10.0,
-        ) as client:
-            response = await client.post(
-                "/v1/guard",
-                json={
-                    "input": input_text,
-                    "output": output_text,
-                    "policy": policy_id,
-                },
-            )
-            response.raise_for_status()
-            return GuardResult.model_validate(response.json())
+        from vindicara.sdk.exceptions import VindicaraConnectionError
+
+        try:
+            async with httpx.AsyncClient(
+                base_url=self._base_url,
+                headers={"X-Vindicara-Key": self._api_key},
+                timeout=10.0,
+            ) as client:
+                response = await client.post(
+                    "/v1/guard",
+                    json={
+                        "input": input_text,
+                        "output": output_text,
+                        "policy": policy_id,
+                    },
+                )
+                response.raise_for_status()
+                return GuardResult.model_validate(response.json())
+        except httpx.HTTPStatusError as exc:
+            _raise_typed_error(exc)
+        except httpx.ConnectError as exc:
+            raise VindicaraConnectionError(f"Cannot reach Vindicara API at {self._base_url}: {exc}") from exc
+        except httpx.TimeoutException as exc:
+            raise VindicaraConnectionError(f"Request to Vindicara API timed out: {exc}") from exc
+
+
+def _raise_typed_error(exc: object) -> None:
+    """Map HTTP status errors to typed SDK exceptions. Always raises."""
+    import httpx
+
+    from vindicara.sdk.exceptions import (
+        VindicaraAuthError,
+        VindicaraError,
+        VindicaraRateLimited,
+    )
+
+    if not isinstance(exc, httpx.HTTPStatusError):
+        raise VindicaraError(f"Unexpected error: {exc}") from Exception(str(exc))
+
+    status = exc.response.status_code
+    if status == 401:
+        raise VindicaraAuthError("Invalid or missing API key") from exc
+    if status == 429:
+        retry_after = float(exc.response.headers.get("Retry-After", "60"))
+        raise VindicaraRateLimited("Rate limit exceeded", retry_after_seconds=retry_after) from exc
+    raise VindicaraError(f"API request failed with status {status}: {exc.response.text}") from exc

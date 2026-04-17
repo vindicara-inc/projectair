@@ -7,22 +7,22 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<title>Vindicara | Runtime Security for Autonomous AI</title>
-	<meta name="description" content="The control plane for AI agents in production. Intercept every input and output, enforce policies in real time, secure MCP connections, and generate compliance evidence automatically. Developer-first. Model-agnostic. Independent." />
-	<meta name="keywords" content="AI security, AI guardrails, MCP security, agent security, runtime security, AI compliance, EU AI Act, prompt injection defense, LLM security, agentic AI, AI governance" />
+	<title>Vindicara AIR | AI Agent Incident Response</title>
+	<meta name="description" content="The only tool that turns AI agent traces into evidence, so security can contain, legal can prove duty of care, and insurance can process claims. Forensic reconstruction, incident response, court-admissible evidence. One SDK." />
+	<meta name="keywords" content="AI incident response, AI forensics, agent forensics, AgDR, OWASP ASI, AI Decision Records, EU AI Act Article 12, California SB 53, NIST AI RMF, LLM forensics, agent trace, AI audit trail" />
 
 	<!-- Open Graph -->
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://vindicara.io" />
-	<meta property="og:title" content="Vindicara | Runtime Security for Autonomous AI" />
-	<meta property="og:description" content="The control plane for AI agents in production. Enforce policies, secure MCP connections, detect behavioral drift, and generate compliance evidence. pip install vindicara." />
+	<meta property="og:title" content="Vindicara AIR | AI Agent Incident Response" />
+	<meta property="og:description" content="When your AI agent goes off-script, AIR tells you what happened, and proves it. Forensic reconstruction, incident response, court-admissible evidence. One SDK." />
 	<meta property="og:site_name" content="Vindicara" />
 
 	<!-- Twitter / X -->
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:site" content="@vindicara" />
-	<meta name="twitter:title" content="Vindicara | Runtime Security for Autonomous AI" />
-	<meta name="twitter:description" content="The control plane for AI agents in production. Enforce policies, secure MCP connections, detect behavioral drift, and generate compliance evidence." />
+	<meta name="twitter:title" content="Vindicara AIR | AI Agent Incident Response" />
+	<meta name="twitter:description" content="When your AI agent goes off-script, AIR tells you what happened, and proves it. Forensic reconstruction, incident response, court-admissible evidence." />
 
 	<!-- Canonical -->
 	<link rel="canonical" href="https://vindicara.io" />

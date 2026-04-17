@@ -9,6 +9,7 @@ from vindicara.engine.rules.deterministic import (
     PIIDetectionRule,
     RegexRule,
 )
+from vindicara.sdk.exceptions import PolicyNotFoundError
 from vindicara.sdk.types import GuardResult, PolicyInfo, Severity, Verdict
 
 
@@ -65,7 +66,10 @@ class PolicyRegistry:
         self._policies[policy.policy_id] = policy
 
     def get(self, policy_id: str) -> Policy:
-        return self._policies[policy_id]
+        policy = self._policies.get(policy_id)
+        if policy is None:
+            raise PolicyNotFoundError(f"Policy '{policy_id}' not found")
+        return policy
 
     def list_policies(self) -> list[PolicyInfo]:
         return [p.to_info() for p in self._policies.values()]

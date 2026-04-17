@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}API Keys - Vindicara{% endblock %}
+{% block content %}
+<div class="mb-24">
+  <h1 style="font-size:20px;font-weight:600;color:#EFEFEF;margin:0;">API Keys</h1>
+  <p style="color:#9090A8;font-size:13px;margin-top:4px;">Create, scope, and manage your API keys</p>
+</div>
+
+{% if new_key %}
+<div class="card mb-24" style="border-left:3px solid #4ADE80;padding:16px;">
+  <div style="font-size:13px;font-weight:600;color:#4ADE80;margin-bottom:8px;">Key Created - Copy Now (shown once only)</div>
+  <div class="mono" style="font-size:13px;color:#EFEFEF;background:#08080D;padding:12px;border:1px solid #1A1A28;word-break:break-all;user-select:all;">{{ new_key }}</div>
+</div>
+{% endif %}
+
+<div class="card mb-24">
+  <div style="padding:12px 16px;border-bottom:1px solid #1A1A28;">
+    <span style="font-size:13px;font-weight:600;color:#EFEFEF;">Create New Key</span>
+  </div>
+  <div style="padding:16px;">
+    <form action="/dashboard/api/keys" method="post" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
+      <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+      <div>
+        <label style="font-size:11px;color:#444458;display:block;margin-bottom:4px;">NAME</label>
+        <input type="text" name="name" placeholder="production-key" required style="width:200px;">
+      </div>
+      <div>
+        <label style="font-size:11px;color:#444458;display:block;margin-bottom:4px;">SCOPES (comma separated)</label>
+        <input type="text" name="scopes" placeholder="guard,mcp,agents,monitor,compliance" style="width:320px;">
+      </div>
+      <button type="submit" class="btn-red">Create Key</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div style="padding:12px 16px;border-bottom:1px solid #1A1A28;">
+    <span style="font-size:13px;font-weight:600;color:#EFEFEF;">Active Keys</span>
+  </div>
+  <table>
+    <thead><tr><th>Name</th><th>Key</th><th>Scopes</th><th>Created</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for key in keys %}
+      <tr>
+        <td style="color:#EFEFEF;">{{ key.name }}</td>
+        <td class="mono" style="font-size:11px;color:#9090A8;">{{ key.key_prefix }}</td>
+        <td class="mono" style="font-size:11px;">{{ key.scopes | join(", ") }}</td>
+        <td class="mono" style="font-size:11px;color:#444458;">{{ key.created_at[:10] }}</td>
+        <td>
+          <form action="/dashboard/api/keys/{{ key.key_id }}/rotate" method="post" style="display:inline;">
+            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+            <button type="submit" style="background:transparent;border:1px solid #60A5FA;color:#60A5FA;padding:3px 8px;cursor:pointer;font-size:11px;margin-right:4px;">Rotate</button>
+          </form>
+          <form action="/dashboard/api/keys/{{ key.key_id }}/revoke" method="post" style="display:inline;" onsubmit="return confirm('Revoke this key?');">
+            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+            <button type="submit" style="background:transparent;border:1px solid #E63946;color:#E63946;padding:3px 8px;cursor:pointer;font-size:11px;">Revoke</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      {% if not keys %}<tr><td colspan="5" style="color:#444458;text-align:center;padding:24px;">No API keys created yet</td></tr>{% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

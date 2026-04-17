@@ -69,9 +69,7 @@ class EvidenceCollector:
         """Collect evidence grouped by type for a given period."""
         start_time, end_time = _parse_period(period)
 
-        result: dict[EvidenceType, list[AuditEvent]] = {
-            et: [] for et in EvidenceType
-        }
+        result: dict[EvidenceType, list[AuditEvent]] = {et: [] for et in EvidenceType}
 
         for event in self._events:
             if event.timestamp < start_time or event.timestamp > end_time:

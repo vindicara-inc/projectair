@@ -56,9 +56,7 @@ class TestCircuitBreaker:
         breaker, _, registry = self._make_breaker()
         agent = registry.register(name="test-bot")
 
-        config = BreakerConfig(
-            agent_id=agent.agent_id, enabled=False, threshold=0.0
-        )
+        config = BreakerConfig(agent_id=agent.agent_id, enabled=False, threshold=0.0)
         breaker.set_config(config)
 
         status = breaker.check(agent.agent_id)
