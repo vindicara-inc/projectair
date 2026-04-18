@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1200px; height: 630px; overflow: hidden; }
+      html {
+        position: relative;
+      }
+      body {
+        background: #0a0a0f;
+        color: #ffffff;
+        font-family: 'Inter', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        position: relative;
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+        mask-image: radial-gradient(ellipse at 30% 50%, black 0%, transparent 75%);
+      }
+
+      .glow {
+        position: absolute;
+        width: 700px;
+        height: 700px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(220, 38, 38, 0.18) 0%, rgba(220, 38, 38, 0) 65%);
+        top: -200px;
+        right: -200px;
+        pointer-events: none;
+      }
+
+      .layout {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      .top {
+        position: absolute;
+        top: 52px;
+        left: 64px;
+        right: 64px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .middle {
+        position: absolute;
+        left: 64px;
+        right: 64px;
+        top: 168px;
+      }
+
+      .mark {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+        font-size: 18px;
+        letter-spacing: 0.18em;
+        color: #ffffff;
+      }
+
+      .divider {
+        width: 1px;
+        height: 18px;
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+        font-size: 13px;
+        letter-spacing: 0.22em;
+        color: #dc2626;
+        padding: 6px 10px;
+        border: 1px solid rgba(220, 38, 38, 0.4);
+        background: rgba(220, 38, 38, 0.08);
+      }
+
+      .grid-row {
+        display: grid;
+        grid-template-columns: 1.05fr 1fr;
+        gap: 48px;
+        align-items: start;
+      }
+
+      .headline {
+        font-size: 56px;
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        color: #ffffff;
+      }
+
+      .headline .accent { color: #dc2626; }
+
+      .sub {
+        margin-top: 20px;
+        font-size: 19px;
+        line-height: 1.5;
+        color: #a1a1aa;
+        max-width: 520px;
+      }
+
+      .terminal {
+        background: #12121a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        overflow: hidden;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .term-head {
+        padding: 10px 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #71717a;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+      }
+
+      .dot { width: 10px; height: 10px; border-radius: 50%; }
+      .dot.r { background: #dc2626; }
+      .dot.y { background: #eab308; }
+      .dot.g { background: #22c55e; }
+
+      .term-body {
+        padding: 16px 18px;
+      }
+
+      .line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .muted { color: #71717a; }
+      .zinc { color: #d4d4d8; }
+      .amber { color: #f59e0b; }
+      .red { color: #dc2626; font-weight: 600; }
+      .cyan { color: #06b6d4; }
+      .green { color: #22c55e; }
+
+      .bottom {
+        position: absolute;
+        left: 64px;
+        right: 64px;
+        top: 548px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 5;
+      }
+
+      .domain {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 15px;
+        letter-spacing: 0.08em;
+        color: #71717a;
+      }
+
+      .domain strong { color: #ffffff; font-weight: 600; }
+
+      .stamp {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        color: #52525b;
+        text-transform: uppercase;
+      }
+
+      .corner {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-color: rgba(220, 38, 38, 0.5);
+        border-style: solid;
+      }
+      .corner.tl { top: 32px; left: 32px; border-width: 1px 0 0 1px; }
+      .corner.tr { top: 32px; right: 32px; border-width: 1px 1px 0 0; }
+      .corner.bl { bottom: 32px; left: 32px; border-width: 0 0 1px 1px; }
+      .corner.br { bottom: 32px; right: 32px; border-width: 0 1px 1px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="grid"></div>
+    <div class="glow"></div>
+    <span class="corner tl"></span>
+    <span class="corner tr"></span>
+    <span class="corner bl"></span>
+    <span class="corner br"></span>
+
+    <div class="layout">
+      <div class="top">
+        <span class="mark">VINDICARA</span>
+        <span class="divider"></span>
+        <span class="tag">AIR</span>
+      </div>
+
+      <div class="middle"><div class="grid-row">
+        <div>
+          <div class="headline">
+            When your agent<br />
+            goes <span class="accent">off-script</span>,<br />
+            AIR has the receipts.
+          </div>
+          <div class="sub">
+            Forensic reconstruction and incident response for AI agents.
+            Court-admissible evidence. One SDK.
+          </div>
+        </div>
+
+        <div class="terminal">
+          <div class="term-head">
+            <span class="dot r"></span>
+            <span class="dot y"></span>
+            <span class="dot g"></span>
+            <span style="margin-left: 6px">air trace</span>
+          </div>
+          <div class="term-body">
+            <div class="line zinc">$ air trace langchain-app.log</div>
+            <div class="line muted">analyzing 247 steps...</div>
+            <div class="line">&nbsp;</div>
+            <div class="line amber">ASI01 goal hijack @ step 47</div>
+            <div class="line muted">&nbsp;&nbsp;severity: HIGH</div>
+            <div class="line red">ASI02 tool misuse @ step 51</div>
+            <div class="line muted">&nbsp;&nbsp;exec: rm -rf /</div>
+            <div class="line muted">&nbsp;&nbsp;severity: CRITICAL</div>
+            <div class="line">&nbsp;</div>
+            <div class="line cyan">[export] report.pdf signed</div>
+          </div>
+        </div>
+      </div></div>
+
+    </div>
+
+  </body>
+</html>

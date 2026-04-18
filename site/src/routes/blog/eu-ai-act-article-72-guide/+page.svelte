@@ -211,7 +211,7 @@ report = vc.compliance.generate(
   </p>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
-    The <a href="https://vindicara.io/#platform" class="text-green-500 hover:text-green-500/80 underline">Vindicara compliance engine</a> turns runtime security into regulatory evidence automatically. The deadline is August 2. The time to start is now.
+    The <a href="https://vindicara.io/#how-it-works" class="text-green-500 hover:text-green-500/80 underline">Vindicara compliance engine</a> turns runtime security into regulatory evidence automatically. The deadline is August 2. The time to start is now.
   </p>
 
   <!-- End-of-article CTA -->

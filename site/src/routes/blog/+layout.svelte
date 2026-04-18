@@ -27,8 +27,8 @@
     </a>
 
     <div class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-      <a href="/#platform" class="hover:text-white transition-colors">Platform</a>
-      <a href="/#mcp-security" class="hover:text-white transition-colors">MCP Security</a>
+      <a href="/#how-it-works" class="hover:text-white transition-colors">Platform</a>
+      <a href="/#standards" class="hover:text-white transition-colors">Standards</a>
       <a href="/blog" class="hover:text-white transition-colors text-white">Blog</a>
       <a href="/#pricing" class="hover:text-white transition-colors">Pricing</a>
     </div>
@@ -57,8 +57,8 @@
 
   {#if mobileMenuOpen}
     <div class="md:hidden border-t border-white/5 bg-obsidian/95 backdrop-blur-2xl px-6 py-4 space-y-3">
-      <a href="/#platform" class="block text-sm text-zinc-400 hover:text-white">Platform</a>
-      <a href="/#mcp-security" class="block text-sm text-zinc-400 hover:text-white">MCP Security</a>
+      <a href="/#how-it-works" class="block text-sm text-zinc-400 hover:text-white">Platform</a>
+      <a href="/#standards" class="block text-sm text-zinc-400 hover:text-white">Standards</a>
       <a href="/blog" class="block text-sm text-white">Blog</a>
       <a href="/#pricing" class="block text-sm text-zinc-400 hover:text-white">Pricing</a>
       <div class="flex gap-3 pt-2">
@@ -95,8 +95,8 @@
       <div>
         <h4 class="text-sm font-semibold mb-4">Product</h4>
         <ul class="space-y-2 text-sm text-zinc-500">
-          <li><a href="/#platform" class="hover:text-white transition-colors">Platform</a></li>
-          <li><a href="/#mcp-security" class="hover:text-white transition-colors">MCP Security</a></li>
+          <li><a href="/#how-it-works" class="hover:text-white transition-colors">Platform</a></li>
+          <li><a href="/#standards" class="hover:text-white transition-colors">Standards</a></li>
           <li><a href="/#pricing" class="hover:text-white transition-colors">Pricing</a></li>
           <li><a href="/blog" class="hover:text-white transition-colors">Blog</a></li>
         </ul>

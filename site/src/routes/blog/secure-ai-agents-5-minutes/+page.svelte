@@ -194,7 +194,7 @@ print(check.reason)   # "Tool 'admin_delete' not in permitted list"`}</code></pr
   </p>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
-    Circuit breakers provide automatic protection. You configure thresholds, and Vindicara enforces them. If an agent attempts more than N destructive operations in M seconds, it is paused automatically and a notification is sent. A global kill switch lets you terminate any agent with a single API call. See the full <a href="https://vindicara.io/#platform" class="text-brand-purple hover:text-brand-purple/80 underline">platform overview</a> for details on behavioral monitoring and circuit breaker configuration.
+    Circuit breakers provide automatic protection. You configure thresholds, and Vindicara enforces them. If an agent attempts more than N destructive operations in M seconds, it is paused automatically and a notification is sent. A global kill switch lets you terminate any agent with a single API call. See the full <a href="https://vindicara.io/#how-it-works" class="text-brand-purple hover:text-brand-purple/80 underline">platform overview</a> for details on behavioral monitoring and circuit breaker configuration.
   </p>
 
   <!-- Section 7: What comes next -->

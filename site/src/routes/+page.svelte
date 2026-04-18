@@ -866,11 +866,11 @@
           <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Team</h3>
           <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">Coming Soon</span>
         </div>
-        <p class="text-4xl font-black mt-4">$499<span class="text-base font-normal text-zinc-500">/mo</span></p>
+        <p class="text-4xl font-black mt-4">$1,499<span class="text-base font-normal text-zinc-500">/mo</span></p>
         <p class="text-sm text-zinc-500 mt-1">AIR Cloud for security and platform teams.</p>
         <ul class="mt-8 space-y-3 text-sm text-zinc-400">
           <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Open Source</span></li>
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Hosted incident dashboard, up to 10 agents</span></li>
+          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Hosted incident dashboard, up to 25 agents</span></li>
           <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>SIEM export: Datadog, Splunk, Sumo</span></li>
           <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Incident workflows and alerting</span></li>
         </ul>
@@ -883,7 +883,7 @@
           <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Enterprise</h3>
           <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">Coming Soon</span>
         </div>
-        <p class="text-4xl font-black mt-4">Custom</p>
+        <p class="text-4xl font-black mt-4">$50K<span class="text-base font-normal text-zinc-500">–$250K ACV</span></p>
         <p class="text-sm text-zinc-500 mt-1">For regulated industries and insurance.</p>
         <ul class="mt-8 space-y-3 text-sm text-zinc-400">
           <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>SSO, SAML, RBAC, audit-grade access controls</span></li>

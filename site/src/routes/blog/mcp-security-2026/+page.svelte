@@ -228,7 +228,7 @@ for finding in report.findings:
   </p>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
-    Vindicara is built to fill that gap. We are the only independent, developer-first <a href="https://vindicara.io/#platform" class="text-brand-cyan hover:text-brand-cyan/80 underline">AI runtime security platform</a> with self-serve pricing that covers the full agentic lifecycle: input validation, output enforcement, MCP security, behavioral monitoring, agent identity, and compliance reporting. One SDK. One <code class="text-brand-cyan bg-brand-cyan/10 px-1.5 py-0.5 rounded text-sm">pip install</code>. Runtime protection in under five minutes.
+    Vindicara is built to fill that gap. We are the only independent, developer-first <a href="https://vindicara.io/#how-it-works" class="text-brand-cyan hover:text-brand-cyan/80 underline">AI runtime security platform</a> with self-serve pricing that covers the full agentic lifecycle: input validation, output enforcement, MCP security, behavioral monitoring, agent identity, and compliance reporting. One SDK. One <code class="text-brand-cyan bg-brand-cyan/10 px-1.5 py-0.5 rounded text-sm">pip install</code>. Runtime protection in under five minutes.
   </p>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
