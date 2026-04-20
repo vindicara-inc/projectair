@@ -61,7 +61,7 @@ air trace my-agent.log
 You get console output like this:
 
 ```
-[AIR v0.1.1] Loaded 247 agent steps across 3 conversations.
+[AIR v0.1.2] Loaded 247 agent steps across 3 conversations.
 [Chain verified] 247 signatures valid.
 
   ASI01 Agent Goal Hijack detected at step 47
