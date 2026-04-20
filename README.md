@@ -26,7 +26,11 @@
 
 ## What AIR is
 
-AIR writes a **signed forensic record** of every agent decision (llm, tool, finish) as an AgDR (AI Decision Record). Each record is content-hashed with BLAKE3, signed with Ed25519, and chained to the previous step. The `air` CLI replays the chain, verifies every signature, and reports OWASP Top 10 for Agentic Applications violations (7 of 10 detectors shipped today: ASI01, ASI02, ASI03, ASI05, ASI07, ASI09, ASI10. ASI04, ASI06, ASI08 on roadmap).
+AIR writes a **signed forensic record** of every agent decision (llm, tool, finish) as an AgDR (AI Decision Record). Each record is content-hashed with BLAKE3, signed with Ed25519, and chained to the previous step. The `air` CLI replays the chain, verifies every signature, and reports findings across two public OWASP taxonomies plus one AIR-native check:
+
+- **OWASP Top 10 for Agentic Applications** (3 of 10): ASI01 Agent Goal Hijack, ASI02 Tool Misuse & Exploitation, ASI04 Agentic Supply Chain Vulnerabilities (partial, MCP supply-chain risk only). ASI03, ASI05-ASI10 on roadmap.
+- **OWASP Top 10 for LLM Applications** (3 categories): LLM01 Prompt Injection, LLM04 Model Denial of Service, LLM06 Sensitive Information Disclosure.
+- **AIR-native**: forensic-chain-integrity check for untraceable actions.
 
 It is the layer that runs **behind** your guardrails. Prevention tools (Lakera, NeMo Guardrails, Bedrock Guardrails) try to stop bad things from happening. AIR produces the evidence of what actually happened, in a form security, legal, and insurance can act on.
 
@@ -89,22 +93,22 @@ For the legacy five-pillar README that used to live here, see [`docs/legacy-vind
 | BLAKE3 + Ed25519 signed AgDR chain      | implemented, tested       |
 | Tamper detection on chain replay        | implemented, tested       |
 | LangChain `AIRCallbackHandler`          | implemented               |
-| ASI01 Agent Goal Hijack detector        | implemented (heuristic)   |
-| ASI02 Tool Misuse detector              | implemented (regex)       |
-| ASI03 Prompt Injection detector         | implemented (heuristic)   |
-| ASI05 Sensitive Data Exposure detector  | implemented (pattern set) |
-| ASI07 Resource Consumption detector     | implemented (thresholds)  |
-| ASI09 Supply Chain / MCP Risk detector  | implemented (heuristic)   |
-| ASI10 Untraceable Action detector       | implemented (chain gaps)  |
-| ASI04, ASI06, ASI08                     | not yet implemented       |
-| JSON forensic export                    | implemented               |
-| PDF forensic export                     | implemented (fpdf2)       |
-| SIEM forensic export (ArcSight CEF v0)  | implemented               |
-| LangChain callback integration          | implemented               |
-| OpenAI SDK integration                  | implemented               |
-| Anthropic SDK integration               | implemented               |
-| LlamaIndex / CrewAI / AutoGen           | not yet implemented       |
-| AIR Cloud (hosted dashboards, SIEM)     | not yet implemented       |
+| ASI01 Agent Goal Hijack                    | implemented (heuristic)                           |
+| ASI02 Tool Misuse & Exploitation           | implemented (regex)                               |
+| ASI04 Agentic Supply Chain Vulnerabilities | implemented (partial: MCP supply-chain risk only) |
+| ASI03, ASI05-ASI10                         | not yet implemented                               |
+| AIR-01 Prompt Injection                    | implemented, maps to OWASP LLM01                  |
+| AIR-02 Sensitive Data Exposure             | implemented, maps to OWASP LLM06                  |
+| AIR-03 Unrestricted Resource Consumption   | implemented, maps to OWASP LLM04                  |
+| AIR-04 Untraceable Action                  | implemented, AIR-native                           |
+| JSON forensic export                       | implemented                                       |
+| PDF forensic export                        | implemented (fpdf2)                               |
+| SIEM forensic export (ArcSight CEF v0)     | implemented                                       |
+| LangChain callback integration             | implemented                                       |
+| OpenAI SDK integration                     | implemented                                       |
+| Anthropic SDK integration                  | implemented                                       |
+| LlamaIndex / CrewAI / AutoGen              | not yet implemented                               |
+| AIR Cloud (hosted dashboards, SIEM)        | not yet implemented                               |
 
 Pre-1.0. The detector heuristics will produce false positives and false negatives. The signed chain itself is production-grade cryptography. See the [pricing page](https://vindicara.io/pricing) for what's planned next.
 

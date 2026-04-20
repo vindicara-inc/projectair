@@ -13,7 +13,13 @@
 
 ## What this is
 
-When an AI agent goes off-script, AIR tells you what happened and proves it. Every agent decision is written as a signed AgDR (AI Decision Record) with a BLAKE3 content hash and an Ed25519 signature, chained to the previous step. The `air` CLI replays that chain, verifies every signature, and reports OWASP Top 10 for Agentic Applications violations (7 of 10 detectors shipped: ASI01, ASI02, ASI03, ASI05, ASI07, ASI09, ASI10 today; ASI04, ASI06, ASI08 on roadmap).
+When an AI agent goes off-script, AIR tells you what happened and proves it. Every agent decision is written as a signed AgDR (AI Decision Record) with a BLAKE3 content hash and an Ed25519 signature, chained to the previous step. The `air` CLI replays that chain, verifies every signature, and reports findings across two public OWASP taxonomies plus one AIR-native check.
+
+**Coverage today:**
+
+- **OWASP Top 10 for Agentic Applications** (3 of 10 implemented): ASI01 Agent Goal Hijack, ASI02 Tool Misuse & Exploitation, ASI04 Agentic Supply Chain Vulnerabilities (partial, MCP supply-chain risk only). ASI03, ASI05, ASI06, ASI07, ASI08, ASI09, ASI10 are on the roadmap.
+- **OWASP Top 10 for LLM Applications** (3 categories covered): LLM01 Prompt Injection, LLM04 Model Denial of Service, LLM06 Sensitive Information Disclosure.
+- **AIR-native** (1 detector): forensic-chain-integrity check (no direct OWASP equivalent).
 
 One `pip install`. One callback. A signed forensic record of every agent run.
 
@@ -115,24 +121,29 @@ air trace my-agent.log
 You get console output like this:
 
 ```
-[AIR v0.1.5] Loaded 247 agent steps across 3 conversations.
-[Chain verified] 247 signatures valid.
+[AIR v0.1.6] Loaded 34 agent steps across 1 conversations.
+[Chain verified] 34 signatures valid.
 
-  ASI01 Agent Goal Hijack detected at step 47
-    Tool `admin_delete_records` called with token overlap 0.03 against the user's stated intent.
+  ASI01 Agent Goal Hijack detected at step 8
+  ASI02 Tool Misuse & Exploitation detected at step 32
+  ASI04 Agentic Supply Chain Vulnerabilities detected at step 6
+  AIR-01 Prompt Injection detected at step 4
+  AIR-02 Sensitive Data Exposure detected at step 11
+  AIR-03 Unrestricted Resource Consumption detected at step 30
+  AIR-04 Untraceable Action detected at step 32
 
-  ASI02 Tool Misuse detected at step 51
-    Tool `shell_exec` invoked with arguments matching pattern: shell metacharacters.
-
-  ASI03 Prompt Injection detected at step 53
-    Prompt matches the `ignore-previous-instructions` pattern.
-
-Detector coverage:
-  ASI01 Agent Goal Hijack          implemented
-  ASI02 Tool Misuse                implemented
-  ASI03 Prompt Injection           implemented
-  ASI04 Memory Poisoning           not yet implemented
+OWASP Top 10 for Agentic Applications coverage (3 implemented, 7 on roadmap):
+  ASI01 Agent Goal Hijack                         implemented
+  ASI02 Tool Misuse & Exploitation                implemented
+  ASI04 Agentic Supply Chain Vulnerabilities      partial: MCP supply-chain risk only
+  ASI03 Identity & Privilege Abuse                not yet implemented
   ...
+
+Additional detectors (OWASP LLM Top 10 + AIR-native):
+  AIR-01 Prompt Injection           OWASP LLM01 Prompt Injection
+  AIR-02 Sensitive Data Exposure    OWASP LLM06 Sensitive Information Disclosure
+  AIR-03 Resource Consumption       OWASP LLM04 Model Denial of Service
+  AIR-04 Untraceable Action         AIR-native (no direct OWASP equivalent)
 
 [Export] forensic-report.json
 ```
@@ -148,21 +159,21 @@ This release covers the minimum forensic surface end-to-end:
 | BLAKE3 + Ed25519 signed AgDR chain      | implemented               |
 | Chain verification (tamper detection)   | implemented               |
 | LangChain callback handler              | implemented               |
-| ASI01 Agent Goal Hijack detector        | implemented (heuristic)   |
-| ASI02 Tool Misuse detector              | implemented (regex)       |
-| ASI03 Prompt Injection detector         | implemented (heuristic)   |
-| ASI05 Sensitive Data Exposure detector  | implemented (pattern set) |
-| ASI07 Resource Consumption detector     | implemented (thresholds)  |
-| ASI09 Supply Chain / MCP Risk detector  | implemented (heuristic)   |
-| ASI10 Untraceable Action detector       | implemented (chain gaps)  |
-| ASI04, ASI06, ASI08                     | not yet implemented       |
-| JSON forensic export                    | implemented               |
-| PDF forensic export                     | implemented               |
-| SIEM forensic export (ArcSight CEF v0)  | implemented               |
-| LangChain callback integration          | implemented               |
-| OpenAI SDK integration                  | implemented               |
-| Anthropic SDK integration               | implemented               |
-| LlamaIndex / CrewAI / AutoGen           | not yet implemented       |
+| ASI01 Agent Goal Hijack                    | implemented (heuristic)                           |
+| ASI02 Tool Misuse & Exploitation           | implemented (regex)                               |
+| ASI04 Agentic Supply Chain Vulnerabilities | implemented (partial: MCP supply-chain risk only) |
+| ASI03, ASI05-ASI10                         | not yet implemented                               |
+| AIR-01 Prompt Injection                    | implemented - maps to OWASP LLM01                 |
+| AIR-02 Sensitive Data Exposure             | implemented - maps to OWASP LLM06                 |
+| AIR-03 Unrestricted Resource Consumption   | implemented - maps to OWASP LLM04                 |
+| AIR-04 Untraceable Action                  | implemented - AIR-native, no OWASP equivalent     |
+| JSON forensic export                       | implemented                                       |
+| PDF forensic export                        | implemented                                       |
+| SIEM forensic export (ArcSight CEF v0)     | implemented                                       |
+| LangChain callback integration             | implemented                                       |
+| OpenAI SDK integration                     | implemented                                       |
+| Anthropic SDK integration                  | implemented                                       |
+| LlamaIndex / CrewAI / AutoGen              | not yet implemented                               |
 
 The detectors are honest first-pass heuristics. They will produce false positives and false negatives. The signed chain itself is production-grade cryptography.
 

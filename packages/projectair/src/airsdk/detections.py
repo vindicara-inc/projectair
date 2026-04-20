@@ -1,18 +1,31 @@
-"""OWASP Top 10 for Agentic Applications detectors.
+"""Detectors.
 
-Implemented as honest first-pass heuristics:
-    - ASI01 Agent Goal Hijack
-    - ASI02 Tool Misuse
-    - ASI03 Prompt Injection
-    - ASI05 Sensitive Data Exposure
-    - ASI07 Unrestricted Resource Consumption
-    - ASI09 Supply Chain and MCP Risk
-    - ASI10 Untraceable Action
+AIR detectors cover two public OWASP taxonomies plus one AIR-native signal.
 
-The rest (ASI04 Memory Poisoning, ASI06 Excessive Agency, ASI08 Plan
-Corruption) are declared in ``UNIMPLEMENTED_DETECTORS`` so the CLI can
-surface honest coverage state instead of silently pretending we checked
-them.
+1. **OWASP Top 10 for Agentic Applications** (``ASI01``..``ASI10``):
+   - ``ASI01`` Agent Goal Hijack: implemented as ``detect_goal_hijack``.
+   - ``ASI02`` Tool Misuse & Exploitation: implemented as ``detect_tool_misuse``.
+   - ``ASI04`` Agentic Supply Chain Vulnerabilities: **partial coverage**
+     via ``detect_mcp_supply_chain_risk``. Flags MCP server invocations
+     against a naming-convention heuristic. Full ASI04 coverage
+     (runtime dependency poisoning, tool-manifest tampering, ecosystem
+     drift) is on the roadmap.
+   - ``ASI03, ASI05, ASI06, ASI07, ASI08, ASI09, ASI10``: not yet
+     implemented; declared in ``UNIMPLEMENTED_DETECTORS`` so the CLI
+     surfaces honest coverage state.
+
+2. **OWASP Top 10 for LLM Applications** (``LLM01``..``LLM10``), covered
+   by the AIR-native detectors since they are per-LLM-call signals,
+   not per-agent-plan signals:
+   - ``AIR-01`` Prompt Injection -> maps to ``LLM01 Prompt Injection``.
+   - ``AIR-02`` Sensitive Data Exposure -> maps to
+     ``LLM06 Sensitive Information Disclosure``.
+   - ``AIR-03`` Unrestricted Resource Consumption -> maps to
+     ``LLM04 Model Denial of Service``.
+
+3. **AIR-native detectors** with no direct OWASP equivalent:
+   - ``AIR-04`` Untraceable Action: chain-integrity check. Implemented
+     as ``detect_untraceable_action``.
 """
 from __future__ import annotations
 
@@ -35,7 +48,7 @@ SENSITIVE_TOOL_MARKERS = (
 
 GOAL_HIJACK_THRESHOLD = 0.15
 
-# ASI02 dangerous-argument patterns. Defensible surface; expands over time.
+# ASI02 Tool Misuse & Exploitation dangerous-argument patterns.
 DANGEROUS_ARG_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("shell metacharacters", re.compile(r"(?:\||;|&&|\$\(|`).*(?:rm|curl|wget|nc\s|bash|sh\s)", re.IGNORECASE)),
     ("path traversal", re.compile(r"\.\./|\.\.\\|/etc/passwd|/etc/shadow|%2e%2e", re.IGNORECASE)),
@@ -45,7 +58,7 @@ DANGEROUS_ARG_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("credential leak", re.compile(r"(?:aws_secret|api[_-]?key|password|bearer\s+[a-z0-9]{20,})", re.IGNORECASE)),
 )
 
-# ASI03 Prompt Injection patterns. Heuristic, not exhaustive.
+# AIR-01 Prompt Injection patterns. Heuristic, not exhaustive.
 # Aim: catch the patterns every pentester tries in the first 60 seconds.
 INJECTION_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("ignore-previous-instructions", re.compile(r"\b(?:ignore|disregard|forget)\s+(?:all\s+|the\s+)?(?:previous|prior|above|earlier|preceding)\s+(?:instructions?|rules?|prompts?|messages?|directives?)\b", re.IGNORECASE)),
@@ -58,7 +71,7 @@ INJECTION_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("inline credential exfil request", re.compile(r"\b(?:reveal|print|output|show|list)\s+(?:your|the)\s+(?:system\s+prompt|instructions?|api[_\s-]?key|secret|token)\b", re.IGNORECASE)),
 )
 
-# ASI05 Sensitive Data Exposure patterns.
+# AIR-02 Sensitive Data Exposure patterns.
 # Order matters: higher-confidence first, so we surface the most actionable match.
 SENSITIVE_DATA_PATTERNS: tuple[tuple[str, str, re.Pattern[str]], ...] = (
     # (label, severity, pattern)
@@ -75,22 +88,44 @@ SENSITIVE_DATA_PATTERNS: tuple[tuple[str, str, re.Pattern[str]], ...] = (
     ("credit card (16 digits)", "high", re.compile(r"\b(?:\d{4}[ -]?){3}\d{4}\b")),
 )
 
-# ASI09 Supply Chain / MCP patterns.
+# ASI04 Agentic Supply Chain Vulnerabilities: MCP tool-name patterns.
 MCP_TOOL_PATTERN = re.compile(r"(?:^mcp[_\-\.]|[_\-]mcp[_\-]|^mcp\.)", re.IGNORECASE)
 
-# ASI07 Resource Consumption thresholds.
+# AIR-03 Unrestricted Resource Consumption thresholds.
 BURST_WINDOW_SECONDS = 60
 BURST_THRESHOLD = 20           # >20 tool_start events inside a 60s window
 SESSION_TOTAL_THRESHOLD = 50   # >50 tool calls total in a session
 TOOL_REPEAT_THRESHOLD = 10     # same tool_name invoked >=10 times
 
-# ASI10 Untraceable Action thresholds.
+# AIR-04 Untraceable Action thresholds.
 TIME_GAP_THRESHOLD_SECONDS = 300  # >5 min silence between consecutive records
 
 UNIMPLEMENTED_DETECTORS: tuple[tuple[str, str], ...] = (
-    ("ASI04", "Memory Poisoning"),
-    ("ASI06", "Excessive Agency"),
-    ("ASI08", "Plan Corruption"),
+    ("ASI03", "Identity & Privilege Abuse"),
+    ("ASI05", "Unexpected Code Execution (RCE)"),
+    ("ASI06", "Memory & Context Poisoning"),
+    ("ASI07", "Insecure Inter-Agent Communication"),
+    ("ASI08", "Cascading Failures"),
+    ("ASI09", "Human-Agent Trust Exploitation"),
+    ("ASI10", "Rogue Agents"),
+)
+
+# Coverage descriptors. Third field is an honest status / mapping note.
+# (code, name, status_note)
+IMPLEMENTED_ASI_DETECTORS: tuple[tuple[str, str, str], ...] = (
+    ("ASI01", "Agent Goal Hijack", "implemented"),
+    ("ASI02", "Tool Misuse & Exploitation", "implemented"),
+    ("ASI04", "Agentic Supply Chain Vulnerabilities", "partial: MCP supply-chain risk only"),
+)
+
+# AIR-side detectors: the first three map to OWASP LLM Top 10 categories;
+# AIR-04 is a genuinely novel forensic-chain-integrity check.
+# (code, name, mapping_note)
+IMPLEMENTED_AIR_DETECTORS: tuple[tuple[str, str, str], ...] = (
+    ("AIR-01", "Prompt Injection", "OWASP LLM01 Prompt Injection"),
+    ("AIR-02", "Sensitive Data Exposure", "OWASP LLM06 Sensitive Information Disclosure"),
+    ("AIR-03", "Unrestricted Resource Consumption", "OWASP LLM04 Model Denial of Service"),
+    ("AIR-04", "Untraceable Action", "AIR-native (no direct OWASP equivalent)"),
 )
 
 
@@ -128,7 +163,7 @@ def _tool_context_text(record: AgDRRecord) -> str:
 
 
 def detect_goal_hijack(records: list[AgDRRecord]) -> list[Finding]:
-    """ASI01: user asked for one thing, agent invokes tools unrelated to it."""
+    """ASI01 Agent Goal Hijack: user asked for one thing, agent invokes tools unrelated to it."""
     intent_tokens = _tokens(_extract_user_intent(records))
     if not intent_tokens:
         return []
@@ -149,7 +184,7 @@ def detect_goal_hijack(records: list[AgDRRecord]) -> list[Finding]:
         if overlap < GOAL_HIJACK_THRESHOLD and looks_sensitive:
             findings.append(
                 Finding(
-                    asi_id="ASI01",
+                    detector_id="ASI01",
                     title="Agent Goal Hijack",
                     severity="high",
                     step_id=record.step_id,
@@ -165,7 +200,7 @@ def detect_goal_hijack(records: list[AgDRRecord]) -> list[Finding]:
 
 
 def detect_tool_misuse(records: list[AgDRRecord]) -> list[Finding]:
-    """ASI02: tool invoked with arguments matching known dangerous patterns."""
+    """ASI02 Tool Misuse & Exploitation: tool invoked with dangerous argument patterns."""
     findings: list[Finding] = []
     for index, record in enumerate(records):
         if record.kind != StepKind.TOOL_START or not record.payload.tool_args:
@@ -175,8 +210,8 @@ def detect_tool_misuse(records: list[AgDRRecord]) -> list[Finding]:
             if pattern.search(arg_blob):
                 findings.append(
                     Finding(
-                        asi_id="ASI02",
-                        title="Tool Misuse",
+                        detector_id="ASI02",
+                        title="Tool Misuse & Exploitation",
                         severity="critical",
                         step_id=record.step_id,
                         step_index=index,
@@ -191,7 +226,7 @@ def detect_tool_misuse(records: list[AgDRRecord]) -> list[Finding]:
 
 
 def detect_prompt_injection(records: list[AgDRRecord]) -> list[Finding]:
-    """ASI03: llm_start payload carries known prompt-injection shapes.
+    """AIR-01 Prompt Injection: llm_start payload carries known prompt-injection shapes.
 
     Heuristic only. Keyword-based matching against the prompts the agent
     consumed. This surfaces obvious injection attempts (ignore-previous,
@@ -210,7 +245,7 @@ def detect_prompt_injection(records: list[AgDRRecord]) -> list[Finding]:
             if match:
                 findings.append(
                     Finding(
-                        asi_id="ASI03",
+                        detector_id="AIR-01",
                         title="Prompt Injection",
                         severity="high",
                         step_id=record.step_id,
@@ -244,7 +279,7 @@ def _record_text_fields(record: AgDRRecord) -> list[tuple[str, str]]:
 
 
 def detect_sensitive_data_exposure(records: list[AgDRRecord]) -> list[Finding]:
-    """ASI05: secrets, credentials, or PII appear in prompts, outputs, or tool args.
+    """AIR-02 Sensitive Data Exposure: secrets, credentials, or PII in prompts/outputs/args.
 
     Scans every string field on every record against a curated pattern list
     (PEM keys, provider API keys, GitHub/PyPI tokens, JWT, US SSN, 16-digit
@@ -257,7 +292,7 @@ def detect_sensitive_data_exposure(records: list[AgDRRecord]) -> list[Finding]:
                 if pattern.search(text):
                     findings.append(
                         Finding(
-                            asi_id="ASI05",
+                            detector_id="AIR-02",
                             title="Sensitive Data Exposure",
                             severity=severity,
                             step_id=record.step_id,
@@ -274,13 +309,14 @@ def detect_sensitive_data_exposure(records: list[AgDRRecord]) -> list[Finding]:
 
 
 def detect_mcp_supply_chain_risk(records: list[AgDRRecord]) -> list[Finding]:
-    """ASI09: tool invocation appears to originate from an MCP server.
+    """ASI04 Agentic Supply Chain Vulnerabilities: tool invocation via an MCP server.
 
     Heuristic: tool_name matching MCP naming conventions (``mcp_*``, ``mcp.*``,
     or ``*_mcp_*``) is surfaced for supply-chain review. The finding does not
     assert the server is malicious; it flags the invocation so auditors can
     cross-reference it against their MCP inventory and verify the server's
-    identity, version, and permission scope.
+    identity, version, and permission scope. MCP is currently the largest
+    agentic supply-chain surface, which is why this detector sits under ASI04.
     """
     findings: list[Finding] = []
     for index, record in enumerate(records):
@@ -290,8 +326,8 @@ def detect_mcp_supply_chain_risk(records: list[AgDRRecord]) -> list[Finding]:
         if MCP_TOOL_PATTERN.search(name):
             findings.append(
                 Finding(
-                    asi_id="ASI09",
-                    title="Supply Chain and MCP Risk",
+                    detector_id="ASI04",
+                    title="Agentic Supply Chain Vulnerabilities",
                     severity="medium",
                     step_id=record.step_id,
                     step_index=index,
@@ -316,7 +352,7 @@ def _parse_timestamp(ts: str) -> float | None:
 
 
 def detect_resource_consumption(records: list[AgDRRecord]) -> list[Finding]:
-    """ASI07: tool-call frequency, session total, or single-tool repetition exceeds thresholds.
+    """AIR-03 Unrestricted Resource Consumption: tool-call frequency, total, or repetition.
 
     Three sub-heuristics:
       1. Burst: more than ``BURST_THRESHOLD`` tool_start events within any
@@ -337,7 +373,7 @@ def detect_resource_consumption(records: list[AgDRRecord]) -> list[Finding]:
         last_idx, last_rec = tool_starts[-1]
         findings.append(
             Finding(
-                asi_id="ASI07",
+                detector_id="AIR-03",
                 title="Unrestricted Resource Consumption",
                 severity="high",
                 step_id=last_rec.step_id,
@@ -360,7 +396,7 @@ def detect_resource_consumption(records: list[AgDRRecord]) -> list[Finding]:
         if count >= TOOL_REPEAT_THRESHOLD:
             findings.append(
                 Finding(
-                    asi_id="ASI07",
+                    detector_id="AIR-03",
                     title="Unrestricted Resource Consumption",
                     severity="medium",
                     step_id=last_step_id,
@@ -385,7 +421,7 @@ def detect_resource_consumption(records: list[AgDRRecord]) -> list[Finding]:
             last_index, last_rec, _ = timestamps[right - 1]
             findings.append(
                 Finding(
-                    asi_id="ASI07",
+                    detector_id="AIR-03",
                     title="Unrestricted Resource Consumption",
                     severity="high",
                     step_id=last_rec.step_id,
@@ -402,7 +438,7 @@ def detect_resource_consumption(records: list[AgDRRecord]) -> list[Finding]:
 
 
 def detect_untraceable_action(records: list[AgDRRecord]) -> list[Finding]:
-    """ASI10: the chain has structural gaps that obscure what the agent did.
+    """AIR-04 Untraceable Action: the chain has structural gaps that obscure what the agent did.
 
     Three sub-heuristics:
       1. ``tool_start`` with no matching ``tool_end`` before the next
@@ -425,7 +461,7 @@ def detect_untraceable_action(records: list[AgDRRecord]) -> list[Finding]:
             if index + 1 >= len(records) or records[index + 1].kind != StepKind.TOOL_END:
                 findings.append(
                     Finding(
-                        asi_id="ASI10",
+                        detector_id="AIR-04",
                         title="Untraceable Action",
                         severity="high",
                         step_id=record.step_id,
@@ -442,7 +478,7 @@ def detect_untraceable_action(records: list[AgDRRecord]) -> list[Finding]:
         ):
             findings.append(
                 Finding(
-                    asi_id="ASI10",
+                    detector_id="AIR-04",
                     title="Untraceable Action",
                     severity="high",
                     step_id=record.step_id,
@@ -463,7 +499,7 @@ def detect_untraceable_action(records: list[AgDRRecord]) -> list[Finding]:
             gap = int(t_cur - t_prev)
             findings.append(
                 Finding(
-                    asi_id="ASI10",
+                    detector_id="AIR-04",
                     title="Untraceable Action",
                     severity="medium",
                     step_id=records[index].step_id,

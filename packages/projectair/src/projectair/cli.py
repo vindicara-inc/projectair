@@ -10,7 +10,12 @@ import typer
 from airsdk import __version__ as airsdk_version
 from airsdk._demo import write_sample_log
 from airsdk.agdr import load_chain, verify_chain
-from airsdk.detections import UNIMPLEMENTED_DETECTORS, run_detectors
+from airsdk.detections import (
+    IMPLEMENTED_AIR_DETECTORS,
+    IMPLEMENTED_ASI_DETECTORS,
+    UNIMPLEMENTED_DETECTORS,
+    run_detectors,
+)
 from airsdk.exports import export_json, export_pdf, export_siem
 from airsdk.types import (
     AgDRRecord,
@@ -41,16 +46,15 @@ def _severity_color(severity: str) -> str:
 
 
 def _print_detector_coverage() -> None:
-    typer.secho("Detector coverage:", fg=typer.colors.BRIGHT_BLACK)
-    typer.secho("  ASI01 Agent Goal Hijack              implemented", fg=typer.colors.BRIGHT_BLACK)
-    typer.secho("  ASI02 Tool Misuse                    implemented", fg=typer.colors.BRIGHT_BLACK)
-    typer.secho("  ASI03 Prompt Injection               implemented", fg=typer.colors.BRIGHT_BLACK)
-    typer.secho("  ASI05 Sensitive Data Exposure        implemented", fg=typer.colors.BRIGHT_BLACK)
-    typer.secho("  ASI07 Unrestricted Resource Consumption  implemented", fg=typer.colors.BRIGHT_BLACK)
-    typer.secho("  ASI09 Supply Chain and MCP Risk      implemented", fg=typer.colors.BRIGHT_BLACK)
-    typer.secho("  ASI10 Untraceable Action             implemented", fg=typer.colors.BRIGHT_BLACK)
+    typer.secho("OWASP Top 10 for Agentic Applications coverage (3 implemented, 7 on roadmap):", fg=typer.colors.BRIGHT_BLACK)
+    for code, name, status in IMPLEMENTED_ASI_DETECTORS:
+        typer.secho(f"  {code} {name:<42} {status}", fg=typer.colors.BRIGHT_BLACK)
     for code, name in UNIMPLEMENTED_DETECTORS:
-        typer.secho(f"  {code} {name:<35} not yet implemented", fg=typer.colors.BRIGHT_BLACK)
+        typer.secho(f"  {code} {name:<42} not yet implemented", fg=typer.colors.BRIGHT_BLACK)
+    typer.echo()
+    typer.secho("Additional detectors (OWASP LLM Top 10 + AIR-native):", fg=typer.colors.BRIGHT_BLACK)
+    for code, name, mapping in IMPLEMENTED_AIR_DETECTORS:
+        typer.secho(f"  {code} {name:<32} {mapping}", fg=typer.colors.BRIGHT_BLACK)
 
 
 def _run_trace_pipeline(log: Path, output: Path, output_format: str) -> None:
@@ -89,12 +93,12 @@ def _run_trace_pipeline(log: Path, output: Path, output_format: str) -> None:
     if findings:
         for finding in findings:
             typer.secho(
-                f"  {finding.asi_id} {finding.title} detected at step {finding.step_index}",
+                f"  {finding.detector_id} {finding.title} detected at step {finding.step_index}",
                 fg=_severity_color(finding.severity),
             )
             typer.secho(f"    {finding.description}", fg=typer.colors.BRIGHT_BLACK)
     else:
-        typer.secho("  No ASI01 or ASI02 findings on this trace.", fg=typer.colors.GREEN)
+        typer.secho("  No detector findings on this trace.", fg=typer.colors.GREEN)
 
     typer.echo()
     _print_detector_coverage()

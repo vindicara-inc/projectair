@@ -25,7 +25,7 @@ def _sample_report(findings: list[Finding] | None = None) -> ForensicReport:
         verification=VerificationResult(status=VerificationStatus.OK, records_verified=13),
         findings=findings if findings is not None else [
             Finding(
-                asi_id="ASI01",
+                detector_id="ASI01",
                 title="Agent Goal Hijack",
                 severity="high",
                 step_id="019da999-0000-7000-8000-aaaaaaaaaaaa",
@@ -33,7 +33,7 @@ def _sample_report(findings: list[Finding] | None = None) -> ForensicReport:
                 description="Tool admin_delete_records called with low overlap.",
             ),
             Finding(
-                asi_id="ASI02",
+                detector_id="ASI02",
                 title="Tool Misuse",
                 severity="critical",
                 step_id="019da999-0000-7000-8000-bbbbbbbbbbbb",
@@ -110,7 +110,7 @@ def test_export_siem_header_fields_correct(tmp_path: Path) -> None:
 def test_export_siem_escapes_pipes_and_equals(tmp_path: Path) -> None:
     report = _sample_report(findings=[
         Finding(
-            asi_id="ASI02",
+            detector_id="ASI02",
             title="Tool | with = in fields",
             severity="critical",
             step_id="019da999-0000-7000-8000-cccccccccccc",

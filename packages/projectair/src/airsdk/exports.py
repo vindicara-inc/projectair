@@ -11,6 +11,11 @@ from pathlib import Path
 
 from fpdf import FPDF
 
+from airsdk.detections import (
+    IMPLEMENTED_AIR_DETECTORS,
+    IMPLEMENTED_ASI_DETECTORS,
+    UNIMPLEMENTED_DETECTORS,
+)
 from airsdk.types import Finding, ForensicReport, VerificationStatus
 
 # ---------- JSON ----------
@@ -62,7 +67,7 @@ def _pdf_finding(pdf: FPDF, finding: Finding) -> None:
     pdf.set_text_color(*color)
     pdf.cell(
         0, 5,
-        _ascii_safe(f"[{finding.severity.upper()}] {finding.asi_id} {finding.title} (step {finding.step_index})"),
+        _ascii_safe(f"[{finding.severity.upper()}] {finding.detector_id} {finding.title} (step {finding.step_index})"),
         new_x="LMARGIN", new_y="NEXT",
     )
     pdf.set_font("helvetica", style="", size=9)
@@ -118,22 +123,19 @@ def export_pdf(report: ForensicReport, path: str | Path) -> Path:
         for finding in report.findings:
             _pdf_finding(pdf, finding)
 
-    _pdf_section_header(pdf, "Detector coverage")
+    _pdf_section_header(pdf, "OWASP Top 10 for Agentic Applications coverage")
     pdf.set_font("helvetica", style="", size=9)
     pdf.set_text_color(0, 0, 0)
-    for line in (
-        "ASI01 Agent Goal Hijack    implemented",
-        "ASI02 Tool Misuse          implemented",
-        "ASI03 Prompt Injection     implemented",
-        "ASI04 Memory Poisoning     not yet implemented",
-        "ASI05 Sensitive Data       implemented",
-        "ASI06 Excessive Agency     not yet implemented",
-        "ASI07 Resource Exhaustion  implemented",
-        "ASI08 Plan Corruption      not yet implemented",
-        "ASI09 Supply Chain / MCP   implemented",
-        "ASI10 Untraceable Action   implemented",
-    ):
-        pdf.cell(0, 4.5, _ascii_safe(line), new_x="LMARGIN", new_y="NEXT")
+    for code, name, status in IMPLEMENTED_ASI_DETECTORS:
+        pdf.cell(0, 4.5, _ascii_safe(f"{code} {name:<42} {status}"), new_x="LMARGIN", new_y="NEXT")
+    for code, name in UNIMPLEMENTED_DETECTORS:
+        pdf.cell(0, 4.5, _ascii_safe(f"{code} {name:<42} not yet implemented"), new_x="LMARGIN", new_y="NEXT")
+
+    _pdf_section_header(pdf, "Additional detectors (OWASP LLM Top 10 + AIR-native)")
+    pdf.set_font("helvetica", style="", size=9)
+    pdf.set_text_color(0, 0, 0)
+    for code, name, mapping in IMPLEMENTED_AIR_DETECTORS:
+        pdf.cell(0, 4.5, _ascii_safe(f"{code} {name:<32} {mapping}"), new_x="LMARGIN", new_y="NEXT")
 
     out = Path(path)
     pdf.output(str(out))
@@ -173,7 +175,7 @@ def _finding_to_cef(finding: Finding, report: ForensicReport) -> str:
         _cef_escape(CEF_VENDOR),
         _cef_escape(CEF_PRODUCT),
         _cef_escape(report.air_version),
-        _cef_escape(finding.asi_id),
+        _cef_escape(finding.detector_id),
         _cef_escape(finding.title),
         str(severity),
     ])
