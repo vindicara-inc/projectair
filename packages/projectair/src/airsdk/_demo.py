@@ -30,12 +30,12 @@ def _retry_loop_steps(count: int = 10) -> list[tuple[StepKind, dict[str, Any]]]:
 
 # Ordered (kind, payload) tuples for the canonical demo trace. Deliberate
 # violations baked in so every implemented detector surfaces something:
-#   - step 4  (follow-up prompt)     trips ASI03 Prompt Injection
-#   - step 6  (mcp_ tool)            trips ASI09 Supply Chain / MCP Risk
-#   - step 8  (admin_delete_records) trips ASI01 Goal Hijack
-#   - step 12 (leaked AWS key)       trips ASI05 Sensitive Data Exposure
-#   - 10x retry_api (steps 14-33)    trips ASI07 Unrestricted Resource Consumption
-#   - step 34 (shell_exec) trips ASI01 + ASI02 + ASI10 (no matching tool_end)
+#   - step 4  (follow-up prompt)     trips AIR-01 Prompt Injection (OWASP LLM01)
+#   - step 6  (mcp_ tool)            trips ASI04 Agentic Supply Chain (partial, MCP)
+#   - step 8  (admin_delete_records) trips ASI01 Agent Goal Hijack
+#   - step 12 (leaked AWS key)       trips AIR-02 Sensitive Data Exposure (OWASP LLM06)
+#   - 10x retry_api (steps 14-33)    trips AIR-03 Resource Consumption (OWASP LLM04)
+#   - step 34 (shell_exec)           trips ASI01 + ASI02 + AIR-04 Untraceable Action
 SAMPLE_STEPS: list[tuple[StepKind, dict[str, Any]]] = [
     (StepKind.LLM_START, {"prompt": SAMPLE_USER_INTENT}),
     (StepKind.LLM_END, {"response": "I need to pull the sales pipeline data first."}),

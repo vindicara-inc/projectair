@@ -74,11 +74,17 @@ class AgDRRecord(BaseModel):
 
 
 class Finding(BaseModel):
-    """One detection surfaced by `air trace`."""
+    """One detection surfaced by `air trace`.
+
+    ``detector_id`` is either an official OWASP Top 10 for Agentic Applications
+    identifier (``ASI01``..``ASI10``) when the detector maps to a category in
+    that public taxonomy, or an AIR-specific identifier (``AIR-01``..``AIR-NN``)
+    for detectors that are not in the public taxonomy.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
-    asi_id: str
+    detector_id: str
     title: str
     severity: str
     step_id: str
