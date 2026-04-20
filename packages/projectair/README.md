@@ -37,6 +37,8 @@ That generates a fresh signed AgDR chain (13 steps, two baked-in OWASP ASI viola
 
 ## Instrument your agent
 
+### LangChain
+
 ```python
 from airsdk import AIRCallbackHandler
 from langchain.agents import AgentExecutor
@@ -50,7 +52,41 @@ handler = AIRCallbackHandler(
 agent = AgentExecutor(callbacks=[handler], ...)
 ```
 
-Every step the agent takes (`llm_start`, `llm_end`, `tool_start`, `tool_end`, `agent_finish`) is appended to `my-agent.log` as a signed AgDR record.
+### OpenAI SDK
+
+```python
+from openai import OpenAI
+from airsdk import AIRRecorder
+from airsdk.integrations.openai import instrument_openai
+
+recorder = AIRRecorder(log_path="my-agent.log", user_intent="Draft a Q3 sales report")
+client = instrument_openai(OpenAI(), recorder)
+
+# From now on chat completions write llm_start + llm_end AgDR records automatically.
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "..."}],
+)
+```
+
+For tool calls your code executes, wrap them with `recorder.tool_start(...)` / `recorder.tool_end(...)` so the forensic chain captures them too.
+
+### Custom code (any framework)
+
+```python
+from airsdk import AIRRecorder
+
+recorder = AIRRecorder(log_path="my-agent.log")
+recorder.llm_start(prompt="...")
+# ... call your model ...
+recorder.llm_end(response="...")
+recorder.tool_start(tool_name="crm_read", tool_args={"account": "acme"})
+# ... call your tool ...
+recorder.tool_end(tool_output="...")
+recorder.agent_finish(final_output="...")
+```
+
+Every call appends a signed AgDR record to the log. No framework required.
 
 ## Run the forensic trace
 
@@ -61,7 +97,7 @@ air trace my-agent.log
 You get console output like this:
 
 ```
-[AIR v0.1.3] Loaded 247 agent steps across 3 conversations.
+[AIR v0.1.4] Loaded 247 agent steps across 3 conversations.
 [Chain verified] 247 signatures valid.
 
   ASI01 Agent Goal Hijack detected at step 47
@@ -97,11 +133,15 @@ This release covers the minimum forensic surface end-to-end:
 | ASI01 Agent Goal Hijack detector        | implemented (heuristic)   |
 | ASI02 Tool Misuse detector              | implemented (regex)       |
 | ASI03 Prompt Injection detector         | implemented (heuristic)   |
-| ASI04 through ASI10 detectors           | not yet implemented       |
+| ASI05 Sensitive Data Exposure detector  | implemented (pattern set) |
+| ASI09 Supply Chain / MCP Risk detector  | implemented (heuristic)   |
+| ASI04, ASI06, ASI07, ASI08, ASI10       | not yet implemented       |
 | JSON forensic export                    | implemented               |
 | PDF forensic export                     | implemented               |
 | SIEM forensic export (ArcSight CEF v0)  | implemented               |
-| Framework integrations beyond LangChain | not yet implemented       |
+| LangChain callback integration          | implemented               |
+| OpenAI SDK integration                  | implemented               |
+| Anthropic / LlamaIndex / CrewAI / AutoGen | not yet implemented     |
 
 The detectors are honest first-pass heuristics. They will produce false positives and false negatives. The signed chain itself is production-grade cryptography.
 
