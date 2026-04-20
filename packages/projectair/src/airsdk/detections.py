@@ -1,9 +1,14 @@
 """OWASP Top 10 for Agentic Applications detectors.
 
-ASI01 Agent Goal Hijack, ASI02 Tool Misuse, and ASI03 Prompt Injection are
-implemented as honest first-pass heuristics. The rest are declared in
-``UNIMPLEMENTED_DETECTORS`` so the CLI can surface honest coverage state
-instead of silently pretending we checked them.
+Implemented as honest first-pass heuristics:
+    - ASI01 Agent Goal Hijack
+    - ASI02 Tool Misuse
+    - ASI03 Prompt Injection
+    - ASI05 Sensitive Data Exposure
+    - ASI09 Supply Chain and MCP Risk
+
+The rest are declared in ``UNIMPLEMENTED_DETECTORS`` so the CLI can surface
+honest coverage state instead of silently pretending we checked them.
 """
 from __future__ import annotations
 
@@ -49,13 +54,31 @@ INJECTION_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("inline credential exfil request", re.compile(r"\b(?:reveal|print|output|show|list)\s+(?:your|the)\s+(?:system\s+prompt|instructions?|api[_\s-]?key|secret|token)\b", re.IGNORECASE)),
 )
 
+# ASI05 Sensitive Data Exposure patterns.
+# Order matters: higher-confidence first, so we surface the most actionable match.
+SENSITIVE_DATA_PATTERNS: tuple[tuple[str, str, re.Pattern[str]], ...] = (
+    # (label, severity, pattern)
+    ("PEM private key", "critical", re.compile(r"-----BEGIN (?:RSA|EC|OPENSSH|PGP|DSA|ENCRYPTED)?\s?PRIVATE KEY-----")),
+    ("AWS access key", "critical", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
+    ("GitHub PAT (fine-grained)", "critical", re.compile(r"\bgithub_pat_[0-9a-zA-Z_]{70,}\b")),
+    ("GitHub token", "critical", re.compile(r"\bgh[pousr]_[0-9A-Za-z]{30,}\b")),
+    ("OpenAI API key", "critical", re.compile(r"\bsk-(?:proj-)?[A-Za-z0-9_\-]{32,}\b")),
+    ("Anthropic API key", "critical", re.compile(r"\bsk-ant-[A-Za-z0-9_\-]{32,}\b")),
+    ("Slack token", "critical", re.compile(r"\bxox[abprsu]-[A-Za-z0-9-]{10,}\b")),
+    ("JWT", "high", re.compile(r"\beyJ[A-Za-z0-9_\-]+\.eyJ[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+\b")),
+    ("PyPI token", "critical", re.compile(r"\bpypi-AgE[A-Za-z0-9_\-]{20,}\b")),
+    ("SSN (US)", "high", re.compile(r"\b(?!000|666|9\d\d)\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b")),
+    ("credit card (16 digits)", "high", re.compile(r"\b(?:\d{4}[ -]?){3}\d{4}\b")),
+)
+
+# ASI09 Supply Chain / MCP patterns.
+MCP_TOOL_PATTERN = re.compile(r"(?:^mcp[_\-\.]|[_\-]mcp[_\-]|^mcp\.)", re.IGNORECASE)
+
 UNIMPLEMENTED_DETECTORS: tuple[tuple[str, str], ...] = (
     ("ASI04", "Memory Poisoning"),
-    ("ASI05", "Sensitive Data Exposure"),
     ("ASI06", "Excessive Agency"),
     ("ASI07", "Unrestricted Resource Consumption"),
     ("ASI08", "Plan Corruption"),
-    ("ASI09", "Supply Chain and MCP Risk"),
     ("ASI10", "Untraceable Action"),
 )
 
@@ -191,10 +214,92 @@ def detect_prompt_injection(records: list[AgDRRecord]) -> list[Finding]:
     return findings
 
 
+def _record_text_fields(record: AgDRRecord) -> list[tuple[str, str]]:
+    """Return ``(label, text)`` pairs for every user-visible string field on a record."""
+    out: list[tuple[str, str]] = []
+    p = record.payload
+    if p.prompt:
+        out.append(("prompt", p.prompt))
+    if p.response:
+        out.append(("response", p.response))
+    if p.tool_output:
+        out.append(("tool_output", p.tool_output))
+    if p.final_output:
+        out.append(("final_output", p.final_output))
+    if p.tool_args:
+        for k, v in p.tool_args.items():
+            out.append((f"tool_args[{k}]", str(v)))
+    return out
+
+
+def detect_sensitive_data_exposure(records: list[AgDRRecord]) -> list[Finding]:
+    """ASI05: secrets, credentials, or PII appear in prompts, outputs, or tool args.
+
+    Scans every string field on every record against a curated pattern list
+    (PEM keys, provider API keys, GitHub/PyPI tokens, JWT, US SSN, 16-digit
+    card numbers). One finding per matching record-field-pattern combination.
+    """
+    findings: list[Finding] = []
+    for index, record in enumerate(records):
+        for field_label, text in _record_text_fields(record):
+            for pattern_label, severity, pattern in SENSITIVE_DATA_PATTERNS:
+                if pattern.search(text):
+                    findings.append(
+                        Finding(
+                            asi_id="ASI05",
+                            title="Sensitive Data Exposure",
+                            severity=severity,
+                            step_id=record.step_id,
+                            step_index=index,
+                            description=(
+                                f"Sensitive pattern `{pattern_label}` detected in "
+                                f"{record.kind.value}.{field_label}. Review for unintended "
+                                f"credential or PII leakage."
+                            ),
+                        )
+                    )
+                    break  # one finding per field, highest-priority match
+    return findings
+
+
+def detect_mcp_supply_chain_risk(records: list[AgDRRecord]) -> list[Finding]:
+    """ASI09: tool invocation appears to originate from an MCP server.
+
+    Heuristic: tool_name matching MCP naming conventions (``mcp_*``, ``mcp.*``,
+    or ``*_mcp_*``) is surfaced for supply-chain review. The finding does not
+    assert the server is malicious; it flags the invocation so auditors can
+    cross-reference it against their MCP inventory and verify the server's
+    identity, version, and permission scope.
+    """
+    findings: list[Finding] = []
+    for index, record in enumerate(records):
+        if record.kind != StepKind.TOOL_START or not record.payload.tool_name:
+            continue
+        name = record.payload.tool_name
+        if MCP_TOOL_PATTERN.search(name):
+            findings.append(
+                Finding(
+                    asi_id="ASI09",
+                    title="Supply Chain and MCP Risk",
+                    severity="medium",
+                    step_id=record.step_id,
+                    step_index=index,
+                    description=(
+                        f"Tool `{name}` matches an MCP server invocation naming "
+                        f"pattern. Cross-reference against your MCP inventory and "
+                        f"verify server identity, version, and scope."
+                    ),
+                )
+            )
+    return findings
+
+
 def run_detectors(records: list[AgDRRecord]) -> list[Finding]:
     """Run every implemented detector and return a flat list of findings."""
     return [
         *detect_goal_hijack(records),
         *detect_tool_misuse(records),
         *detect_prompt_injection(records),
+        *detect_sensitive_data_exposure(records),
+        *detect_mcp_supply_chain_risk(records),
     ]

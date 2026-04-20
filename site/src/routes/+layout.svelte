@@ -7,6 +7,7 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<link rel="alternate" type="application/rss+xml" title="Vindicara AIR Blog" href="https://vindicara.io/rss.xml" />
 
 	<!-- Site-wide OG/Twitter defaults. Per-page <svelte:head> blocks override title/description/url/image. -->
 	<meta property="og:site_name" content="Vindicara" />

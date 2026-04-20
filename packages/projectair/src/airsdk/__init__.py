@@ -9,11 +9,14 @@ from airsdk.callback import AIRCallbackHandler
 from airsdk.detections import (
     UNIMPLEMENTED_DETECTORS,
     detect_goal_hijack,
+    detect_mcp_supply_chain_risk,
     detect_prompt_injection,
+    detect_sensitive_data_exposure,
     detect_tool_misuse,
     run_detectors,
 )
 from airsdk.exports import export_json, export_pdf, export_siem
+from airsdk.recorder import AIRRecorder, resolve_signing_key
 from airsdk.types import (
     AGDR_VERSION,
     AgDRPayload,
@@ -25,12 +28,13 @@ from airsdk.types import (
     VerificationStatus,
 )
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 __all__ = [
     "AGDR_VERSION",
     "UNIMPLEMENTED_DETECTORS",
     "AIRCallbackHandler",
+    "AIRRecorder",
     "AgDRPayload",
     "AgDRRecord",
     "Finding",
@@ -41,12 +45,15 @@ __all__ = [
     "VerificationStatus",
     "__version__",
     "detect_goal_hijack",
+    "detect_mcp_supply_chain_risk",
     "detect_prompt_injection",
+    "detect_sensitive_data_exposure",
     "detect_tool_misuse",
     "export_json",
     "export_pdf",
     "export_siem",
     "load_chain",
+    "resolve_signing_key",
     "run_detectors",
     "verify_chain",
     "verify_record",

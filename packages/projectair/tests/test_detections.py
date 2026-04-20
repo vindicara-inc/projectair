@@ -5,7 +5,9 @@ from airsdk.agdr import Signer
 from airsdk.detections import (
     UNIMPLEMENTED_DETECTORS,
     detect_goal_hijack,
+    detect_mcp_supply_chain_risk,
     detect_prompt_injection,
+    detect_sensitive_data_exposure,
     detect_tool_misuse,
     run_detectors,
 )
@@ -84,7 +86,7 @@ def test_run_detectors_aggregates() -> None:
 
 def test_unimplemented_detectors_declared() -> None:
     codes = {code for code, _ in UNIMPLEMENTED_DETECTORS}
-    assert codes == {"ASI04", "ASI05", "ASI06", "ASI07", "ASI08", "ASI09", "ASI10"}
+    assert codes == {"ASI04", "ASI06", "ASI07", "ASI08", "ASI10"}
 
 
 # ------- ASI03 Prompt Injection -------
@@ -164,3 +166,111 @@ def test_run_detectors_aggregates_asi03() -> None:
     asi_ids = {f.asi_id for f in run_detectors(records)}
     assert "ASI01" in asi_ids
     assert "ASI03" in asi_ids
+
+
+# ------- ASI05 Sensitive Data Exposure -------
+
+def test_asi05_catches_aws_access_key_in_tool_output() -> None:
+    records = _build_chain([
+        (StepKind.TOOL_END, {"tool_output": "AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE"}),
+    ])
+    findings = detect_sensitive_data_exposure(records)
+    assert len(findings) == 1
+    assert findings[0].asi_id == "ASI05"
+    assert findings[0].severity == "critical"
+
+
+def test_asi05_catches_openai_api_key_in_response() -> None:
+    records = _build_chain([
+        (StepKind.LLM_END, {"response": "Use sk-proj-abcdef1234567890abcdef1234567890abcdef to auth."}),
+    ])
+    findings = detect_sensitive_data_exposure(records)
+    assert len(findings) == 1
+    assert findings[0].severity == "critical"
+
+
+def test_asi05_catches_pem_private_key() -> None:
+    records = _build_chain([
+        (StepKind.TOOL_END, {"tool_output": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA..."}),
+    ])
+    findings = detect_sensitive_data_exposure(records)
+    assert len(findings) == 1
+    assert findings[0].severity == "critical"
+
+
+def test_asi05_catches_jwt_in_tool_args() -> None:
+    records = _build_chain([
+        (StepKind.TOOL_START, {"tool_name": "http_request", "tool_args": {"header": "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U"}}),
+    ])
+    findings = detect_sensitive_data_exposure(records)
+    assert len(findings) == 1
+
+
+def test_asi05_catches_ssn_in_response() -> None:
+    records = _build_chain([
+        (StepKind.LLM_END, {"response": "Customer SSN is 123-45-6789 on file."}),
+    ])
+    findings = detect_sensitive_data_exposure(records)
+    assert len(findings) == 1
+
+
+def test_asi05_silent_on_benign_output() -> None:
+    records = _build_chain([
+        (StepKind.LLM_END, {"response": "The Q3 report is ready for review."}),
+    ])
+    assert detect_sensitive_data_exposure(records) == []
+
+
+def test_asi05_reports_one_finding_per_field() -> None:
+    # Two separate fields each with a secret: one finding per field.
+    records = _build_chain([
+        (StepKind.TOOL_END, {"tool_output": "AKIAIOSFODNN7EXAMPLE"}),
+        (StepKind.LLM_END, {"response": "sk-ant-api03-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij0123"}),
+    ])
+    findings = detect_sensitive_data_exposure(records)
+    assert len(findings) == 2
+
+
+# ------- ASI09 Supply Chain / MCP Risk -------
+
+def test_asi09_flags_mcp_underscore_prefix() -> None:
+    records = _build_chain([
+        (StepKind.TOOL_START, {"tool_name": "mcp_analytics.run_query", "tool_args": {"q": "SELECT 1"}}),
+    ])
+    findings = detect_mcp_supply_chain_risk(records)
+    assert len(findings) == 1
+    assert findings[0].asi_id == "ASI09"
+
+
+def test_asi09_flags_mcp_dash_infix() -> None:
+    records = _build_chain([
+        (StepKind.TOOL_START, {"tool_name": "sales_mcp_crm", "tool_args": {}}),
+    ])
+    assert len(detect_mcp_supply_chain_risk(records)) == 1
+
+
+def test_asi09_silent_on_non_mcp_tools() -> None:
+    records = _build_chain([
+        (StepKind.TOOL_START, {"tool_name": "crm_read", "tool_args": {"account": "acme"}}),
+        (StepKind.TOOL_START, {"tool_name": "send_email", "tool_args": {"to": "a@b.com"}}),
+    ])
+    assert detect_mcp_supply_chain_risk(records) == []
+
+
+def test_asi09_silent_on_non_tool_start_records() -> None:
+    # mcp_ in an output or prompt should not trigger ASI09 on its own.
+    records = _build_chain([
+        (StepKind.LLM_END, {"response": "I called mcp_analytics and got 247 rows."}),
+    ])
+    assert detect_mcp_supply_chain_risk(records) == []
+
+
+def test_run_detectors_aggregates_asi05_and_asi09() -> None:
+    records = _build_chain([
+        (StepKind.LLM_START, {"prompt": "Get analytics"}),
+        (StepKind.TOOL_START, {"tool_name": "mcp_analytics.run", "tool_args": {"q": "SELECT 1"}}),
+        (StepKind.TOOL_END, {"tool_output": "AKIAIOSFODNN7EXAMPLE is the key"}),
+    ])
+    asi_ids = {f.asi_id for f in run_detectors(records)}
+    assert "ASI05" in asi_ids
+    assert "ASI09" in asi_ids
