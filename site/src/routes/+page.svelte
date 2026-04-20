@@ -239,7 +239,7 @@
 
 <svelte:head>
   <title>Vindicara AIR | AI Agent Incident Response</title>
-  <meta name="description" content="The only tool that turns AI agent traces into evidence, so security can contain, legal can prove duty of care, and insurance can process claims. Forensic reconstruction, incident response, court-admissible evidence. One SDK." />
+  <meta name="description" content="The only tool that turns AI agent traces into evidence, so security can contain, legal can prove duty of care, and insurance can process claims. Forensic reconstruction, incident response, signed forensic evidence. One SDK." />
   <meta name="keywords" content="AI incident response, AI forensics, agent forensics, AgDR, OWASP ASI, AI Decision Records, EU AI Act Article 12, California SB 53, NIST AI RMF, LLM forensics, agent trace, AI audit trail" />
 
   <link rel="canonical" href="https://vindicara.io/" />
@@ -247,11 +247,11 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://vindicara.io/" />
   <meta property="og:title" content="Vindicara AIR | AI Agent Incident Response" />
-  <meta property="og:description" content="When your AI agent goes off-script, AIR tells you what happened, and proves it. Forensic reconstruction, incident response, court-admissible evidence. One SDK." />
+  <meta property="og:description" content="When your AI agent goes off-script, AIR tells you what happened, and proves it. Forensic reconstruction, incident response, signed forensic evidence. One SDK." />
   <meta property="og:image:alt" content="Vindicara AIR: When your agent goes off-script, AIR has the receipts." />
 
   <meta name="twitter:title" content="Vindicara AIR | AI Agent Incident Response" />
-  <meta name="twitter:description" content="When your AI agent goes off-script, AIR tells you what happened, and proves it. Forensic reconstruction, incident response, court-admissible evidence." />
+  <meta name="twitter:description" content="When your AI agent goes off-script, AIR tells you what happened, and proves it. Forensic reconstruction, incident response, signed forensic evidence." />
 
   {@html `<script type="application/ld+json">${JSON.stringify({
     '@context': 'https://schema.org',
@@ -260,7 +260,7 @@
     name: 'Vindicara AIR',
     applicationCategory: 'SecurityApplication',
     operatingSystem: 'Cross-platform',
-    description: 'Forensic reconstruction and incident response for AI agents. Court-admissible evidence from agent traces.',
+    description: 'Forensic reconstruction and incident response for AI agents. Signed forensic evidence from agent traces.',
     url: 'https://vindicara.io/',
     publisher: { '@id': 'https://vindicara.io/#organization' },
     offers: [

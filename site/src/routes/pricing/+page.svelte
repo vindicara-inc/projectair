@@ -21,7 +21,7 @@
     '@type': 'Product',
     '@id': 'https://vindicara.io/pricing#product',
     name: 'Vindicara AIR',
-    description: 'Forensic reconstruction and incident response for AI agents. Court-admissible evidence from agent traces.',
+    description: 'Forensic reconstruction and incident response for AI agents. Signed forensic evidence from agent traces.',
     brand: { '@type': 'Brand', name: 'Vindicara' },
     url: 'https://vindicara.io/pricing',
     offers: [
