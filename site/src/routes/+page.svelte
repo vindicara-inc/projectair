@@ -237,6 +237,40 @@
   ];
 </script>
 
+<svelte:head>
+  <title>Vindicara AIR | AI Agent Incident Response</title>
+  <meta name="description" content="The only tool that turns AI agent traces into evidence, so security can contain, legal can prove duty of care, and insurance can process claims. Forensic reconstruction, incident response, court-admissible evidence. One SDK." />
+  <meta name="keywords" content="AI incident response, AI forensics, agent forensics, AgDR, OWASP ASI, AI Decision Records, EU AI Act Article 12, California SB 53, NIST AI RMF, LLM forensics, agent trace, AI audit trail" />
+
+  <link rel="canonical" href="https://vindicara.io/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vindicara.io/" />
+  <meta property="og:title" content="Vindicara AIR | AI Agent Incident Response" />
+  <meta property="og:description" content="When your AI agent goes off-script, AIR tells you what happened, and proves it. Forensic reconstruction, incident response, court-admissible evidence. One SDK." />
+  <meta property="og:image:alt" content="Vindicara AIR: When your agent goes off-script, AIR has the receipts." />
+
+  <meta name="twitter:title" content="Vindicara AIR | AI Agent Incident Response" />
+  <meta name="twitter:description" content="When your AI agent goes off-script, AIR tells you what happened, and proves it. Forensic reconstruction, incident response, court-admissible evidence." />
+
+  {@html `<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    '@id': 'https://vindicara.io/#air',
+    name: 'Vindicara AIR',
+    applicationCategory: 'SecurityApplication',
+    operatingSystem: 'Cross-platform',
+    description: 'Forensic reconstruction and incident response for AI agents. Court-admissible evidence from agent traces.',
+    url: 'https://vindicara.io/',
+    publisher: { '@id': 'https://vindicara.io/#organization' },
+    offers: [
+      { '@type': 'Offer', name: 'Open Source', price: '0', priceCurrency: 'USD' },
+      { '@type': 'Offer', name: 'Team', price: '1499', priceCurrency: 'USD', priceSpecification: { '@type': 'UnitPriceSpecification', price: '1499', priceCurrency: 'USD', billingIncrement: 1, unitText: 'MONTH' } },
+      { '@type': 'Offer', name: 'Enterprise', priceSpecification: { '@type': 'PriceSpecification', minPrice: '50000', maxPrice: '250000', priceCurrency: 'USD' } },
+    ],
+  })}<\/script>`}
+</svelte:head>
+
 <!-- NAV -->
 <nav class="fixed top-0 w-full z-50 bg-obsidian/60 backdrop-blur-2xl border-b border-white/5">
   <div class="max-w-screen-2xl mx-auto px-6 flex items-center justify-between h-16">
@@ -255,7 +289,7 @@
       <button onclick={() => scrollTo('problem')} class="hover:text-white transition-colors cursor-pointer">Incidents</button>
       <button onclick={() => scrollTo('how-it-works')} class="hover:text-white transition-colors cursor-pointer">How It Works</button>
       <button onclick={() => scrollTo('standards')} class="hover:text-white transition-colors cursor-pointer">Standards</button>
-      <button onclick={() => scrollTo('pricing')} class="hover:text-white transition-colors cursor-pointer">Pricing</button>
+      <a href="/pricing" class="hover:text-white transition-colors">Pricing</a>
       <a href="/blog" class="hover:text-white transition-colors">Blog</a>
     </div>
 
@@ -287,7 +321,7 @@
       <button onclick={() => scrollTo('problem')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">Incidents</button>
       <button onclick={() => scrollTo('how-it-works')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">How It Works</button>
       <button onclick={() => scrollTo('standards')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">Standards</button>
-      <button onclick={() => scrollTo('pricing')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">Pricing</button>
+      <a href="/pricing" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Pricing</a>
       <a href="/blog" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Blog</a>
       <div class="flex gap-3 pt-2">
         <a href="https://github.com/get-sltr/vindicara-ai#readme" class="btn-secondary text-xs px-4 py-2">Docs</a>
@@ -840,59 +874,59 @@
     <div class="text-center mb-14">
       <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-3 font-mono">Pricing</p>
       <h2 class="text-3xl sm:text-4xl font-bold tracking-tight">Open source today. Cloud soon.</h2>
+      <p class="mt-4 text-zinc-400 max-w-xl mx-auto text-sm leading-relaxed">
+        The <code class="font-mono text-zinc-200">air</code> CLI and <code class="font-mono text-zinc-200">airsdk</code> are MIT-licensed and free forever. AIR Cloud adds hosted incident response for teams that need it.
+      </p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 border border-white/10 max-w-5xl mx-auto">
       <!-- Open Source -->
-      <div class="p-8 border-b lg:border-b-0 lg:border-r border-white/10">
+      <div class="p-6 border-b lg:border-b-0 lg:border-r border-white/10">
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Open Source</h3>
           <span class="font-mono text-[10px] text-green-400 border border-green-400/30 bg-green-400/5 px-2 py-0.5 uppercase tracking-wider">Available</span>
         </div>
-        <p class="text-4xl font-black mt-4">Free</p>
-        <p class="text-sm text-zinc-500 mt-1">Forever. MIT license.</p>
-        <ul class="mt-8 space-y-3 text-sm text-zinc-400">
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><span class="font-mono text-zinc-200">air</span> CLI: trace ingest, ASI detection, forensic export</span></li>
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><span class="font-mono text-zinc-200">airsdk</span> Python SDK with LangChain callback</span></li>
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Signed AgDR evidence chain, local-only</span></li>
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Community support</span></li>
-        </ul>
-        <a href="https://github.com/get-sltr/vindicara-ai" class="btn-secondary w-full mt-8 text-sm">View on GitHub</a>
+        <p class="text-3xl font-black mt-3">Free</p>
+        <p class="text-xs text-zinc-500 mt-1">Forever. MIT license.</p>
+        <p class="text-sm text-zinc-400 mt-4 leading-relaxed">
+          <span class="font-mono text-zinc-200">air</span> CLI, <span class="font-mono text-zinc-200">airsdk</span>, signed AgDR chain, OWASP ASI detection, JSON/PDF/SIEM exports.
+        </p>
       </div>
 
       <!-- Team -->
-      <div class="p-8 border-b lg:border-b-0 lg:border-r border-white/10 bg-white/[0.015]">
+      <div class="p-6 border-b lg:border-b-0 lg:border-r border-white/10 bg-white/[0.015]">
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Team</h3>
           <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">Coming Soon</span>
         </div>
-        <p class="text-4xl font-black mt-4">$1,499<span class="text-base font-normal text-zinc-500">/mo</span></p>
-        <p class="text-sm text-zinc-500 mt-1">AIR Cloud for security and platform teams.</p>
-        <ul class="mt-8 space-y-3 text-sm text-zinc-400">
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Open Source</span></li>
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Hosted incident dashboard, up to 25 agents</span></li>
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>SIEM export: Datadog, Splunk, Sumo</span></li>
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Incident workflows and alerting</span></li>
-        </ul>
-        <a href="mailto:kevin@vindicara.io?subject=AIR%20Team%20early%20access" class="btn-secondary w-full mt-8 text-sm">Request Early Access</a>
+        <p class="text-3xl font-black mt-3">$1,499<span class="text-sm font-normal text-zinc-500">/mo</span></p>
+        <p class="text-xs text-zinc-500 mt-1">AIR Cloud for security and platform teams.</p>
+        <p class="text-sm text-zinc-400 mt-4 leading-relaxed">
+          Hosted incident dashboard up to 25 agents, SIEM export, workflows, alerting.
+        </p>
       </div>
 
       <!-- Enterprise -->
-      <div class="p-8">
+      <div class="p-6">
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Enterprise</h3>
           <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">Coming Soon</span>
         </div>
-        <p class="text-4xl font-black mt-4">$50K<span class="text-base font-normal text-zinc-500">–$250K ACV</span></p>
-        <p class="text-sm text-zinc-500 mt-1">For regulated industries and insurance.</p>
-        <ul class="mt-8 space-y-3 text-sm text-zinc-400">
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>SSO, SAML, RBAC, audit-grade access controls</span></li>
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>EU AI Act, SB 53, SOC 2 evidence exports</span></li>
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Insurance carrier integrations</span></li>
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>SLA, dedicated IR contact, BAA</span></li>
-        </ul>
-        <a href="mailto:kevin@vindicara.io?subject=AIR%20Enterprise" class="btn-secondary w-full mt-8 text-sm">Contact Us</a>
+        <p class="text-3xl font-black mt-3">$50K<span class="text-sm font-normal text-zinc-500">–$250K ACV</span></p>
+        <p class="text-xs text-zinc-500 mt-1">For regulated industries and insurance.</p>
+        <p class="text-sm text-zinc-400 mt-4 leading-relaxed">
+          SSO, SAML, compliance exports (EU AI Act, SB 53, SOC 2), insurance integrations, SLA, BAA.
+        </p>
       </div>
+    </div>
+
+    <div class="text-center mt-10">
+      <a href="/pricing" class="btn-secondary text-sm px-6 py-3 inline-flex items-center gap-2">
+        See full pricing and FAQ
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </a>
     </div>
   </div>
 </section>
@@ -947,7 +981,7 @@
         <ul class="space-y-2 text-sm text-zinc-500">
           <li><button onclick={() => scrollTo('how-it-works')} class="hover:text-white transition-colors">How It Works</button></li>
           <li><button onclick={() => scrollTo('standards')} class="hover:text-white transition-colors">Standards</button></li>
-          <li><button onclick={() => scrollTo('pricing')} class="hover:text-white transition-colors">Pricing</button></li>
+          <li><a href="/pricing" class="hover:text-white transition-colors">Pricing</a></li>
           <li><a href="https://github.com/get-sltr/vindicara-ai#readme" class="hover:text-white transition-colors">Docs</a></li>
         </ul>
       </div>

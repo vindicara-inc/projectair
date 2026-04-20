@@ -1,18 +1,8 @@
 <script lang="ts">
-  import '../../app.css';
-  import favicon from '$lib/assets/favicon.svg';
-
   let { children } = $props();
 
   let mobileMenuOpen = $state(false);
 </script>
-
-<svelte:head>
-  <link rel="icon" href={favicon} />
-  <meta property="og:site_name" content="Vindicara" />
-  <meta name="twitter:site" content="@vindicara" />
-  <meta name="theme-color" content="#0a0a0f" />
-</svelte:head>
 
 <!-- NAV -->
 <nav class="fixed top-0 w-full z-50 bg-obsidian/60 backdrop-blur-2xl border-b border-white/5">
@@ -30,7 +20,7 @@
       <a href="/#how-it-works" class="hover:text-white transition-colors">Platform</a>
       <a href="/#standards" class="hover:text-white transition-colors">Standards</a>
       <a href="/blog" class="hover:text-white transition-colors text-white">Blog</a>
-      <a href="/#pricing" class="hover:text-white transition-colors">Pricing</a>
+      <a href="/pricing" class="hover:text-white transition-colors">Pricing</a>
     </div>
 
     <div class="hidden md:flex items-center gap-3">
@@ -60,7 +50,7 @@
       <a href="/#how-it-works" class="block text-sm text-zinc-400 hover:text-white">Platform</a>
       <a href="/#standards" class="block text-sm text-zinc-400 hover:text-white">Standards</a>
       <a href="/blog" class="block text-sm text-white">Blog</a>
-      <a href="/#pricing" class="block text-sm text-zinc-400 hover:text-white">Pricing</a>
+      <a href="/pricing" class="block text-sm text-zinc-400 hover:text-white">Pricing</a>
       <div class="flex gap-3 pt-2">
         <a href="https://github.com/get-sltr/vindicara-ai" class="btn-secondary text-xs px-4 py-2">GitHub</a>
         <a href="https://d1xzz26fz4.execute-api.us-east-1.amazonaws.com/docs" class="btn-primary text-xs px-4 py-2">Get API Key</a>
@@ -97,7 +87,7 @@
         <ul class="space-y-2 text-sm text-zinc-500">
           <li><a href="/#how-it-works" class="hover:text-white transition-colors">Platform</a></li>
           <li><a href="/#standards" class="hover:text-white transition-colors">Standards</a></li>
-          <li><a href="/#pricing" class="hover:text-white transition-colors">Pricing</a></li>
+          <li><a href="/pricing" class="hover:text-white transition-colors">Pricing</a></li>
           <li><a href="/blog" class="hover:text-white transition-colors">Blog</a></li>
         </ul>
       </div>
