@@ -47,12 +47,12 @@
       <!-- Post 3: Quickstart -->
       <a href="/blog/secure-ai-agents-5-minutes" class="glass-panel rounded-xl p-6 hover:border-brand-purple/30 transition-colors group block">
         <div class="flex items-center gap-2 mb-4">
-          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-purple/10 text-brand-purple border border-brand-purple/20 rounded-full px-2.5 py-0.5">Tutorial</span>
-          <span class="text-[10px] text-zinc-600">4 min read</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-purple/10 text-brand-purple border border-brand-purple/20 rounded-full px-2.5 py-0.5">Quickstart</span>
+          <span class="text-[10px] text-zinc-600">5 min read</span>
         </div>
-        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-purple transition-colors">How to Secure Your AI Agents in 5 Minutes</h2>
-        <p class="text-sm text-zinc-400 leading-relaxed">From pip install to runtime protection. Guard inputs and outputs, scan MCP servers, and enforce per-agent permissions.</p>
-        <p class="text-xs text-zinc-600 mt-4">April 2, 2026</p>
+        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-purple transition-colors">Run your first <code class="font-mono">air trace</code> in 5 minutes</h2>
+        <p class="text-sm text-zinc-400 leading-relaxed">From <code class="font-mono text-brand-purple">pip install projectair</code> to a signed forensic timeline of your LangChain agent. The <code class="font-mono text-brand-purple">air</code> CLI and <code class="font-mono text-brand-purple">airsdk</code> are open source today.</p>
+        <p class="text-xs text-zinc-600 mt-4">April 18, 2026</p>
       </a>
     </div>
   </div>

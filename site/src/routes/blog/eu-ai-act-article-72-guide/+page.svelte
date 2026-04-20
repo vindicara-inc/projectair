@@ -60,6 +60,10 @@
     Most engineering teams have not started. The regulation is dense, the requirements are broad, and the tooling landscape is immature. This guide cuts through the legal language and gives you what you actually need: a practical understanding of what Article 72 demands, what your team needs to build, and how to automate the hardest parts.
   </p>
 
+  <p class="text-zinc-300 leading-relaxed mt-4">
+    Article 72 does not stand alone. It sits on top of <strong class="text-white">Article 12</strong>, which requires high-risk AI systems to automatically record events over their entire lifecycle. Article 12 is the forensic record. Article 72 is the obligation to monitor and report on that record continuously. If you have no durable record of what your agent did, you cannot monitor it, you cannot report on it, and you cannot prove conformity. Everything downstream depends on the record, and most teams do not have one.
+  </p>
+
   <!-- Section 2: What Article 72 actually requires -->
   <h2 class="text-2xl font-bold mt-12 mb-4">What Article 72 actually requires</h2>
 
@@ -112,11 +116,11 @@
 
   <!-- Mid-article CTA -->
   <div class="glass-panel rounded-xl p-8 my-12 text-center border-green-500/20">
-    <h3 class="text-xl font-bold mb-2">Automate EU AI Act compliance</h3>
-    <p class="text-sm text-zinc-400 mb-6">Vindicara generates Article 72 evidence from your runtime data automatically.</p>
+    <h3 class="text-xl font-bold mb-2">Start the Article 12 record now</h3>
+    <p class="text-sm text-zinc-400 mb-6">Project AIR writes every agent decision as a signed forensic record. The compliance engine exports it as Article 72 evidence.</p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <a href="https://vindicara.io/#get-started?utm_source=blog&utm_medium=cta&utm_campaign=eu-ai-act-article-72-guide" class="btn-primary text-sm px-6 py-3">Start Building Free</a>
-      <a href="https://github.com/get-sltr/vindicara-ai?utm_source=blog&utm_medium=cta&utm_campaign=eu-ai-act-article-72-guide" class="btn-secondary text-sm px-6 py-3">View on GitHub</a>
+      <a href="https://github.com/get-sltr/vindicara-ai?utm_source=blog&utm_medium=cta&utm_campaign=eu-ai-act-article-72-guide" class="btn-primary text-sm px-6 py-3">View on GitHub</a>
+      <a href="https://vindicara.io/#how-it-works?utm_source=blog&utm_medium=cta&utm_campaign=eu-ai-act-article-72-guide" class="btn-secondary text-sm px-6 py-3">How AIR works</a>
     </div>
   </div>
 
@@ -163,7 +167,11 @@
   <h2 class="text-2xl font-bold mt-12 mb-4">Automating compliance evidence</h2>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
-    Here is the core insight: if your guardrails are running in production, compliance evidence generates itself. Every policy evaluation Vindicara executes becomes audit data. Every blocked request becomes an incident record. Every behavioral baseline comparison becomes a performance monitoring data point. The compliance engine does not create new data. It organizes and formats the data that already flows through the system.
+    Here is the core insight: if your agents produce a signed forensic record of every decision, compliance evidence generates itself. Project AIR writes each agent step as an AgDR (AI Decision Record) with a BLAKE3 content hash, an Ed25519 signature, and a Merkle link to the previous step. That chain is the Article 12 record. The compliance engine projects the same chain into whatever format the regulator wants, whether that is Article 72 post-market monitoring, NIST AI RMF, SOC 2, or California SB 53 incident reporting. One record. Many exports. Zero manual evidence gathering.
+  </p>
+
+  <p class="text-zinc-300 leading-relaxed mt-4">
+    This ordering matters. Generating compliance reports from aggregate dashboards is fragile: if an auditor asks which prompt triggered which output on which date, a bar chart will not answer. A signed, per-step forensic record will. AIR's default unit of truth is the decision, not the metric. Reports roll up from there.
   </p>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
@@ -211,16 +219,16 @@ report = vc.compliance.generate(
   </p>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
-    The <a href="https://vindicara.io/#how-it-works" class="text-green-500 hover:text-green-500/80 underline">Vindicara compliance engine</a> turns runtime security into regulatory evidence automatically. The deadline is August 2. The time to start is now.
+    <a href="https://vindicara.io/" class="text-green-500 hover:text-green-500/80 underline">Project AIR</a> turns every agent decision into a signed forensic record, and the compliance engine turns that record into regulatory evidence automatically. The deadline is August 2. The time to start the record is now.
   </p>
 
   <!-- End-of-article CTA -->
   <div class="glass-panel rounded-xl p-8 my-12 text-center border-green-500/20">
-    <h3 class="text-xl font-bold mb-2">Automate EU AI Act compliance</h3>
-    <p class="text-sm text-zinc-400 mb-6">pip install vindicara. Compliance evidence from day one.</p>
+    <h3 class="text-xl font-bold mb-2">Forensic record in. Compliance evidence out.</h3>
+    <p class="text-sm text-zinc-400 mb-6">The <code class="font-mono text-zinc-200">air</code> CLI is open source. Start writing the signed record today.</p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <a href="https://vindicara.io/#get-started?utm_source=blog&utm_medium=cta&utm_campaign=eu-ai-act-article-72-guide" class="btn-primary text-sm px-6 py-3">Start Building Free</a>
-      <a href="https://github.com/get-sltr/vindicara-ai?utm_source=blog&utm_medium=cta&utm_campaign=eu-ai-act-article-72-guide" class="btn-secondary text-sm px-6 py-3">View on GitHub</a>
+      <a href="https://github.com/get-sltr/vindicara-ai?utm_source=blog&utm_medium=cta&utm_campaign=eu-ai-act-article-72-guide" class="btn-primary text-sm px-6 py-3">View on GitHub</a>
+      <a href="https://vindicara.io/#how-it-works?utm_source=blog&utm_medium=cta&utm_campaign=eu-ai-act-article-72-guide" class="btn-secondary text-sm px-6 py-3">How AIR works</a>
     </div>
   </div>
 
@@ -233,8 +241,8 @@ report = vc.compliance.generate(
         <p class="text-sm font-medium mt-1">The State of MCP Security in 2026</p>
       </a>
       <a href="/blog/secure-ai-agents-5-minutes" class="glass-panel rounded-lg p-4 hover:border-brand-purple/30 transition-colors block">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-brand-purple">Tutorial</span>
-        <p class="text-sm font-medium mt-1">How to Secure Your AI Agents in 5 Minutes</p>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-brand-purple">Quickstart</span>
+        <p class="text-sm font-medium mt-1">Run your first <code class="font-mono">air trace</code> in 5 minutes</p>
       </a>
     </div>
   </div>

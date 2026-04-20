@@ -60,6 +60,10 @@
     A compromised or misconfigured MCP server does not just affect one agent. It can influence every agent that connects to it, amplifying the blast radius far beyond what traditional API vulnerabilities produce. A single MCP server with shell access and no authentication is not a misconfiguration. It is an open door to your entire infrastructure.
   </p>
 
+  <p class="text-zinc-300 leading-relaxed mt-4">
+    That door is also the most common starting point for incidents we reconstruct with Project AIR. When security calls us in after an agent has exfiltrated data, modified records, or shelled out to a host it should not have touched, the path almost always traces back to an MCP tool that never should have been exposed in the first place. Scanning before deployment is cheap. Reconstructing what happened afterward, from partial logs, is not.
+  </p>
+
   <!-- Section 2: The 92% problem -->
   <h2 class="text-2xl font-bold mt-12 mb-4">The 92% problem</h2>
 
@@ -145,11 +149,11 @@
 
   <!-- Mid-article CTA -->
   <div class="glass-panel rounded-xl p-8 my-12 text-center border-brand-red/20">
-    <h3 class="text-xl font-bold mb-2">Secure your AI agents in minutes</h3>
-    <p class="text-sm text-zinc-400 mb-6">pip install vindicara. Runtime protection in under 5 minutes.</p>
+    <h3 class="text-xl font-bold mb-2">Reconstruct the next MCP incident</h3>
+    <p class="text-sm text-zinc-400 mb-6">The <code class="font-mono text-zinc-200">air</code> CLI is open source. Ingest any agent trace and get a signed forensic timeline in seconds.</p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <a href="https://vindicara.io/#get-started?utm_source=blog&utm_medium=cta&utm_campaign=mcp-security-2026" class="btn-primary text-sm px-6 py-3">Start Building Free</a>
-      <a href="https://github.com/get-sltr/vindicara-ai?utm_source=blog&utm_medium=cta&utm_campaign=mcp-security-2026" class="btn-secondary text-sm px-6 py-3">View on GitHub</a>
+      <a href="https://github.com/get-sltr/vindicara-ai?utm_source=blog&utm_medium=cta&utm_campaign=mcp-security-2026" class="btn-primary text-sm px-6 py-3">View on GitHub</a>
+      <a href="https://vindicara.io/#how-it-works?utm_source=blog&utm_medium=cta&utm_campaign=mcp-security-2026" class="btn-secondary text-sm px-6 py-3">How AIR works</a>
     </div>
   </div>
 
@@ -220,28 +224,28 @@ print(f"Risk: {report.risk_score} ({report.risk_level})")
 for finding in report.findings:
     print(f"  [{finding.severity}] {finding.title} ({finding.cwe_id})")`}</code></pre></div>
 
-  <!-- Section 6: Vindicara fills the gap -->
-  <h2 class="text-2xl font-bold mt-12 mb-4">Vindicara fills the gap</h2>
+  <!-- Section 6: Scanning is only half the story -->
+  <h2 class="text-2xl font-bold mt-12 mb-4">Scanning is only half the story</h2>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
-    The acquirer consolidation of 2025 created a vacuum in the market. CalypsoAI was acquired by F5 and pivoted to government contracts. Lakera was acquired by Check Point and became enterprise-only. The independent, developer-first tier of the AI security market is empty.
+    Scanning tells you which MCP servers have dangerous tools. It does not tell you which agent called <code class="text-brand-cyan bg-brand-cyan/10 px-1.5 py-0.5 rounded text-sm">shell_exec</code> with what arguments at what timestamp, or why. When an incident happens, the scan is a snapshot of your attack surface. The investigation is a reconstruction of the blast.
   </p>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
-    Vindicara is built to fill that gap. We are the only independent, developer-first <a href="https://vindicara.io/#how-it-works" class="text-brand-cyan hover:text-brand-cyan/80 underline">AI runtime security platform</a> with self-serve pricing that covers the full agentic lifecycle: input validation, output enforcement, MCP security, behavioral monitoring, agent identity, and compliance reporting. One SDK. One <code class="text-brand-cyan bg-brand-cyan/10 px-1.5 py-0.5 rounded text-sm">pip install</code>. Runtime protection in under five minutes.
+    That reconstruction is what <a href="https://vindicara.io/" class="text-brand-cyan hover:text-brand-cyan/80 underline">Project AIR</a> is built for. AIR ingests agent traces, detects OWASP Top 10 for Agentic Applications violations (ASI01 through ASI10), and outputs a signed forensic timeline that security, legal, and insurance can all act on. The MCP scanner is one surface of the engine underneath AIR, the others being runtime policy enforcement, agent IAM, and compliance export. Scan output feeds the baseline. Trace replay proves what actually happened.
   </p>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
-    MCP security is not optional. It is infrastructure. The teams that treat it as such will be the ones still standing when the next wave of agentic vulnerabilities makes headlines.
+    The prevention layer is crowded. The incident layer is empty. MCP security is not optional, but neither is the forensic record of how an agent used MCP tools when the prevention layer inevitably missed something.
   </p>
 
   <!-- End-of-article CTA -->
   <div class="glass-panel rounded-xl p-8 my-12 text-center border-brand-red/20">
-    <h3 class="text-xl font-bold mb-2">Secure your AI agents in minutes</h3>
-    <p class="text-sm text-zinc-400 mb-6">pip install vindicara. Runtime protection in under 5 minutes.</p>
+    <h3 class="text-xl font-bold mb-2">When prevention fails, reconstruction wins</h3>
+    <p class="text-sm text-zinc-400 mb-6">Project AIR is the forensic and incident response layer for AI agents. Open source today.</p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <a href="https://vindicara.io/#get-started?utm_source=blog&utm_medium=cta&utm_campaign=mcp-security-2026" class="btn-primary text-sm px-6 py-3">Start Building Free</a>
-      <a href="https://github.com/get-sltr/vindicara-ai?utm_source=blog&utm_medium=cta&utm_campaign=mcp-security-2026" class="btn-secondary text-sm px-6 py-3">View on GitHub</a>
+      <a href="https://github.com/get-sltr/vindicara-ai?utm_source=blog&utm_medium=cta&utm_campaign=mcp-security-2026" class="btn-primary text-sm px-6 py-3">View on GitHub</a>
+      <a href="https://vindicara.io/#how-it-works?utm_source=blog&utm_medium=cta&utm_campaign=mcp-security-2026" class="btn-secondary text-sm px-6 py-3">How AIR works</a>
     </div>
   </div>
 
@@ -254,8 +258,8 @@ for finding in report.findings:
         <p class="text-sm font-medium mt-1">EU AI Act Article 72: A Developer's Guide</p>
       </a>
       <a href="/blog/secure-ai-agents-5-minutes" class="glass-panel rounded-lg p-4 hover:border-brand-purple/30 transition-colors block">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-brand-purple">Tutorial</span>
-        <p class="text-sm font-medium mt-1">How to Secure Your AI Agents in 5 Minutes</p>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-brand-purple">Quickstart</span>
+        <p class="text-sm font-medium mt-1">Run your first <code class="font-mono">air trace</code> in 5 minutes</p>
       </a>
     </div>
   </div>
