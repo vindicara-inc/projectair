@@ -2,6 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Current state (2026-04-20)
+
+The AIR pivot shipped. The OSS promise is live on PyPI. Read this before doing anything substantive.
+
+**On PyPI:**
+- `projectair` 0.1.5 live (0.1.6 wheel built, uploaded by user). MIT. Ships the `air` CLI and the `airsdk` library. This is the public product.
+- `vindicara` 0.2.0 live, repositioned as "server-side engine behind AIR Cloud." `vindicara` 0.1.0 yanked.
+
+**Detector coverage (honest, ground this in the actual OWASP specs, do not fabricate):**
+- OWASP **Top 10 for Agentic Applications** (3 of 10): `ASI01` Agent Goal Hijack, `ASI02` Tool Misuse & Exploitation, `ASI04` Agentic Supply Chain Vulnerabilities (partial, MCP only). `ASI03, ASI05-ASI10` on roadmap.
+- OWASP **Top 10 for LLM Applications** (3 categories, implemented as AIR-specific detectors): `AIR-01` -> LLM01 Prompt Injection, `AIR-02` -> LLM06 Sensitive Information Disclosure, `AIR-03` -> LLM04 Model Denial of Service.
+- **AIR-native**: `AIR-04` Untraceable Action (forensic-chain-integrity check; no direct OWASP equivalent).
+- **Never claim "7 of 10 ASI"** or similar inflated headlines. The correct framing is "3 OWASP Agentic + 3 OWASP LLM + 1 AIR-native." I fabricated ASI names on an earlier attempt and the user caught it; do not repeat that mistake.
+
+**Framework integrations shipped:** LangChain (`AIRCallbackHandler`), OpenAI (`instrument_openai`), Anthropic (`instrument_anthropic`). LlamaIndex, CrewAI, AutoGen are on the roadmap.
+
+**Code location:** `packages/projectair/` is the public MIT package. `src/vindicara/` is Apache-2.0 engine substrate, not directly pip-installable anymore. Both live in this monorepo. Pitch the split as **Snyk-style: MIT CLI + SDK top-of-funnel, commercial engine behind the cloud.**
+
+**Working venv:** `/Users/KMiI/Desktop/vindicara/.venv-air/` (Python 3.13). `air` binary lives there.
+
+**Context:** HF0 pitch + Hacker News launch imminent. Diligence sensitivity is high. Every public claim must be grounded in an actual source document, not plausible-sounding generalization.
+
+**Memory:** see `/Users/KMiI/.claude/projects/-Users-KMiI-Desktop-vindicara/memory/MEMORY.md` for persistent user preferences, design system rules, and roadmap notes.
+
 ## Commands
 
 Install dev environment (editable, with API + dev extras):
