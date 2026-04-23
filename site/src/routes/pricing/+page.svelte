@@ -308,7 +308,7 @@
         <div>
           <h3 class="text-lg font-semibold text-white mb-2">What stays free forever?</h3>
           <p class="text-sm text-zinc-400 leading-relaxed">
-            The <code class="font-mono text-zinc-200">air</code> CLI, the <code class="font-mono text-zinc-200">airsdk</code> Python SDK, the signed AgDR evidence chain, and seven detectors spanning OWASP Top 10 for Agentic Applications (ASI01, ASI02, ASI04 partial) + OWASP Top 10 for LLM Applications (LLM01, LLM04, LLM06) + one AIR-native forensic-chain-integrity check. JSON, PDF, and SIEM (ArcSight CEF) export formats included. All of it MIT-licensed and self-hosted. No seat limits, no trace limits, no feature gates that flip when a timer runs out.
+            The <code class="font-mono text-zinc-200">air</code> CLI, the <code class="font-mono text-zinc-200">airsdk</code> Python SDK, the signed AgDR evidence chain, and 14 detectors: all 10 OWASP Top 10 for Agentic Applications (ASI01 through ASI10), 3 OWASP Top 10 for LLM Applications categories (LLM01, LLM04, LLM06), and 1 AIR-native forensic-chain-integrity check. JSON, PDF, and SIEM (ArcSight CEF) export formats included. EU AI Act Article 72 evidence template generator included. All of it MIT-licensed and self-hosted. No seat limits, no trace limits, no feature gates that flip when a timer runs out.
           </p>
         </div>
 

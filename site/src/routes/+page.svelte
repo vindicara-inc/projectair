@@ -436,7 +436,7 @@
     <div class="text-center mb-14">
       <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-3 font-mono">Why Now</p>
       <h2 class="text-3xl sm:text-4xl font-bold tracking-tight max-w-3xl mx-auto">
-        The prevention layer is crowded. The incident layer is empty.
+        The prevention layer is crowded. The incident layer is fragmented and underbuilt.
       </h2>
     </div>
 
@@ -484,7 +484,7 @@
         Real breaches. Real patterns. What AIR would have caught.
       </h2>
       <p class="mt-4 text-zinc-400 text-base max-w-2xl mx-auto">
-        Every incident below has a public post-mortem. Every one maps to an OWASP Top 10 for Agentic Applications signature. AIR ships three ASI detectors (ASI01, ASI02, ASI04 partial) plus detectors for three OWASP LLM Top 10 categories; seven more Agentic ASIs are on the roadmap.
+        Every incident below has a public post-mortem. Every one maps to an OWASP Top 10 for Agentic Applications signature. Project AIR ships all 10 OWASP Top 10 for Agentic Applications detectors (ASI01 through ASI10), plus 3 OWASP LLM Top 10 categories (LLM01, LLM04, LLM06) and 1 AIR-native forensic-chain-integrity check.
       </p>
     </div>
 
@@ -556,7 +556,7 @@
         </div>
         <h3 class="text-xl font-bold mb-2 font-mono">air</h3>
         <p class="text-sm text-zinc-400 mb-5 leading-relaxed flex-1">
-          The CLI. Ingest any agent trace. Detects three OWASP Agentic ASIs plus three OWASP LLM Top 10 categories and an AIR-native chain-integrity check. Outputs forensic timelines with signed evidence hashes.
+          The CLI. Ingest any agent trace. Detects all 10 OWASP Top 10 for Agentic Applications categories, plus 3 OWASP LLM Top 10 categories and 1 AIR-native chain-integrity check. Outputs forensic timelines with signed evidence hashes.
         </p>
         <div class="bg-obsidian-lighter border border-white/10 p-4 font-mono text-xs text-zinc-300">
           <div class="text-zinc-600 mb-1">$ pip install projectair</div>
@@ -677,7 +677,7 @@
         </div>
         <div class="p-6">
           <p class="font-mono text-[11px] tracking-wider uppercase text-brand-cyan mb-2">Compliance engine</p>
-          <p class="text-sm text-zinc-300 leading-relaxed">Auto-generates regulatory evidence from the forensic log. EU AI Act Article 72 and SOC 2 artifacts write themselves.</p>
+          <p class="text-sm text-zinc-300 leading-relaxed">Produces audit-ready evidence inputs from the forensic log. EU AI Act Article 72 templates populate in one command; counsel and compliance teams complete the filing.</p>
         </div>
       </div>
     </div>
@@ -875,12 +875,12 @@
       <div class="p-6 border-b lg:border-b-0 md:border-r border-white/10">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">OWASP</p>
         <p class="text-sm text-white font-semibold">Top 10 for Agentic Applications 2026</p>
-        <p class="text-xs text-zinc-500 mt-2 leading-relaxed">ASI01, ASI02, ASI04 (partial) shipped today. ASI03, ASI05-ASI10 on roadmap. Additional detectors cover OWASP LLM01, LLM04, LLM06.</p>
+        <p class="text-xs text-zinc-500 mt-2 leading-relaxed">All 10 Agentic ASIs (ASI01 through ASI10) shipped in projectair 0.3.0. Additional detectors cover OWASP LLM01, LLM04, LLM06, and an AIR-native chain-integrity check.</p>
       </div>
       <div class="p-6 border-b lg:border-b-0 lg:border-r border-white/10">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">AgDR</p>
         <p class="text-sm text-white font-semibold">AI Decision Records</p>
-        <p class="text-xs text-zinc-500 mt-2 leading-relaxed">BLAKE3 content hashing, Ed25519 signatures, Merkle chaining, UUIDv7 for monotonic ordering.</p>
+        <p class="text-xs text-zinc-500 mt-2 leading-relaxed">BLAKE3 content hashing, Ed25519 signatures, forward-chained hash integrity, UUIDv7 for monotonic ordering.</p>
       </div>
       <div class="p-6 border-b md:border-b-0 md:border-r border-white/10">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">EU AI Act</p>

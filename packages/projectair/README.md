@@ -17,7 +17,7 @@ When an AI agent goes off-script, AIR tells you what happened and proves it. Eve
 
 **Coverage today:**
 
-- **OWASP Top 10 for Agentic Applications** (8 of 10 implemented): ASI01 Agent Goal Hijack, ASI02 Tool Misuse & Exploitation, ASI04 Agentic Supply Chain Vulnerabilities (partial, MCP supply-chain risk only), ASI05 Unexpected Code Execution (RCE), ASI06 Memory & Context Poisoning, ASI07 Insecure Inter-Agent Communication, ASI08 Cascading Failures, ASI09 Human-Agent Trust Exploitation. ASI03, ASI10 are on the roadmap.
+- **OWASP Top 10 for Agentic Applications** (10 of 10 implemented): ASI01 Agent Goal Hijack, ASI02 Tool Misuse & Exploitation, ASI03 Identity & Privilege Abuse (Zero-Trust-for-agents via operator-declared AgentRegistry), ASI04 Agentic Supply Chain Vulnerabilities (partial, MCP supply-chain risk only), ASI05 Unexpected Code Execution (RCE), ASI06 Memory & Context Poisoning, ASI07 Insecure Inter-Agent Communication, ASI08 Cascading Failures, ASI09 Human-Agent Trust Exploitation, ASI10 Rogue Agents (Zero-Trust behavioral-scope enforcement via declared BehavioralScope).
 - **OWASP Top 10 for LLM Applications** (3 categories covered): LLM01 Prompt Injection, LLM04 Model Denial of Service, LLM06 Sensitive Information Disclosure.
 - **AIR-native** (1 detector): forensic-chain-integrity check (no direct OWASP equivalent).
 

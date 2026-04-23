@@ -167,7 +167,7 @@
   <h2 class="text-2xl font-bold mt-12 mb-4">Automating compliance evidence</h2>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
-    Here is the core insight: if your agents produce a signed forensic record of every decision, compliance evidence generates itself. Project AIR writes each agent step as an AgDR (AI Decision Record) with a BLAKE3 content hash, an Ed25519 signature, and a Merkle link to the previous step. That chain is the Article 12 record. The compliance engine projects the same chain into whatever format the regulator wants, whether that is Article 72 post-market monitoring, NIST AI RMF, SOC 2, or California SB 53 incident reporting. One record. Many exports. Zero manual evidence gathering.
+    Here is the core insight: if your agents produce a signed forensic record of every decision, you have audit-ready evidence inputs. Project AIR writes each agent step as an AgDR (AI Decision Record) with a BLAKE3 content hash, an Ed25519 signature, and a forward-chained hash linking it to the previous step. That chain is the runtime evidence Article 12 record-keeping requires. Your compliance team and counsel project the same chain into whatever format the regulator wants, whether that is Article 72 post-market monitoring, NIST AI RMF, SOC 2, or California SB 53 incident reporting. One record, many exports, much less manual evidence gathering.
   </p>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
