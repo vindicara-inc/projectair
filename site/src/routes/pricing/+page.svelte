@@ -413,9 +413,10 @@
       <div>
         <h3 class="text-sm font-semibold mb-4">Legal</h3>
         <ul class="space-y-2 text-sm text-zinc-500">
-          <li><a href="mailto:legal@vindicara.io?subject=Privacy" class="hover:text-white transition-colors">Privacy</a></li>
-          <li><a href="mailto:legal@vindicara.io?subject=Terms" class="hover:text-white transition-colors">Terms</a></li>
-          <li><a href="mailto:security@vindicara.io" class="hover:text-white transition-colors">Security</a></li>
+          <li><a href="/terms" class="hover:text-white transition-colors">Terms of Service</a></li>
+          <li><a href="/privacy" class="hover:text-white transition-colors">Privacy Policy</a></li>
+          <li><a href="/acceptable-use" class="hover:text-white transition-colors">Acceptable Use</a></li>
+          <li><a href="/security" class="hover:text-white transition-colors">Security Disclosure</a></li>
         </ul>
       </div>
     </div>
