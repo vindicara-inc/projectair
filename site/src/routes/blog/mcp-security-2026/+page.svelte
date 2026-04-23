@@ -232,11 +232,11 @@ for finding in report.findings:
   </p>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
-    That reconstruction is what <a href="https://vindicara.io/" class="text-brand-cyan hover:text-brand-cyan/80 underline">Project AIR</a> is built for. AIR ingests agent traces, runs detectors across OWASP's Top 10 for Agentic Applications (three shipped today, including ASI04 Agentic Supply Chain Vulnerabilities with partial coverage focused on MCP server risk) plus OWASP's Top 10 for LLM Applications (three categories: LLM01 Prompt Injection, LLM04 Model DoS, LLM06 Sensitive Information Disclosure), and outputs a signed forensic timeline that security, legal, and insurance can all act on. The MCP scanner is one surface of the engine underneath AIR, the others being runtime policy enforcement, agent IAM, and compliance export. Scan output feeds the baseline. Trace replay proves what actually happened.
+    That reconstruction is what <a href="https://vindicara.io/" class="text-brand-cyan hover:text-brand-cyan/80 underline">Project AIR</a> is built for. AIR ingests agent traces, runs detectors across OWASP's Top 10 for Agentic Applications (all 10 ASIs shipped in projectair 0.3.0, including ASI04 Agentic Supply Chain Vulnerabilities with partial coverage focused on MCP server risk) plus OWASP's Top 10 for LLM Applications (three categories: LLM01 Prompt Injection, LLM04 Model DoS, LLM06 Sensitive Information Disclosure), and outputs a signed forensic timeline that security, legal, and insurance can all act on. The MCP scanner is one surface of the engine underneath AIR, the others being runtime policy enforcement, agent IAM, and compliance export. Scan output feeds the baseline. Trace replay proves what actually happened.
   </p>
 
   <p class="text-zinc-300 leading-relaxed mt-4">
-    The prevention layer is crowded. The incident layer is empty. MCP security is not optional, but neither is the forensic record of how an agent used MCP tools when the prevention layer inevitably missed something.
+    The prevention layer is crowded. The incident layer is fragmented and underbuilt. MCP security is not optional, but neither is the forensic record of how an agent used MCP tools when the prevention layer inevitably missed something.
   </p>
 
   <!-- End-of-article CTA -->
