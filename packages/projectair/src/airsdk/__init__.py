@@ -35,6 +35,7 @@ from airsdk.registry import (
     BehavioralScope,
     load_registry,
 )
+from airsdk.transport import FileTransport, HTTPTransport, Transport
 from airsdk.types import (
     AGDR_VERSION,
     AgDRPayload,
@@ -58,10 +59,13 @@ __all__ = [
     "AgentDescriptor",
     "AgentRegistry",
     "BehavioralScope",
+    "FileTransport",
     "Finding",
     "ForensicReport",
+    "HTTPTransport",
     "Signer",
     "StepKind",
+    "Transport",
     "VerificationResult",
     "VerificationStatus",
     "__version__",

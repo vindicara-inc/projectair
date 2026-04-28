@@ -1,0 +1,55 @@
+VINDICARA COMMERCIAL LICENSE v1.0
+Effective Date: 2026-04-27
+
+Copyright (c) 2026 Vindicara, Inc. All rights reserved.
+
+This software (the "Software") is the property of Vindicara, Inc. The
+Software is licensed, not sold. Use of the Software requires a current,
+valid commercial license issued by Vindicara, Inc.
+
+1. GRANT OF LICENSE
+Subject to the terms below and a current paid subscription, Vindicara
+grants the licensee a non-exclusive, non-transferable, revocable license
+to install and use the Software for the licensee's internal business
+purposes during the subscription period.
+
+2. RESTRICTIONS
+The licensee may not: (a) redistribute, sublicense, sell, rent, lease, or
+host the Software as a service for third parties; (b) remove or alter any
+proprietary notices; (c) use the Software in violation of applicable law;
+(d) circumvent the license verification mechanism. Use of the Software
+without a current valid license is prohibited.
+
+3. SOURCE AVAILABILITY
+Source code for this Software is published for transparency and audit
+purposes. Publication of the source does not grant rights beyond those
+expressly stated in this license. In particular, the absence of a license
+file marker or the presence of source code on any public repository does
+not authorize use of the Software outside the terms of a valid Vindicara
+subscription.
+
+4. OPEN-SOURCE COMPONENT
+This Software depends on the projectair Python package, which is
+distributed under the MIT License. The MIT-licensed projectair package
+remains freely available for any use under its own terms. This commercial
+license applies only to projectair-pro.
+
+5. WARRANTY DISCLAIMER
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+6. LIMITATION OF LIABILITY
+IN NO EVENT SHALL VINDICARA, INC. BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
+
+7. GOVERNING LAW
+This license is governed by the laws of the State of California, USA,
+without regard to conflict-of-laws principles. Disputes shall be resolved
+in the courts of Los Angeles County, California.
+
+8. CONTACT
+Vindicara, Inc.
+696 S New Hampshire Ave
+Los Angeles, CA 90005
+legal@vindicara.io

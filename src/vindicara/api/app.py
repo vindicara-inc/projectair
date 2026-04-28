@@ -7,11 +7,16 @@ from vindicara.api.middleware.auth import APIKeyAuthMiddleware, APIKeyStore
 from vindicara.api.middleware.rate_limit import RateLimitMiddleware
 from vindicara.api.middleware.request_id import RequestIDMiddleware
 from vindicara.api.middleware.security_headers import SecurityHeadersMiddleware
-from vindicara.api.routes import agents, guard, health, monitor, policies, reports, scans
+from vindicara.api.routes import agents, capsules, guard, health, monitor, policies, reports, scans
+from vindicara.cloud.capsule_store import CapsuleStore, InMemoryCapsuleStore
 from vindicara.config.settings import VindicaraSettings
 
 
-def create_app(dev_api_keys: list[str] | None = None) -> FastAPI:
+def create_app(
+    dev_api_keys: list[str] | None = None,
+    *,
+    capsule_store: CapsuleStore | None = None,
+) -> FastAPI:
     settings = VindicaraSettings()
 
     app = FastAPI(
@@ -28,6 +33,8 @@ def create_app(dev_api_keys: list[str] | None = None) -> FastAPI:
         for key in dev_api_keys:
             key_store.register_key(key, owner_id="dev")
     app.state.key_store = key_store
+
+    app.state.capsule_store = capsule_store if capsule_store is not None else InMemoryCapsuleStore()
 
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestIDMiddleware)
@@ -55,6 +62,7 @@ def create_app(dev_api_keys: list[str] | None = None) -> FastAPI:
     app.include_router(agents.router)
     app.include_router(reports.router)
     app.include_router(monitor.router)
+    app.include_router(capsules.router)
 
     from vindicara.dashboard.app import create_dashboard_app
     from vindicara.dashboard.auth.middleware import DashboardAuthMiddleware
