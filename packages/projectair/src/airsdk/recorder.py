@@ -1,8 +1,14 @@
 """Framework-agnostic recorder for writing signed AgDR records.
 
-``AIRRecorder`` is the primitive. It wraps a ``Signer`` and a log file, and
-exposes one method per AgDR step kind. Framework integrations (LangChain,
-OpenAI SDK, Anthropic SDK, and any custom code) all build on top of it.
+``AIRRecorder`` is the primitive. It wraps a ``Signer`` and one or more
+:class:`Transport` sinks, and exposes one method per AgDR step kind.
+Framework integrations (LangChain, OpenAI SDK, Anthropic SDK, and any
+custom code) all build on top of it.
+
+By default a recorder writes to a single :class:`FileTransport` so the
+historical ``log_path``-only constructor still works unchanged. Callers
+that want to also push records to AIR Cloud or any custom sink pass an
+explicit ``transports=`` list.
 """
 from __future__ import annotations
 
@@ -13,6 +19,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
 from airsdk.agdr import Signer, _uuid7
+from airsdk.transport import FileTransport, Transport
 from airsdk.types import AgDRPayload, AgDRRecord, StepKind
 
 
@@ -42,13 +49,15 @@ def resolve_signing_key(key: str | Ed25519PrivateKey | None) -> Ed25519PrivateKe
 
 
 class AIRRecorder:
-    """Write signed AgDR records to a JSONL log. Framework-agnostic.
+    """Write signed AgDR records to one or more transports. Framework-agnostic.
 
     Parameters
     ----------
     log_path:
-        Where AgDR records are appended. Parent directories are created on
-        first write. Required.
+        Where AgDR records are appended on disk. Required for backward
+        compatibility; passed to the default ``FileTransport`` when
+        ``transports`` is not provided. Parent directories are created on
+        first write.
     key:
         Ed25519 signing key. Accepts a 64-char hex seed, a PEM-encoded
         private key, or a raw ``Ed25519PrivateKey``. When ``None``, a fresh
@@ -58,6 +67,12 @@ class AIRRecorder:
         do. Attached to every record this recorder emits, so the ASI01
         Goal Hijack detector has a reliable anchor even if the underlying
         chain never echoes the original prompt.
+    transports:
+        Optional list of :class:`Transport` sinks. When omitted the
+        recorder uses a single ``FileTransport(log_path)``, matching
+        historical behaviour. Pass an explicit list to compose multiple
+        sinks (e.g. ``[FileTransport(log_path), HTTPTransport(endpoint)]``)
+        for AIR Cloud ingestion alongside local disk.
     """
 
     def __init__(
@@ -66,12 +81,14 @@ class AIRRecorder:
         key: str | Ed25519PrivateKey | None = None,
         *,
         user_intent: str | None = None,
+        transports: list[Transport] | None = None,
     ) -> None:
         priv = resolve_signing_key(key)
         self._signer = Signer(priv) if priv is not None else Signer.generate()
         self._log_path = Path(log_path).expanduser()
         self._log_path.parent.mkdir(parents=True, exist_ok=True)
         self._user_intent = user_intent
+        self._transports: list[Transport] = transports if transports is not None else [FileTransport(self._log_path)]
 
     @property
     def public_key_hex(self) -> str:
@@ -80,8 +97,21 @@ class AIRRecorder:
 
     @property
     def log_path(self) -> Path:
-        """Where this recorder appends its JSONL."""
+        """Where this recorder appends its JSONL (default ``FileTransport`` only)."""
         return self._log_path
+
+    @property
+    def transports(self) -> list[Transport]:
+        """Live list of transports this recorder is fanning records out to."""
+        return self._transports
+
+    def add_transport(self, transport: Transport) -> None:
+        """Register an additional transport sink at runtime.
+
+        Useful when the cloud endpoint or API key is only known after the
+        recorder has been constructed (e.g. lazy login flow).
+        """
+        self._transports.append(transport)
 
     # -- Step emitters -----------------------------------------------------
 
@@ -153,7 +183,6 @@ class AIRRecorder:
             fields = {**fields, "user_intent": self._user_intent}
         payload = AgDRPayload.model_validate(fields)
         record = self._signer.sign(kind=kind, payload=payload)
-        with self._log_path.open("a", encoding="utf-8") as handle:
-            handle.write(record.model_dump_json(exclude_none=True))
-            handle.write("\n")
+        for transport in self._transports:
+            transport.emit(record)
         return record

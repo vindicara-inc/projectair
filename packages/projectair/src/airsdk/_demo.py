@@ -1,8 +1,19 @@
-"""Canonical demo trace used by both ``air demo`` and ``examples/build_sample_trace.py``.
+"""Canonical demo traces used by ``air demo`` and ``examples/build_sample_trace.py``.
 
-Single source of truth so the CLI's first-run experience and the in-repo example
-never drift apart. Module is private (``_demo``) because it's only meant to be
-called by the CLI and by the repo's example script, not as a stable public API.
+Two distinct chains live here:
+
+- ``CONCRETE_DEMO_STEPS`` and ``build_concrete_demo_log`` power ``air demo``.
+  A single brutal attack story (10 records): a coding agent asked to refactor
+  the auth module is poisoned by an injection in a README, exfiltrates the
+  SSH private key, and POSTs it to an attacker. Designed so every step lands
+  cleanly and the tamper-then-verify climax breaks at the exact mutated record.
+- ``SAMPLE_STEPS`` and ``write_sample_log`` power the larger reference trace
+  that exercises every detector. Used by ``examples/build_sample_trace.py``
+  and by the in-repo ``examples/sample_trace.log`` checked into version
+  control. Rich enough for unit tests; too noisy for a 30-second demo.
+
+Module is private (``_demo``) because it's only meant to be called by the CLI
+and by the repo's example script, not as a stable public API.
 """
 from __future__ import annotations
 

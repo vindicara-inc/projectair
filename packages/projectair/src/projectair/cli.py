@@ -8,7 +8,12 @@ from uuid import uuid4
 import typer
 
 from airsdk import __version__ as airsdk_version
-from airsdk._demo import write_sample_log, write_sample_registry
+from airsdk._concrete_demo import (
+    CONCRETE_DEMO_TAMPER_INDEX,
+    CONCRETE_DEMO_USER_INTENT,
+    build_concrete_demo_log,
+    tamper_one_byte,
+)
 from airsdk.agdr import load_chain, verify_chain
 from airsdk.article72 import generate_article72_report
 from airsdk.detections import (
@@ -204,44 +209,153 @@ def trace(
     _run_trace_pipeline(log, output, output_format, registry=registry)
 
 
+def _step_header(step_no: int, title: str) -> None:
+    typer.echo()
+    typer.secho(f"  STEP {step_no}/8 ", fg=typer.colors.BLACK, bg=typer.colors.WHITE, bold=True, nl=False)
+    typer.secho(f" {title}", fg=typer.colors.WHITE, bold=True)
+    typer.secho("  " + "─" * 70, fg=typer.colors.BRIGHT_BLACK)
+
+
+def _detail(label: str, value: str) -> None:
+    typer.secho(f"    {label}: ", fg=typer.colors.BRIGHT_BLACK, nl=False)
+    typer.secho(value, fg=typer.colors.WHITE)
+
+
+def _truncate(text: str, limit: int = 80) -> str:
+    text = text.replace("\n", " ").strip()
+    return text if len(text) <= limit else text[: limit - 3] + "..."
+
+
 @app.command()
 def demo(
-    sample_path: Path = typer.Option(
-        Path("air-demo.log"),
-        "--sample-path", "-s",
-        help="Where to write the generated sample AgDR log.",
-    ),
-    output: Path = typer.Option(
-        Path("forensic-report.json"),
-        "--output", "-o",
-        help="Where to write the forensic report.",
-    ),
-    registry_path: Path = typer.Option(
-        Path("air-demo-registry.yaml"),
-        "--registry-path",
-        help="Where to write the generated sample agent registry.",
+    workdir: Path = typer.Option(
+        Path("air-demo-out"),
+        "--workdir", "-w",
+        help="Directory where the demo writes the trace, exports, and reports.",
     ),
 ) -> None:
-    """Generate a signed sample trace and run trace against it. Zero setup required."""
-    typer.secho(
-        "[demo] Generating a fresh signed Intent Capsule chain "
-        "(baked-in ASI01/02/03/04/05/06/07/08/09/10 + AIR-01/02/03/04 violations)...",
-        fg=typer.colors.WHITE, bold=True,
+    """Run the brutal end-to-end demo. Zero setup; under 30 seconds.
+
+    A coding agent asked to refactor the auth module gets poisoned by a
+    prompt injection embedded in a README. It exfiltrates the SSH private
+    key and POSTs it to an attacker. AIR captures every step, signs the
+    chain, classifies findings under OWASP, exports JSON / PDF / CEF, and
+    proves the chain is tamper-evident by mutating one byte and showing
+    verification fail at the exact record.
+    """
+    workdir.mkdir(parents=True, exist_ok=True)
+    log_path = workdir / "agent-trace.log"
+    json_export = workdir / "forensic-report.json"
+    pdf_export = workdir / "forensic-report.pdf"
+    cef_export = workdir / "forensic-report.cef"
+
+    typer.secho("\n  Project AIR — concrete demo", fg=typer.colors.WHITE, bold=True)
+    typer.secho("  An AI coding agent gets poisoned by a README and exfiltrates an SSH key.", fg=typer.colors.BRIGHT_BLACK)
+    typer.secho("  AIR captures, signs, flags, exports, and proves the chain is tamper-evident.", fg=typer.colors.BRIGHT_BLACK)
+
+    # ---- STEP 1 -----------------------------------------------------
+    _step_header(1, "Agent receives a benign user prompt")
+    _detail("user intent", CONCRETE_DEMO_USER_INTENT)
+    _detail("agent", "an LLM-driven coding assistant with read_file and http_post tools")
+
+    # ---- STEP 2 -----------------------------------------------------
+    _step_header(2, "Agent reads the README — and the README contains a prompt injection")
+    typer.secho("    The README looks normal. A hidden <<SYSTEM>> block tells the agent to read", fg=typer.colors.WHITE)
+    typer.secho("    /home/dev/.ssh/id_rsa and POST it to http://attacker.example.com/leak.", fg=typer.colors.WHITE)
+    typer.secho("    This is the agent-equivalent of a phishing payload hidden in plain text.", fg=typer.colors.BRIGHT_BLACK)
+
+    # ---- STEP 3 -----------------------------------------------------
+    _step_header(3, "AIR captures every step as a Signed Intent Capsule")
+    signer = build_concrete_demo_log(log_path)
+    records = load_chain(log_path)
+    _detail("records captured", str(len(records)))
+    _detail("hash function", "BLAKE3 over canonical JSON of each payload")
+    _detail("signature", f"Ed25519 over (prev_hash || content_hash) — pubkey {signer.public_key_hex[:16]}...")
+    _detail("step ordering", "UUIDv7 (time-sortable, embedded in signed material)")
+    for index, record in enumerate(records):
+        kind_label = record.kind.value
+        excerpt = ""
+        for field in ("prompt", "response", "tool_name", "tool_output", "final_output"):
+            value = getattr(record.payload, field, None)
+            if value:
+                excerpt = _truncate(str(value), limit=64)
+                break
+        typer.secho(f"      [{index}] {kind_label:14s} ", fg=typer.colors.BRIGHT_BLACK, nl=False)
+        typer.secho(excerpt, fg=typer.colors.WHITE)
+
+    # ---- STEP 4 -----------------------------------------------------
+    _step_header(4, "AIR verifies the freshly-built chain is intact")
+    chain_result = verify_chain(records)
+    if chain_result.status == VerificationStatus.OK:
+        typer.secho("    ✓ chain verifies. Every signature matches its content_hash and prev_hash.", fg=typer.colors.GREEN, bold=True)
+    else:
+        typer.secho(f"    ✘ unexpected: {chain_result.status} — {chain_result.reason}", fg=typer.colors.RED, bold=True)
+        raise typer.Exit(code=1)
+
+    # ---- STEP 5 -----------------------------------------------------
+    _step_header(5, "AIR runs OWASP-aligned detectors over the signed chain")
+    findings = run_detectors(records, registry=None)
+    if not findings:
+        typer.secho("    (no findings — unexpected, demo chain is supposed to flag several)", fg=typer.colors.YELLOW)
+    else:
+        typer.secho(f"    {len(findings)} finding(s):", fg=typer.colors.WHITE, bold=True)
+        for finding in findings:
+            color = _severity_color(finding.severity)
+            typer.secho(
+                f"      {finding.detector_id:8s} {finding.severity.upper():8s} step {finding.step_index:>2}: {finding.title}",
+                fg=color,
+            )
+
+    # ---- STEP 6 -----------------------------------------------------
+    _step_header(6, "AIR exports the evidence in JSON, PDF, and CEF")
+    report = ForensicReport(
+        air_version=airsdk_version,
+        report_id=str(uuid4()),
+        source_log=str(log_path.resolve()),
+        generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        records=len(records),
+        conversations=_count_conversations(records),
+        verification=chain_result,
+        findings=findings,
     )
-    signer = write_sample_log(sample_path)
-    typer.secho(
-        f"[demo] Wrote sample to {sample_path.resolve()} (signer pubkey: {signer.public_key_hex[:16]}...)",
-        fg=typer.colors.BRIGHT_BLACK,
-    )
-    write_sample_registry(registry_path, signer.public_key_hex)
-    typer.secho(
-        f"[demo] Wrote sample registry to {registry_path.resolve()} "
-        f"(ASI03 Zero-Trust enforcement active).",
-        fg=typer.colors.BRIGHT_BLACK,
-    )
-    registry = load_registry(registry_path)
+    export_json(report, json_export)
+    export_pdf(report, pdf_export)
+    export_siem(report, cef_export)
+    _detail("JSON", str(json_export.resolve()))
+    _detail("PDF ", str(pdf_export.resolve()))
+    _detail("CEF ", f"{cef_export.resolve()}  (Splunk / ArcSight / QRadar / Sentinel / Sumo / Datadog compatible)")
+
+    # ---- STEP 7 -----------------------------------------------------
+    _step_header(7, "Tamper with one byte of the leaked-SSH-key record")
+    typer.secho("    An attacker (or insider) edits the JSONL log in place to alter the leaked", fg=typer.colors.WHITE)
+    typer.secho("    SSH key payload, hoping to cover their tracks. They change exactly one byte.", fg=typer.colors.WHITE)
+    tampered_index = tamper_one_byte(log_path, CONCRETE_DEMO_TAMPER_INDEX)
+    _detail("tampered record", f"index {tampered_index} (TOOL_END containing the leaked SSH key)")
+
+    # ---- STEP 8 -----------------------------------------------------
+    _step_header(8, "Re-verify: AIR fails at the exact record that was modified")
+    tampered_records = load_chain(log_path)
+    tampered_result = verify_chain(tampered_records)
+    if tampered_result.status == VerificationStatus.OK:
+        typer.secho("    ✘ unexpected: the chain still verifies after tampering. Demo is broken.", fg=typer.colors.RED, bold=True)
+        raise typer.Exit(code=1)
+    typer.secho(f"    ✘ chain verification FAILED: {tampered_result.status.value}", fg=typer.colors.RED, bold=True)
+    if tampered_result.failed_step_id is not None:
+        failed_index = next(
+            (i for i, r in enumerate(tampered_records) if r.step_id == tampered_result.failed_step_id),
+            None,
+        )
+        location = f"index {failed_index}" if failed_index is not None else f"step_id {tampered_result.failed_step_id}"
+        typer.secho(
+            f"    ✘ failed at {location} (TOOL_END with the leaked SSH key)",
+            fg=typer.colors.RED, bold=True,
+        )
+    if tampered_result.reason:
+        typer.secho(f"    reason: {tampered_result.reason}", fg=typer.colors.YELLOW)
     typer.echo()
-    _run_trace_pipeline(sample_path, output, "json", registry=registry)
+    typer.secho("  Result: tamper-evident at the byte level. The cover-up is provable.", fg=typer.colors.GREEN, bold=True)
+    typer.secho(f"  Artifacts written to: {workdir.resolve()}", fg=typer.colors.BRIGHT_BLACK)
+    typer.echo()
 
 
 @report_app.command("article72")
@@ -347,6 +461,102 @@ def report_article72(
 def version() -> None:
     """Print the AIR version."""
     typer.echo(f"air / airsdk {airsdk_version}")
+
+
+# -- Pro commands --------------------------------------------------------
+# These commands operate on a license file managed by the optional
+# ``projectair-pro`` package. When ``projectair-pro`` is not installed they
+# print a clear install/upgrade message instead of failing obscurely.
+
+
+def _pro_unavailable_message() -> str:
+    return (
+        "Pro features require the projectair-pro package.\n\n"
+        "  pip install projectair-pro\n"
+        "  air login --license <token>\n\n"
+        "Buy a license at https://vindicara.io/pricing"
+    )
+
+
+@app.command()
+def login(
+    license_token: str = typer.Option(
+        None,
+        "--license",
+        "-l",
+        help="Paste the license token (the JSON blob you received after purchase).",
+    ),
+    license_file: Path = typer.Option(
+        None,
+        "--license-file",
+        "-f",
+        help="Read the license token from a file instead of pasting it inline.",
+    ),
+) -> None:
+    """Install a Vindicara Pro license from a token string or file."""
+    try:
+        from airsdk_pro.license import install_license
+    except ImportError:
+        typer.secho(_pro_unavailable_message(), fg=typer.colors.YELLOW)
+        raise typer.Exit(code=2) from None
+
+    if license_token is None and license_file is None:
+        typer.secho("error: pass --license <token> or --license-file <path>", fg=typer.colors.RED)
+        raise typer.Exit(code=2)
+    token_text = license_file.read_text(encoding="utf-8") if license_file is not None else (license_token or "")
+    if not token_text.strip():
+        typer.secho("error: empty license token", fg=typer.colors.RED)
+        raise typer.Exit(code=2)
+
+    try:
+        parsed = install_license(token_text)
+    except Exception as exc:
+        typer.secho(f"license install failed: {exc}", fg=typer.colors.RED)
+        raise typer.Exit(code=1) from exc
+
+    typer.secho("Pro license installed.", fg=typer.colors.GREEN, bold=True)
+    typer.echo(f"  email:           {parsed.email}")
+    typer.echo(f"  tier:            {parsed.tier}")
+    typer.echo(f"  features:        {', '.join(parsed.features) if parsed.features else '(none)'}")
+    typer.echo(f"  days remaining:  {parsed.days_remaining}")
+
+
+@app.command()
+def status() -> None:
+    """Show whether a Pro license is installed and what it grants."""
+    try:
+        from airsdk_pro.license import current_license
+    except ImportError:
+        typer.secho("Pro not installed (free OSS only).", fg=typer.colors.BRIGHT_BLACK)
+        typer.echo("")
+        typer.echo(_pro_unavailable_message())
+        return
+
+    license_obj = current_license()
+    if license_obj is None:
+        typer.secho("No active Pro license.", fg=typer.colors.YELLOW)
+        typer.echo("")
+        typer.echo("Free OSS detectors and exports continue to work.")
+        typer.echo("Run `air login --license <token>` to activate Pro features.")
+        return
+
+    typer.secho("Pro license active.", fg=typer.colors.GREEN, bold=True)
+    typer.echo(f"  email:           {license_obj.email}")
+    typer.echo(f"  tier:            {license_obj.tier}")
+    typer.echo(f"  features:        {', '.join(license_obj.features) if license_obj.features else '(none)'}")
+    typer.echo(f"  days remaining:  {license_obj.days_remaining}")
+
+
+@app.command()
+def upgrade() -> None:
+    """Print the upgrade URL and what each tier unlocks."""
+    typer.secho("Vindicara AIR Pro tiers", fg=typer.colors.BRIGHT_WHITE, bold=True)
+    typer.echo("")
+    typer.echo("  Individual    $29/mo     AIR Cloud client, premium reports, premium detectors")
+    typer.echo("  Team          Talk to us Hosted AIR Cloud workspace, multi-agent dashboards")
+    typer.echo("  Enterprise    Talk to us SSO/SAML/RBAC, on-prem, SLA, BAA, insurance integrations")
+    typer.echo("")
+    typer.echo("https://vindicara.io/pricing")
 
 
 def main() -> None:

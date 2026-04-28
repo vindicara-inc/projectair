@@ -25,6 +25,11 @@ dependencies = [
     "pydantic>=2.7.0,<3.0",
     "pydantic-settings>=2.3.0,<3.0",
     "structlog>=24.1.0,<26.0",
+    # Substrate consumes the OSS schema (AgDRRecord, verify_record) for cloud
+    # ingestion. Single source of truth for the wire format; license-compatible
+    # (MIT into Apache-2.0). Keep the pin in lockstep with the OSS surface AIR
+    # Cloud commits to receiving from.
+    "projectair>=0.3.1,<0.5",
 ]
 
 [project.optional-dependencies]
