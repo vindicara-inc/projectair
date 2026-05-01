@@ -2,6 +2,16 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.3.2] - 2026-05-01
+
+### Added
+- Google Gemini SDK integration: `airsdk.integrations.gemini.instrument_gemini(client, recorder)`. Wraps a `google.genai.Client` as a transparent proxy that emits signed `llm_start` + `llm_end` Intent Capsules for every `models.generate_content`, `chats.send_message`, and corresponding `aio.*` async call. Streaming helpers in `airsdk.integrations._gemini_streams` capture incremental responses without buffering the whole stream. Anything outside the LLM surface (`client.files`, `client.tunings`, `client.batches`) passes through unchanged.
+- Google ADK integration: `airsdk.integrations.adk.instrument_adk(agent, recorder)` and `airsdk.integrations.adk.make_air_callbacks(recorder)`. Attaches AIR callbacks to a constructed `LlmAgent` via the four ADK callback hooks (`before_model_callback`, `after_model_callback`, `before_tool_callback`, `after_tool_callback`). Records before chaining to any user-supplied callback so existing short-circuit / replace logic is preserved. List-form callbacks are honoured.
+- `examples/gemini_demo.py` and `examples/adk_demo.py`: end-to-end runnable demos against `gemini-2.5-flash` that record a single agent turn, verify the resulting Signed Intent Capsule chain, and print the public verification key.
+
+### Verified
+- OpenAI-compatible endpoints (NVIDIA NIM, vLLM, TGI, Together AI, Groq, Mistral, Fireworks) work via the existing `instrument_openai` integration with no NIM-specific code path. Verified by network-gated E2E test at `tests/test_integrations_nim_e2e.py` and runnable demo at `examples/nim_demo.py`.
+
 ## [0.3.1] - 2026-04-23
 
 ### Added
