@@ -3,12 +3,18 @@
 from aws_cdk import Duration, Stack
 from aws_cdk import aws_apigatewayv2 as apigw
 from aws_cdk import aws_apigatewayv2_integrations as integrations
+from aws_cdk import aws_cloudwatch as cloudwatch
+from aws_cdk import aws_cloudwatch_actions as cloudwatch_actions
 from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_events as events
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_s3 as s3
+from aws_cdk import aws_sns as sns
+from aws_cdk import aws_sns_subscriptions as sns_subscriptions
 from constructs import Construct
+
+ALARM_EMAIL = "kev.minn9@gmail.com"
 
 
 class APIStack(Stack):
@@ -71,3 +77,43 @@ class APIStack(Stack):
                 allow_origins=["*"],
             ),
         )
+
+        alarm_topic = sns.Topic(
+            self,
+            "AlarmTopic",
+            topic_name="vindicara-alarms",
+            display_name="Vindicara workload alarms",
+        )
+        alarm_topic.add_subscription(sns_subscriptions.EmailSubscription(ALARM_EMAIL))
+
+        lambda_errors_alarm = cloudwatch.Alarm(
+            self,
+            "LambdaErrorsAlarm",
+            alarm_name="vindicara-api-lambda-errors",
+            alarm_description="Lambda function errors >= 5 within 5 minutes.",
+            metric=self.api_function.metric_errors(period=Duration.minutes(5)),
+            threshold=5,
+            evaluation_periods=1,
+            comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+            treat_missing_data=cloudwatch.TreatMissingData.NOT_BREACHING,
+        )
+        lambda_errors_alarm.add_alarm_action(cloudwatch_actions.SnsAction(alarm_topic))
+
+        apigw_5xx_alarm = cloudwatch.Alarm(
+            self,
+            "ApiGateway5xxAlarm",
+            alarm_name="vindicara-api-5xx",
+            alarm_description="API Gateway 5XX responses >= 5 within 5 minutes.",
+            metric=cloudwatch.Metric(
+                namespace="AWS/ApiGateway",
+                metric_name="5XXError",
+                dimensions_map={"ApiId": self.http_api.http_api_id},
+                statistic="Sum",
+                period=Duration.minutes(5),
+            ),
+            threshold=5,
+            evaluation_periods=1,
+            comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+            treat_missing_data=cloudwatch.TreatMissingData.NOT_BREACHING,
+        )
+        apigw_5xx_alarm.add_alarm_action(cloudwatch_actions.SnsAction(alarm_topic))

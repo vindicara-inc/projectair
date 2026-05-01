@@ -12,14 +12,18 @@ concurrency:
   group: deploy-site
   cancel-in-progress: false
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
     env:
-      VINDICARA_SITE_BUCKET: vindicara-site-335741630084
-      VINDICARA_CF_DIST_ID: E2EIWI2GTEUFWW
-      AWS_REGION: us-east-1
+      VINDICARA_SITE_BUCKET: ${{ vars.VINDICARA_SITE_BUCKET }}
+      VINDICARA_CF_DIST_ID: ${{ vars.VINDICARA_CF_DIST_ID }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
     steps:
       - uses: actions/checkout@v4
 
@@ -41,11 +45,10 @@ jobs:
         working-directory: site
         run: npm run build
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Sync to S3

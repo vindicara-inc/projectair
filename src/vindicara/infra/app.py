@@ -7,21 +7,26 @@ import aws_cdk as cdk
 from vindicara.infra.stacks.api_stack import APIStack
 from vindicara.infra.stacks.data_stack import DataStack
 from vindicara.infra.stacks.events_stack import EventsStack
+from vindicara.infra.stacks.site_stack import SiteStack
 
 app = cdk.App()
 
 account = os.environ.get("CDK_DEFAULT_ACCOUNT", os.environ.get("VINDICARA_AWS_ACCOUNT_ID", ""))
-region = os.environ.get("CDK_DEFAULT_REGION", os.environ.get("VINDICARA_AWS_REGION", "us-east-1"))
+workload_region = os.environ.get(
+    "CDK_DEFAULT_REGION", os.environ.get("VINDICARA_AWS_REGION", "us-west-2")
+)
+site_region = "us-east-1"
 
 if not account:
     raise RuntimeError(
         "AWS account ID required. Set CDK_DEFAULT_ACCOUNT or VINDICARA_AWS_ACCOUNT_ID environment variable."
     )
 
-env = cdk.Environment(account=account, region=region)
+env_workload = cdk.Environment(account=account, region=workload_region)
+env_site = cdk.Environment(account=account, region=site_region)
 
-data = DataStack(app, "VindicaraData", env=env)
-events_stack = EventsStack(app, "VindicaraEvents", env=env)
+data = DataStack(app, "VindicaraData", env=env_workload)
+events_stack = EventsStack(app, "VindicaraEvents", env=env_workload)
 
 APIStack(
     app,
@@ -31,7 +36,22 @@ APIStack(
     api_keys_table=data.api_keys_table,
     audit_bucket=data.audit_bucket,
     event_bus=events_stack.event_bus,
-    env=env,
+    env=env_workload,
+)
+
+# SiteStack lives in us-east-1 because CloudFront ACM certs must live there.
+# The dashboard origin domain is composed from VindicaraAPI's HTTP API ID,
+# which is only known after the API stack deploys. Pass it via context:
+#   cdk deploy VindicaraSite -c api_endpoint_id=<api-id-from-stage-2>
+# The "tbd" placeholder lets `cdk synth` succeed before Stage 2 has run.
+api_endpoint_id = app.node.try_get_context("api_endpoint_id") or "tbd"
+
+SiteStack(
+    app,
+    "VindicaraSite",
+    api_endpoint_id=api_endpoint_id,
+    api_region=workload_region,
+    env=env_site,
 )
 
 app.synth()

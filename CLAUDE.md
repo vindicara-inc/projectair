@@ -60,18 +60,19 @@ OWASP's ASI01 mitigation #5 names "intent capsule" as the emerging pattern for b
 
 ### Framework integrations shipped
 
-LangChain (`AIRCallbackHandler`), OpenAI (`instrument_openai`), Anthropic (`instrument_anthropic`), LlamaIndex (`instrument_llamaindex`, shipped 0.3.1).
+LangChain (`AIRCallbackHandler`), OpenAI (`instrument_openai`), Anthropic (`instrument_anthropic`), LlamaIndex (`instrument_llamaindex`, shipped 0.3.1), Google Gemini SDK (`instrument_gemini` over `google-genai`), Google ADK (`instrument_adk` over `google-adk`). Gemini + ADK live on `main` at `packages/projectair/src/airsdk/integrations/{gemini.py, adk.py}` but have not been published to PyPI yet (last live release is still 0.3.1); they ship in 0.3.2.
 
 **Any OpenAI-compatible endpoint also works via `instrument_openai`** including NVIDIA NIM (`Llama 3.3 70B Instruct NIM`, etc.), vLLM, TGI, Together AI, Groq, Mistral, and Fireworks. Verified by network-gated E2E test at `tests/test_integrations_nim_e2e.py` and runnable demo at `examples/nim_demo.py` (requires `NVIDIA_API_KEY` from build.nvidia.com). This is compatibility through the existing OpenAI integration, not a separate integration module.
 
-On the roadmap: Google Gemini SDK + Google ADK (built locally 2026-04-24, ship in 0.3.2 post-launch), CrewAI, Microsoft AutoGen v0.4+, AG2. A2A protocol capture is tracked separately as a new surface area, not an SDK wrapper. NeMo Guardrails ingestion lands in AIR Cloud Phase 1.5; see `project_nvidia_partnership_roadmap.md` in memory for the full 4-tier NVIDIA roadmap.
+On the roadmap: CrewAI, Microsoft AutoGen v0.4+, AG2. A2A protocol capture is tracked separately as a new surface area, not an SDK wrapper. NeMo Guardrails ingestion lands in AIR Cloud Phase 1.5; see `project_nvidia_partnership_roadmap.md` in memory for the full 4-tier NVIDIA roadmap.
 
 ### Code location
 
-- `packages/projectair/` is the public MIT package
+- `packages/projectair/` is the public MIT package (the OSS top-of-funnel, the `air` CLI + `airsdk` library)
+- `packages/projectair-pro/` is the licensed commercial tier (`projectair-pro` 0.1.0, `airsdk_pro` namespace). Holds AIR Cloud client, premium detectors, premium reports. Not on PyPI; distributed under a commercial license to paying tiers
 - `src/vindicara/` is Apache-2.0 engine substrate, not directly pip-installable anymore
-- Both live in this monorepo
-- Pitch the split as **Snyk-style: MIT CLI + SDK top-of-funnel, commercial engine behind the cloud**
+- All three live in this monorepo
+- Pitch the split as **Snyk-style: MIT CLI + SDK top-of-funnel, commercial pro tier + engine behind the cloud**
 
 ### Working venv
 
@@ -132,6 +133,10 @@ uvicorn vindicara.api.app:create_app --factory --reload
 CDK infrastructure (requires `[cdk]` extra and AWS creds):
 
 ```bash
+# Build the Lambda artifact first (APIStack reads it via from_asset).
+# Outputs to lambda_package/ (gitignored). Targets manylinux2014_x86_64 / py3.13.
+./scripts/build-lambda.sh
+
 VINDICARA_AWS_ACCOUNT_ID=... cdk synth
 VINDICARA_AWS_ACCOUNT_ID=... cdk deploy VindicaraData VindicaraEvents VindicaraAPI
 ```
@@ -156,14 +161,15 @@ Site deploy script: `scripts/deploy-site.sh`. See `reference_site_deploy.md` in 
 - `packages/projectair/src/airsdk/` — library surface:
   - `callback.py` (`AIRCallbackHandler` for LangChain)
   - `recorder.py` (`AIRRecorder` that writes signed records)
+  - `transport.py` (transport sinks the recorder writes to; OSS ships file-based and stdout sinks here)
   - `agdr.py` (BLAKE3 + Ed25519 signing; the "AgDR format" layer, product-labelled "Signed Intent Capsule")
   - `detections.py` (all ASI + AIR-XX detectors)
   - `registry.py` (`AgentRegistry`, `AgentDescriptor`, `BehavioralScope` pydantic schemas; YAML/JSON loader for the operator-supplied Zero-Trust declaration that ASI03 + ASI10 enforce against)
   - `article72.py` + `_article72_content.py` (Markdown report generator behind `air report article72`)
   - `exports.py` (JSON/PDF/CEF emitters)
   - `types.py` (`AgDRRecord`, `AgDRPayload`, `Finding`, `ForensicReport`)
-  - `_demo.py` (what `air demo` runs)
-- `packages/projectair/src/airsdk/integrations/` — `openai.py` (`instrument_openai`), `anthropic.py` (`instrument_anthropic`), `llamaindex.py` (`instrument_llamaindex`, transparent proxy over any `llama_index.core.llms.LLM` subclass). LangChain lives in `callback.py` (top-level, not in `integrations/`); not planned to relocate.
+  - `_concrete_demo.py` (the brutal narrative chain that `air demo` actually runs: poisoned README → SSH key exfiltration). `_demo.py` is the older sanity-only demo and is no longer the default.
+- `packages/projectair/src/airsdk/integrations/` — `openai.py` (`instrument_openai`), `anthropic.py` (`instrument_anthropic`), `llamaindex.py` (`instrument_llamaindex`, transparent proxy over any `llama_index.core.llms.LLM` subclass), `gemini.py` (`instrument_gemini` over `google-genai`, with streaming helpers in `_gemini_streams.py`), `adk.py` (`instrument_adk` over `google-adk`). LangChain lives in `callback.py` (top-level, not in `integrations/`); not planned to relocate.
 - `packages/projectair/src/projectair/cli.py` — Typer CLI. Only `air` subcommands live here.
 - `packages/projectair/tests/` — pytest suite for the MIT package. Separate from the root `tests/`. Run with `pytest packages/projectair/tests`.
 - `packages/projectair/examples/` — `build_sample_trace.py` and `sample_trace.log` for manual testing of `air trace`.
@@ -211,8 +217,6 @@ See `feedback_four_quality_gates.md` in memory for the full discipline.
 ## Hard rules specific to this repo
 
 - Never use em dashes in any output. Use commas, semicolons, colons, or separate sentences.
-- Never suggest or recommend Stripe. Square is the payment processor for Vindicara.
-- Never mention Y Combinator or YC.
 - Never mention Emirates Airlines.
 - No `Any` types, no bare `except`, no `print` in production paths. `mypy --strict` is the bar.
 - For untrusted input, do not use dynamic code evaluation primitives, unsafe deserialization libraries, or unsafe YAML loaders. Use typed schemas or safe loaders instead.
