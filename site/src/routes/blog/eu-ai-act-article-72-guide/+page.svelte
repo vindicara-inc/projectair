@@ -1,3 +1,11 @@
+<script lang="ts">
+  import ShareButtons from '$lib/components/ShareButtons.svelte';
+
+  const shareUrl = 'https://vindicara.io/blog/eu-ai-act-article-72-guide';
+  const shareTitle = "EU AI Act Article 72: A Developer's Guide to Post-Market Monitoring";
+  const shareDesc = 'The EU AI Act enforcement deadline is August 2, 2026. Article 72 requires post-market monitoring for high-risk AI systems.';
+</script>
+
 <svelte:head>
   <title>EU AI Act Article 72: A Developer's Guide to Post-Market Monitoring | Vindicara Blog</title>
   <meta name="description" content="The EU AI Act enforcement deadline is August 2, 2026. Article 72 requires post-market monitoring for high-risk AI systems. Here is what engineering teams need to know and how to automate compliance." />
@@ -246,4 +254,5 @@ report = vc.compliance.generate(
       </a>
     </div>
   </div>
+  <ShareButtons url={shareUrl} title={shareTitle} description={shareDesc} />
 </article>
