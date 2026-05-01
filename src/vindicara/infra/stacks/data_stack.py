@@ -44,7 +44,7 @@ class DataStack(Stack):
         self.audit_bucket = s3.Bucket(
             self,
             "AuditBucket",
-            bucket_name="vindicara-audit-335741630084",
+            bucket_name=f"vindicara-audit-{self.account}",
             versioned=True,
             encryption=s3.BucketEncryption.S3_MANAGED,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
