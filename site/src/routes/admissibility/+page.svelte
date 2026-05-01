@@ -630,7 +630,7 @@
     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
       <div class="col-span-2 md:col-span-1">
         <div class="flex items-center gap-1 mb-4">
-          <img src={vindicaraLogo} alt="Vindicara" class="h-8 w-auto mix-blend-screen" />
+          <img src={vindicaraLogo} alt="Vindicara" class="h-10 w-auto mix-blend-screen" />
           <span class="font-mono text-[10px] tracking-[0.18em] uppercase text-white border border-white/30 px-1.5 py-0.5 shadow-[0_0_10px_rgba(255,255,255,0.25)]">Project AIR™</span>
         </div>
         <p class="text-sm text-zinc-500 leading-relaxed">
@@ -665,7 +665,12 @@
         </ul>
       </div>
     </div>
-    <div class="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="mt-12 pt-8 border-t border-white/5 flex items-center gap-4">
+      <img src="/nvidia-inception-program-badge.svg" alt="NVIDIA Inception program member" class="h-8 w-auto" />
+      <p class="text-xs text-zinc-500">Vindicara is a member of the NVIDIA Inception program.</p>
+    </div>
+
+    <div class="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
       <p class="text-xs text-zinc-600">&copy; 2026 Vindicara, Inc. · AI Incident Response.</p>
       <p class="text-xs text-zinc-600">Technical documentation. Not legal advice.</p>
     </div>
