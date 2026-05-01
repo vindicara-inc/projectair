@@ -1,3 +1,11 @@
+<script lang="ts">
+  import ShareButtons from '$lib/components/ShareButtons.svelte';
+
+  const shareUrl = 'https://vindicara.io/blog/forensic-layer-market-map';
+  const shareTitle = "What happens after an AI agent does something it shouldn't?";
+  const shareDesc = "A map of AI agent security tooling, and the layer most teams don't realize they're missing.";
+</script>
+
 <svelte:head>
   <title>What happens after an AI agent does something it shouldn't? | Vindicara Blog</title>
   <meta name="description" content="A map of AI agent security tooling, and the layer most teams don't realize they're missing. Pre-incident, during-incident, post-incident: who builds what, and where the gaps are." />
@@ -246,4 +254,6 @@ air demo</code></pre>
   <p class="text-zinc-300 leading-relaxed mt-4">
     Source: <a href="https://github.com/vindicara-inc/projectair" class="text-brand-red hover:underline">github.com/vindicara-inc/projectair</a>. Issues, PRs, and security disclosures welcome. If you are evaluating for a regulated workload, the Article 72 generator is in the OSS package today.
   </p>
+
+  <ShareButtons url={shareUrl} title={shareTitle} description={shareDesc} />
 </article>
