@@ -1,3 +1,11 @@
+<script lang="ts">
+  import ShareButtons from '$lib/components/ShareButtons.svelte';
+
+  const shareUrl = 'https://vindicara.io/blog/mcp-security-2026';
+  const shareTitle = 'The State of MCP Security in 2026';
+  const shareDesc = '92% of MCP servers lack proper OAuth. We scanned real configurations and found critical vulnerabilities across authentication, authorization, and resource management.';
+</script>
+
 <svelte:head>
   <title>The State of MCP Security in 2026 | Vindicara Blog</title>
   <meta name="description" content="92% of MCP servers lack proper OAuth. We scanned real MCP server configurations and found critical vulnerabilities including missing authentication, dangerous tools, and no rate limiting." />
@@ -263,4 +271,5 @@ for finding in report.findings:
       </a>
     </div>
   </div>
+  <ShareButtons url={shareUrl} title={shareTitle} description={shareDesc} />
 </article>

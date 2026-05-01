@@ -1,3 +1,11 @@
+<script lang="ts">
+  import ShareButtons from '$lib/components/ShareButtons.svelte';
+
+  const shareUrl = 'https://vindicara.io/blog/trustworthy-agents-forensic-evidence';
+  const shareTitle = 'Implementing Trustworthy Agents: A Forensic Evidence Layer for Production';
+  const shareDesc = "Anthropic's April 9 paper on trustworthy agents names three ecosystem gaps. Project AIR is our answer to evidence sharing and open standards.";
+</script>
+
 <svelte:head>
   <title>Implementing Trustworthy Agents: A Forensic Evidence Layer for Production | Vindicara Blog</title>
   <meta name="description" content="Anthropic's April 9 paper on trustworthy agents names three ecosystem gaps. Project AIR is our answer to evidence sharing and open standards." />
@@ -244,4 +252,5 @@ agent = AgentExecutor(callbacks=[handler])`}</code></pre></div>
       </a>
     </div>
   </div>
+  <ShareButtons url={shareUrl} title={shareTitle} description={shareDesc} />
 </article>
