@@ -2,6 +2,27 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.6.1] - 2026-05-07
+
+Auth0 wedge integration. 0.6.0 shipped the JWT verifier and the recorder hook; that gave you the primitive but not the integration. This release closes the gap so an OSS user with their own Auth0 tenant can wire the end-to-end step-up flow without writing custom OAuth code.
+
+### Added
+- `airsdk.containment.Auth0Tenant` config dataclass: domain, audience, optional client_id, optional scope. Derives `issuer`, `authorize_url`, `token_url`, `device_code_url`, and `jwks_uri` so callers do not stringify URLs by hand.
+- `airsdk.containment.build_authorize_url(tenant, challenge_id, redirect_uri, *, code_challenge=None)`: constructs a well-formed Auth0 `/authorize` URL for the browser flow. The challenge_id is bound to the OAuth `state` parameter so the redirect callback can match the returning code to the originally-halted action. PKCE supported via `code_challenge` argument.
+- `airsdk.containment.make_pkce_pair()`: RFC 7636 verifier+challenge generator for native CLI tools and SPAs (Auth0 requires PKCE for those).
+- `airsdk.containment.start_device_flow(tenant)`: OAuth 2.0 Device Authorization Grant (RFC 8628) initiator. Returns `DeviceAuthorization(device_code, user_code, verification_uri, verification_uri_complete, expires_in, interval)` for headless agents.
+- `airsdk.containment.poll_device_token(tenant, device_code, *, interval, max_poll_seconds)`: blocks polling Auth0's token endpoint, handling `authorization_pending`, `slow_down`, `access_denied`, `expired_token`, and timeout. Returns the raw JWT on success.
+- `airsdk.containment.Auth0DeviceFlowError`: distinct from `ApprovalInvalidError`. Token-verification failures get the latter; "user never finished the flow" gets the former.
+- `air approve` CLI with three modes:
+  - `--token <jwt>`: caller already has a verified Auth0 access token; submit it.
+  - `--device --client-id <id>`: run the device flow; CLI prints user code + verification URL, polls until done, submits the token.
+  - `--authorize-url --client-id <id> --redirect-uri <uri>`: print the Auth0 `/authorize` URL with PKCE for browser-based flows; receiving service swaps the code and re-runs `air approve --token`.
+  - `--jwks-uri` and `--issuer` overrides for testing against local IdPs.
+- 18 new tests in `tests/containment/test_auth0_flows.py` and `tests/containment/test_approve_cli.py`: tenant URL derivation, authorize-URL parameter shape with and without PKCE, PKCE round-trip vs RFC 7636, device-flow request shape, polling through `authorization_pending` then success, denial / expiry / timeout handling, CLI mode-selection validation, end-to-end CLI approval against the in-process mock IdP.
+
+### Operational note
+The CLI runs in a different process from the agent that raised `StepUpRequiredError`. Only the chain on disk is shared. `air approve` verifies the token, appends a `HUMAN_APPROVAL` record to the chain, and lets the agent process pick up the approval on its next chain reload. For in-process flows (single agent + operator) call `recorder.approve(challenge_id, token)` directly.
+
 ## [0.6.0] - 2026-05-07
 
 Layer 3 (Containment with Auth0-verified human-in-the-loop) v1. Layer 1 lets a verifier prove what happened. Layer 2 lets an analyst explain why. Layer 3 stops the bad thing from happening — and binds the chain to the authenticated human who authorized any action that needed step-up approval. The chain is no longer just an audit trail; it is a consent record.

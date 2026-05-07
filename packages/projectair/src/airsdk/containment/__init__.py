@@ -25,6 +25,15 @@ their own Auth0 tenant can wire all of this up directly.
 from __future__ import annotations
 
 from airsdk.containment.auth0 import Auth0Claims, Auth0Verifier
+from airsdk.containment.auth0_flows import (
+    Auth0DeviceFlowError,
+    Auth0Tenant,
+    DeviceAuthorization,
+    build_authorize_url,
+    make_pkce_pair,
+    poll_device_token,
+    start_device_flow,
+)
 from airsdk.containment.exceptions import (
     ApprovalInvalidError,
     BlockedActionError,
@@ -41,12 +50,19 @@ from airsdk.containment.policy import (
 __all__ = [
     "ApprovalInvalidError",
     "Auth0Claims",
+    "Auth0DeviceFlowError",
+    "Auth0Tenant",
     "Auth0Verifier",
     "BlockedActionError",
     "ChallengeNotFoundError",
     "ContainmentError",
     "ContainmentPolicy",
     "Decision",
+    "DeviceAuthorization",
     "PolicyVerdict",
     "StepUpRequiredError",
+    "build_authorize_url",
+    "make_pkce_pair",
+    "poll_device_token",
+    "start_device_flow",
 ]
