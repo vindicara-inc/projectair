@@ -43,7 +43,7 @@ from pydantic import BaseModel, ConfigDict, Field
 # 64 hex chars = 256 bits. BLAKE3 default output size and Ed25519 public key size.
 GENESIS_PREV_HASH = "0" * 64
 
-AGDR_VERSION = "0.3"
+AGDR_VERSION = "0.4"
 
 
 class StepKind(StrEnum):
@@ -54,6 +54,7 @@ class StepKind(StrEnum):
     AGENT_FINISH = "agent_finish"
     AGENT_MESSAGE = "agent_message"
     ANCHOR = "anchor"
+    HUMAN_APPROVAL = "human_approval"
 
 
 class RFC3161Anchor(BaseModel):
@@ -90,6 +91,36 @@ class RekorAnchor(BaseModel):
     rekor_url: str
 
 
+class HumanApproval(BaseModel):
+    """Authenticated human decision recorded as part of the chain.
+
+    When a Layer 3 step-up rule trips, the agent halts and asks a human
+    to approve. The human authenticates against an identity provider
+    (Auth0 in v1; pluggable later) and submits the resulting token. The
+    verifier validates the token's signature, issuer, audience, and
+    expiration; the verified claims are recorded here so an auditor can
+    re-verify offline using only the token plus the IdP's public JWKS.
+
+    This binds the chain not just to "what the agent did" but to "who
+    authorized what the agent did" - the consent record that makes the
+    chain admissible for compliance regimes that require human oversight
+    (EU AI Act Article 14, GDPR Article 22, SOC 2 access controls).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    challenge_id: str
+    decision: str  # "approve" | "deny"
+    approver_sub: str  # IdP subject claim
+    approver_email: str | None = None
+    issuer: str  # IdP issuer URL
+    audience: str
+    token_jti: str | None = None  # JWT ID for replay defense, when present
+    issued_at: int  # Unix seconds, from JWT iat claim
+    expires_at: int  # Unix seconds, from JWT exp claim
+    signed_token: str  # the original JWT, for offline re-verification
+
+
 class AgDRPayload(BaseModel):
     """Kind-specific payload. Structured but extensible via `extra`."""
 
@@ -115,6 +146,15 @@ class AgDRPayload(BaseModel):
     anchored_step_range: dict[str, str] | None = None
     rfc3161: RFC3161Anchor | None = None
     rekor: RekorAnchor | None = None
+    # Containment fields (Layer 3). Set on TOOL_START records when a
+    # ContainmentPolicy rule trips. ``blocked=True`` with a populated
+    # ``blocked_reason`` means the action was halted; no TOOL_END follows.
+    # ``challenge_id`` is set when the policy required human approval.
+    blocked: bool | None = None
+    blocked_reason: str | None = None
+    challenge_id: str | None = None
+    # Human approval (Layer 3). Used when kind == HUMAN_APPROVAL.
+    human_approval: HumanApproval | None = None
 
 
 class AgDRRecord(BaseModel):
