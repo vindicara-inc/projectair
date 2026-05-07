@@ -62,6 +62,11 @@ from projectair.approve_cli import register as _register_approve_cli  # noqa: E4
 
 _register_approve_cli(app)
 
+# Layer 4 cross-agent handoff: `air handoff verify`, ... (more in follow-up waves).
+from projectair.handoff_cli import register as _register_handoff_cli  # noqa: E402
+
+_register_handoff_cli(app)
+
 
 def _count_conversations(records: list[AgDRRecord]) -> int:
     finishes = sum(1 for r in records if r.kind == StepKind.AGENT_FINISH)
