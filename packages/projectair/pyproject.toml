@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projectair"
-version = "0.4.0"
-description = "Project AIR: forensic reconstruction and incident response for AI agents. Signed AgDR chains with RFC 3161 trusted timestamps and Sigstore Rekor anchoring."
+version = "0.5.0"
+description = "Project AIR: forensic reconstruction and incident response for AI agents. Signed AgDR chains, RFC 3161 + Sigstore Rekor anchoring, and causal explanation."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"

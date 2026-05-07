@@ -2,6 +2,24 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.5.0] - 2026-05-07
+
+Layer 2 (Causal Reasoning) v1. Layer 1 lets a verifier prove what happened. Layer 2 lets an analyst explain *why* it happened. The new `airsdk.causal` module walks an AgDR chain, infers step-to-step dependencies, and surfaces the load-bearing records as a narrowed evidence excerpt.
+
+### Added
+- `airsdk.causal.build_causal_graph(records)` builds a `CausalGraph` from any AgDR chain. Edges split into hard (CHAIN_LINK, LLM_PAIR, TOOL_PAIR, LLM_DECISION, AGENT_MESSAGE) at confidence 1.0 and soft (OUTPUT_REUSE) with length-based confidence in [0.5, 1.0]. The hard/soft distinction is the trust contract: an analyst can rely on hard edges in a report and treat soft edges as supporting context.
+- `airsdk.causal.explain_step(graph, target)` and `airsdk.causal.explain_finding(graph, findings, detector_id)` produce narrowed `Explanation` objects: chronological lists of the load-bearing records and the edges connecting them. Depth-bounded (default `max_depth=4`) so dense causal chains do not pull every prior record into every explanation.
+- `air explain` CLI command. Two modes: `--step <ordinal-or-uuid>` and `--finding <detector_id>`. Output is intentionally short — a forensic analyst sees the 5-7 records that mattered, marked hard or soft, and walks away with a story they can put in a report.
+- New test fixture: `tests/causal/test_inference.py` and `tests/causal/test_explain.py` exercise the SSH-exfiltration demo chain (`_concrete_demo.py`) end to end. Inference test asserts the two critical OUTPUT_REUSE edges (poisoned README → next prompt, leaked SSH key → http_post body) appear at high confidence and that no spurious soft edges land. Explanation test asserts the explanation set is exactly `{2, 3, 4, 5, 6, 7, 8}` for the exfiltration step, with pre-attack setup (0, 1) and post-outcome (9) excluded.
+
+### Changed
+- Detector engine now also drives Layer 2 explanations. `air explain --finding ASI02` re-runs `run_detectors` against the chain, gathers the flagged step ids, and walks each one's causal ancestry. No detector code changed.
+
+### Deferred
+- `air query` DSL (Q3 2026 per the Layer 1 spec). CLI flags suffice for v1; a full DSL is a parser/AST/evaluator surface that does not yet earn its keep.
+- Counterfactual replay (Q4 2026 per the spec). Requires re-running the agent with mutated inputs — out of scope for v1, foundation (the causal graph) lands here.
+- Graph visualization (`air explain --graph`). Text output is the deliverable; rendering is a v2 nice-to-have.
+
 ## [0.4.0] - 2026-05-06
 
 Layer 1 (External Trust Anchor) v1. Project AIR chains can now bind their root to two independent public proofs so the chain is verifiable without trusting Vindicara, the customer, or the agent vendor.

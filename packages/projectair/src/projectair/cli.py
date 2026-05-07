@@ -52,6 +52,11 @@ from projectair.anchor_cli import register as _register_anchor_cli  # noqa: E402
 
 _register_anchor_cli(app)
 
+# Layer 2 causal explain command: `air explain`.
+from projectair.explain_cli import register as _register_explain_cli  # noqa: E402
+
+_register_explain_cli(app)
+
 
 def _count_conversations(records: list[AgDRRecord]) -> int:
     finishes = sum(1 for r in records if r.kind == StepKind.AGENT_FINISH)
