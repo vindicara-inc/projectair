@@ -6,7 +6,7 @@ import urllib.error
 from unittest.mock import MagicMock, patch
 
 import pytest
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.asymmetric import ec
 
 from airsdk.anchoring.exceptions import (
     RekorEntryRejectedError,
@@ -17,12 +17,25 @@ from airsdk.anchoring.rekor import RekorClient
 
 
 def _client() -> RekorClient:
-    return RekorClient(signing_key=Ed25519PrivateKey.generate(), rekor_url="https://fake.rekor")
+    return RekorClient(
+        signing_key=ec.generate_private_key(ec.SECP256R1()),
+        rekor_url="https://fake.rekor",
+    )
 
 
 def test_rejects_invalid_url_scheme() -> None:
     with pytest.raises(ValueError, match="http"):
-        RekorClient(signing_key=Ed25519PrivateKey.generate(), rekor_url="ftp://x")
+        RekorClient(
+            signing_key=ec.generate_private_key(ec.SECP256R1()),
+            rekor_url="ftp://x",
+        )
+
+
+def test_rejects_wrong_curve() -> None:
+    with pytest.raises(ValueError, match="SECP256R1"):
+        RekorClient(
+            signing_key=ec.generate_private_key(ec.SECP384R1()),
+        )
 
 
 def test_rejects_wrong_digest_size() -> None:
@@ -126,5 +139,5 @@ def test_verify_with_empty_inclusion_proof_raises() -> None:
 
 
 def test_default_url_is_public_rekor() -> None:
-    rc = RekorClient(signing_key=Ed25519PrivateKey.generate())
+    rc = RekorClient(signing_key=ec.generate_private_key(ec.SECP256R1()))
     assert rc.rekor_url == "https://rekor.sigstore.dev"

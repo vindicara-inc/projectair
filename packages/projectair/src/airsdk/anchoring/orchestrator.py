@@ -254,14 +254,17 @@ class AnchoringOrchestrator:
 
         try:
             chain_root_bytes = bytes.fromhex(chain_root_hex)
-            sha256_digest = _sha256(chain_root_bytes)
+            # Rekor's hashedrekord with ECDSA-P256 keys uses SHA-256 (verified
+            # against live entries on rekor.sigstore.dev). RFC 3161 is
+            # unaffected and continues to use SHA-256 too.
+            rekor_digest = _sha256(chain_root_bytes)
 
             rfc3161_anchor = None
             rekor_anchor = None
             if self._rfc3161 is not None and self._policy.rfc3161_enabled:
                 rfc3161_anchor = self._rfc3161.anchor(chain_root_bytes)
             if self._rekor is not None and self._policy.rekor_enabled:
-                rekor_anchor = self._rekor.anchor(sha256_digest)
+                rekor_anchor = self._rekor.anchor(rekor_digest)
         except Exception:
             # Release the claim so a future retry can attempt this root again.
             with self._lock:

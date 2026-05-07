@@ -1,14 +1,19 @@
 """Anchoring identity key management for OSS users.
 
-The anchoring identity is a separate Ed25519 keypair from the chain
-signer. It signs Rekor entries so a verifier can reconstruct the
-binding between a chain root and its public-log entry without contacting
-Vindicara.
+The anchoring identity is a separate ECDSA P-256 keypair from the chain
+signer (which is Ed25519). It signs Rekor entries so a verifier can
+reconstruct the binding between a chain root and its public-log entry
+without contacting Vindicara.
+
+Why ECDSA P-256: Sigstore's public Rekor service is built around ECDSA
+P-256 with SHA-256. Ed25519 is in the Rekor schema but the production
+verifier rejects Ed25519 hashedrekord entries. See ``rekor.py`` docstring
+for the full story.
 
 Key resolution, in order:
 
-1. ``AIRSDK_ANCHORING_KEY`` env var (PEM or 64-char hex), via the same
-   shape ``Signer.from_env`` accepts on the chain side.
+1. ``AIRSDK_ANCHORING_KEY`` env var (PEM only; raw hex form was Ed25519
+   specific and is not supported for ECDSA).
 2. ``~/.config/projectair/anchoring_key.pem`` (or platform equivalent).
 3. Generate a fresh keypair, persist it to the file path with mode
    0600, and return it. The public key is also written alongside in
@@ -24,7 +29,7 @@ import os
 import sys
 from pathlib import Path
 
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
     NoEncryption,
@@ -50,8 +55,8 @@ def default_key_dir() -> Path:
     return Path.home() / ".config" / "projectair"
 
 
-def load_anchoring_key(env_var: str = ANCHORING_KEY_ENV) -> Ed25519PrivateKey:
-    """Resolve the Ed25519 anchoring identity per the documented order."""
+def load_anchoring_key(env_var: str = ANCHORING_KEY_ENV) -> ec.EllipticCurvePrivateKey:
+    """Resolve the ECDSA P-256 anchoring identity per the documented order."""
     raw = os.environ.get(env_var)
     if raw is not None:
         return _parse_env_key(raw, env_var)
@@ -63,35 +68,39 @@ def load_anchoring_key(env_var: str = ANCHORING_KEY_ENV) -> Ed25519PrivateKey:
     return _generate_and_persist(key_path)
 
 
-def _parse_env_key(raw: str, env_var: str) -> Ed25519PrivateKey:
+def _parse_env_key(raw: str, env_var: str) -> ec.EllipticCurvePrivateKey:
     data = raw.strip()
-    if data.startswith("-----BEGIN"):
-        priv = load_pem_private_key(data.encode(), password=None)
-        if not isinstance(priv, Ed25519PrivateKey):
-            raise ValueError(f"{env_var} must hold an Ed25519 key, got {type(priv).__name__}")
-        return priv
-    try:
-        seed = bytes.fromhex(data)
-    except ValueError as exc:
-        raise ValueError(f"{env_var} is neither PEM nor hex-encoded Ed25519 seed") from exc
-    if len(seed) != 32:
-        raise ValueError(f"{env_var} hex seed must decode to 32 bytes, got {len(seed)}")
-    return Ed25519PrivateKey.from_private_bytes(seed)
-
-
-def _load_from_path(key_path: Path) -> Ed25519PrivateKey:
-    pem = key_path.read_bytes()
-    priv = load_pem_private_key(pem, password=None)
-    if not isinstance(priv, Ed25519PrivateKey):
+    if not data.startswith("-----BEGIN"):
+        raise ValueError(f"{env_var} must be a PEM-encoded ECDSA P-256 private key")
+    priv = load_pem_private_key(data.encode(), password=None)
+    if not isinstance(priv, ec.EllipticCurvePrivateKey):
         raise ValueError(
-            f"anchoring key at {key_path} is not an Ed25519 key (got {type(priv).__name__})",
+            f"{env_var} must hold an ECDSA private key, got {type(priv).__name__}",
+        )
+    if not isinstance(priv.curve, ec.SECP256R1):
+        raise ValueError(
+            f"{env_var} must be on curve SECP256R1 (P-256), got {priv.curve.name}",
         )
     return priv
 
 
-def _generate_and_persist(key_path: Path) -> Ed25519PrivateKey:
+def _load_from_path(key_path: Path) -> ec.EllipticCurvePrivateKey:
+    pem = key_path.read_bytes()
+    priv = load_pem_private_key(pem, password=None)
+    if not isinstance(priv, ec.EllipticCurvePrivateKey):
+        raise ValueError(
+            f"anchoring key at {key_path} is not an ECDSA key (got {type(priv).__name__})",
+        )
+    if not isinstance(priv.curve, ec.SECP256R1):
+        raise ValueError(
+            f"anchoring key at {key_path} must be P-256, got {priv.curve.name}",
+        )
+    return priv
+
+
+def _generate_and_persist(key_path: Path) -> ec.EllipticCurvePrivateKey:
     key_path.parent.mkdir(parents=True, exist_ok=True)
-    priv = Ed25519PrivateKey.generate()
+    priv = ec.generate_private_key(ec.SECP256R1())
     pem = priv.private_bytes(
         encoding=Encoding.PEM,
         format=PrivateFormat.PKCS8,
