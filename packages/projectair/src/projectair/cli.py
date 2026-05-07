@@ -57,6 +57,11 @@ from projectair.explain_cli import register as _register_explain_cli  # noqa: E4
 
 _register_explain_cli(app)
 
+# Layer 3 step-up approval command: `air approve` (Auth0 + token + device flow).
+from projectair.approve_cli import register as _register_approve_cli  # noqa: E402
+
+_register_approve_cli(app)
+
 
 def _count_conversations(records: list[AgDRRecord]) -> int:
     finishes = sum(1 for r in records if r.kind == StepKind.AGENT_FINISH)
