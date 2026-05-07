@@ -312,13 +312,23 @@ class Auth0Adapter(IdPAdapter):
                 audience=expected_audience,
                 issuer=iss,
                 leeway=self.leeway_seconds,
-                options={"require": ["exp", "iat", "iss", "aud", "sub", "jti"]},
+                options={"require": ["exp", "iat", "iss", "aud", "sub"]},
             )
         except InvalidTokenError as e:
             raise CapabilityTokenInvalidError(
                 f"JWT verification failed: {e}",
                 failure_reason="jwt_invalid",
             ) from e
+
+        # Auth0 M2M access tokens do not expose `jti` via setCustomClaim
+        # (Auth0 protects standard registered claims). When absent, derive
+        # a deterministic synthetic JTI from the JWT bytes themselves so
+        # source/target chain pairing still works. The synthetic JTI is
+        # unique per token (BLAKE3 of the JWS) and reproducible by anyone
+        # holding the same JWT.
+        if "jti" not in claims:
+            from blake3 import blake3 as _blake3
+            claims["jti"] = "synthetic:" + _blake3(raw_jwt.encode("ascii")).hexdigest()[:32]
 
         air_claims = extract_required_air_claims(claims)
         if air_claims["air_ptid"] != expected_parent_trace_id:
