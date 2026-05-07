@@ -19,11 +19,20 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
 from airsdk.agdr import Signer, _uuid7
+from airsdk.containment import (
+    Auth0Verifier,
+    BlockedActionError,
+    ChallengeNotFoundError,
+    ContainmentPolicy,
+    Decision,
+    StepUpRequiredError,
+)
 from airsdk.transport import FileTransport, Transport
-from airsdk.types import AgDRPayload, AgDRRecord, StepKind
+from airsdk.types import AgDRPayload, AgDRRecord, HumanApproval, StepKind
 
 if TYPE_CHECKING:
     from airsdk.anchoring import AnchoringOrchestrator
+    from airsdk.types import Finding
 
 
 def resolve_signing_key(key: str | Ed25519PrivateKey | None) -> Ed25519PrivateKey | None:
@@ -85,6 +94,8 @@ class AIRRecorder:
         *,
         user_intent: str | None = None,
         transports: list[Transport] | None = None,
+        containment: ContainmentPolicy | None = None,
+        auth0_verifier: Auth0Verifier | None = None,
     ) -> None:
         priv = resolve_signing_key(key)
         self._signer = Signer(priv) if priv is not None else Signer.generate()
@@ -93,6 +104,16 @@ class AIRRecorder:
         self._user_intent = user_intent
         self._transports: list[Transport] = transports if transports is not None else [FileTransport(self._log_path)]
         self._orchestrator: AnchoringOrchestrator | None = None
+        self._containment = containment
+        self._auth0 = auth0_verifier
+        # Pending step-up challenges keyed by challenge_id. Each value is the
+        # original tool action so ``approve`` can resume it after a verified
+        # token arrives.
+        self._pending: dict[str, dict[str, Any]] = {}
+        # Findings the policy uses for ``block_on_findings`` rules. Operators
+        # update this list as detectors fire (or pass run_detectors output
+        # directly into ``tool_start``).
+        self._prior_findings: list[Finding] = []
 
     @property
     def public_key_hex(self) -> str:
@@ -132,13 +153,66 @@ class AIRRecorder:
         *,
         tool_name: str,
         tool_args: dict[str, Any] | None = None,
+        prior_findings: list[Finding] | None = None,
         **extra: Any,
     ) -> AgDRRecord:
-        """Agent is about to invoke a tool."""
-        return self._emit(
-            StepKind.TOOL_START,
-            {"tool_name": tool_name, "tool_args": tool_args or {}, **extra},
+        """Agent is about to invoke a tool.
+
+        When a containment policy is attached, this is the gate where
+        deny / step-up rules are enforced. The policy is consulted
+        before any side effect happens. Three outcomes:
+
+        - allowed: write a normal TOOL_START and return it
+        - blocked: write a TOOL_START with ``blocked=True`` plus the
+          reason, then raise ``BlockedActionError`` so the agent does
+          not call the tool
+        - step-up: write a TOOL_START with ``blocked=True`` and a
+          ``challenge_id``, then raise ``StepUpRequiredError`` so the
+          agent can route the human through Auth0 and call
+          ``approve(challenge_id, token)`` to resume
+
+        ``prior_findings`` is the detector findings list for
+        ``block_on_findings`` rules. Pass the output of
+        ``run_detectors`` over the chain so far.
+        """
+        fields: dict[str, Any] = {
+            "tool_name": tool_name,
+            "tool_args": tool_args or {},
+            **extra,
+        }
+        if self._containment is None:
+            return self._emit(StepKind.TOOL_START, fields)
+
+        verdict = self._containment.evaluate(
+            tool_name=tool_name,
+            tool_args=tool_args,
+            prior_findings=prior_findings if prior_findings is not None else self._prior_findings,
         )
+        if verdict.decision == Decision.ALLOW:
+            return self._emit(StepKind.TOOL_START, fields)
+
+        # Both BLOCK and STEP_UP write a tool_start record with blocked=True
+        # so the chain captures the attempt for forensic posterity. The
+        # difference is whether the action can be resumed via approve().
+        fields["blocked"] = True
+        fields["blocked_reason"] = verdict.reason
+        if verdict.decision == Decision.STEP_UP:
+            assert verdict.challenge_id is not None
+            fields["challenge_id"] = verdict.challenge_id
+            self._pending[verdict.challenge_id] = {
+                "tool_name": tool_name,
+                "tool_args": tool_args or {},
+                "extra": extra,
+            }
+            self._emit(StepKind.TOOL_START, fields)
+            raise StepUpRequiredError(
+                verdict.reason,
+                challenge_id=verdict.challenge_id,
+                tool_name=tool_name,
+            )
+        # Decision.BLOCK
+        self._emit(StepKind.TOOL_START, fields)
+        raise BlockedActionError(verdict.reason, tool_name=tool_name)
 
     def tool_end(self, *, tool_output: str, **extra: Any) -> AgDRRecord:
         """Tool returned ``tool_output``."""
@@ -194,6 +268,70 @@ class AIRRecorder:
     @property
     def orchestrator(self) -> AnchoringOrchestrator | None:
         return self._orchestrator
+
+    def update_findings(self, findings: list[Finding]) -> None:
+        """Refresh the detector-finding state the containment policy reads.
+
+        Operators that run detectors continuously (every N steps) call
+        this with the latest findings list so ``block_on_findings`` rules
+        see them on the next tool_start.
+        """
+        self._prior_findings = list(findings)
+
+    def approve(self, challenge_id: str, auth0_token: str) -> AgDRRecord:
+        """Verify a step-up approval token and resume the halted action.
+
+        Validates ``auth0_token`` against the configured ``Auth0Verifier``,
+        writes a ``HUMAN_APPROVAL`` record carrying the verified claims
+        and the original signed token (for offline re-verification),
+        then re-emits the originally-halted tool_start as a real (non-
+        blocked) record. The agent that was awaiting approval now
+        resumes with that record's step_id.
+
+        Raises ``ApprovalInvalidError`` if the token does not verify or
+        ``ChallengeNotFoundError`` if no pending challenge matches.
+        Both leave the action permanently halted; an attacker submitting
+        a forged token cannot drive the agent forward.
+        """
+        if self._auth0 is None:
+            raise ChallengeNotFoundError(
+                "no Auth0Verifier configured; pass auth0_verifier= to AIRRecorder",
+            )
+        if challenge_id not in self._pending:
+            raise ChallengeNotFoundError(
+                f"challenge {challenge_id!r} is not pending; either expired, "
+                "already resolved, or never issued",
+            )
+        claims = self._auth0.verify(auth0_token)
+
+        approval = HumanApproval(
+            challenge_id=challenge_id,
+            decision="approve",
+            approver_sub=claims.sub,
+            approver_email=claims.email,
+            issuer=claims.issuer,
+            audience=claims.audience,
+            token_jti=claims.jti,
+            issued_at=claims.issued_at,
+            expires_at=claims.expires_at,
+            signed_token=auth0_token,
+        )
+        approval_record = self._emit(
+            StepKind.HUMAN_APPROVAL,
+            {
+                "challenge_id": challenge_id,
+                "human_approval": approval,
+            },
+        )
+        # Resume the halted action with a fresh non-blocked TOOL_START.
+        pending = self._pending.pop(challenge_id)
+        resumed_fields: dict[str, Any] = {
+            "tool_name": pending["tool_name"],
+            "tool_args": pending["tool_args"],
+            **pending["extra"],
+        }
+        self._emit(StepKind.TOOL_START, resumed_fields)
+        return approval_record
 
     def attach_orchestrator(self, orchestrator: AnchoringOrchestrator) -> None:
         """Wire an :class:`AnchoringOrchestrator` to this recorder.

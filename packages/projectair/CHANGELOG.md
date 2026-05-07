@@ -2,6 +2,31 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.6.0] - 2026-05-07
+
+Layer 3 (Containment with Auth0-verified human-in-the-loop) v1. Layer 1 lets a verifier prove what happened. Layer 2 lets an analyst explain why. Layer 3 stops the bad thing from happening — and binds the chain to the authenticated human who authorized any action that needed step-up approval. The chain is no longer just an audit trail; it is a consent record.
+
+### Added
+- `airsdk.containment.ContainmentPolicy` declarative ruleset: `deny_tools` (block by name), `deny_arg_patterns` (block by argument regex), `block_on_findings` (halt after a guard detector fires), `step_up_for_actions` (require human approval for matched actions). Deny rules override step-up rules so "absolutely never" stays absolute even when an operator forgets to remove a step-up rule for the same tool.
+- `airsdk.containment.Auth0Verifier` — real RS256/RS384/RS512 JWT verification using PyJWT's `PyJWKClient` against an issuer's published JWKS. Validates signature, issuer, audience, expiration, and presence of `sub`. Raises `ApprovalInvalidError` on any failure. Named for Auth0 because that is the documented integration target, but the implementation is generic OIDC + JWKS and accepts any compliant IdP (Okta, Azure AD, Google Workspace).
+- New `StepKind.HUMAN_APPROVAL` carries the verified `Auth0Claims` (`sub`, `email`, `iss`, `aud`, `iat`, `exp`, `jti`) plus the original signed JWT for offline re-verification. AgDR schema bumps 0.3 → 0.4.
+- `AIRRecorder` accepts `containment=` and `auth0_verifier=`. `tool_start` consults the policy before any side effect. Three outcomes: allow (normal record), block (write blocked TOOL_START + raise `BlockedActionError`), or step-up (write blocked TOOL_START with a `challenge_id` + raise `StepUpRequiredError`).
+- `AIRRecorder.approve(challenge_id, auth0_token)` — validates the token, records `HUMAN_APPROVAL`, then re-emits the originally-halted tool_start as a fresh non-blocked record. Forged or wrong-issuer tokens leave the action permanently halted; an attacker submitting a bad token cannot drive the agent forward.
+- `scripts/e2e_layer3.py` — runnable nine-stage demo: replays the SSH-exfil narrative through a recorder configured with step-up-on-`http_post`, halts at the exfiltration step, validates a JWT minted against an in-process mock IdP (real PyJWT verification path, not stubbed), records the approval, and confirms the resumed `http_post` lands as a non-blocked record.
+- 24 new tests in `tests/containment/`: policy rule precedence (deny > step-up), Auth0Verifier rejecting forged signatures / wrong audience / wrong issuer / expired / missing `sub`, end-to-end recorder integration including the forged-token-cannot-resume case.
+
+### Changed
+- `tool_start` now accepts `prior_findings=` so an operator running detectors continuously can pass the latest findings list directly. `update_findings(findings)` updates the recorder-side state for `block_on_findings` rules between tool calls.
+- New runtime dep `PyJWT[crypto]>=2.8`. The `[crypto]` extra pulls in `cryptography` for RSA verification (already a dep).
+
+### Compliance positioning
+- The `HUMAN_APPROVAL` record binds an action to the authenticated human who authorized it, with the signed token preserved on-chain. This maps directly to: EU AI Act Article 14 (human oversight obligations), GDPR Article 22 (automated decision-making with human intervention), SOC 2 access controls (authenticated approval of sensitive operations). The chain becomes admissible evidence not just of what the agent did but of who consented to what the agent did.
+
+### Deferred
+- Hosted approval router and tenant management (challenge dispatch, push notifications, fleet dashboard, audit reports): commercial `projectair-pro` tier. The MIT package ships the primitive; the wedge integration ships in pro.
+- LangChain / OpenAI tool-call interceptor wrappers (so containment kicks in automatically without manual `tool_start` calls): planned for v0.7 alongside other framework integration polish.
+- A2A multi-agent containment (one agent halts another agent's request via the same flow): tracked separately as A2A protocol work.
+
 ## [0.5.0] - 2026-05-07
 
 Layer 2 (Causal Reasoning) v1. Layer 1 lets a verifier prove what happened. Layer 2 lets an analyst explain *why* it happened. The new `airsdk.causal` module walks an AgDR chain, infers step-to-step dependencies, and surfaces the load-bearing records as a narrowed evidence excerpt.

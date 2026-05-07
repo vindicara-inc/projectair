@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projectair"
-version = "0.5.0"
-description = "Project AIR: forensic reconstruction and incident response for AI agents. Signed AgDR chains, RFC 3161 + Sigstore Rekor anchoring, and causal explanation."
+version = "0.6.0"
+description = "Project AIR: forensic reconstruction and incident response for AI agents. Signed AgDR chains, RFC 3161 + Sigstore Rekor anchoring, causal explanation, and Auth0-verified human-in-the-loop containment."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
@@ -47,6 +47,10 @@ dependencies = [
     # verification. The anchoring path does not call Fulcio; Rekor accepts
     # raw Ed25519 public keys directly.
     "sigstore>=3.0,<5.0",
+    # PyJWT[crypto]: Layer 3 step-up approval verification. Validates Auth0
+    # (or any OIDC + JWKS) tokens against the tenant's published public keys.
+    # The [crypto] extra pulls in cryptography for RS256/RS384/RS512 support.
+    "PyJWT[crypto]>=2.8,<3.0",
 ]
 
 [project.optional-dependencies]
