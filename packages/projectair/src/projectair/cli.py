@@ -46,6 +46,12 @@ report_app = typer.Typer(
 )
 app.add_typer(report_app, name="report")
 
+# Layer 1 anchoring commands: `air anchor`, `air verify`, `air verify-public`.
+# Lives in a sibling module to keep the legacy CLI surface untouched.
+from projectair.anchor_cli import register as _register_anchor_cli  # noqa: E402
+
+_register_anchor_cli(app)
+
 
 def _count_conversations(records: list[AgDRRecord]) -> int:
     finishes = sum(1 for r in records if r.kind == StepKind.AGENT_FINISH)
