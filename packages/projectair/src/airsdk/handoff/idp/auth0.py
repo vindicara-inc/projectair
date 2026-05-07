@@ -163,11 +163,22 @@ class Auth0Adapter(IdPAdapter):
             raise ConfigurationError(
                 "Auth0Adapter is configured verify_only=True; cannot issue tokens"
             )
+        # Production mode (real Auth0 tenant) takes precedence over local
+        # signing mode when both are configured. Local signing is for unit
+        # tests only; never the production path.
+        if self.client_id is not None and self.client_secret is not None:
+            return self._issue_via_auth0_token_endpoint(
+                source_agent_id=source_agent_id,
+                target_agent_id=target_agent_id,
+                target_agent_idp_issuer=target_agent_idp_issuer,
+                scopes=scopes,
+                parent_trace_id=parent_trace_id,
+                delegation_payload_hash=delegation_payload_hash,
+            )
         if self.signing_key_pem is None or self.signing_kid is None:
-            raise NotImplementedError(
-                "production-mode issuance via Auth0 /oauth/token is not wired in "
-                "Wave 1; use local-signing mode for the demo and live tenant for "
-                "the integration test"
+            raise ConfigurationError(
+                "Auth0Adapter has no client_id+client_secret (production mode) "
+                "and no signing_key_pem+signing_kid (test mode)"
             )
         import time as _time
         now = int(_time.time())
@@ -196,6 +207,70 @@ class Auth0Adapter(IdPAdapter):
             raise CapabilityTokenInvalidError(
                 f"local issuance failed: {e}"
             ) from e
+        return self.verify_capability_token(
+            raw_jwt=raw_jwt,
+            expected_audience=target_agent_id,
+            expected_parent_trace_id=parent_trace_id,
+        )
+
+    def _issue_via_auth0_token_endpoint(
+        self,
+        *,
+        source_agent_id: str,
+        target_agent_id: str,
+        target_agent_idp_issuer: str,
+        scopes: list[str],
+        parent_trace_id: str,
+        delegation_payload_hash: str,
+    ) -> CapabilityToken:
+        """Mint a capability token via Auth0's /oauth/token endpoint.
+
+        Posts an M2M / Client Credentials grant request and passes the four
+        ``air_*`` parameters in the request body. Auth0 itself strips
+        unknown body parameters, so the tenant MUST have an Auth0 Action
+        attached to the ``credentials-exchange`` trigger that lifts these
+        into custom access-token claims (Section 7.3.1). Without the Action,
+        the issued token will fail Layer 4 verification with
+        ``CustomClaimMissingError`` — that is the canonical signal that
+        the Action is missing or not deployed.
+        """
+        body = {
+            "client_id": self.client_id,
+            "client_secret": self.client_secret,
+            "audience": target_agent_id,
+            "grant_type": "client_credentials",
+            "scope": " ".join(scopes),
+            # Read by the Auth0 Action and lifted to custom claims:
+            "air_ptid": parent_trace_id,
+            "air_delegation_payload_hash": delegation_payload_hash,
+            "air_protocol_version": PROTOCOL_VERSION,
+            "air_target_idp_issuer": target_agent_idp_issuer,
+            "air_source_agent_id": source_agent_id,
+        }
+        try:
+            resp = self._http.post(
+                self.token_endpoint,
+                json=body,
+                headers={"Content-Type": "application/json"},
+            )
+            resp.raise_for_status()
+            payload = resp.json()
+        except httpx.HTTPStatusError as e:
+            raise CapabilityTokenInvalidError(
+                f"Auth0 /oauth/token rejected: {e.response.status_code} "
+                f"{e.response.text[:300]}"
+            ) from e
+        except (httpx.HTTPError, ValueError) as e:
+            raise CapabilityTokenInvalidError(
+                f"Auth0 /oauth/token round-trip failed: {e}"
+            ) from e
+        raw_jwt = payload.get("access_token")
+        if not isinstance(raw_jwt, str) or not raw_jwt:
+            raise CapabilityTokenInvalidError(
+                f"Auth0 /oauth/token returned no access_token: keys={list(payload)}"
+            )
+        # Self-verify. If the Auth0 Action is missing, this raises
+        # CustomClaimMissingError pointing the operator at Section 7.3.1.
         return self.verify_capability_token(
             raw_jwt=raw_jwt,
             expected_audience=target_agent_id,
