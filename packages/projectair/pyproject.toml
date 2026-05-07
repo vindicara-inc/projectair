@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projectair"
-version = "0.3.2"
-description = "Project AIR: forensic reconstruction and incident response for AI agents. Turn agent traces into signed forensic records with BLAKE3 + Ed25519."
+version = "0.4.0"
+description = "Project AIR: forensic reconstruction and incident response for AI agents. Signed AgDR chains with RFC 3161 trusted timestamps and Sigstore Rekor anchoring."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
@@ -38,6 +38,15 @@ dependencies = [
     # Load path uses yaml.safe_load only. JSON registries work via stdlib and do
     # not require this package at runtime.
     "pyyaml>=6.0.2,<7.0",
+    # rfc3161-client: RFC 3161 trusted timestamping for chain-root anchoring
+    # (Layer 1 v1). Carries the ASN.1 parsing and the verifier so the wrapper
+    # in airsdk/anchoring/rfc3161.py is integration glue, not custom crypto.
+    "rfc3161-client>=1.0,<2.0",
+    # sigstore: Rekor transparency-log anchoring. Used for the Hashedrekord
+    # entry submission, response parsing, and Merkle inclusion-proof
+    # verification. The anchoring path does not call Fulcio; Rekor accepts
+    # raw Ed25519 public keys directly.
+    "sigstore>=3.0,<5.0",
 ]
 
 [project.optional-dependencies]

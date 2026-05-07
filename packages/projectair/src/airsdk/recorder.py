@@ -13,7 +13,7 @@ explicit ``transports=`` list.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
@@ -21,6 +21,9 @@ from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from airsdk.agdr import Signer, _uuid7
 from airsdk.transport import FileTransport, Transport
 from airsdk.types import AgDRPayload, AgDRRecord, StepKind
+
+if TYPE_CHECKING:
+    from airsdk.anchoring import AnchoringOrchestrator
 
 
 def resolve_signing_key(key: str | Ed25519PrivateKey | None) -> Ed25519PrivateKey | None:
@@ -89,6 +92,7 @@ class AIRRecorder:
         self._log_path.parent.mkdir(parents=True, exist_ok=True)
         self._user_intent = user_intent
         self._transports: list[Transport] = transports if transports is not None else [FileTransport(self._log_path)]
+        self._orchestrator: AnchoringOrchestrator | None = None
 
     @property
     def public_key_hex(self) -> str:
@@ -178,6 +182,40 @@ class AIRRecorder:
 
     # -- Internal ---------------------------------------------------------
 
+    @property
+    def signer(self) -> Signer:
+        """The chain signer this recorder writes through.
+
+        Exposed so an :class:`AnchoringOrchestrator` can sign anchor
+        records onto the same chain rather than starting a parallel one.
+        """
+        return self._signer
+
+    @property
+    def orchestrator(self) -> AnchoringOrchestrator | None:
+        return self._orchestrator
+
+    def attach_orchestrator(self, orchestrator: AnchoringOrchestrator) -> None:
+        """Wire an :class:`AnchoringOrchestrator` to this recorder.
+
+        Construct the orchestrator with this recorder's ``signer`` and
+        ``transports`` so anchor records chain forward correctly and land
+        on the same disk file::
+
+            recorder = AIRRecorder("chain.jsonl")
+            orchestrator = AnchoringOrchestrator(
+                signer=recorder.signer,
+                transports=recorder.transports,
+                rfc3161_client=RFC3161Client(),
+                rekor_client=RekorClient(signing_key=load_anchoring_key()),
+            )
+            recorder.attach_orchestrator(orchestrator)
+
+        Calling twice is a no-op except the most recent orchestrator wins.
+        """
+        self._orchestrator = orchestrator
+        orchestrator.register_atexit()
+
     def _emit(self, kind: StepKind, fields: dict[str, Any]) -> AgDRRecord:
         if self._user_intent and "user_intent" not in fields:
             fields = {**fields, "user_intent": self._user_intent}
@@ -185,4 +223,6 @@ class AIRRecorder:
         record = self._signer.sign(kind=kind, payload=payload)
         for transport in self._transports:
             transport.emit(record)
+        if self._orchestrator is not None:
+            self._orchestrator.observe_step(record)
         return record
