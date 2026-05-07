@@ -6,6 +6,7 @@ import stat
 from pathlib import Path
 
 import pytest
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
@@ -26,9 +27,17 @@ def _isolated_home(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.delenv(ANCHORING_KEY_ENV, raising=False)
 
 
+def _serialize_priv(key: ec.EllipticCurvePrivateKey) -> bytes:
+    return key.private_bytes(
+        encoding=Encoding.DER,
+        format=PrivateFormat.PKCS8,
+        encryption_algorithm=NoEncryption(),
+    )
+
+
 def test_load_from_env_pem(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     _isolated_home(monkeypatch, tmp_path)
-    priv = Ed25519PrivateKey.generate()
+    priv = ec.generate_private_key(ec.SECP256R1())
     pem = priv.private_bytes(
         encoding=Encoding.PEM,
         format=PrivateFormat.PKCS8,
@@ -37,30 +46,43 @@ def test_load_from_env_pem(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> N
     monkeypatch.setenv(ANCHORING_KEY_ENV, pem.decode())
 
     loaded = load_anchoring_key()
-    assert isinstance(loaded, Ed25519PrivateKey)
-    # PEM round-trip: same key bytes.
-    assert (
-        loaded.private_bytes(Encoding.Raw, PrivateFormat.Raw, NoEncryption())
-        == priv.private_bytes(Encoding.Raw, PrivateFormat.Raw, NoEncryption())
+    assert isinstance(loaded, ec.EllipticCurvePrivateKey)
+    assert isinstance(loaded.curve, ec.SECP256R1)
+    assert _serialize_priv(loaded) == _serialize_priv(priv)
+
+
+def test_env_rejects_non_pem(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    _isolated_home(monkeypatch, tmp_path)
+    monkeypatch.setenv(ANCHORING_KEY_ENV, "deadbeef" * 8)  # hex, not PEM
+    with pytest.raises(ValueError, match="PEM-encoded"):
+        load_anchoring_key()
+
+
+def test_env_rejects_wrong_curve(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    _isolated_home(monkeypatch, tmp_path)
+    priv = ec.generate_private_key(ec.SECP384R1())
+    pem = priv.private_bytes(
+        encoding=Encoding.PEM,
+        format=PrivateFormat.PKCS8,
+        encryption_algorithm=NoEncryption(),
     )
+    monkeypatch.setenv(ANCHORING_KEY_ENV, pem.decode())
+    with pytest.raises(ValueError, match="SECP256R1"):
+        load_anchoring_key()
 
 
-def test_load_from_env_hex(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_env_rejects_ed25519(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Ed25519 keys are rejected because Rekor's hashedrekord verifier
+    does not exercise Ed25519 in production; ECDSA P-256 only."""
     _isolated_home(monkeypatch, tmp_path)
     priv = Ed25519PrivateKey.generate()
-    seed = priv.private_bytes(Encoding.Raw, PrivateFormat.Raw, NoEncryption())
-    monkeypatch.setenv(ANCHORING_KEY_ENV, seed.hex())
-
-    loaded = load_anchoring_key()
-    assert (
-        loaded.private_bytes(Encoding.Raw, PrivateFormat.Raw, NoEncryption()) == seed
+    pem = priv.private_bytes(
+        encoding=Encoding.PEM,
+        format=PrivateFormat.PKCS8,
+        encryption_algorithm=NoEncryption(),
     )
-
-
-def test_env_invalid_seed_raises(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    _isolated_home(monkeypatch, tmp_path)
-    monkeypatch.setenv(ANCHORING_KEY_ENV, "not-a-valid-key")
-    with pytest.raises(ValueError, match="neither PEM nor hex"):
+    monkeypatch.setenv(ANCHORING_KEY_ENV, pem.decode())
+    with pytest.raises(ValueError, match="ECDSA"):
         load_anchoring_key()
 
 
@@ -69,7 +91,8 @@ def test_generate_persists_with_0o600(monkeypatch: pytest.MonkeyPatch, tmp_path:
     monkeypatch.delenv(ANCHORING_KEY_ENV, raising=False)
 
     key = load_anchoring_key()
-    assert isinstance(key, Ed25519PrivateKey)
+    assert isinstance(key, ec.EllipticCurvePrivateKey)
+    assert isinstance(key.curve, ec.SECP256R1)
 
     key_path = default_key_dir() / "anchoring_key.pem"
     pub_path = default_key_dir() / "anchoring_key_pub.pem"
@@ -87,6 +110,4 @@ def test_generate_then_load_returns_same_key(
     _isolated_home(monkeypatch, tmp_path)
     first = load_anchoring_key()
     second = load_anchoring_key()
-    raw_a = first.private_bytes(Encoding.Raw, PrivateFormat.Raw, NoEncryption())
-    raw_b = second.private_bytes(Encoding.Raw, PrivateFormat.Raw, NoEncryption())
-    assert raw_a == raw_b
+    assert _serialize_priv(first) == _serialize_priv(second)

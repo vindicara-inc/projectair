@@ -127,9 +127,12 @@ class RFC3161Client:
         response = self._post(request.as_bytes())
         self._verify_response(response, request, chain_root)
 
+        # Store the full TimeStampResp (status + token), not just the bare
+        # token: ``decode_timestamp_response`` only parses the full response,
+        # so verify() needs the full bytes to reconstruct the response object.
         return RFC3161Anchor(
             tsa_url=self._url,
-            timestamp_token_b64=base64.b64encode(response.time_stamp_token()).decode("ascii"),
+            timestamp_token_b64=base64.b64encode(response.as_bytes()).decode("ascii"),
             timestamp_iso=response.tst_info.gen_time.replace(tzinfo=UTC).isoformat().replace("+00:00", "Z"),
             tsa_certificate_chain_pem=_encode_certs_pem(response),
             hash_algorithm="sha256",

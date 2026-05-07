@@ -164,10 +164,12 @@ def _verify_anchors(records: list) -> bool:  # type: ignore[type-arg]
 def _verify_rekor_offline(anchor: object, chain_root: bytes) -> None:
     from hashlib import sha256
 
+    from cryptography.hazmat.primitives.asymmetric import ec
+
     digest = sha256(chain_root).digest()
     # Build a transient RekorClient just to call its verify() helper. The
     # signing key is irrelevant for verification (we only inspect the
     # stored proof). The placeholder key is never used.
-    placeholder = Signer.generate()
-    client = RekorClient(signing_key=placeholder._priv, rekor_url=anchor.rekor_url)  # type: ignore[attr-defined]
+    placeholder = ec.generate_private_key(ec.SECP256R1())
+    client = RekorClient(signing_key=placeholder, rekor_url=anchor.rekor_url)  # type: ignore[attr-defined]
     client.verify(anchor, digest)  # type: ignore[arg-type]
