@@ -2,6 +2,23 @@
 
 All notable changes to `projectair-pro` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.7.0] - 2026-05-08
+
+Wave 2 closes. Closes the "Incident workflows and alerting" line on the public pricing page with three real implementations: Slack Incoming Webhook, PagerDuty Events API v2, and a generic HMAC-signed webhook. Decoupled from the SIEM push helpers in `airsdk_pro.siem`: SIEM push is for log aggregation and detection rules, alerting is for waking someone up at 3am.
+
+### Added
+- `airsdk_pro.alerts` submodule with three destinations, all gated behind the new `incident-workflows` Pro feature flag:
+  - `alert_to_slack(report, *, webhook_url, channel=None, min_severity="high", ...)`: posts a single summary message with rich `blocks` formatting (header, chain status, per-finding sections with severity emoji). Default threshold is `high`, so noise stays below the chat-fatigue line.
+  - `alert_to_pagerduty(report, *, integration_key, min_severity="high", ...)`: sends one `trigger` event per qualifying finding to PagerDuty Events v2. Stable `dedup_key` per `(report_id, step_id, detector_id)` so re-running the push for the same report does not fan out to multiple incidents — PagerDuty deduplicates and updates instead. AIR severity is mapped onto PagerDuty's four-level severity (critical → critical, high → error, medium → warning, low → info).
+  - `alert_to_webhook(report, *, url, secret=None, ...)`: posts a JSON alert summary (qualifying findings + chain status) to a customer-owned HTTPS endpoint. Optional HMAC-SHA256 signing with the digest sent as `X-Vindicara-Alert-Signature`. Distinct header from the cloud-client webhook helper so receivers can route alerts and chain-archive pushes separately.
+- `airsdk_pro.AlertResult`, `airsdk_pro.AlertConfigError`, `airsdk_pro.AlertPushError` for structured success and failure handling.
+- `airsdk_pro.INCIDENT_WORKFLOWS_FEATURE` license feature flag.
+- `air alert slack | pagerduty | webhook <log>` CLI subcommands wired in `projectair.alert_cli`. Same defer-the-import pattern as the other Pro CLI commands. Common credential env vars supported (`AIR_ALERT_SLACK_WEBHOOK`, `AIR_ALERT_PD_INTEGRATION_KEY`, `AIR_ALERT_WEBHOOK_URL`, `AIR_ALERT_WEBHOOK_SECRET`).
+- 18 new tests in `tests/test_alerts.py` using `httpx.MockTransport`: per-destination success path, threshold filtering (no alert when nothing crosses `min_severity`), Slack `blocks` payload shape, PagerDuty severity mapping verified against the four-level taxonomy, PagerDuty `dedup_key` stability across repeated runs, generic-webhook payload shape, generic-webhook HMAC-SHA256 signing path with externally-recomputed digest, no-secret-no-signature path, refusal to override the signature header from `extra_headers`, missing-config rejection, invalid-severity rejection, non-2xx escalation, and gate-rejection for both no-license and missing-feature cases.
+
+### Notes
+- Wave 2 complete after this lands: AIR Cloud client v0 (PR #12) + premium detector (PR #13) + alerting (this PR). Wave 3 starts the hosted multi-tenant AIR Cloud ingest service that the W2.4 client points at by default once it ships.
+
 ## [0.6.0] - 2026-05-08
 
 First real premium detector lands. Closes the "Premium detectors as they ship" line on the public pricing page with a real implementation: three new sub-detectors under OWASP **ASI04 Agentic Supply Chain Vulnerabilities** that go deeper than the OSS MCP-naming-convention check. The ASI04 surface in OSS was honest about being partial coverage (only MCP names); this release adds the dependency-poisoning and tool-manifest-tampering signals that the OSS roadmap committed to.
