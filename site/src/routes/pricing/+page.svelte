@@ -202,7 +202,7 @@
             <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">New</span>
           </div>
           <p class="text-3xl font-black mt-4">$599<span class="text-base font-normal text-zinc-500">/mo</span></p>
-          <p class="text-sm text-zinc-500 mt-1">Or $4,500/year. Hosted AIR Cloud for your team.</p>
+          <p class="text-sm text-zinc-500 mt-1">Or $5,400/year. Hosted AIR Cloud for your team.</p>
           <ul class="mt-7 space-y-3 text-sm text-zinc-400">
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Individual, organization-wide</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Hosted AIR Cloud workspace, multi-agent dashboards</span></li>
