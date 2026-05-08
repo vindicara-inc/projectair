@@ -691,6 +691,119 @@ def report_nist_rmf(
     typer.secho(f"NIST AI RMF report written to {output.resolve()}", fg=typer.colors.GREEN, bold=True)
 
 
+@report_app.command("soc2-ai")
+def report_soc2_ai(
+    log: Path = typer.Argument(..., exists=True, readable=True, help="Path to a JSON-lines AgDR log."),
+    system_id: str = typer.Option(
+        ...,
+        "--system-id",
+        help="Unique identifier for the AI system being audited.",
+    ),
+    output: Path = typer.Option(
+        Path("soc2-ai-report.md"),
+        "--output", "-o",
+        help="Where to write the generated SOC 2 AI evidence template (Markdown).",
+    ),
+    service_organisation: str = typer.Option(
+        "[Service organisation]",
+        "--service-organisation", "--service-org",
+        help="Legal entity that operates the service being audited.",
+    ),
+    system_name: str = typer.Option(
+        "[AI system name]",
+        "--system-name",
+        help="Human-readable name of the AI system.",
+    ),
+    period: str = typer.Option(
+        "[reporting period, e.g. 2026-Q3]",
+        "--period",
+        help="Reporting period label (free text).",
+    ),
+    in_scope: str = typer.Option(
+        "Security,Processing Integrity",
+        "--in-scope",
+        help="Comma-separated TSC categories elected for the engagement.",
+    ),
+    agent_registry: Path | None = typer.Option(
+        None,
+        "--agent-registry",
+        help="Optional agent registry to enable ASI03/ASI10 Zero-Trust enforcement during report generation.",
+        exists=True,
+        readable=True,
+    ),
+) -> None:
+    """Generate a SOC 2 AI evidence template from an AgDR log (Pro).
+
+    Requires a Vindicara Pro license with the ``report-soc2-ai`` feature
+    flag. The output is a populated Markdown evidence template
+    structured against the AICPA Trust Services Criteria, NOT a SOC 2
+    report (only an independent CPA can issue one). The service
+    organisation must review, supplement with management-assertion
+    language, and supply the evidence to a qualified CPA before the
+    template is usable in a SOC 2 examination.
+    """
+    try:
+        from airsdk_pro.license import LicenseError
+        from airsdk_pro.report_soc2_ai import generate_soc2_ai_report
+    except ImportError:
+        typer.secho(_pro_unavailable_message(), fg=typer.colors.YELLOW)
+        raise typer.Exit(code=2) from None
+
+    registry = _load_registry_or_exit(agent_registry)
+    in_scope_categories = tuple(s.strip() for s in in_scope.split(",") if s.strip())
+
+    typer.secho(
+        f"[SOC 2 AI] Loading {log}...",
+        fg=typer.colors.WHITE, bold=True,
+    )
+    records = load_chain(log)
+    conversations = _count_conversations(records)
+    verification = verify_chain(records)
+    findings = run_detectors(records, registry=registry)
+
+    report = ForensicReport(
+        air_version=airsdk_version,
+        report_id=str(uuid4()),
+        source_log=str(log.resolve()),
+        generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        records=len(records),
+        conversations=conversations,
+        verification=verification,
+        findings=findings,
+    )
+
+    try:
+        markdown = generate_soc2_ai_report(
+            report,
+            records,
+            system_id,
+            service_organisation=service_organisation,
+            system_name=system_name,
+            monitoring_period=period,
+            in_scope_categories=in_scope_categories,
+        )
+    except LicenseError as exc:
+        typer.secho(f"License check failed: {exc}", fg=typer.colors.RED)
+        raise typer.Exit(code=2) from exc
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(markdown, encoding="utf-8")
+
+    if verification.status != VerificationStatus.OK:
+        typer.secho(
+            f"[WARNING] Chain verification did NOT pass: {verification.reason}. "
+            "Review before relying on this evidence in a SOC 2 examination.",
+            fg=typer.colors.YELLOW, err=True,
+        )
+    else:
+        typer.secho(
+            f"[Chain verified] {verification.records_verified} signatures valid.",
+            fg=typer.colors.GREEN,
+        )
+
+    typer.secho(f"SOC 2 AI evidence template written to {output.resolve()}", fg=typer.colors.GREEN, bold=True)
+
+
 def main() -> None:
     app()
 
