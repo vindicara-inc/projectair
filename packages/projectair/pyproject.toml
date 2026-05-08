@@ -51,6 +51,10 @@ dependencies = [
     # (or any OIDC + JWKS) tokens against the tenant's published public keys.
     # The [crypto] extra pulls in cryptography for RS256/RS384/RS512 support.
     "PyJWT[crypto]>=2.8,<3.0",
+    # jcs: RFC 8785 JSON Canonicalization Scheme. Layer 4 AgDR Handoff
+    # canonicalizes payloads before BLAKE3 hashing so two parties hash
+    # the same bytes regardless of dict ordering or whitespace.
+    "jcs>=0.2.1,<1.0",
 ]
 
 [project.optional-dependencies]
