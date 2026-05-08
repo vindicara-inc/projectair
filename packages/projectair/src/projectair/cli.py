@@ -74,6 +74,11 @@ from projectair.siem_cli import register as _register_siem_cli  # noqa: E402
 
 _register_siem_cli(app)
 
+# Pro: AIR Cloud client commands (`air cloud push-webhook | push-s3`).
+from projectair.cloud_cli import register as _register_cloud_cli  # noqa: E402
+
+_register_cloud_cli(app)
+
 
 def _count_conversations(records: list[AgDRRecord]) -> int:
     finishes = sum(1 for r in records if r.kind == StepKind.AGENT_FINISH)
