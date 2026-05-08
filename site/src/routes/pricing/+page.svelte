@@ -220,7 +220,16 @@
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Shared keys + workspace roles</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Email + Slack support</span></li>
           </ul>
-          <a href="/contact?tier=team" class="btn-primary w-full mt-7 text-sm">Buy a team license</a>
+          <a
+            href="https://buy.stripe.com/4gMdR8dDI9QEgA88Hl1RC02"
+            class="btn-primary w-full mt-7 text-sm"
+            rel="noopener"
+          >Buy monthly · $599</a>
+          <a
+            href="https://buy.stripe.com/eVq9ASdDI3sg2Ji4r51RC03"
+            class="block text-center text-xs text-zinc-500 hover:text-zinc-300 mt-3 underline underline-offset-4"
+            rel="noopener"
+          >Or pay annually for $5,400, save $1,788</a>
         </div>
 
         <!-- Enterprise -->
