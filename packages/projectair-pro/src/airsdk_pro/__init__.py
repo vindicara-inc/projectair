@@ -11,6 +11,15 @@ Buy a subscription at https://vindicara.io/pricing.
 """
 from __future__ import annotations
 
+from airsdk_pro.alerts import (
+    INCIDENT_WORKFLOWS_FEATURE,
+    AlertConfigError,
+    AlertPushError,
+    AlertResult,
+    alert_to_pagerduty,
+    alert_to_slack,
+    alert_to_webhook,
+)
 from airsdk_pro.cloud import (
     AIR_CLOUD_CLIENT_FEATURE,
     CloudConfigError,
@@ -52,15 +61,19 @@ from airsdk_pro.siem import (
     push_to_sumo,
 )
 
-__version__ = "0.5.0"
+__version__ = "0.7.0"
 
 __all__ = [
     "AIR_CLOUD_CLIENT_FEATURE",
+    "INCIDENT_WORKFLOWS_FEATURE",
     "NIST_RMF_FEATURE",
     "PREMIUM_DETECTORS_FEATURE",
     "PREMIUM_DETECTOR_IDS",
     "SIEM_INTEGRATIONS_FEATURE",
     "SOC2_AI_FEATURE",
+    "AlertConfigError",
+    "AlertPushError",
+    "AlertResult",
     "CloudConfigError",
     "CloudPushError",
     "CloudPushResult",
@@ -73,6 +86,9 @@ __all__ = [
     "SiemPushError",
     "SiemPushResult",
     "__version__",
+    "alert_to_pagerduty",
+    "alert_to_slack",
+    "alert_to_webhook",
     "current_license",
     "detect_supply_chain_premium",
     "generate_nist_rmf_report",
