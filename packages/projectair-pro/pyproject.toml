@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projectair-pro"
-version = "0.3.0"
+version = "0.4.0"
 description = "Project AIR Pro: licensed commercial features (AIR Cloud client, premium detectors, premium reports) on top of the MIT-licensed projectair package."
 readme = "README.md"
 license = "LicenseRef-Vindicara-Commercial"
@@ -26,6 +26,10 @@ dependencies = [
     # Lockstep on the OSS surface AIR Cloud commits to receiving from.
     "projectair>=0.7.1,<0.8",
     "cryptography>=46.0.6,<47.0",
+    # httpx: thin HTTP client used by the SIEM push helpers (Datadog, Splunk
+    # HEC, Sumo, Azure Sentinel). Same library projectair already uses for
+    # the Layer 3 Auth0 integration, so this just hoists it to a direct dep.
+    "httpx>=0.27,<1.0",
 ]
 
 [project.optional-dependencies]

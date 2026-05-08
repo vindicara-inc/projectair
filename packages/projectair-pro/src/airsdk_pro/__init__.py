@@ -27,17 +27,31 @@ from airsdk_pro.license import (
 )
 from airsdk_pro.report_nist_rmf import NIST_RMF_FEATURE, generate_nist_rmf_report
 from airsdk_pro.report_soc2_ai import SOC2_AI_FEATURE, generate_soc2_ai_report
+from airsdk_pro.siem import (
+    SIEM_INTEGRATIONS_FEATURE,
+    SiemConfigError,
+    SiemPushError,
+    SiemPushResult,
+    push_to_datadog,
+    push_to_sentinel,
+    push_to_splunk_hec,
+    push_to_sumo,
+)
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 __all__ = [
     "NIST_RMF_FEATURE",
+    "SIEM_INTEGRATIONS_FEATURE",
     "SOC2_AI_FEATURE",
     "LicenseError",
     "LicenseExpiredError",
     "LicenseInvalidError",
     "LicenseMissingError",
     "LicenseToken",
+    "SiemConfigError",
+    "SiemPushError",
+    "SiemPushResult",
     "__version__",
     "current_license",
     "generate_nist_rmf_report",
@@ -46,6 +60,10 @@ __all__ = [
     "install_license",
     "is_pro_active",
     "load_license",
+    "push_to_datadog",
+    "push_to_sentinel",
+    "push_to_splunk_hec",
+    "push_to_sumo",
     "requires_pro",
     "verify_token",
 ]

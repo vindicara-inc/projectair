@@ -67,6 +67,13 @@ from projectair.handoff_cli import register as _register_handoff_cli  # noqa: E4
 
 _register_handoff_cli(app)
 
+# Pro: SIEM push commands (`air siem datadog|splunk|sumo|sentinel`).
+# All command bodies defer the airsdk_pro import so OSS installs without Pro
+# still expose the help text and emit a clean install message at runtime.
+from projectair.siem_cli import register as _register_siem_cli  # noqa: E402
+
+_register_siem_cli(app)
+
 
 def _count_conversations(records: list[AgDRRecord]) -> int:
     finishes = sum(1 for r in records if r.kind == StepKind.AGENT_FINISH)
