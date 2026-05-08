@@ -26,11 +26,13 @@ from airsdk_pro.license import (
     verify_token,
 )
 from airsdk_pro.report_nist_rmf import NIST_RMF_FEATURE, generate_nist_rmf_report
+from airsdk_pro.report_soc2_ai import SOC2_AI_FEATURE, generate_soc2_ai_report
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 __all__ = [
     "NIST_RMF_FEATURE",
+    "SOC2_AI_FEATURE",
     "LicenseError",
     "LicenseExpiredError",
     "LicenseInvalidError",
@@ -39,6 +41,7 @@ __all__ = [
     "__version__",
     "current_license",
     "generate_nist_rmf_report",
+    "generate_soc2_ai_report",
     "has_feature",
     "install_license",
     "is_pro_active",
