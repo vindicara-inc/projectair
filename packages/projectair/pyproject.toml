@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projectair"
-version = "0.3.2"
-description = "Project AIR: forensic reconstruction and incident response for AI agents. Turn agent traces into signed forensic records with BLAKE3 + Ed25519."
+version = "0.7.0"
+description = "Project AIR: forensic reconstruction and incident response for AI agents. Signed AgDR chains, RFC 3161 + Sigstore Rekor anchoring, causal explanation, and Auth0-verified human-in-the-loop containment."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
@@ -38,6 +38,23 @@ dependencies = [
     # Load path uses yaml.safe_load only. JSON registries work via stdlib and do
     # not require this package at runtime.
     "pyyaml>=6.0.2,<7.0",
+    # rfc3161-client: RFC 3161 trusted timestamping for chain-root anchoring
+    # (Layer 1 v1). Carries the ASN.1 parsing and the verifier so the wrapper
+    # in airsdk/anchoring/rfc3161.py is integration glue, not custom crypto.
+    "rfc3161-client>=1.0,<2.0",
+    # sigstore: Rekor transparency-log anchoring. Used for the Hashedrekord
+    # entry submission, response parsing, and Merkle inclusion-proof
+    # verification. The anchoring path does not call Fulcio; Rekor accepts
+    # raw Ed25519 public keys directly.
+    "sigstore>=3.0,<5.0",
+    # PyJWT[crypto]: Layer 3 step-up approval verification. Validates Auth0
+    # (or any OIDC + JWKS) tokens against the tenant's published public keys.
+    # The [crypto] extra pulls in cryptography for RS256/RS384/RS512 support.
+    "PyJWT[crypto]>=2.8,<3.0",
+    # jcs: RFC 8785 JSON Canonicalization Scheme. Layer 4 AgDR Handoff
+    # canonicalizes payloads before BLAKE3 hashing so two parties hash
+    # the same bytes regardless of dict ordering or whitespace.
+    "jcs>=0.2.1,<1.0",
 ]
 
 [project.optional-dependencies]
@@ -65,8 +82,9 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 markers = [
     "network: requires outbound network access; skipped by default. Run with `pytest -m network`.",
+    "integration: requires external service credentials (e.g. AIR_AUTH0_*). Run with `pytest -m integration`.",
 ]
-addopts = "-m 'not network'"
+addopts = "-m 'not network and not integration'"
 
 [tool.ruff]
 target-version = "py312"
