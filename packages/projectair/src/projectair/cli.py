@@ -79,6 +79,11 @@ from projectair.cloud_cli import register as _register_cloud_cli  # noqa: E402
 
 _register_cloud_cli(app)
 
+# Pro: premium detectors (`air detect-premium`).
+from projectair.detect_premium_cli import register as _register_detect_premium_cli  # noqa: E402
+
+_register_detect_premium_cli(app)
+
 
 def _count_conversations(records: list[AgDRRecord]) -> int:
     finishes = sum(1 for r in records if r.kind == StepKind.AGENT_FINISH)

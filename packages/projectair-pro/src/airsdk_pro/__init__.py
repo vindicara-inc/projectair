@@ -19,6 +19,12 @@ from airsdk_pro.cloud import (
     push_chain_to_s3,
     push_chain_to_webhook,
 )
+from airsdk_pro.detectors import (
+    PREMIUM_DETECTOR_IDS,
+    PREMIUM_DETECTORS_FEATURE,
+    detect_supply_chain_premium,
+    run_premium_detectors,
+)
 from airsdk_pro.gate import requires_pro
 from airsdk_pro.license import (
     LicenseError,
@@ -51,6 +57,8 @@ __version__ = "0.5.0"
 __all__ = [
     "AIR_CLOUD_CLIENT_FEATURE",
     "NIST_RMF_FEATURE",
+    "PREMIUM_DETECTORS_FEATURE",
+    "PREMIUM_DETECTOR_IDS",
     "SIEM_INTEGRATIONS_FEATURE",
     "SOC2_AI_FEATURE",
     "CloudConfigError",
@@ -66,6 +74,7 @@ __all__ = [
     "SiemPushResult",
     "__version__",
     "current_license",
+    "detect_supply_chain_premium",
     "generate_nist_rmf_report",
     "generate_soc2_ai_report",
     "has_feature",
@@ -79,5 +88,6 @@ __all__ = [
     "push_to_splunk_hec",
     "push_to_sumo",
     "requires_pro",
+    "run_premium_detectors",
     "verify_token",
 ]
