@@ -2,6 +2,28 @@
 
 All notable changes to `projectair-pro` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.4.0] - 2026-05-08
+
+Wave 1 closes. Closes the "SIEM integrations: Datadog, Splunk, Sumo, Sentinel" line on the public pricing page with real implementations: thin HTTPS push helpers that take a Project AIR `ForensicReport` and deliver each detector finding directly to a customer-owned SIEM. Vindicara is never in the data path; every push goes from the customer's process straight to the customer's SIEM endpoint.
+
+### Added
+- `airsdk_pro.siem` submodule with four push helpers, all gated behind the new `siem-integrations` feature flag:
+  - `push_to_datadog(report, *, api_key, site=DEFAULT_DATADOG_SITE, source, service, tags, min_severity, ...)`: Datadog Logs API v2 (`https://http-intake.logs.<site>/api/v2/logs`). Each finding becomes one log entry tagged with `detector_id:<id>`, `severity:<level>`, `air_version:<v>`. EU / US3 sites covered via the `site` parameter.
+  - `push_to_splunk_hec(report, *, hec_url, hec_token, sourcetype, source, index, min_severity, ...)`: Splunk HTTP Event Collector. Constructs the concatenated-JSON-envelope format HEC actually expects (NOT a JSON array). Optional `index` for engagements with per-team Splunk indexes.
+  - `push_to_sumo(report, *, http_source_url, category, host, name, min_severity, ...)`: Sumo Logic Hosted HTTP Source. Newline-delimited JSON, with optional `X-Sumo-Category` / `X-Sumo-Host` / `X-Sumo-Name` metadata headers.
+  - `push_to_sentinel(report, *, workspace_id, shared_key, log_type, min_severity, ...)`: Microsoft Sentinel via Azure Log Analytics Data Collector API. Computes the SharedKey HMAC-SHA256 signature locally so the workspace key never leaves the customer's process; `log_type` defaults to `VindicaraAIR` (Sentinel auto-appends `_CL`).
+- `airsdk_pro.SiemPushResult`, `airsdk_pro.SiemConfigError`, `airsdk_pro.SiemPushError` for structured success and failure handling.
+- `airsdk_pro.SIEM_INTEGRATIONS_FEATURE` license feature flag.
+- `air siem datadog|splunk|sumo|sentinel <log>` CLI subcommands wired in `projectair.siem_cli`. Each defers the `airsdk_pro` import to the command body so OSS-only installs still expose the help text and emit a clean install message at runtime. Common credential env vars supported (`DD_API_KEY`, `SPLUNK_HEC_URL`, `SPLUNK_HEC_TOKEN`, `SUMO_HTTP_SOURCE_URL`, `SENTINEL_WORKSPACE_ID`, `SENTINEL_SHARED_KEY`).
+- 17 new tests in `tests/test_siem_push.py` using `httpx.MockTransport`: per-vendor success path, endpoint URL correctness (Datadog default vs EU site, Splunk URL passthrough, Sumo URL, Sentinel `<workspace>.ods.opinsights.azure.com`), payload-format invariants (Datadog JSON array, Splunk concatenated JSON envelopes, Sumo NDJSON, Sentinel JSON array), authentication shape (`DD-API-KEY`, `Authorization: Splunk <token>`, Sentinel `SharedKey <ws>:<sig>` with HMAC-SHA256 verified independently against the canonical Microsoft signing string), `min_severity` filtering, empty-findings short-circuit, missing-config rejection (`SiemConfigError`), non-2xx escalation (`SiemPushError`), gate rejection for both no-license and missing-feature cases.
+
+### Changed
+- `httpx>=0.27,<1.0` is now a direct runtime dependency of `projectair-pro`. The OSS `projectair` package already pulls httpx transitively (Layer 3 Auth0 integration) so this is a hoist, not a new wheel cost.
+
+### Notes
+- Wave 1 complete: NIST AI RMF (`0.2.0`), SOC 2 AI (`0.3.0`), and the SIEM push helpers (`0.4.0`) all ship before any of these surfaces are re-enabled on the public pricing page.
+- Wave 2 starts next with the AIR Cloud client v0 (push to a customer-owned webhook / S3 bucket), one real premium detector, and incident workflow / alerting hooks (Slack, PagerDuty, generic webhook).
+
 ## [0.3.0] - 2026-05-08
 
 Second premium report ships. Closes the "Premium reports: SOC 2-AI" line on the public pricing page with a real implementation. The output is auditor-input evidence material structured against the AICPA Trust Services Criteria, NOT a SOC 2 report (only an independent CPA can issue one); the disclaimer is explicit on this distinction.
