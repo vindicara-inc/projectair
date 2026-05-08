@@ -16,7 +16,8 @@ from fastapi import FastAPI
 
 from vindicara.cloud.capsule_store import CapsuleStore, InMemoryCapsuleStore
 from vindicara.cloud.middleware import AirCloudAuthMiddleware
-from vindicara.cloud.routes import capsules, keys, workspaces
+from vindicara.cloud.routes import capsules, keys, sso, workspaces
+from vindicara.cloud.sso import InMemorySsoConfigStore, SsoConfigStore
 from vindicara.cloud.workspace import (
     ApiKeyStore,
     InMemoryApiKeyStore,
@@ -30,6 +31,7 @@ def create_air_cloud_app(
     capsule_store: CapsuleStore | None = None,
     workspace_store: WorkspaceStore | None = None,
     api_key_store: ApiKeyStore | None = None,
+    sso_config_store: SsoConfigStore | None = None,
     title: str = "AIR Cloud",
     version: str = "0.1.0",
 ) -> FastAPI:
@@ -51,12 +53,14 @@ def create_air_cloud_app(
     app.state.capsule_store = capsule_store or InMemoryCapsuleStore()
     app.state.cloud_workspaces = workspace_store or InMemoryWorkspaceStore()
     app.state.cloud_api_keys = api_key_store or InMemoryApiKeyStore()
+    app.state.cloud_sso_configs = sso_config_store or InMemorySsoConfigStore()
 
     app.add_middleware(AirCloudAuthMiddleware, prefix="/v1")
 
     app.include_router(capsules.router)
     app.include_router(workspaces.router)
     app.include_router(keys.router)
+    app.include_router(sso.router)
 
     @app.get("/health")
     async def _health() -> dict[str, str]:

@@ -30,6 +30,9 @@ UNAUTHED_PATHS: frozenset[str] = frozenset({
     "/docs",
     "/redoc",
     "/docs/oauth2-redirect",
+    # /v1/sso/login is the authentication step itself; it cannot require
+    # an API key because the caller does not have one yet.
+    "/v1/sso/login",
 })
 
 API_KEY_HEADER = "X-API-Key"
