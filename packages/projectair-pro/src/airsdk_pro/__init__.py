@@ -61,7 +61,7 @@ from airsdk_pro.siem import (
     push_to_sumo,
 )
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 __all__ = [
     "AIR_CLOUD_CLIENT_FEATURE",

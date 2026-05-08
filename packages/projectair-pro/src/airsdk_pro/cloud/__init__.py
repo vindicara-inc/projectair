@@ -20,6 +20,10 @@ flag.
 """
 from __future__ import annotations
 
+from airsdk_pro.cloud.air_cloud import (
+    DEFAULT_BASE_URL,
+    push_chain_to_air_cloud,
+)
 from airsdk_pro.cloud.s3 import push_chain_to_s3
 from airsdk_pro.cloud.types import (
     AIR_CLOUD_CLIENT_FEATURE,
@@ -31,9 +35,11 @@ from airsdk_pro.cloud.webhook import push_chain_to_webhook
 
 __all__ = [
     "AIR_CLOUD_CLIENT_FEATURE",
+    "DEFAULT_BASE_URL",
     "CloudConfigError",
     "CloudPushError",
     "CloudPushResult",
+    "push_chain_to_air_cloud",
     "push_chain_to_s3",
     "push_chain_to_webhook",
 ]
