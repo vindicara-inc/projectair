@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projectair-pro"
-version = "0.1.0"
+version = "0.2.0"
 description = "Project AIR Pro: licensed commercial features (AIR Cloud client, premium detectors, premium reports) on top of the MIT-licensed projectair package."
 readme = "README.md"
 license = "LicenseRef-Vindicara-Commercial"
@@ -24,7 +24,7 @@ classifiers = [
 dependencies = [
     # Pro extends OSS: same AgDRRecord schema, same crypto primitives, same CLI host.
     # Lockstep on the OSS surface AIR Cloud commits to receiving from.
-    "projectair>=0.3.1,<0.5",
+    "projectair>=0.7.1,<0.8",
     "cryptography>=46.0.6,<47.0",
 ]
 
