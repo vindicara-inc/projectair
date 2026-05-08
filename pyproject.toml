@@ -45,6 +45,15 @@ api = [
     "uvicorn>=0.30.0,<1.0",
     "boto3>=1.35.0,<2.0",
     "boto3-stubs[dynamodb,s3,events]>=1.35.0,<2.0",
+    # stripe: server-side Stripe SDK. Used by the /webhooks/stripe route to
+    # verify webhook signatures (stripe.Webhook.construct_event) against the
+    # signing secret before issuing a license token. Pinned to a 12.x line.
+    "stripe>=12.0.0,<13.0",
+    # resend: minimal HTTP client for the Resend transactional email API.
+    # Used to deliver the signed license token + projectair-pro install
+    # instructions to a paying customer immediately after Stripe confirms
+    # the checkout session. Falls back to logging if RESEND_API_KEY is unset.
+    "resend>=2.0.0,<3.0",
 ]
 cdk = [
     "aws-cdk-lib>=2.150.0,<3.0",
