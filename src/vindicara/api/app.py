@@ -7,7 +7,17 @@ from vindicara.api.middleware.auth import APIKeyAuthMiddleware, APIKeyStore
 from vindicara.api.middleware.rate_limit import RateLimitMiddleware
 from vindicara.api.middleware.request_id import RequestIDMiddleware
 from vindicara.api.middleware.security_headers import SecurityHeadersMiddleware
-from vindicara.api.routes import agents, capsules, guard, health, monitor, policies, reports, scans
+from vindicara.api.routes import (
+    agents,
+    capsules,
+    guard,
+    health,
+    monitor,
+    policies,
+    reports,
+    scans,
+    stripe_webhook,
+)
 from vindicara.cloud.capsule_store import CapsuleStore, InMemoryCapsuleStore
 from vindicara.config.settings import VindicaraSettings
 
@@ -63,6 +73,7 @@ def create_app(
     app.include_router(reports.router)
     app.include_router(monitor.router)
     app.include_router(capsules.router)
+    app.include_router(stripe_webhook.router)
 
     from vindicara.dashboard.app import create_dashboard_app
     from vindicara.dashboard.auth.middleware import DashboardAuthMiddleware

@@ -11,7 +11,16 @@ from vindicara.config.constants import API_KEY_HEADER, API_KEY_PREFIX
 
 logger = structlog.get_logger()
 
-_PUBLIC_PATHS = {"/health", "/ready", "/docs", "/openapi.json", "/redoc"}
+_PUBLIC_PATHS = {
+    "/health",
+    "/ready",
+    "/docs",
+    "/openapi.json",
+    "/redoc",
+    # Stripe webhook authenticates via the Stripe-Signature header (verified
+    # against STRIPE_WEBHOOK_SECRET inside the route), not our API key.
+    "/webhooks/stripe",
+}
 
 
 class APIKeyStore:

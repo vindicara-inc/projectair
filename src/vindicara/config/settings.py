@@ -60,3 +60,37 @@ class VindicaraSettings(BaseSettings):
         default="noreply@vindicara.io",
         description="Verified SES sender identity for outbound email.",
     )
+    stripe_secret_key: str = Field(
+        default="",
+        description="Stripe secret key (sk_live_... or sk_test_...). Server-side only.",
+    )
+    stripe_webhook_secret: str = Field(
+        default="",
+        description="Stripe webhook signing secret (whsec_...) for signature verification.",
+    )
+    resend_api_key: str = Field(
+        default="",
+        description="Resend transactional email API key. Empty disables email delivery (logs instead).",
+    )
+    license_signing_key_pem: str = Field(
+        default="",
+        description=(
+            "Ed25519 vendor private key in PEM format for signing license tokens. "
+            "Loaded as a string so the secret can come from a single env var or "
+            "Secrets Manager fetch. Empty disables auto-issuance."
+        ),
+    )
+    license_default_duration_days: int = Field(
+        default=30,
+        description=(
+            "Default license duration when issued from a Stripe webhook. 30 covers a monthly "
+            "subscription with a small grace window; renewal events extend on next invoice.paid."
+        ),
+    )
+    pro_wheel_signed_url: str = Field(
+        default="",
+        description=(
+            "Pre-signed (or otherwise time-limited) URL where buyers can download the "
+            "projectair-pro wheel after purchase. Embedded in the activation email."
+        ),
+    )
