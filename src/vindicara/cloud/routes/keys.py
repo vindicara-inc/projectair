@@ -4,6 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, ConfigDict
 
+from vindicara.cloud.roles import Capability, is_valid_role, require
 from vindicara.cloud.workspace import (
     ApiKey,
     ApiKeyStore,
@@ -16,7 +17,7 @@ router = APIRouter()
 class IssueKeyRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str | None = None
-    role: str = "owner"
+    role: str = "member"
 
 
 class RedactedKey(BaseModel):
@@ -48,6 +49,7 @@ def _redact(api_key: ApiKey) -> RedactedKey:
     summary="List API keys in the calling key's workspace (secrets redacted).",
 )
 async def list_keys(request: Request) -> list[RedactedKey]:
+    require(request, Capability.LIST_KEYS)
     store: ApiKeyStore = request.app.state.cloud_api_keys
     workspace_id: str = request.state.workspace_id
     return [_redact(k) for k in store.for_workspace(workspace_id)]
@@ -63,14 +65,14 @@ async def issue_key(request: Request, payload: IssueKeyRequest) -> ApiKey:
     """Issue a new API key. The full key (with secret) is returned exactly
     once; subsequent listings will redact it. Treat the response body as
     secret material at the receiving side."""
+    require(request, Capability.ISSUE_KEY)
+    if not is_valid_role(payload.role):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"role {payload.role!r} is not a valid workspace role",
+        )
     store: ApiKeyStore = request.app.state.cloud_api_keys
     workspace_id: str = request.state.workspace_id
-    issuer_role: str = getattr(request.state, "role", "owner")
-    if issuer_role != "owner":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="only owner-role keys can issue new keys",
-        )
     existing = len(store.for_workspace(workspace_id))
     api_key = ApiKey(
         key_id=f"key_{workspace_id}_{existing + 1:04d}",
@@ -88,14 +90,9 @@ async def issue_key(request: Request, payload: IssueKeyRequest) -> ApiKey:
     summary="Revoke an API key in the calling key's workspace.",
 )
 async def revoke_key(request: Request, key_id: str) -> dict[str, str | bool]:
+    require(request, Capability.REVOKE_KEY)
     store: ApiKeyStore = request.app.state.cloud_api_keys
     workspace_id: str = request.state.workspace_id
-    issuer_role: str = getattr(request.state, "role", "owner")
-    if issuer_role != "owner":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="only owner-role keys can revoke keys",
-        )
     matching = [k for k in store.for_workspace(workspace_id) if k.key_id == key_id]
     if not matching:
         raise HTTPException(status_code=404, detail=f"key {key_id!r} not found in workspace")
