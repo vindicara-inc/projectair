@@ -22,6 +22,7 @@ from __future__ import annotations
 import atexit
 import json
 import logging
+import os
 import queue
 import threading
 import urllib.error
@@ -59,16 +60,34 @@ class Transport(Protocol):
 class FileTransport:
     """Append each record as a JSONL line to ``log_path``.
 
-    This is the OSS-default transport. Writes are synchronous and durable
-    (the file handle is reopened in append-mode for each emit, matching the
-    historical behaviour of ``AIRRecorder._emit``). Parent directories are
-    created on first write.
+    This is the OSS-default transport. Writes are synchronous and force a
+    fsync per record so the chain on disk survives power loss. The chain
+    file is the canonical state the anchoring orchestrator recovers from at
+    startup, so durability of every individual record is load-bearing.
+
+    Throughput, measured by ``scripts/bench_fsync.py`` on macOS APFS
+    (1,000 records x 5 runs, median across runs):
+
+    - ``fsync=True`` (default): ~9,000-9,500 records/sec, ~0.11 ms/record
+    - ``fsync=False``:           ~9,500-10,200 records/sec, ~0.10 ms/record
+
+    The 5-10% overhead on macOS is a lower bound: macOS ``os.fsync`` flushes
+    to the disk controller but does not force the platter write (the strong
+    sync is ``fcntl(fd, F_FULLFSYNC)``, not yet wired here). On Linux ext4
+    or xfs with real ``fsync`` semantics, expect ~50-200 us per record on
+    NVMe and meaningfully more on rotational disks. Agents emitting more
+    than ~1,000 steps/sec on a Linux HDD should benchmark before relying
+    on the default. ``fsync=False`` weakens crash recovery to "best effort"
+    because the OS may buffer the last few records past a power loss.
+
+    Parent directories are created on first write.
     """
 
-    def __init__(self, log_path: str | Path) -> None:
+    def __init__(self, log_path: str | Path, *, fsync: bool = True) -> None:
         self._log_path = Path(log_path).expanduser()
         self._log_path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
+        self._fsync = fsync
 
     @property
     def log_path(self) -> Path:
@@ -79,6 +98,9 @@ class FileTransport:
         with self._lock, self._log_path.open("a", encoding="utf-8") as handle:
             handle.write(line)
             handle.write("\n")
+            handle.flush()
+            if self._fsync:
+                os.fsync(handle.fileno())
 
     def drain(self, timeout: float) -> None:
         # Disk writes are synchronous; nothing to wait on.

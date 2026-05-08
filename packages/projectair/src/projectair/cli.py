@@ -46,6 +46,27 @@ report_app = typer.Typer(
 )
 app.add_typer(report_app, name="report")
 
+# Layer 1 anchoring commands: `air anchor`, `air verify`, `air verify-public`.
+# Lives in a sibling module to keep the legacy CLI surface untouched.
+from projectair.anchor_cli import register as _register_anchor_cli  # noqa: E402
+
+_register_anchor_cli(app)
+
+# Layer 2 causal explain command: `air explain`.
+from projectair.explain_cli import register as _register_explain_cli  # noqa: E402
+
+_register_explain_cli(app)
+
+# Layer 3 step-up approval command: `air approve` (Auth0 + token + device flow).
+from projectair.approve_cli import register as _register_approve_cli  # noqa: E402
+
+_register_approve_cli(app)
+
+# Layer 4 cross-agent handoff: `air handoff verify`, ... (more in follow-up waves).
+from projectair.handoff_cli import register as _register_handoff_cli  # noqa: E402
+
+_register_handoff_cli(app)
+
 
 def _count_conversations(records: list[AgDRRecord]) -> int:
     finishes = sum(1 for r in records if r.kind == StepKind.AGENT_FINISH)
