@@ -910,6 +910,12 @@
   </div>
 </section>
 
+<!--
+  HOMEPAGE PRICING SECTION — hidden until paid-tier features actually ship.
+  Restore the cards once Wave 1+ features land. /pricing route still exists
+  for direct visitors and for the navbar "Pricing" link.
+-->
+{#if false}
 <!-- PRICING -->
 <section id="pricing" class="py-24">
   <div class="max-w-screen-xl mx-auto px-6">
@@ -921,7 +927,7 @@
       </p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 border border-white/10 max-w-5xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-white/10 max-w-5xl mx-auto">
       <!-- Open Source -->
       <div class="p-6 border-b lg:border-b-0 lg:border-r border-white/10">
         <div class="flex items-center justify-between mb-2">
@@ -935,43 +941,28 @@
         </p>
       </div>
 
-      <!-- Team -->
-      <div class="p-6 border-b lg:border-b-0 lg:border-r border-white/10 bg-white/[0.015]">
+      <!-- Team & Enterprise -->
+      <div class="p-6 flex flex-col">
         <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Team</h3>
-          <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">Coming Soon</span>
+          <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Team &amp; Enterprise</h3>
         </div>
-        <p class="text-3xl font-black mt-3">$1,499<span class="text-sm font-normal text-zinc-500">/mo</span></p>
-        <p class="text-xs text-zinc-500 mt-1">AIR Cloud for security and platform teams.</p>
+        <p class="text-3xl font-black mt-3">See full pricing</p>
         <p class="text-sm text-zinc-400 mt-4 leading-relaxed">
-          Hosted incident dashboard up to 25 agents, SIEM export, workflows, alerting.
+          AIR Cloud, SSO, compliance exports, insurance integrations, and SLA-backed support for teams that need them.
         </p>
-      </div>
-
-      <!-- Enterprise -->
-      <div class="p-6">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Enterprise</h3>
-          <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">Coming Soon</span>
+        <div class="mt-6">
+          <a href="/pricing" class="btn-secondary text-sm px-6 py-3 inline-flex items-center gap-2">
+            View pricing and FAQ
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
         </div>
-        <p class="text-3xl font-black mt-3">$50K<span class="text-sm font-normal text-zinc-500">–$250K ACV</span></p>
-        <p class="text-xs text-zinc-500 mt-1">For regulated industries and insurance.</p>
-        <p class="text-sm text-zinc-400 mt-4 leading-relaxed">
-          SSO, SAML, compliance exports (EU AI Act, SB 53, SOC 2), insurance integrations, SLA, BAA.
-        </p>
       </div>
-    </div>
-
-    <div class="text-center mt-10">
-      <a href="/pricing" class="btn-secondary text-sm px-6 py-3 inline-flex items-center gap-2">
-        See full pricing and FAQ
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-        </svg>
-      </a>
     </div>
   </div>
 </section>
+{/if}
 
 <!-- CTA -->
 <section class="py-24 relative overflow-hidden">

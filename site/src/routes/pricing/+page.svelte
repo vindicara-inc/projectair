@@ -254,6 +254,15 @@
     </div>
   </section>
 
+  <!--
+    FEATURE COMPARISON — hidden until paid-tier features actually ship.
+    Re-enable rows individually as features land:
+      - Wave 1: Premium reports (NIST AI RMF, SOC2-AI), SIEM integrations
+      - Wave 2: AIR Cloud client SDK, Incident workflows + alerting
+      - Wave 3: Hosted AIR Cloud workspace, SSO/SAML/RBAC, on-prem packaging
+    To re-enable, change `{#if false}` below to `{#if true}` (or remove the guard).
+  -->
+  {#if false}
   <!-- FEATURE COMPARISON -->
   <section class="py-20 border-t border-white/5">
     <div class="max-w-screen-xl mx-auto px-6">
@@ -384,6 +393,7 @@
       </div>
     </div>
   </section>
+  {/if}
 
   <!-- FAQ -->
   <section class="py-20 border-t border-white/5">
