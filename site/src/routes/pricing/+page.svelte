@@ -192,7 +192,16 @@
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>License works air-gapped (no phone-home)</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Email support</span></li>
           </ul>
-          <a href="/contact?tier=individual" class="btn-primary w-full mt-7 text-sm">Buy a license</a>
+          <a
+            href="https://buy.stripe.com/aFa14m438d2QgA88Hl1RC00"
+            class="btn-primary w-full mt-7 text-sm"
+            rel="noopener"
+          >Buy monthly · $39</a>
+          <a
+            href="https://buy.stripe.com/cNi9AS0QWfaYbfOe1F1RC01"
+            class="block text-center text-xs text-zinc-500 hover:text-zinc-300 mt-3 underline underline-offset-4"
+            rel="noopener"
+          >Or pay annually for $350, save $118</a>
         </div>
 
         <!-- Team -->
