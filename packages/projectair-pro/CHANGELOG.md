@@ -2,6 +2,24 @@
 
 All notable changes to `projectair-pro` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.6.0] - 2026-05-08
+
+First real premium detector lands. Closes the "Premium detectors as they ship" line on the public pricing page with a real implementation: three new sub-detectors under OWASP **ASI04 Agentic Supply Chain Vulnerabilities** that go deeper than the OSS MCP-naming-convention check. The ASI04 surface in OSS was honest about being partial coverage (only MCP names); this release adds the dependency-poisoning and tool-manifest-tampering signals that the OSS roadmap committed to.
+
+### Added
+- `airsdk_pro.detectors.detect_supply_chain_premium(records)`: runs three sub-detectors and returns `Finding` objects in the same shape the OSS package emits, so existing reports and exports consume them unchanged. Gated behind the new `premium-detectors` Pro feature flag.
+  - **ASI04-PD Dependency Install Surface** (`severity=high`): flags tool calls that invoke a package manager (pip, npm, pnpm, yarn, gem, cargo, go install, apt-get, yum, brew, dnf) or a remote shell pipe (`curl … | bash`, `wget … | sh`, `… | python`).
+  - **ASI04-TM Tool Manifest Drift** (`severity=medium`): flags the same `tool_name` appearing with diverging argument schemas across the chain. Requires at least 2 prior calls with a stable schema before the third call introducing new keys triggers the finding, so optional-key usage does not produce false positives.
+  - **ASI04-USF Untrusted Source Fetch** (`severity=high`): flags tool args that fetch executable content from sources commonly used to bypass dependency review (raw GitHub, gists, pastebins, ngrok / localhost.run / serveo tunnels, transfer.sh, 0x0.st).
+- `airsdk_pro.detectors.run_premium_detectors(records)`: convenience wrapper that runs every premium detector this release ships. Future releases add more sub-detectors under other OWASP categories without breaking callers of this entrypoint.
+- `airsdk_pro.PREMIUM_DETECTORS_FEATURE` and `airsdk_pro.PREMIUM_DETECTOR_IDS` for programmatic discovery of the surface.
+- `air detect-premium <log> [--output findings.json]` CLI subcommand. Same defer-the-import pattern as the other Pro CLI commands so OSS-only installs still expose the help text and emit a clean install message at runtime. Stdout shows a per-detector count summary plus the individual findings.
+- 32 new tests in `tests/test_detectors_asi04_premium.py`: per-detector positive coverage with parametrised pattern matrices (17 install patterns, 8 untrusted-host patterns), benign-traffic negatives, manifest-drift threshold and per-tool-name isolation, the aggregate `run_premium_detectors` entrypoint, and gate rejection for both no-license and missing-feature cases.
+
+### Notes
+- ASI04-TM is the first detector in the family that operates over chain history rather than per-record; it tracks per-`tool_name` schema state and only triggers after at least 2 prior calls with a stable key set, so a tool that gains a key the first time it is called will not produce a false positive.
+- The OSS `detect_mcp_supply_chain_risk` MCP-naming-convention check is unchanged and continues to ship in the free tier.
+
 ## [0.5.0] - 2026-05-08
 
 Wave 2 starts. Closes the "AIR Cloud client SDK (push capsules to a hosted workspace)" line on the public pricing page with a real implementation. Today the client targets storage the **customer** owns (HTTPS webhook or S3 bucket); the hosted multi-tenant Vindicara ingest service is a follow-on release. The client surface is stable across that transition: when the hosted service ships, the same APIs gain a default endpoint and authentication path, but the wire format does not change.
