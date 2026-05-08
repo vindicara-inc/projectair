@@ -84,6 +84,11 @@ from projectair.detect_premium_cli import register as _register_detect_premium_c
 
 _register_detect_premium_cli(app)
 
+# Pro: incident alerts (`air alert slack | pagerduty | webhook`).
+from projectair.alert_cli import register as _register_alert_cli  # noqa: E402
+
+_register_alert_cli(app)
+
 
 def _count_conversations(records: list[AgDRRecord]) -> int:
     finishes = sum(1 for r in records if r.kind == StepKind.AGENT_FINISH)
