@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projectair-pro"
-version = "0.4.0"
+version = "0.5.0"
 description = "Project AIR Pro: licensed commercial features (AIR Cloud client, premium detectors, premium reports) on top of the MIT-licensed projectair package."
 readme = "README.md"
 license = "LicenseRef-Vindicara-Commercial"
@@ -38,6 +38,13 @@ dev = [
     "pytest-cov>=5.0.0,<6.0",
     "ruff>=0.6.0,<1.0",
     "mypy>=1.11.0,<2.0",
+    "boto3>=1.34,<2.0",
+    "moto>=5.0,<6.0",
+]
+# S3 chain push (`push_chain_to_s3`). Pulls in boto3 only when the customer
+# wants the S3 destination; webhook push works with the base install.
+s3 = [
+    "boto3>=1.34,<2.0",
 ]
 
 [project.urls]
