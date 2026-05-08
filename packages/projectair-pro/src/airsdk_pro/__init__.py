@@ -11,6 +11,14 @@ Buy a subscription at https://vindicara.io/pricing.
 """
 from __future__ import annotations
 
+from airsdk_pro.cloud import (
+    AIR_CLOUD_CLIENT_FEATURE,
+    CloudConfigError,
+    CloudPushError,
+    CloudPushResult,
+    push_chain_to_s3,
+    push_chain_to_webhook,
+)
 from airsdk_pro.gate import requires_pro
 from airsdk_pro.license import (
     LicenseError,
@@ -38,12 +46,16 @@ from airsdk_pro.siem import (
     push_to_sumo,
 )
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 __all__ = [
+    "AIR_CLOUD_CLIENT_FEATURE",
     "NIST_RMF_FEATURE",
     "SIEM_INTEGRATIONS_FEATURE",
     "SOC2_AI_FEATURE",
+    "CloudConfigError",
+    "CloudPushError",
+    "CloudPushResult",
     "LicenseError",
     "LicenseExpiredError",
     "LicenseInvalidError",
@@ -60,6 +72,8 @@ __all__ = [
     "install_license",
     "is_pro_active",
     "load_license",
+    "push_chain_to_s3",
+    "push_chain_to_webhook",
     "push_to_datadog",
     "push_to_sentinel",
     "push_to_splunk_hec",

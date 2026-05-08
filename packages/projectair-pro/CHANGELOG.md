@@ -2,6 +2,30 @@
 
 All notable changes to `projectair-pro` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.5.0] - 2026-05-08
+
+Wave 2 starts. Closes the "AIR Cloud client SDK (push capsules to a hosted workspace)" line on the public pricing page with a real implementation. Today the client targets storage the **customer** owns (HTTPS webhook or S3 bucket); the hosted multi-tenant Vindicara ingest service is a follow-on release. The client surface is stable across that transition: when the hosted service ships, the same APIs gain a default endpoint and authentication path, but the wire format does not change.
+
+Why customer-owned destinations first:
+- It makes "AIR Cloud client" a real shipping feature now, not a stub.
+- It works air-gapped and in regulated tenants without any Vindicara control plane in the data path.
+- It defers the multi-tenant question (auth, billing, retention, data residency) until the hosted service is ready, instead of locking customers into a half-built ingest API.
+
+### Added
+- `airsdk_pro.cloud` submodule with two destinations, both gated behind the new `air-cloud-client` Pro feature flag:
+  - `push_chain_to_webhook(records, *, url, secret=None, extra_headers=None, ...)`: POSTs the chain as newline-delimited JSON (one AgDR record per line, signatures intact for offline re-verification with `air trace`). When `secret` is set, the body is HMAC-SHA256-signed and the digest is sent as `X-Vindicara-Signature: sha256=<hex>` so the receiver can reject tampered or unauthenticated requests. Same envelope pattern GitHub, Stripe, and Slack outgoing webhooks use.
+  - `push_chain_to_s3(records, *, bucket, key, region=None, sse="AES256", metadata=None, ...)`: uploads the JSONL chain to a customer-owned S3 bucket via boto3. Server-side encryption defaults to `AES256`. `metadata` keys land in S3 object metadata. boto3 is an **optional** dependency: install `projectair-pro[s3]` to enable S3, or stick with the base install and use the webhook destination.
+- `airsdk_pro.CloudPushResult`, `airsdk_pro.CloudConfigError`, `airsdk_pro.CloudPushError` for structured success and failure handling.
+- `airsdk_pro.AIR_CLOUD_CLIENT_FEATURE` license feature flag.
+- `air cloud push-webhook` and `air cloud push-s3` CLI subcommands wired in `projectair.cloud_cli`. Same defer-the-import pattern as the SIEM commands so OSS-only installs still expose the help text and emit a clean install message at runtime. Common config env vars supported (`AIR_CLOUD_WEBHOOK_URL`, `AIR_CLOUD_WEBHOOK_SECRET`, `AIR_CLOUD_S3_BUCKET`, `AIR_CLOUD_S3_KEY`).
+- 19 new tests in `tests/test_cloud_push.py` covering: webhook JSONL ordering with one line per record, HMAC-SHA256 signing path with externally-recomputed digest, secret-omitted no-signature path, `extra_headers` merge, refusal to override `Content-Type` or the signature header from `extra_headers`, empty-chain short-circuit, missing-config rejection, non-2xx escalation, S3 `put_object` argument shape (Bucket / Key / ContentType / ServerSideEncryption / Metadata), `sse=None` opt-out path, helpful `CloudConfigError` message when boto3 is not installed, and gate-rejection for both no-license and missing-feature cases on each destination.
+
+### Changed
+- `projectair-pro` now declares an optional `[s3]` extra (`pip install projectair-pro[s3]`) that pulls in `boto3>=1.34,<2.0`. Webhook destination works without it.
+
+### Notes
+- Wave 2 continues with a real premium detector (full ASI04 supply-chain) and incident workflows / alerting (Slack, PagerDuty, generic webhook). Hosted AIR Cloud ingest service is W3.
+
 ## [0.4.0] - 2026-05-08
 
 Wave 1 closes. Closes the "SIEM integrations: Datadog, Splunk, Sumo, Sentinel" line on the public pricing page with real implementations: thin HTTPS push helpers that take a Project AIR `ForensicReport` and deliver each detector finding directly to a customer-owned SIEM. Vindicara is never in the data path; every push goes from the customer's process straight to the customer's SIEM endpoint.
