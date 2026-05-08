@@ -910,6 +910,12 @@
   </div>
 </section>
 
+<!--
+  HOMEPAGE PRICING SECTION — hidden until paid-tier features actually ship.
+  Restore the cards once Wave 1+ features land. /pricing route still exists
+  for direct visitors and for the navbar "Pricing" link.
+-->
+{#if false}
 <!-- PRICING -->
 <section id="pricing" class="py-24">
   <div class="max-w-screen-xl mx-auto px-6">
@@ -956,6 +962,7 @@
     </div>
   </div>
 </section>
+{/if}
 
 <!-- CTA -->
 <section class="py-24 relative overflow-hidden">
