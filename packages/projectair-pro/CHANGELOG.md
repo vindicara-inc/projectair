@@ -2,6 +2,38 @@
 
 All notable changes to `projectair-pro` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.8.0] - 2026-05-08
+
+Wave 3 starts. The hosted AIR Cloud ingest service that the W2.4 cloud client points at by default lands in `vindicara.cloud` (server side) and a new `push_chain_to_air_cloud` helper lands in `airsdk_pro.cloud` (client side). The hosted service is multi-tenant from day one: every API key is bound to one workspace, every record is stored under that workspace, and cross-workspace reads return 404.
+
+### Added (server side, in `vindicara.cloud`)
+- `vindicara.cloud.workspace`: `Workspace` and `ApiKey` dataclasses, `WorkspaceStore` and `ApiKeyStore` Protocols, and `InMemory*` implementations for tests / local dev. `generate_api_key()` produces `air_<32 hex>` keys via `secrets.token_hex(16)`. Revoke is idempotent and surfaces through `lookup` returning `None` once the key is revoked.
+- `vindicara.cloud.middleware.AirCloudAuthMiddleware`: ASGI middleware that maps the `X-API-Key` header to a workspace via the configured `ApiKeyStore` and populates `request.state.workspace_id` / `api_key_id` / `role`. `/health`, `/ready`, `/openapi.json`, `/docs`, `/redoc` are unauthed; everything under `/v1` requires a valid key. Missing-store deployments fail closed with HTTP 503 instead of letting an unauthenticated request through.
+- `vindicara.cloud.factory.create_air_cloud_app`: standalone FastAPI factory that wires only the AIR-Cloud-specific routes plus `/health` and `/ready`. Defaults to in-memory stores; production deployments inject DynamoDB-backed stores via keyword args.
+- `POST /v1/capsules` — single-record ingest. Verifies the AgDRRecord signature server-side before persisting; tampered records get 422.
+- `POST /v1/capsules/bulk` — batch ingest as newline-delimited JSON. Verifies every record before persisting any; reports the offending line on rejection.
+- `GET /v1/capsules?limit=&offset=` — list capsules in the calling key's workspace, paginated (default 100, max 1000).
+- `GET /v1/capsules/{step_id}` — fetch one record by step_id, scoped to the calling key's workspace. Returns 404 for step_ids that exist but in another workspace.
+- `GET /v1/workspaces/me` — return the workspace the calling key belongs to.
+- `POST /v1/workspaces` — create a workspace and issue a bootstrap API key. The full key (with secret) is returned exactly once; later listings are redacted.
+- `GET /v1/keys` — list API keys in the calling workspace with **secrets redacted**.
+- `POST /v1/keys` — issue a new API key. The full key is returned exactly once. Owner-role only; viewer-role keys get 403.
+- `DELETE /v1/keys/{key_id}` — revoke an API key. Owner-role only; idempotent.
+
+### Added (client side, in `airsdk_pro.cloud`)
+- `airsdk_pro.cloud.push_chain_to_air_cloud(records, *, api_key, base_url=DEFAULT_BASE_URL, ...)`: thin client around `POST /v1/capsules/bulk`. Sends the chain as NDJSON, authenticates with `X-API-Key`, and surfaces the same `CloudPushResult` / `CloudConfigError` / `CloudPushError` types as the webhook and S3 helpers.
+- `airsdk_pro.DEFAULT_BASE_URL`: `https://cloud.vindicara.io` (the public deployment target).
+
+### Tests
+- `tests/unit/cloud/test_workspace.py` — 8 tests for the workspace + API-key models and in-memory stores: API-key prefix and length, uniqueness across 100 generations, workspace round-trip, duplicate rejection, revoke flow (irreversible + idempotent), per-tenant filter, unknown-key revoke returning False.
+- `tests/integration/cloud/test_air_cloud_app.py` — 14 tests driving the full ASGI stack via `httpx.AsyncClient` + `ASGITransport`: health unauthenticated, every `/v1` route demanding a valid key, signed-record round-trip persisted under the right workspace, tampered signature rejected, bulk NDJSON ingest, per-workspace listing + step_id lookup with cross-tenant **404 enforced** (and read-back from the owning tenant succeeds), workspace creation returns the bootstrap key inline, duplicate workspace conflicts on 409, key issue / list (redacted) / revoke flow, revoked key loses access, viewer-role 403 on issue and revoke.
+- `packages/projectair-pro/tests/test_cloud_air_cloud.py` — 9 tests for the client helper using `httpx.MockTransport`: default-base-URL targeting, custom base URL, NDJSON one-record-per-line body shape, empty-chain short-circuit (no HTTP call), missing api-key rejection, missing base-url rejection, non-2xx escalation, gate rejection for both no-license and missing-feature cases.
+- `mypy --strict` clean across all new server-side and client-side modules.
+
+### Deployment notes
+- The default `create_air_cloud_app()` factory uses in-memory stores; it is a working development server, not a production deployment. The DynamoDB-backed `WorkspaceStore` / `ApiKeyStore` / `CapsuleStore` implementations land alongside CDK wiring in a follow-on release; the factory's `*_store` keyword args are the seam they plug into.
+- Workspace creation (`POST /v1/workspaces`) is part of the public `/v1` surface today, so the bootstrap key created at deploy time is the only credential that can call it. Production deployments should gate this route behind an admin path or OIDC login (W3.10) before exposing it on the open internet.
+
 ## [0.7.0] - 2026-05-08
 
 Wave 2 closes. Closes the "Incident workflows and alerting" line on the public pricing page with three real implementations: Slack Incoming Webhook, PagerDuty Events API v2, and a generic HMAC-signed webhook. Decoupled from the SIEM push helpers in `airsdk_pro.siem`: SIEM push is for log aggregation and detection rules, alerting is for waking someone up at 3am.
