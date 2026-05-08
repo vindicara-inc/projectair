@@ -25,10 +25,12 @@ from airsdk_pro.license import (
     load_license,
     verify_token,
 )
+from airsdk_pro.report_nist_rmf import NIST_RMF_FEATURE, generate_nist_rmf_report
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
+    "NIST_RMF_FEATURE",
     "LicenseError",
     "LicenseExpiredError",
     "LicenseInvalidError",
@@ -36,6 +38,7 @@ __all__ = [
     "LicenseToken",
     "__version__",
     "current_license",
+    "generate_nist_rmf_report",
     "has_feature",
     "install_license",
     "is_pro_active",

@@ -580,6 +580,117 @@ def upgrade() -> None:
     typer.echo("https://vindicara.io/pricing")
 
 
+@report_app.command("nist-rmf")
+def report_nist_rmf(
+    log: Path = typer.Argument(..., exists=True, readable=True, help="Path to a JSON-lines AgDR log."),
+    system_id: str = typer.Option(
+        ...,
+        "--system-id",
+        help="Unique identifier for the AI system whose risks are being managed.",
+    ),
+    output: Path = typer.Option(
+        Path("nist-rmf-report.md"),
+        "--output", "-o",
+        help="Where to write the generated NIST AI RMF report (Markdown).",
+    ),
+    system_name: str = typer.Option(
+        "[AI system name]",
+        "--system-name",
+        help="Human-readable name of the AI system.",
+    ),
+    operator: str = typer.Option(
+        "[Operator entity]",
+        "--operator",
+        help="Legal entity operating the system (will appear in the attestation).",
+    ),
+    period: str = typer.Option(
+        "[reporting period, e.g. 2026-Q3]",
+        "--period",
+        help="Reporting period label (free text).",
+    ),
+    rmf_profile: str = typer.Option(
+        "AI RMF 1.0 (NIST AI 100-1)",
+        "--rmf-profile",
+        help="RMF profile applied (e.g. AI RMF 1.0, GAI Profile NIST AI 600-1).",
+    ),
+    agent_registry: Path | None = typer.Option(
+        None,
+        "--agent-registry",
+        help="Optional agent registry to enable ASI03/ASI10 Zero-Trust enforcement during report generation.",
+        exists=True,
+        readable=True,
+    ),
+) -> None:
+    """Generate a NIST AI RMF risk-management report from an AgDR log (Pro).
+
+    Requires a Vindicara Pro license with the ``report-nist-ai-rmf``
+    feature flag. The output is a populated Markdown template structured
+    against the four AI RMF functions (GOVERN, MAP, MEASURE, MANAGE),
+    not a NIST-blessed compliance artefact. Operators must review,
+    adapt, and have a qualified person sign the attestation before
+    relying on the report as evidence.
+    """
+    try:
+        from airsdk_pro.license import LicenseError
+        from airsdk_pro.report_nist_rmf import generate_nist_rmf_report
+    except ImportError:
+        typer.secho(_pro_unavailable_message(), fg=typer.colors.YELLOW)
+        raise typer.Exit(code=2) from None
+
+    registry = _load_registry_or_exit(agent_registry)
+
+    typer.secho(
+        f"[NIST AI RMF] Loading {log}...",
+        fg=typer.colors.WHITE, bold=True,
+    )
+    records = load_chain(log)
+    conversations = _count_conversations(records)
+    verification = verify_chain(records)
+    findings = run_detectors(records, registry=registry)
+
+    report = ForensicReport(
+        air_version=airsdk_version,
+        report_id=str(uuid4()),
+        source_log=str(log.resolve()),
+        generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        records=len(records),
+        conversations=conversations,
+        verification=verification,
+        findings=findings,
+    )
+
+    try:
+        markdown = generate_nist_rmf_report(
+            report,
+            records,
+            system_id,
+            system_name=system_name,
+            operator_entity=operator,
+            monitoring_period=period,
+            rmf_profile=rmf_profile,
+        )
+    except LicenseError as exc:
+        typer.secho(f"License check failed: {exc}", fg=typer.colors.RED)
+        raise typer.Exit(code=2) from exc
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(markdown, encoding="utf-8")
+
+    if verification.status != VerificationStatus.OK:
+        typer.secho(
+            f"[WARNING] Chain verification did NOT pass: {verification.reason}. "
+            "Review before relying on this report as evidence.",
+            fg=typer.colors.YELLOW, err=True,
+        )
+    else:
+        typer.secho(
+            f"[Chain verified] {verification.records_verified} signatures valid.",
+            fg=typer.colors.GREEN,
+        )
+
+    typer.secho(f"NIST AI RMF report written to {output.resolve()}", fg=typer.colors.GREEN, bold=True)
+
+
 def main() -> None:
     app()
 
