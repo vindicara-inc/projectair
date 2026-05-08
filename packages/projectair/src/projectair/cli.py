@@ -573,8 +573,8 @@ def upgrade() -> None:
     """Print the upgrade URL and what each tier unlocks."""
     typer.secho("Vindicara AIR Pro tiers", fg=typer.colors.BRIGHT_WHITE, bold=True)
     typer.echo("")
-    typer.echo("  Individual    $29/mo     AIR Cloud client, premium reports, premium detectors")
-    typer.echo("  Team          Talk to us Hosted AIR Cloud workspace, multi-agent dashboards")
+    typer.echo("  Individual    $39/mo     AIR Cloud client, premium reports, premium detectors")
+    typer.echo("  Team          $599/mo    Hosted AIR Cloud workspace, multi-agent dashboards")
     typer.echo("  Enterprise    Talk to us SSO/SAML/RBAC, on-prem, SLA, BAA, insurance integrations")
     typer.echo("")
     typer.echo("https://vindicara.io/pricing")
