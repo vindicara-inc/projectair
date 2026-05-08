@@ -2,6 +2,13 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.7.1] - 2026-05-07
+
+Pricing alignment release. The `air upgrade` CLI command now reflects the public pricing on https://vindicara.io/pricing.
+
+### Changed
+- `air upgrade` output: Individual tier price moved from $29/mo to $39/mo. Team tier now shows the flat public price ($599/mo) instead of "Talk to us"; Enterprise remains custom because it depends on volume, deployment model, and add-ons (SSO, SLA, BAA, insurance integrations).
+
 ## [0.7.0] - 2026-05-07
 
 **Status: Wave 1 alpha.** Layer 4 Wave 1: AgDR Handoff Protocol (A2A) for cross-agent chain of custody. Layers 1-3 secure a single agent; Layer 4 secures the boundary between agents. When Agent A delegates to Agent B, the cryptographic chain survives the handoff: a Parent Trace ID (W3C trace_id verbatim) propagates through capability tokens and HTTP headers, a HANDOFF record at the source pairs cryptographically with a HANDOFF_ACCEPTANCE record at the target, and a Sigstore Rekor counter-attestation with hashed identifiers proves Agent B actually validated the capability token without leaking workflow topology to the public log.
