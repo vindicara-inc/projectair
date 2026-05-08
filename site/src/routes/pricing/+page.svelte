@@ -6,17 +6,17 @@
 
 <svelte:head>
   <title>Pricing | Vindicara AIR</title>
-  <meta name="description" content="Vindicara AIR pricing. Free OSS forever under MIT license. Individual at $29/mo for AIR Cloud client and premium reports. Team and Enterprise priced on request for hosted Cloud workspaces, SSO, on-prem, and SLA." />
+  <meta name="description" content="Vindicara AIR pricing. Free OSS forever under MIT license. Individual at $39/mo for AIR Cloud client and premium reports. Team at $599/mo for hosted Cloud workspaces, SIEM, and incident workflows. Enterprise priced on request for SSO, on-prem, and SLA." />
   <link rel="canonical" href="https://vindicara.io/pricing" />
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://vindicara.io/pricing" />
   <meta property="og:title" content="Pricing | Vindicara AIR" />
-  <meta property="og:description" content="Free OSS forever. Individual at $29/mo. Team and Enterprise priced on request." />
+  <meta property="og:description" content="Free OSS forever. Individual at $39/mo. Team at $599/mo. Enterprise priced on request." />
   <meta property="og:image:alt" content="Vindicara AIR pricing: open source, individual, team, enterprise." />
 
   <meta name="twitter:title" content="Pricing | Vindicara AIR" />
-  <meta name="twitter:description" content="Free OSS forever. Individual at $29/mo. Team and Enterprise priced on request." />
+  <meta name="twitter:description" content="Free OSS forever. Individual at $39/mo. Team at $599/mo. Enterprise priced on request." />
 
   {@html `<script type="application/ld+json">${JSON.stringify({
     '@context': 'https://schema.org',
@@ -39,13 +39,13 @@
       {
         '@type': 'Offer',
         name: 'Individual',
-        price: '29',
+        price: '39',
         priceCurrency: 'USD',
         availability: 'https://schema.org/InStock',
         description: 'AIR Cloud client SDK, premium compliance reports (NIST AI RMF, SOC2-AI), premium detectors, license-gated via projectair-pro.',
         priceSpecification: {
           '@type': 'UnitPriceSpecification',
-          price: '29',
+          price: '39',
           priceCurrency: 'USD',
           billingIncrement: 1,
           unitText: 'MONTH',
@@ -54,8 +54,17 @@
       {
         '@type': 'Offer',
         name: 'Team',
+        price: '599',
+        priceCurrency: 'USD',
         availability: 'https://schema.org/InStock',
-        description: 'Hosted AIR Cloud workspace, multi-agent dashboards, SIEM export, incident workflows, and alerting. Pricing on request.',
+        description: 'Hosted AIR Cloud workspace, multi-agent dashboards, SIEM export, incident workflows, and alerting.',
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price: '599',
+          priceCurrency: 'USD',
+          billingIncrement: 1,
+          unitText: 'MONTH',
+        },
       },
       {
         '@type': 'Offer',
@@ -173,8 +182,8 @@
             <h2 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Individual</h2>
             <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">New</span>
           </div>
-          <p class="text-3xl font-black mt-4">$29<span class="text-base font-normal text-zinc-500">/mo</span></p>
-          <p class="text-sm text-zinc-500 mt-1">Or $290/year. Cancel anytime.</p>
+          <p class="text-3xl font-black mt-4">$39<span class="text-base font-normal text-zinc-500">/mo</span></p>
+          <p class="text-sm text-zinc-500 mt-1">Or $350/year. Cancel anytime.</p>
           <ul class="mt-7 space-y-3 text-sm text-zinc-400">
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Open Source</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>AIR Cloud client SDK (push capsules to a hosted workspace)</span></li>
@@ -190,10 +199,10 @@
         <div class="p-7 border-b lg:border-b-0 lg:border-r border-white/10">
           <div class="flex items-center justify-between mb-2">
             <h2 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Team</h2>
-            <span class="font-mono text-[10px] text-zinc-300 border border-white/30 bg-white/5 px-2 py-0.5 uppercase tracking-wider">Custom</span>
+            <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">New</span>
           </div>
-          <p class="text-3xl font-black mt-4">Talk to us</p>
-          <p class="text-sm text-zinc-500 mt-1">Hosted AIR Cloud for your team.</p>
+          <p class="text-3xl font-black mt-4">$599<span class="text-base font-normal text-zinc-500">/mo</span></p>
+          <p class="text-sm text-zinc-500 mt-1">Or $5,400/year. Hosted AIR Cloud for your team.</p>
           <ul class="mt-7 space-y-3 text-sm text-zinc-400">
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Individual, organization-wide</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Hosted AIR Cloud workspace, multi-agent dashboards</span></li>
@@ -202,7 +211,7 @@
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Shared keys + workspace roles</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Email + Slack support</span></li>
           </ul>
-          <a href="/contact?tier=team" class="btn-secondary w-full mt-7 text-sm">Talk to us</a>
+          <a href="/contact?tier=team" class="btn-primary w-full mt-7 text-sm">Buy a team license</a>
         </div>
 
         <!-- Enterprise -->
@@ -375,16 +384,16 @@
         </div>
 
         <div>
-          <h3 class="text-lg font-semibold text-white mb-2">What does the $29 Individual tier add?</h3>
+          <h3 class="text-lg font-semibold text-white mb-2">What does the $39 Individual tier add?</h3>
           <p class="text-sm text-zinc-400 leading-relaxed">
             The Individual tier unlocks the AIR Cloud client SDK (push your capsules to a hosted workspace instead of managing JSONL files yourself), premium compliance reports for NIST AI RMF and SOC2-AI on top of the OSS Article 72 template, and premium detector additions as they ship. The licensed Pro features ship in a separate <code class="font-mono text-zinc-200">projectair-pro</code> package; verification is a local Ed25519 signature check on the license token, with no phone-home, so it works air-gapped.
         </p>
         </div>
 
         <div>
-          <h3 class="text-lg font-semibold text-white mb-2">Why no public price for Team and Enterprise?</h3>
+          <h3 class="text-lg font-semibold text-white mb-2">Why is Team flat-priced but Enterprise is not?</h3>
           <p class="text-sm text-zinc-400 leading-relaxed">
-            Team and Enterprise pricing depends on agent volume, the compliance frameworks in scope, deployment model (hosted, VPC, on-prem), and whether you need insurance integrations, SSO, BAA, or an SLA. Quoting a single number on a marketing page misrepresents the work either way. Send us your shape and we will send you a quote and a deployment plan within one business day.
+            Team is a hosted AIR Cloud workspace with the same shape for every customer: shared workspace, multi-agent dashboards, SIEM export, incident workflows, alerting. That has a flat price ($599/mo). Enterprise pricing depends on agent volume, the compliance frameworks in scope, deployment model (hosted, VPC, on-prem), and whether you need insurance integrations, SSO, BAA, or an SLA. Quoting a single number on a marketing page misrepresents the work either way. Send us your shape and we will send you a quote and a deployment plan within one business day.
           </p>
         </div>
 

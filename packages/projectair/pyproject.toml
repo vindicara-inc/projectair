@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projectair"
-version = "0.7.0"
+version = "0.7.1"
 description = "Project AIR: forensic reconstruction and incident response for AI agents. Signed AgDR chains, RFC 3161 + Sigstore Rekor anchoring, causal explanation, and Auth0-verified human-in-the-loop containment."
 readme = "README.md"
 license = "MIT"

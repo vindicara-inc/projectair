@@ -139,9 +139,9 @@
           required
           class="w-full bg-obsidian-lighter border border-white/10 px-4 py-3 text-white focus:border-brand-red focus:outline-none"
         >
-          <option value="team">Team — hosted AIR Cloud workspace</option>
-          <option value="enterprise">Enterprise — SSO/SAML, on-prem, SLA, BAA</option>
-          <option value="individual">Individual — $29/mo (just buy it on the pricing page)</option>
+          <option value="team">Team: $599/mo, hosted AIR Cloud workspace</option>
+          <option value="enterprise">Enterprise: SSO/SAML, on-prem, SLA, BAA</option>
+          <option value="individual">Individual: $39/mo (just buy it on the pricing page)</option>
           <option value="other">Other / not sure</option>
         </select>
       </div>
