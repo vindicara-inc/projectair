@@ -13,6 +13,7 @@ from fastapi import APIRouter, HTTPException, Query, Request, status
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from vindicara.cloud.capsule_store import CapsuleStore, StoredCapsule
+from vindicara.cloud.roles import Capability, require
 
 router = APIRouter()
 
@@ -40,6 +41,7 @@ class CapsulesPage(BaseModel):
     summary="Ingest one Signed Intent Capsule",
 )
 async def ingest(request: Request) -> IngestResponse:
+    require(request, Capability.WRITE_CAPSULES)
     body = await request.body()
     try:
         record = AgDRRecord.model_validate_json(body)
@@ -65,6 +67,7 @@ async def ingest(request: Request) -> IngestResponse:
 )
 async def ingest_bulk(request: Request) -> dict[str, int | str]:
     """Ingest a chain in one request. Body: newline-delimited JSON of AgDR records."""
+    require(request, Capability.WRITE_CAPSULES)
     body = (await request.body()).decode("utf-8")
     if not body.strip():
         raise HTTPException(status_code=400, detail="empty body")
@@ -103,6 +106,7 @@ async def list_capsules(
     limit: int = Query(default=100, ge=1, le=1000),
     offset: int = Query(default=0, ge=0),
 ) -> CapsulesPage:
+    require(request, Capability.READ_CAPSULES)
     store: CapsuleStore = request.app.state.capsule_store
     workspace_id: str = request.state.workspace_id
     items = store.for_workspace(workspace_id)
@@ -120,6 +124,7 @@ async def list_capsules(
     summary="Fetch one capsule by step_id (within the calling key's workspace)",
 )
 async def get_capsule(request: Request, step_id: str) -> AgDRRecord:
+    require(request, Capability.READ_CAPSULES)
     store: CapsuleStore = request.app.state.capsule_store
     workspace_id: str = request.state.workspace_id
     for capsule in store.for_workspace(workspace_id):
