@@ -47,7 +47,7 @@ That generates a fresh signed capsule chain (the SSH-exfiltration attack narrati
 | **1. External Trust Anchor** | RFC 3161 trusted timestamps + Sigstore Rekor transparency log | shipped (0.4.0) |
 | **2. Causal Reasoning** | `air explain` walks the chain, explains why a step happened | shipped (0.5.0) |
 | **3. Containment + Step-Up** | Halt agent actions; require Auth0-verified human approval for high-stakes calls | shipped (0.6.0, 0.6.1) |
-| **4. AgDR Handoff Protocol (A2A)** | Cryptographically linked Parent Trace IDs across multi-agent, multi-org chains | roadmap |
+| **4. AgDR Handoff Protocol (A2A)** | Cross-agent chain of custody with W3C Trace Context + Rekor counter-attestation | shipped (0.7.0, Wave 1 alpha) |
 
 Layers 1-3 secure the single agent. Layer 4 secures the distributed agentic economy.
 
@@ -151,7 +151,15 @@ The `HUMAN_APPROVAL` record on the chain binds the action to the authenticated h
 
 ### Layer 4: AgDR Handoff Protocol (A2A)
 
-Cross-organization, multi-agent workflows. When Agent A (finance) hires Agent B (travel) to book a flight, Agent B's chain physically includes a Handoff Step that references Agent A's latest Rekor-anchored hash. Causal continuity across chains. Proof of delegation. Cabinet (Vindicara's commercial UI) renders these as a global cross-org accountability graph. **In active design.**
+Cross-agent chain of custody. When Agent A delegates to Agent B, a Parent Trace ID (W3C `trace_id` verbatim) propagates through capability tokens and HTTP headers, a `HANDOFF` record at the source pairs cryptographically with a `HANDOFF_ACCEPTANCE` record at the target, and a Sigstore Rekor counter-attestation with hashed identifiers proves Agent B validated the capability token without leaking topology to the public log.
+
+```bash
+air handoff verify ea_chain.jsonl coach_chain.jsonl --ptid <trace_id>
+```
+
+Eight-step verification: PTID consistency, root identification, handoff/acceptance pairing with replay-anomaly hard-fail, capability token routing via `AdapterRouter`, Rekor proof verification, intra-chain integrity, two-bound temporal ordering, and identity cert validation.
+
+**Live proof:** Wave 1 demonstrated against Auth0 tenant `dev-kilt2vkudvbu75ny.us.auth0.com` on 2026-05-07. Rekor anchor at log index [1465403522](https://search.sigstore.dev/?logIndex=1465403522). Wave 1 is single-tenant + synchronous Rekor; Wave 2 ships cross-tenant via Sigstore Fulcio + OIDC Discovery.
 
 ## Detector coverage
 
@@ -293,13 +301,23 @@ The prevention layer is crowded. Lakera, NeMo Guardrails, Bedrock Guardrails, an
 
 AIR is the forensic, causal, and containment layer that runs behind those tools. It does not replace them. It gives you a signed record of every agent decision, an explanation of why each step happened, and a runtime contract that halts unauthorized actions and captures who approved the ones that proceeded.
 
+## We run it on our own infrastructure
+
+Vindicara dogfoods Project AIR. Every API request to `vindicara.io` is recorded as a signed AgDR chain using the same `airsdk` library you install, anchored to public Sigstore Rekor every 60 seconds, and published as redacted JSONL. The trust contract is identical to what customers get: signed in-process at the moment of action, not reconstructed from logs.
+
+Verify it yourself at [vindicara.io/ops-chain](https://vindicara.io/ops-chain), or:
+
+```bash
+curl https://vindicara-ops-chain-public-399827112476.s3.us-west-2.amazonaws.com/ops-chain/manifest.json
+```
+
 ## Roadmap
 
-- **Layer 4 AgDR Handoff Protocol (A2A):** in active design. Cryptographically linked Parent Trace IDs for multi-agent, multi-org workflows.
+- **Layer 4 Wave 2:** cross-tenant federation via Sigstore Fulcio + OIDC Discovery.
+- **Layer 4 v1.5:** private/enterprise federation (Okta, Entra ID, SPIFFE adapters).
 - **ML-DSA-65 post-quantum hybrid signatures:** Layer 1 v2, planned Q3 2026.
-- **Notary co-signing network:** Layer 1 v3, 2027.
 - **CrewAI, AutoGen, AG2 framework integrations:** queued.
-- **Cabinet:** the commercial enterprise UI for cross-org workflow visualization.
+- **AIR Cloud:** hosted chain-of-custody dashboards for the Team tier.
 
 ## License
 

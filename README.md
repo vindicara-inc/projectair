@@ -2,126 +2,106 @@
   <img src="https://vindicara.io/hero-mesh.png" alt="" width="100%">
 </p>
 
-<h1 align="center">Project AIR™</h1>
+<h1 align="center">Project AIR</h1>
 
 <p align="center">
-  <strong>Forensic reconstruction and incident response for AI agents.</strong><br>
-  When your AI agent goes off-script, AIR tells you what happened and proves it.
+  <strong>Evidence-grade infrastructure for accountable AI agents.</strong><br>
+  Cryptographic chain-of-custody. Court-supportable records. Rekor-anchored proof.
 </p>
 
 <p align="center">
   <a href="https://vindicara.io">vindicara.io</a> ·
   <a href="https://vindicara.io/blog/secure-ai-agents-5-minutes">Quickstart</a> ·
   <a href="https://vindicara.io/pricing">Pricing</a> ·
+  <a href="https://vindicara.io/ops-chain">Verify our ops chain</a> ·
   <a href="https://vindicara.io/blog">Blog</a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/python-3.12%2B-blue?style=flat-square" alt="Python 3.12+">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT">
-  <img src="https://img.shields.io/badge/status-alpha-orange?style=flat-square" alt="Alpha">
+  <img src="https://img.shields.io/pypi/v/projectair?style=flat-square&color=blue" alt="PyPI">
 </p>
 
 ---
 
 ## What AIR is
 
-AIR writes a **Signed Intent Capsule** for every agent decision (llm, tool, finish). The Intent Capsule pattern is named in the [OWASP Top 10 for Agentic Applications v12.6](https://owasp.org/www-project-top-10-for-large-language-model-applications/) as mitigation #5 for ASI01: an emerging pattern that binds the declared goal, constraints, and context to each execution cycle in a signed envelope. AIR's on-disk format is AgDR-compatible (AI Decision Record schema as published at accountability.ai), so capsules interoperate with the wider ecosystem. Each capsule is content-hashed with BLAKE3, signed with Ed25519, and chained to the previous step. The `air` CLI replays the chain, verifies every signature, and reports findings across two public OWASP taxonomies plus one AIR-native check:
-
-- **OWASP Top 10 for Agentic Applications** (8 of 10): ASI01 Agent Goal Hijack, ASI02 Tool Misuse & Exploitation, ASI04 Agentic Supply Chain Vulnerabilities (partial, MCP supply-chain risk only), ASI05 Unexpected Code Execution (RCE), ASI06 Memory & Context Poisoning, ASI07 Insecure Inter-Agent Communication, ASI08 Cascading Failures, ASI09 Human-Agent Trust Exploitation. ASI03, ASI10 on roadmap.
-- **OWASP Top 10 for LLM Applications** (3 categories): LLM01 Prompt Injection, LLM04 Model Denial of Service, LLM06 Sensitive Information Disclosure.
-- **AIR-native**: forensic-chain-integrity check for untraceable actions.
-
-It is the layer that runs **behind** your guardrails. Prevention tools (Lakera, NeMo Guardrails, Bedrock Guardrails) try to stop bad things from happening. AIR produces the evidence of what actually happened, in a form security, legal, and insurance can act on.
-
-## Install
+AIR writes a **Signed Intent Capsule** for every agent decision. Each capsule carries a BLAKE3 content hash and an Ed25519 signature, chained to the previous step. The chain root is anchored to [Sigstore Rekor](https://docs.sigstore.dev/) (public transparency log) and RFC 3161 trusted timestamps. The result is evidence that survives subpoena, survives the vendor, and survives the auditor's first question.
 
 ```bash
 pip install projectair
-```
-
-This installs both the `air` terminal command and the `airsdk` Python library.
-
-## 10-second sanity check
-
-```bash
 air demo
 ```
 
-Generates a fresh signed capsule chain (13 steps, two baked-in ASI violations), verifies every signature, runs the detectors, and writes `forensic-report.json` next to you. No agent, no log file, no wiring required.
+## The four-layer stack
 
-## 30-second usage
+| Layer | What it does | Status |
+|---|---|---|
+| **0. Detection** | 10 of 10 OWASP Agentic + 3 OWASP LLM + 1 AIR-native (14 detectors) | shipped |
+| **1. External Trust Anchor** | RFC 3161 timestamps + Sigstore Rekor transparency log | shipped (0.4.0) |
+| **2. Causal Reasoning** | `air explain` walks the chain, explains why a step happened | shipped (0.5.0) |
+| **3. Containment + Step-Up** | Halt agent actions; require Auth0-verified human approval | shipped (0.6.0) |
+| **4. AgDR Handoff Protocol (A2A)** | Cross-agent chain of custody with W3C Trace Context | shipped (0.7.0, Wave 1 alpha) |
 
-Instrument your LangChain agent:
+## We run it on our own infrastructure
 
-```python
-from airsdk import AIRCallbackHandler
-from langchain.agents import AgentExecutor
+Vindicara dogfoods Project AIR. Every API request to `vindicara.io` is recorded as a signed AgDR chain using the same `airsdk` library customers use, anchored to public Sigstore Rekor every 60 seconds, and published as redacted JSONL.
 
-handler = AIRCallbackHandler(
-    key="...",                           # Ed25519 signing key; auto-generated when omitted
-    log_path="my-agent.log",
-    user_intent="Draft a Q3 sales report from the CRM data",
-)
-agent = AgentExecutor(callbacks=[handler], ...)
-```
-
-Every step the agent takes is appended to `my-agent.log` as a Signed Intent Capsule.
-
-Replay the trace:
+Verify it yourself:
 
 ```bash
-air trace my-agent.log
+curl https://vindicara-ops-chain-public-399827112476.s3.us-west-2.amazonaws.com/ops-chain/manifest.json
 ```
 
-You get a console report: signatures verified, ASI01/ASI02 findings flagged, detector coverage shown honestly, and `forensic-report.json` emitted alongside.
+The chain catalog, manifest, and every Rekor anchor are independently verifiable with zero Vindicara infrastructure in the path. See [vindicara.io/ops-chain](https://vindicara.io/ops-chain) for the live dashboard.
+
+## Detector coverage
+
+**OWASP Top 10 for Agentic Applications (10 of 10):** ASI01 Agent Goal Hijack, ASI02 Tool Misuse, ASI03 Identity & Privilege Abuse (Zero-Trust `AgentRegistry`), ASI04 Agentic Supply Chain (partial, MCP), ASI05 Unexpected Code Execution, ASI06 Memory & Context Poisoning, ASI07 Insecure Inter-Agent Communication, ASI08 Cascading Failures, ASI09 Human-Agent Trust Exploitation, ASI10 Rogue Agents (Zero-Trust `BehavioralScope`).
+
+**OWASP Top 10 for LLM Applications (3 categories):** LLM01 Prompt Injection, LLM04 Model DoS, LLM06 Sensitive Data Exposure.
+
+**AIR-native (1):** AIR-04 Untraceable Action (forensic-chain-integrity check).
+
+Total: **14 detectors** running over every chain, mapped to public taxonomies.
+
+## Framework integrations
+
+| Framework | Integration | Since |
+|---|---|---|
+| LangChain | `AIRCallbackHandler` | 0.1.0 |
+| OpenAI SDK | `instrument_openai` | 0.1.0 |
+| Anthropic SDK | `instrument_anthropic` | 0.1.0 |
+| LlamaIndex | `instrument_llamaindex` | 0.3.1 |
+| Google Gemini SDK | `instrument_gemini` | 0.3.2 |
+| Google ADK | `instrument_adk` | 0.3.2 |
+| NVIDIA NIM / vLLM / TGI / Together / Groq / Mistral / Fireworks | via `instrument_openai` (OpenAI-compatible) | 0.3.2 |
+| Custom code | `AIRRecorder` directly | 0.1.0 |
 
 ## What's in this repo
 
 This is a monorepo.
 
-- **[`packages/projectair/`](packages/projectair/)**: the MIT-licensed `projectair` package published to PyPI. Ships the `air` CLI and the `airsdk` Python library. This is the public, supported AIR surface.
+- **[`packages/projectair/`](packages/projectair/)**: the MIT-licensed `projectair` package on PyPI. Ships the `air` CLI and the `airsdk` Python library. This is the public product.
 - **[`site/`](site/)**: the SvelteKit source for [vindicara.io](https://vindicara.io).
-- **`src/vindicara/`**: the older Apache-2.0 runtime security engine (policy evaluator, MCP scanner, agent IAM, drift monitor, compliance collector). This is now the engine substrate underneath AIR, not the public product surface. Retained for reference and for future integrations.
+- **`src/vindicara/`**: the Apache-2.0 engine substrate (policy evaluator, MCP scanner, agent IAM, drift monitor, compliance collector, ops chain). Powers AIR Cloud.
+- **[`packages/air-dashboard/`](packages/air-dashboard/)**: the AIR Cloud dashboard (SvelteKit + Three.js).
 
-For the legacy five-pillar README that used to live here, see [`docs/legacy-vindicara-readme.md`](docs/legacy-vindicara-readme.md).
+## CLI surface
 
-## Status
-
-| Surface                                 | Status                    |
-|-----------------------------------------|---------------------------|
-| BLAKE3 + Ed25519 Signed Intent Capsule chain (AgDR-format) | implemented, tested |
-| Tamper detection on chain replay        | implemented, tested       |
-| LangChain `AIRCallbackHandler`          | implemented               |
-| ASI01 Agent Goal Hijack                    | implemented (heuristic)                           |
-| ASI02 Tool Misuse & Exploitation           | implemented (regex)                               |
-| ASI04 Agentic Supply Chain Vulnerabilities | implemented (partial: MCP supply-chain risk only) |
-| ASI05 Unexpected Code Execution (RCE)      | implemented (execution-semantics tool-name patterns) |
-| ASI06 Memory & Context Poisoning           | implemented (heuristic: retrieval-output + memory-write scans) |
-| ASI07 Insecure Inter-Agent Communication   | implemented (identity, nonce, replay, downgrade, descriptor-forgery checks) |
-| ASI08 Cascading Failures                   | implemented (oscillating-pair + fan-out burst checks over inter-agent messages) |
-| ASI09 Human-Agent Trust Exploitation       | implemented (fabricated-rationale + manipulation-language scan preceding sensitive actions) |
-| ASI03, ASI10                               | not yet implemented                               |
-| AIR-01 Prompt Injection                    | implemented, maps to OWASP LLM01                  |
-| AIR-02 Sensitive Data Exposure             | implemented, maps to OWASP LLM06                  |
-| AIR-03 Unrestricted Resource Consumption   | implemented, maps to OWASP LLM04                  |
-| AIR-04 Untraceable Action                  | implemented, AIR-native                           |
-| JSON forensic export                       | implemented                                       |
-| PDF forensic export                        | implemented (fpdf2)                               |
-| SIEM forensic export (ArcSight CEF v0)     | implemented                                       |
-| LangChain callback integration             | implemented                                       |
-| OpenAI SDK integration                     | implemented                                       |
-| Anthropic SDK integration                  | implemented                                       |
-| LlamaIndex / CrewAI / AutoGen              | not yet implemented                               |
-| AIR Cloud (hosted dashboards, SIEM)        | not yet implemented                               |
-
-Pre-1.0. The detector heuristics will produce false positives and false negatives. The signed chain itself is production-grade cryptography. See the [pricing page](https://vindicara.io/pricing) for what's planned next.
-
-## Contributing
-
-Issues, traces that break the detectors, and new ASI detector PRs are welcome. Bugs and feature requests: https://github.com/vindicara-inc/projectair/issues.
+```
+air demo                  Cold-start demo (SSH-exfil attack chain, 14 detectors)
+air trace <chain>         Verify signatures, run detectors, emit forensic report
+air verify-public <chain> Verify using only public infrastructure (no Vindicara calls)
+air anchor <chain>        Anchor the chain to RFC 3161 + Sigstore Rekor
+air explain <chain>       Causal explanation: --step <id> | --finding <detector_id>
+air approve               Layer 3 step-up: --token | --device | --authorize-url
+air handoff verify        Layer 4: eight-step cross-agent chain-of-custody verifier
+air report article72      EU AI Act Article 72 post-market monitoring template
+```
 
 ## License
 
 - `packages/projectair/` and the `projectair` PyPI distribution: **MIT**. See [`packages/projectair/LICENSE`](packages/projectair/LICENSE).
-- `src/vindicara/` (engine substrate, not published): **Apache-2.0**.
+- `src/vindicara/` (engine substrate): **Apache-2.0**.
