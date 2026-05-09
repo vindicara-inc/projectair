@@ -421,12 +421,15 @@
       <AsciinemaEmbed src="/demo-assets/air-demo.cast" autoPlay={false} loop={true} speed={1.6} />
     </div>
 
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-10">
+    <div class="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 mt-10">
       <a href="https://pypi.org/project/projectair/" class="btn-primary text-sm px-6 py-3">
         pip install projectair
       </a>
       <a href="/admissibility/" class="btn-secondary text-sm px-6 py-3">
         Admissibility architecture
+      </a>
+      <a href="/ops-chain/" class="btn-secondary text-sm px-6 py-3">
+        Verify our ops chain
       </a>
       <a href="https://github.com/vindicara-inc/projectair" class="btn-secondary text-sm px-6 py-3">
         View source (MIT)

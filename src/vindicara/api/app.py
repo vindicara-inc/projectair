@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from vindicara.api.middleware.auth import APIKeyAuthMiddleware, APIKeyStore
+from vindicara.api.middleware.ops_chain import OpsChainMiddleware
 from vindicara.api.middleware.rate_limit import RateLimitMiddleware
 from vindicara.api.middleware.request_id import RequestIDMiddleware
 from vindicara.api.middleware.security_headers import SecurityHeadersMiddleware
@@ -36,6 +37,10 @@ def create_app(
 
     app.state.capsule_store = capsule_store if capsule_store is not None else InMemoryCapsuleStore()
 
+    # OpsChain is added FIRST so it ends up OUTERMOST (Starlette applies
+    # middleware in reverse of add order). Bracketing every request in the
+    # ops chain means we record auth failures and rate-limit hits too.
+    app.add_middleware(OpsChainMiddleware)
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestIDMiddleware)
     app.add_middleware(APIKeyAuthMiddleware)
