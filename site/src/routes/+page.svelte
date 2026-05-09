@@ -421,12 +421,15 @@
       <AsciinemaEmbed src="/demo-assets/air-demo.cast" autoPlay={false} loop={true} speed={1.6} />
     </div>
 
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-10">
+    <div class="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 mt-10">
       <a href="https://pypi.org/project/projectair/" class="btn-primary text-sm px-6 py-3">
         pip install projectair
       </a>
       <a href="/admissibility/" class="btn-secondary text-sm px-6 py-3">
         Admissibility architecture
+      </a>
+      <a href="/ops-chain/" class="btn-secondary text-sm px-6 py-3">
+        Verify our ops chain
       </a>
       <a href="https://github.com/vindicara-inc/projectair" class="btn-secondary text-sm px-6 py-3">
         View source (MIT)
@@ -607,6 +610,49 @@
           <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5">›</span><span>Insurance-ready forensic evidence packs</span></li>
         </ul>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- WE RUN IT ON OUR OWN INFRA -->
+<section class="py-24 relative border-y border-white/5">
+  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-brand-red/[0.02] to-transparent"></div>
+  <div class="relative max-w-screen-xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-3 font-mono">Dogfooded</p>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight max-w-3xl mx-auto">
+        We run Project AIR on our own production infrastructure.
+      </h2>
+      <p class="mt-4 text-zinc-400 text-base max-w-2xl mx-auto leading-relaxed">
+        Every API request to this site is recorded as a signed AgDR chain using the same <code class="font-mono text-cyan-400">airsdk</code> library you install from PyPI. Each chain is anchored to public Sigstore Rekor every 60 seconds and published as redacted JSONL. The trust contract is identical: signed in-process at the moment of action, not reconstructed from logs.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+      <div class="border border-white/10 bg-obsidian-lighter/40 p-6 text-center">
+        <p class="font-mono text-[11px] tracking-wider uppercase text-zinc-500 mb-3">Trust model</p>
+        <p class="text-sm text-zinc-300 leading-relaxed">
+          Records signed in-process by the same Lambda that handles your request. Not tailed from logs. Not reconstructed by a batch job.
+        </p>
+      </div>
+      <div class="border border-white/10 bg-obsidian-lighter/40 p-6 text-center">
+        <p class="font-mono text-[11px] tracking-wider uppercase text-zinc-500 mb-3">Default-deny redaction</p>
+        <p class="text-sm text-zinc-300 leading-relaxed">
+          Published JSONL replaces every non-whitelisted payload field with a BLAKE3 hash. Method, path, status code pass through. Everything else is hashed.
+        </p>
+      </div>
+      <div class="border border-brand-red/30 bg-brand-red/[0.03] p-6 text-center">
+        <p class="font-mono text-[11px] tracking-wider uppercase text-brand-red mb-3">Verify it yourself</p>
+        <p class="text-sm text-zinc-300 leading-relaxed">
+          <code class="font-mono text-xs text-cyan-400">curl</code> the manifest. Look up the Rekor log index on <a href="https://search.sigstore.dev" target="_blank" rel="noopener" class="text-cyan-400 underline hover:text-cyan-300">search.sigstore.dev</a>. Zero Vindicara infrastructure in the verification path.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-8 text-center">
+      <a href="/ops-chain/" class="btn-primary text-sm px-6 py-3">
+        View the live ops chain
+      </a>
     </div>
   </div>
 </section>
