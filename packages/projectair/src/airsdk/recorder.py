@@ -19,7 +19,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.asymmetric.mldsa import MLDSA65PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
-from airsdk.agdr import SigningKey, Signer, _uuid7
+from airsdk.agdr import Signer, SigningKey, _uuid7
 from airsdk.containment import (
     Auth0Verifier,
     BlockedActionError,
