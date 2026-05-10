@@ -16,9 +16,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.asymmetric.mldsa import MLDSA65PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
-from airsdk.agdr import Signer, _uuid7
+from airsdk.agdr import SigningKey, Signer, _uuid7
 from airsdk.containment import (
     Auth0Verifier,
     BlockedActionError,
@@ -28,35 +29,41 @@ from airsdk.containment import (
     StepUpRequiredError,
 )
 from airsdk.transport import FileTransport, Transport
-from airsdk.types import AgDRPayload, AgDRRecord, HumanApproval, StepKind
+from airsdk.types import AgDRPayload, AgDRRecord, HumanApproval, SigningAlgorithm, StepKind
 
 if TYPE_CHECKING:
     from airsdk.anchoring import AnchoringOrchestrator
     from airsdk.types import Finding
 
 
-def resolve_signing_key(key: str | Ed25519PrivateKey | None) -> Ed25519PrivateKey | None:
-    """Accept an Ed25519 private key as hex seed, PEM, or raw key instance.
+def resolve_signing_key(
+    key: str | SigningKey | None,
+    algorithm: SigningAlgorithm = SigningAlgorithm.ED25519,
+) -> SigningKey | None:
+    """Accept a private key as hex seed, PEM, or raw key instance.
 
-    Returns ``None`` when ``key`` is ``None`` so callers can fall back to
-    ``Signer.generate()`` explicitly.
+    PEM keys are auto-detected (Ed25519 or ML-DSA-65). Hex seeds use
+    ``algorithm`` to pick the right key type. Returns ``None`` when
+    ``key`` is ``None`` so callers can fall back to ``Signer.generate()``.
     """
     if key is None:
         return None
-    if isinstance(key, Ed25519PrivateKey):
+    if isinstance(key, (Ed25519PrivateKey, MLDSA65PrivateKey)):
         return key
     data = key.strip()
     if data.startswith("-----BEGIN"):
         priv = load_pem_private_key(data.encode(), password=None)
-        if not isinstance(priv, Ed25519PrivateKey):
-            raise ValueError(f"key PEM must hold an Ed25519 key, got {type(priv).__name__}")
-        return priv
+        if isinstance(priv, (Ed25519PrivateKey, MLDSA65PrivateKey)):
+            return priv
+        raise ValueError(f"key PEM must hold Ed25519 or ML-DSA-65, got {type(priv).__name__}")
     try:
         seed = bytes.fromhex(data)
     except ValueError as exc:
-        raise ValueError("key must be a PEM-encoded private key or a 64-char hex Ed25519 seed") from exc
+        raise ValueError("key must be a PEM-encoded private key or a 64-char hex seed") from exc
     if len(seed) != 32:
         raise ValueError(f"hex key must decode to 32 bytes, got {len(seed)}")
+    if algorithm == SigningAlgorithm.ML_DSA_65:
+        return MLDSA65PrivateKey.from_seed_bytes(seed)
     return Ed25519PrivateKey.from_private_bytes(seed)
 
 
@@ -90,15 +97,16 @@ class AIRRecorder:
     def __init__(
         self,
         log_path: str | Path,
-        key: str | Ed25519PrivateKey | None = None,
+        key: str | SigningKey | None = None,
         *,
         user_intent: str | None = None,
         transports: list[Transport] | None = None,
         containment: ContainmentPolicy | None = None,
         auth0_verifier: Auth0Verifier | None = None,
+        signing_algorithm: SigningAlgorithm = SigningAlgorithm.ED25519,
     ) -> None:
-        priv = resolve_signing_key(key)
-        self._signer = Signer(priv) if priv is not None else Signer.generate()
+        priv = resolve_signing_key(key, algorithm=signing_algorithm)
+        self._signer = Signer(priv) if priv is not None else Signer.generate(signing_algorithm)
         self._log_path = Path(log_path).expanduser()
         self._log_path.parent.mkdir(parents=True, exist_ok=True)
         self._user_intent = user_intent
