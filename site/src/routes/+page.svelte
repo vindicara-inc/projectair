@@ -584,7 +584,7 @@
         </div>
         <h3 class="text-xl font-bold mb-2 font-mono">airsdk</h3>
         <p class="text-sm text-zinc-400 mb-5 leading-relaxed flex-1">
-          The Python SDK. Drop-in instrumentation for LangChain, OpenAI, Anthropic, LlamaIndex, Gemini, and Google ADK. Every agent action written as an AgDR record with BLAKE3 hash and Ed25519 signature, ready to anchor on Sigstore Rekor.
+          The Python SDK. Drop-in instrumentation for LangChain, OpenAI, Anthropic, LlamaIndex, Gemini, and Google ADK. Every agent action written as an AgDR record with BLAKE3 hash and Ed25519 signature (with opt-in ML-DSA-65 post-quantum signing), ready to anchor on Sigstore Rekor.
         </p>
         <div class="bg-obsidian-lighter border border-white/10 p-4 font-mono text-xs text-zinc-300 leading-relaxed">
           <div><span class="text-brand-purple">from</span> airsdk <span class="text-brand-purple">import</span> <span class="text-brand-cyan">AIRCallbackHandler</span></div>
@@ -935,7 +935,7 @@
       <div class="p-6 border-b lg:border-b-0 lg:border-r border-white/10">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">AgDR</p>
         <p class="text-sm text-white font-semibold">AI Decision Records</p>
-        <p class="text-xs text-zinc-500 mt-2 leading-relaxed">BLAKE3 content hashing, Ed25519 signatures, forward-chained hash integrity, UUIDv7 for monotonic ordering.</p>
+        <p class="text-xs text-zinc-500 mt-2 leading-relaxed">BLAKE3 content hashing, Ed25519 signatures, opt-in ML-DSA-65 (FIPS 204) post-quantum signing, forward-chained hash integrity, UUIDv7 for monotonic ordering.</p>
       </div>
       <div class="p-6 border-b md:border-b-0 md:border-r border-white/10">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">EU AI Act</p>

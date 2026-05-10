@@ -15,7 +15,7 @@
 
 When an AI agent breaks something in production, Project AIR is how you prove what happened, explain why, and stop it from happening again.
 
-Every agent decision is written as a **Signed Intent Capsule** (the pattern named in [OWASP Top 10 for Agentic Applications v12.6](https://owasp.org/www-project-top-10-for-large-language-model-applications/) as ASI01 mitigation #5: a signed envelope binding the declared goal, constraints, and context to each execution cycle). Each capsule carries a BLAKE3 content hash and an Ed25519 signature, chained to the previous step. The chain root is anchored to two independent public proofs: an RFC 3161 trusted timestamp and a [Sigstore Rekor](https://docs.sigstore.dev/) transparency-log entry. The result is evidence that:
+Every agent decision is written as a **Signed Intent Capsule** (the pattern named in [OWASP Top 10 for Agentic Applications v12.6](https://owasp.org/www-project-top-10-for-large-language-model-applications/) as ASI01 mitigation #5: a signed envelope binding the declared goal, constraints, and context to each execution cycle). Each capsule carries a BLAKE3 content hash and an Ed25519 signature (with opt-in experimental ML-DSA-65 / FIPS 204 post-quantum signatures), chained to the previous step. The chain root is anchored to two independent public proofs: an RFC 3161 trusted timestamp and a [Sigstore Rekor](https://docs.sigstore.dev/) transparency-log entry. The result is evidence that:
 
 - **Survives subpoena.** Any auditor can verify the chain using only public infrastructure (FreeTSA, `rekor.sigstore.dev`) plus the chain file itself. No Vindicara API call required.
 - **Survives the vendor.** No party, including Vindicara, the customer, or the agent vendor, can backdate or alter the chain after the fact.
@@ -315,7 +315,7 @@ curl https://vindicara-ops-chain-public-399827112476.s3.us-west-2.amazonaws.com/
 
 - **Layer 4 Wave 2:** cross-tenant federation via Sigstore Fulcio + OIDC Discovery.
 - **Layer 4 v1.5:** private/enterprise federation (Okta, Entra ID, SPIFFE adapters).
-- **ML-DSA-65 post-quantum hybrid signatures:** Layer 1 v2, planned Q3 2026.
+- **ML-DSA-65 post-quantum signatures:** shipped as experimental opt-in. `AIRRecorder(..., signing_algorithm=SigningAlgorithm.ML_DSA_65)`. Crypto-agility ahead of NIST CNSA 2.0 mandates.
 - **CrewAI, AutoGen, AG2 framework integrations:** queued.
 - **AIR Cloud:** hosted chain-of-custody dashboards for the Team tier.
 
