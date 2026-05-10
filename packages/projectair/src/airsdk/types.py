@@ -43,7 +43,12 @@ from pydantic import BaseModel, ConfigDict, Field
 # 64 hex chars = 256 bits. BLAKE3 default output size and Ed25519 public key size.
 GENESIS_PREV_HASH = "0" * 64
 
-AGDR_VERSION = "0.4"
+AGDR_VERSION = "0.5"
+
+
+class SigningAlgorithm(StrEnum):
+    ED25519 = "ed25519"
+    ML_DSA_65 = "ml-dsa-65"
 
 
 class StepKind(StrEnum):
@@ -171,6 +176,7 @@ class AgDRRecord(BaseModel):
     content_hash: str = Field(min_length=64, max_length=64)
     signature: str
     signer_key: str
+    signature_algorithm: str = SigningAlgorithm.ED25519
 
 
 class Finding(BaseModel):

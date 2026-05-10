@@ -14,7 +14,7 @@ from airsdk._concrete_demo import (
     build_concrete_demo_log,
     tamper_one_byte,
 )
-from airsdk.agdr import load_chain, verify_chain
+from airsdk.agdr import Signer, load_chain, verify_chain
 from airsdk.article72 import generate_article72_report
 from airsdk.detections import (
     IMPLEMENTED_AIR_DETECTORS,
@@ -27,6 +27,7 @@ from airsdk.registry import AgentRegistry, load_registry
 from airsdk.types import (
     AgDRRecord,
     ForensicReport,
+    SigningAlgorithm,
     StepKind,
     VerificationStatus,
 )
@@ -276,6 +277,11 @@ def demo(
         "--workdir", "-w",
         help="Directory where the demo writes the trace, exports, and reports.",
     ),
+    signing_algorithm: str = typer.Option(
+        "ed25519",
+        "--signing-algorithm",
+        help="Signing algorithm: ed25519 (default) or ml-dsa-65 (FIPS 204, experimental).",
+    ),
 ) -> None:
     """Run the brutal end-to-end demo. Zero setup; under 30 seconds.
 
@@ -309,11 +315,18 @@ def demo(
 
     # ---- STEP 3 -----------------------------------------------------
     _step_header(3, "AIR captures every step as a Signed Intent Capsule")
-    signer = build_concrete_demo_log(log_path)
+    try:
+        algo = SigningAlgorithm(signing_algorithm)
+    except ValueError:
+        typer.secho(f"Unknown signing algorithm '{signing_algorithm}'. Use: ed25519, ml-dsa-65", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2)
+    demo_signer = Signer.generate(algo)
+    signer = build_concrete_demo_log(log_path, signer=demo_signer)
     records = load_chain(log_path)
     _detail("records captured", str(len(records)))
     _detail("hash function", "BLAKE3 over canonical JSON of each payload")
-    _detail("signature", f"Ed25519 over (prev_hash || content_hash) — pubkey {signer.public_key_hex[:16]}...")
+    algo_label = "ML-DSA-65 (FIPS 204)" if algo == SigningAlgorithm.ML_DSA_65 else "Ed25519"
+    _detail("signature", f"{algo_label} over (prev_hash || content_hash) — pubkey {signer.public_key_hex[:16]}...")
     _detail("step ordering", "UUIDv7 (time-sortable, embedded in signed material)")
     for index, record in enumerate(records):
         kind_label = record.kind.value
