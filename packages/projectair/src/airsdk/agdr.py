@@ -1,7 +1,7 @@
 """AgDR signing, verification, and chain walking.
 
-BLAKE3 for content hashing, Ed25519 for signatures. See ``types`` module for
-the record shape and chain semantics.
+BLAKE3 for content hashing; Ed25519 or ML-DSA-65 (FIPS 204) for signatures.
+See ``types`` module for the record shape and chain semantics.
 """
 from __future__ import annotations
 
@@ -19,6 +19,10 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
+from cryptography.hazmat.primitives.asymmetric.mldsa import (
+    MLDSA65PrivateKey,
+    MLDSA65PublicKey,
+)
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
     NoEncryption,
@@ -31,10 +35,13 @@ from airsdk.types import (
     GENESIS_PREV_HASH,
     AgDRPayload,
     AgDRRecord,
+    SigningAlgorithm,
     StepKind,
     VerificationResult,
     VerificationStatus,
 )
+
+SigningKey = Ed25519PrivateKey | MLDSA65PrivateKey
 
 
 def _canonical_json(obj: Any) -> bytes:
@@ -71,42 +78,62 @@ class Signer:
         signer = Signer.from_env()   # or Signer.generate()
         rec = signer.sign(kind=StepKind.LLM_START, payload={"prompt": "..."})
         next_rec = signer.sign(kind=StepKind.LLM_END, payload={"response": "..."})
+
+    ML-DSA-65 (FIPS 204, experimental):
+        signer = Signer.generate(algorithm=SigningAlgorithm.ML_DSA_65)
     """
 
-    def __init__(self, private_key: Ed25519PrivateKey, prev_hash: str = GENESIS_PREV_HASH) -> None:
+    def __init__(self, private_key: SigningKey, prev_hash: str = GENESIS_PREV_HASH) -> None:
         self._priv = private_key
         self._pub = private_key.public_key()
         self._prev_hash = prev_hash
         self._signer_key_hex = self._pub.public_bytes(Encoding.Raw, PublicFormat.Raw).hex()
+        if isinstance(private_key, MLDSA65PrivateKey):
+            self._algorithm = SigningAlgorithm.ML_DSA_65
+        else:
+            self._algorithm = SigningAlgorithm.ED25519
 
     @classmethod
-    def generate(cls) -> Signer:
+    def generate(cls, algorithm: SigningAlgorithm = SigningAlgorithm.ED25519) -> Signer:
+        if algorithm == SigningAlgorithm.ML_DSA_65:
+            return cls(MLDSA65PrivateKey.generate())
         return cls(Ed25519PrivateKey.generate())
 
     @classmethod
-    def from_env(cls, env_var: str = "AIRSDK_SIGNING_KEY") -> Signer:
-        """Load an Ed25519 private key from a PEM or raw-hex env var.
+    def from_env(
+        cls,
+        env_var: str = "AIRSDK_SIGNING_KEY",
+        *,
+        algorithm: SigningAlgorithm = SigningAlgorithm.ED25519,
+    ) -> Signer:
+        """Load a private key from a PEM or raw-hex env var.
 
-        Falls back to ``generate()`` when the env var is unset. This lets local
-        development work without setup while still supporting stable keys in CI
-        and production.
+        PEM keys are auto-detected (Ed25519 or ML-DSA-65). Hex seeds
+        require the ``algorithm`` hint since both use 32-byte seeds.
+        Falls back to ``generate(algorithm)`` when the env var is unset.
         """
         raw = os.environ.get(env_var)
         if raw is None:
-            return cls.generate()
+            return cls.generate(algorithm)
         data = raw.strip()
         if data.startswith("-----BEGIN"):
             priv = load_pem_private_key(data.encode(), password=None)
-            if not isinstance(priv, Ed25519PrivateKey):
-                raise ValueError(f"{env_var} must hold an Ed25519 key, got {type(priv).__name__}")
-            return cls(priv)
+            if isinstance(priv, (Ed25519PrivateKey, MLDSA65PrivateKey)):
+                return cls(priv)
+            raise ValueError(f"{env_var} must hold an Ed25519 or ML-DSA-65 key, got {type(priv).__name__}")
         try:
             key_bytes = bytes.fromhex(data)
         except ValueError as exc:
-            raise ValueError(f"{env_var} is neither PEM nor hex-encoded Ed25519 seed") from exc
+            raise ValueError(f"{env_var} is neither PEM nor valid hex seed") from exc
         if len(key_bytes) != 32:
             raise ValueError(f"{env_var} hex seed must decode to 32 bytes, got {len(key_bytes)}")
+        if algorithm == SigningAlgorithm.ML_DSA_65:
+            return cls(MLDSA65PrivateKey.from_seed_bytes(key_bytes))
         return cls(Ed25519PrivateKey.from_private_bytes(key_bytes))
+
+    @property
+    def algorithm(self) -> SigningAlgorithm:
+        return self._algorithm
 
     @property
     def public_key_hex(self) -> str:
@@ -134,13 +161,17 @@ class Signer:
             content_hash=content_hash,
             signature=signature_hex,
             signer_key=self._signer_key_hex,
+            signature_algorithm=self._algorithm,
         )
         self._prev_hash = content_hash
         return record
 
 
 def verify_record(record: AgDRRecord) -> tuple[bool, str | None]:
-    """Recompute content_hash and verify Ed25519 signature against the record's signer_key.
+    """Recompute content_hash and verify signature against the record's signer_key.
+
+    Dispatches to Ed25519 or ML-DSA-65 based on ``record.signature_algorithm``.
+    Records without the field (v0.4 and earlier) default to Ed25519.
 
     Returns (ok, reason). reason is None when ok is True.
     """
@@ -149,13 +180,17 @@ def verify_record(record: AgDRRecord) -> tuple[bool, str | None]:
     if expected_hash != record.content_hash:
         return False, f"content_hash mismatch: expected {expected_hash}, got {record.content_hash}"
 
+    algo = record.signature_algorithm
     try:
-        signer_key_bytes = bytes.fromhex(record.signer_key)
-        pub = Ed25519PublicKey.from_public_bytes(signer_key_bytes)
+        key_bytes = bytes.fromhex(record.signer_key)
         sig_material = bytes.fromhex(record.prev_hash) + bytes.fromhex(record.content_hash)
-        pub.verify(bytes.fromhex(record.signature), sig_material)
+        sig_bytes = bytes.fromhex(record.signature)
+        if algo == SigningAlgorithm.ML_DSA_65:
+            MLDSA65PublicKey.from_public_bytes(key_bytes).verify(sig_bytes, sig_material)
+        else:
+            Ed25519PublicKey.from_public_bytes(key_bytes).verify(sig_bytes, sig_material)
     except InvalidSignature:
-        return False, "Ed25519 signature did not verify"
+        return False, f"{algo} signature did not verify"
     except ValueError as exc:
         return False, f"signer_key or signature not valid hex: {exc}"
     return True, None
@@ -207,7 +242,7 @@ def load_chain(path: str | Path) -> list[AgDRRecord]:
 
 
 def export_private_key_pem(signer: Signer) -> bytes:
-    """PEM bytes of the signer's private key. Useful when persisting generated keys."""
+    """PEM bytes of the signer's private key. Works for Ed25519 and ML-DSA-65."""
     return signer._priv.private_bytes(
         encoding=Encoding.PEM,
         format=PrivateFormat.PKCS8,

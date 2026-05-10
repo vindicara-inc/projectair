@@ -34,7 +34,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
-from sigstore.models import TransparencyLogEntry
+from sigstore.models import LogEntry
 from sigstore.models import (  # type: ignore[attr-defined]
     verify_merkle_inclusion as _verify_merkle_inclusion,
 )
@@ -136,7 +136,7 @@ class RekorClient:
         if len(expected_sha256) != 32:
             raise ValueError(f"sha256 digest must be 32 bytes, got {len(expected_sha256)}")
         try:
-            entry = TransparencyLogEntry._from_v1_response(anchor.inclusion_proof)
+            entry = LogEntry._from_response(anchor.inclusion_proof)
             verify_merkle_inclusion(entry)
         except Exception as exc:
             raise RekorProofInvalidError(f"Rekor inclusion proof failed: {exc}") from exc
@@ -233,7 +233,7 @@ class RekorClient:
     def _anchor_from_response(self, response: dict[str, Any]) -> RekorAnchor:
         # Validate the response is well-formed by parsing it through sigstore-python.
         try:
-            entry = TransparencyLogEntry._from_v1_response(response)
+            entry = LogEntry._from_response(response)
             verify_merkle_inclusion(entry)
         except Exception as exc:
             raise RekorProofInvalidError(f"Rekor returned an entry that did not verify: {exc}") from exc

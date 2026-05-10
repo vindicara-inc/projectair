@@ -25,10 +25,7 @@ dependencies = [
     # Pro extends OSS: same AgDRRecord schema, same crypto primitives, same CLI host.
     # Lockstep on the OSS surface AIR Cloud commits to receiving from.
     "projectair>=0.7.1,<0.8",
-    "cryptography>=46.0.6,<47.0",
-    # httpx: thin HTTP client used by the SIEM push helpers (Datadog, Splunk
-    # HEC, Sumo, Azure Sentinel). Same library projectair already uses for
-    # the Layer 3 Auth0 integration, so this just hoists it to a direct dep.
+    "cryptography>=48.0.0,<49.0",
     "httpx>=0.27,<1.0",
 ]
 
