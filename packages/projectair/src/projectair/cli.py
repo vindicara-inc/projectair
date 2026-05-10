@@ -319,7 +319,7 @@ def demo(
         algo = SigningAlgorithm(signing_algorithm)
     except ValueError:
         typer.secho(f"Unknown signing algorithm '{signing_algorithm}'. Use: ed25519, ml-dsa-65", fg=typer.colors.RED, err=True)
-        raise typer.Exit(code=2)
+        raise typer.Exit(code=2) from None
     demo_signer = Signer.generate(algo)
     signer = build_concrete_demo_log(log_path, signer=demo_signer)
     records = load_chain(log_path)
