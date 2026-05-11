@@ -18,7 +18,7 @@ The AIR pivot shipped. The OSS promise is live on PyPI. Read this before doing a
 
 ### On PyPI
 
-- `projectair` **0.8.0** is the latest live release (published 2026-05-11). MIT. Ships the `air` CLI and the `airsdk` library. This is the public product. The four-layer architecture is now complete: detector coverage (Layer 0) + external trust anchor (Layer 1) + causal reasoning (Layer 2) + Auth0-verified containment (Layer 3) + AgDR Handoff Protocol Wave 1 (Layer 4). 0.8.0 adds ML-DSA-65 post-quantum signatures (experimental, opt-in) and updates package author metadata to Kevin Minn <support@vindicara.io>.
+- `projectair` **0.8.1** is the latest live release (published 2026-05-11). MIT. Ships the `air` CLI and the `airsdk` library. This is the public product. The four-layer architecture is now complete: detector coverage (Layer 0) + external trust anchor (Layer 1) + causal reasoning (Layer 2) + Auth0-verified containment (Layer 3) + AgDR Handoff Protocol Wave 1 (Layer 4). 0.8.1 adds `--from`/`--to` date-range filtering to all `air report` commands (full chain verified, only windowed records used for detectors and reports).
 - **ML-DSA-65 (FIPS 204) post-quantum signatures** shipped in 0.8.0 as opt-in experimental. `Signer.generate(algorithm=SigningAlgorithm.ML_DSA_65)` or `AIRRecorder(..., signing_algorithm=SigningAlgorithm.ML_DSA_65)`. AgDR schema bumped to **0.5** (adds `signature_algorithm` field; v0.4 records without the field default to `"ed25519"` and verify unchanged). Requires `cryptography>=48.0.0`. Ed25519 remains the default. Mixed-algorithm chains verify correctly. Layer 4 handoff identity is still Ed25519-only (separate scope). Mark as `experimental` in all docs until at least one customer uses it.
 - Release lineage (each is a real PyPI release unless marked):
   - 0.1.0–0.1.5: initial detectors, signing, LangChain + OpenAI + Anthropic integrations.
@@ -33,6 +33,7 @@ The AIR pivot shipped. The OSS promise is live on PyPI. Read this before doing a
   - 0.7.0 (2026-05-07): **Layer 4 Wave 1 (alpha)** AgDR Handoff Protocol (A2A). `airsdk.handoff.*`, `air handoff verify`, `agdr/v2.handoff` and `agdr/v2.handoff_acceptance` schemas. Live demo against real Auth0 tenant `dev-kilt2vkudvbu75ny.us.auth0.com`; Rekor anchor at log index 1465403522. Wave 1 is single-tenant + synchronous Rekor mode + the full eight-step verifier; Wave 2 (cross-tenant via Sigstore Fulcio + OIDC Discovery) ships once Wave 1 has at least one reference deployment.
   - 0.7.1 (2026-05-07): `air upgrade` pricing alignment (no code-path changes).
   - 0.8.0 (2026-05-11): **ML-DSA-65 (FIPS 204) post-quantum signatures** (experimental, opt-in). AgDR schema 0.4 -> **0.5** (`signature_algorithm` field). Package author updated to Kevin Minn <support@vindicara.io>.
+  - 0.8.1 (2026-05-11): `--from`/`--to` date-range filtering on all `air report` commands.
 - To publish a new release: add a `[<ver>]` section to `packages/projectair/CHANGELOG.md` (Keep a Changelog format), bump `packages/projectair/pyproject.toml` + `airsdk/__init__.py`, then from `packages/projectair/`: `rm -f dist/*.whl dist/*.tar.gz && python -m build && python -m twine check dist/* && python -m twine upload dist/projectair-<ver>*`. Always `cd packages/projectair` first; running `python -m build` from the repo root produces a vindicara wheel instead.
 - The simple index at `https://pypi.org/simple/projectair/` updates faster than the JSON endpoint when checking propagation. Credentials live in `~/.pypirc` (permissions `-rw-------`, username `__token__`, password is the PyPI API token starting with `pypi-`). With `~/.pypirc` in place, `twine upload` is non-interactive.
 - `vindicara` 0.2.0 live, repositioned as "server-side engine behind AIR Cloud." `vindicara` 0.1.0 yanked.
@@ -57,7 +58,7 @@ The AIR pivot shipped. The OSS promise is live on PyPI. Read this before doing a
 - **ASI10 is Zero-Trust enforcement, not anomaly detection.** Frame it as declared-scope enforcement in every doc, docstring, README, and HN post. The learned-baseline anomaly-detection variant (statistical profiling, peer comparison) is explicitly on the roadmap for a later release and is labelled as such in `detections.py`. Calling the shipped detector "anomaly detection" is overclaim.
 - **Do not conflate AIR-04 with ASI10.** AIR-04 detects gaps in our own chain (missing tool_end records, silent intervals). ASI10 Rogue Agents is about agents acting outside their authorization scope / stealth infiltration. OWASP lists signed audit logs as a *mitigation* for ASI10, not a detection signal. Calling AIR-04 "ASI10 coverage" is overclaim. Real ASI10 coverage requires a behavioral-scope detector.
 
-### Layered architecture (the spine of the product as of 0.8.0)
+### Layered architecture (the spine of the product as of 0.8.1)
 
 The detectors above are Layer 0. Each subsequent layer is a separate `airsdk` subpackage with its own demo script, CLI surface, and crypto trust contract. Treat layers as independently dependable: a customer can adopt Layer 1 without Layer 2, Layer 3 without Layer 4, etc.
 

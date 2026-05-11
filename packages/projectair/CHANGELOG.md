@@ -2,6 +2,11 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.8.1] - 2026-05-11
+
+### Added
+- `--from` / `--to` date-range filtering on `air report article72`, `air report nist-rmf`, and `air report soc2-ai`. The full chain is verified for integrity first; only records within the date window are passed to detectors and the report generator. Both flags accept ISO dates (YYYY-MM-DD) and are inclusive on both ends.
+
 ## [0.8.0] - 2026-05-11
 
 **Status: experimental (ML-DSA-65).** Post-quantum signing and package metadata update.
