@@ -2,6 +2,16 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.8.0] - 2026-05-11
+
+**Status: experimental (ML-DSA-65).** Post-quantum signing and package metadata update.
+
+### Added
+- **ML-DSA-65 (FIPS 204) post-quantum signatures**, opt-in experimental. `Signer.generate(algorithm=SigningAlgorithm.ML_DSA_65)` or `AIRRecorder(..., signing_algorithm=SigningAlgorithm.ML_DSA_65)`. Requires `cryptography>=48.0.0`. Ed25519 remains the default. Mixed-algorithm chains (some records Ed25519, some ML-DSA-65) verify correctly. AgDR schema bumped to **0.5** (adds `signature_algorithm` field; v0.4 records without the field default to `"ed25519"` and verify unchanged).
+
+### Changed
+- Package author metadata updated to Kevin Minn <support@vindicara.io>.
+
 ## [0.7.1] - 2026-05-07
 
 Pricing alignment release. The `air upgrade` CLI command now reflects the public pricing on https://vindicara.io/pricing.

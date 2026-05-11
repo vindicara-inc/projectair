@@ -1,7 +1,7 @@
 """`air` CLI. Surfaces `trace`, `demo`, and `version` subcommands."""
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -14,7 +14,7 @@ from airsdk._concrete_demo import (
     build_concrete_demo_log,
     tamper_one_byte,
 )
-from airsdk.agdr import Signer, load_chain, verify_chain
+from airsdk.agdr import Signer, filter_records_by_date_range, load_chain, verify_chain
 from airsdk.article72 import generate_article72_report
 from airsdk.detections import (
     IMPLEMENTED_AIR_DETECTORS,
@@ -221,6 +221,21 @@ def _load_registry_or_exit(path: Path | None) -> AgentRegistry | None:
     except (FileNotFoundError, ValueError) as exc:
         typer.secho(f"[Registry] Failed to load {path}: {exc}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=2) from exc
+
+
+def _parse_date_option(value: str | None, flag_name: str) -> date | None:
+    """Parse a --from / --to date string, or exit with a clean error."""
+    if value is None:
+        return None
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        typer.secho(
+            f"Invalid date for {flag_name}: {value!r}. Expected YYYY-MM-DD.",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=2) from None
 
 
 @app.command()
@@ -449,6 +464,14 @@ def report_article72(
         exists=True,
         readable=True,
     ),
+    from_date: str | None = typer.Option(
+        None, "--from", "--from-date",
+        help="Include records on or after this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
+    to_date: str | None = typer.Option(
+        None, "--to", "--to-date",
+        help="Include records on or before this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
 ) -> None:
     """Generate an EU AI Act Article 72 post-market monitoring report from an AgDR log.
 
@@ -457,29 +480,36 @@ def report_article72(
     sign the attestation before the report is legally usable.
     """
     registry = _load_registry_or_exit(agent_registry)
+    parsed_from = _parse_date_option(from_date, "--from")
+    parsed_to = _parse_date_option(to_date, "--to")
 
-    typer.secho(
-        f"[Article 72] Loading {log}...",
-        fg=typer.colors.WHITE, bold=True,
-    )
-    records = load_chain(log)
-    conversations = _count_conversations(records)
-    verification = verify_chain(records)
-    findings = run_detectors(records, registry=registry)
+    typer.secho(f"[Article 72] Loading {log}...", fg=typer.colors.WHITE, bold=True)
+    all_records = load_chain(log)
+    verification = verify_chain(all_records)
+
+    filtered = filter_records_by_date_range(all_records, from_date=parsed_from, to_date=parsed_to)
+    if parsed_from is not None or parsed_to is not None:
+        typer.secho(
+            f"[Article 72] Date filter {parsed_from or 'start'} to {parsed_to or 'end'}: "
+            f"{len(filtered)} of {len(all_records)} records in window.",
+            fg=typer.colors.BRIGHT_BLACK,
+        )
+
+    findings = run_detectors(filtered, registry=registry)
 
     report = ForensicReport(
         air_version=airsdk_version,
         report_id=str(uuid4()),
         source_log=str(log.resolve()),
         generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
-        records=len(records),
-        conversations=conversations,
+        records=len(filtered),
+        conversations=_count_conversations(filtered),
         verification=verification,
         findings=findings,
     )
     markdown = generate_article72_report(
         report,
-        records,
+        filtered,
         system_id,
         system_name=system_name,
         operator_entity=operator,
@@ -655,6 +685,14 @@ def report_nist_rmf(
         exists=True,
         readable=True,
     ),
+    from_date: str | None = typer.Option(
+        None, "--from", "--from-date",
+        help="Include records on or after this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
+    to_date: str | None = typer.Option(
+        None, "--to", "--to-date",
+        help="Include records on or before this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
 ) -> None:
     """Generate a NIST AI RMF risk-management report from an AgDR log (Pro).
 
@@ -673,23 +711,30 @@ def report_nist_rmf(
         raise typer.Exit(code=2) from None
 
     registry = _load_registry_or_exit(agent_registry)
+    parsed_from = _parse_date_option(from_date, "--from")
+    parsed_to = _parse_date_option(to_date, "--to")
 
-    typer.secho(
-        f"[NIST AI RMF] Loading {log}...",
-        fg=typer.colors.WHITE, bold=True,
-    )
-    records = load_chain(log)
-    conversations = _count_conversations(records)
-    verification = verify_chain(records)
-    findings = run_detectors(records, registry=registry)
+    typer.secho(f"[NIST AI RMF] Loading {log}...", fg=typer.colors.WHITE, bold=True)
+    all_records = load_chain(log)
+    verification = verify_chain(all_records)
+
+    filtered = filter_records_by_date_range(all_records, from_date=parsed_from, to_date=parsed_to)
+    if parsed_from is not None or parsed_to is not None:
+        typer.secho(
+            f"[NIST AI RMF] Date filter {parsed_from or 'start'} to {parsed_to or 'end'}: "
+            f"{len(filtered)} of {len(all_records)} records in window.",
+            fg=typer.colors.BRIGHT_BLACK,
+        )
+
+    findings = run_detectors(filtered, registry=registry)
 
     report = ForensicReport(
         air_version=airsdk_version,
         report_id=str(uuid4()),
         source_log=str(log.resolve()),
         generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
-        records=len(records),
-        conversations=conversations,
+        records=len(filtered),
+        conversations=_count_conversations(filtered),
         verification=verification,
         findings=findings,
     )
@@ -697,7 +742,7 @@ def report_nist_rmf(
     try:
         markdown = generate_nist_rmf_report(
             report,
-            records,
+            filtered,
             system_id,
             system_name=system_name,
             operator_entity=operator,
@@ -766,6 +811,14 @@ def report_soc2_ai(
         exists=True,
         readable=True,
     ),
+    from_date: str | None = typer.Option(
+        None, "--from", "--from-date",
+        help="Include records on or after this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
+    to_date: str | None = typer.Option(
+        None, "--to", "--to-date",
+        help="Include records on or before this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
 ) -> None:
     """Generate a SOC 2 AI evidence template from an AgDR log (Pro).
 
@@ -785,24 +838,31 @@ def report_soc2_ai(
         raise typer.Exit(code=2) from None
 
     registry = _load_registry_or_exit(agent_registry)
+    parsed_from = _parse_date_option(from_date, "--from")
+    parsed_to = _parse_date_option(to_date, "--to")
     in_scope_categories = tuple(s.strip() for s in in_scope.split(",") if s.strip())
 
-    typer.secho(
-        f"[SOC 2 AI] Loading {log}...",
-        fg=typer.colors.WHITE, bold=True,
-    )
-    records = load_chain(log)
-    conversations = _count_conversations(records)
-    verification = verify_chain(records)
-    findings = run_detectors(records, registry=registry)
+    typer.secho(f"[SOC 2 AI] Loading {log}...", fg=typer.colors.WHITE, bold=True)
+    all_records = load_chain(log)
+    verification = verify_chain(all_records)
+
+    filtered = filter_records_by_date_range(all_records, from_date=parsed_from, to_date=parsed_to)
+    if parsed_from is not None or parsed_to is not None:
+        typer.secho(
+            f"[SOC 2 AI] Date filter {parsed_from or 'start'} to {parsed_to or 'end'}: "
+            f"{len(filtered)} of {len(all_records)} records in window.",
+            fg=typer.colors.BRIGHT_BLACK,
+        )
+
+    findings = run_detectors(filtered, registry=registry)
 
     report = ForensicReport(
         air_version=airsdk_version,
         report_id=str(uuid4()),
         source_log=str(log.resolve()),
         generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
-        records=len(records),
-        conversations=conversations,
+        records=len(filtered),
+        conversations=_count_conversations(filtered),
         verification=verification,
         findings=findings,
     )
@@ -810,7 +870,7 @@ def report_soc2_ai(
     try:
         markdown = generate_soc2_ai_report(
             report,
-            records,
+            filtered,
             system_id,
             service_organisation=service_organisation,
             system_name=system_name,
