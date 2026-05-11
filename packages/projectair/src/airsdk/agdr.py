@@ -9,7 +9,7 @@ import json
 import os
 import secrets
 import time
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -239,6 +239,37 @@ def load_chain(path: str | Path) -> list[AgDRRecord]:
             except Exception as exc:
                 raise ValueError(f"malformed AgDR record on line {line_number}: {exc}") from exc
     return records
+
+
+def filter_records_by_date_range(
+    records: list[AgDRRecord],
+    *,
+    from_date: date | None = None,
+    to_date: date | None = None,
+) -> list[AgDRRecord]:
+    """Return records whose timestamp falls within [from_date, to_date] inclusive.
+
+    Both bounds are optional; when both are None the input is returned unchanged.
+    Records with unparseable timestamps are excluded when any bound is set.
+    """
+    if from_date is None and to_date is None:
+        return records
+
+    filtered: list[AgDRRecord] = []
+    for record in records:
+        ts = record.timestamp
+        normalized = ts.replace("Z", "+00:00") if ts.endswith("Z") else ts
+        try:
+            record_dt = datetime.fromisoformat(normalized)
+        except (ValueError, TypeError):
+            continue
+        record_date = record_dt.date()
+        if from_date is not None and record_date < from_date:
+            continue
+        if to_date is not None and record_date > to_date:
+            continue
+        filtered.append(record)
+    return filtered
 
 
 def export_private_key_pem(signer: Signer) -> bytes:
