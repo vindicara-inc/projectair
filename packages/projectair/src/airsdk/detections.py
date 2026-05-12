@@ -67,6 +67,14 @@ AIR detectors cover two public OWASP taxonomies plus one AIR-native signal.
 3. **AIR-native detectors** with no direct OWASP equivalent:
    - ``AIR-04`` Untraceable Action: chain-integrity check. Implemented
      as ``detect_untraceable_action``.
+   - ``AIR-05`` NemoGuard Safety Classification: standalone findings from
+     NVIDIA NemoGuard NIM classifiers (jailbreak, content safety, topic
+     control). Implemented as ``detect_nemoguard_safety``.
+   - ``AIR-06`` NemoGuard Corroboration: cross-corroboration between AIR
+     heuristic detectors and NemoGuard NIM classifiers. When both agree
+     on a finding near the same step, the corroborated finding carries
+     stronger evidentiary weight. Implemented as
+     ``detect_nemoguard_corroboration``.
 """
 from __future__ import annotations
 
@@ -269,6 +277,8 @@ IMPLEMENTED_AIR_DETECTORS: tuple[tuple[str, str, str], ...] = (
     ("AIR-02", "Sensitive Data Exposure", "OWASP LLM06 Sensitive Information Disclosure"),
     ("AIR-03", "Unrestricted Resource Consumption", "OWASP LLM04 Model Denial of Service"),
     ("AIR-04", "Untraceable Action", "AIR-native (no direct OWASP equivalent)"),
+    ("AIR-05", "NemoGuard Safety Classification", "AIR-native: standalone NVIDIA NemoGuard NIM findings"),
+    ("AIR-06", "NemoGuard Corroboration", "AIR-native: cross-corroboration between AIR detectors and NemoGuard classifiers"),
 )
 
 
@@ -1464,6 +1474,198 @@ def detect_rogue_agent(
     return findings
 
 
+_NEMOGUARD_TOOL_PREFIX = "nemoguard:"
+
+_NEMOGUARD_CLASSIFIER_LABELS: dict[str, str] = {
+    "jailbreak_detect": "NemoGuard JailbreakDetect",
+    "content_safety": "NemoGuard ContentSafety",
+    "topic_control": "NemoGuard TopicControl",
+}
+
+_NEMOGUARD_CORROBORATION_MAP: dict[str, list[str]] = {
+    "jailbreak_detect": ["AIR-01"],
+    "content_safety": ["AIR-01", "AIR-02", "ASI09"],
+    "topic_control": ["ASI01"],
+}
+
+_CORROBORATION_WINDOW = 5
+
+
+def _get_nemoguard_extra(record: AgDRRecord) -> dict[str, Any] | None:
+    """Extract structured NemoGuard fields from a tool_end record's extra data."""
+    extra = record.payload.model_extra
+    if not extra or "nemoguard_classifier" not in extra:
+        return None
+    return extra
+
+
+def detect_nemoguard_safety(records: list[AgDRRecord]) -> list[Finding]:
+    """AIR-05 NemoGuard Safety Classification.
+
+    Standalone findings from NVIDIA NemoGuard NIM classifiers present in
+    the chain. Walks ``tool_end`` records whose ``tool_name`` starts with
+    ``nemoguard:`` and checks the structured ``nemoguard_safe`` field.
+    When a classifier reports unsafe content, emits a finding.
+
+    Three classifiers are recognized:
+
+    - ``nemoguard:jailbreak_detect``: ``nemoguard_safe=False`` means
+      jailbreak detected. Severity ``high``.
+    - ``nemoguard:content_safety``: ``nemoguard_safe=False`` means
+      content safety violation. Severity from categories (``critical``
+      for S1/S3/S7/S17/S22, ``high`` otherwise).
+    - ``nemoguard:topic_control``: ``nemoguard_safe=False`` means
+      off-topic. Severity ``medium``.
+    """
+    findings: list[Finding] = []
+
+    critical_categories = frozenset({"S1", "S3", "S7", "S17", "S22"})
+
+    for index, record in enumerate(records):
+        if record.kind != StepKind.TOOL_END:
+            continue
+        extra = _get_nemoguard_extra(record)
+        if extra is None:
+            continue
+
+        classifier = str(extra.get("nemoguard_classifier", ""))
+        safe = extra.get("nemoguard_safe", True)
+        if safe:
+            continue
+
+        label = _NEMOGUARD_CLASSIFIER_LABELS.get(classifier, classifier)
+
+        if classifier == "jailbreak_detect":
+            score = extra.get("nemoguard_score", 0.0)
+            findings.append(Finding(
+                detector_id="AIR-05",
+                title="NemoGuard Safety Classification",
+                severity="high",
+                step_id=record.step_id,
+                step_index=index,
+                description=(
+                    f"{label} flagged jailbreak attempt "
+                    f"(score={score:.4f}). NVIDIA-backed classification."
+                ),
+            ))
+        elif classifier == "content_safety":
+            categories = extra.get("nemoguard_categories", [])
+            cat_labels = extra.get("nemoguard_category_labels", [])
+            has_critical = bool(critical_categories & set(categories))
+            severity = "critical" if has_critical else "high"
+            cat_str = ", ".join(
+                f"{c} ({l})" for c, l in zip(categories, cat_labels, strict=False)
+            ) if categories else "unspecified"
+            findings.append(Finding(
+                detector_id="AIR-05",
+                title="NemoGuard Safety Classification",
+                severity=severity,
+                step_id=record.step_id,
+                step_index=index,
+                description=(
+                    f"{label} flagged unsafe content: {cat_str}. "
+                    f"NVIDIA-backed classification."
+                ),
+            ))
+        elif classifier == "topic_control":
+            findings.append(Finding(
+                detector_id="AIR-05",
+                title="NemoGuard Safety Classification",
+                severity="medium",
+                step_id=record.step_id,
+                step_index=index,
+                description=(
+                    f"{label} flagged off-topic content. "
+                    f"NVIDIA-backed classification."
+                ),
+            ))
+
+    return findings
+
+
+def detect_nemoguard_corroboration(
+    records: list[AgDRRecord],
+    prior_findings: list[Finding],
+) -> list[Finding]:
+    """AIR-06 NemoGuard Corroboration.
+
+    Cross-corroboration between AIR heuristic detectors and NVIDIA
+    NemoGuard NIM classifiers. When an AIR detector (AIR-01, AIR-02,
+    ASI01, ASI09) emits a finding near a step where a NemoGuard
+    classifier also flagged unsafe content, emits a corroboration
+    finding that references both.
+
+    "Near" means within ``_CORROBORATION_WINDOW`` step indices. The
+    corroboration finding carries ``critical`` severity because
+    independent agreement between a heuristic detector and an
+    NVIDIA safety model is strong evidence.
+
+    Corroboration map:
+    - ``jailbreak_detect`` corroborates AIR-01 (Prompt Injection)
+    - ``content_safety`` corroborates AIR-01, AIR-02, ASI09
+    - ``topic_control`` corroborates ASI01 (Goal Hijack)
+    """
+    findings: list[Finding] = []
+    if not prior_findings:
+        return findings
+
+    unsafe_nemoguard: list[tuple[int, str, str, dict[str, Any]]] = []
+    for index, record in enumerate(records):
+        if record.kind != StepKind.TOOL_END:
+            continue
+        extra = _get_nemoguard_extra(record)
+        if extra is None:
+            continue
+        if extra.get("nemoguard_safe", True):
+            continue
+        classifier = str(extra.get("nemoguard_classifier", ""))
+        label = _NEMOGUARD_CLASSIFIER_LABELS.get(classifier, classifier)
+        unsafe_nemoguard.append((index, classifier, label, extra))
+
+    if not unsafe_nemoguard:
+        return findings
+
+    corroborated: set[tuple[str, int, int]] = set()
+
+    for finding in prior_findings:
+        for ng_index, ng_classifier, ng_label, ng_extra in unsafe_nemoguard:
+            corroborate_ids = _NEMOGUARD_CORROBORATION_MAP.get(ng_classifier, [])
+            if finding.detector_id not in corroborate_ids:
+                continue
+            if abs(finding.step_index - ng_index) > _CORROBORATION_WINDOW:
+                continue
+
+            key = (finding.detector_id, finding.step_index, ng_index)
+            if key in corroborated:
+                continue
+            corroborated.add(key)
+
+            detail = ""
+            if ng_classifier == "jailbreak_detect":
+                score = ng_extra.get("nemoguard_score", 0.0)
+                detail = f" (score={score:.4f})"
+            elif ng_classifier == "content_safety":
+                cats = ng_extra.get("nemoguard_categories", [])
+                if cats:
+                    detail = f" (categories: {', '.join(cats)})"
+
+            findings.append(Finding(
+                detector_id="AIR-06",
+                title="NemoGuard Corroboration",
+                severity="critical",
+                step_id=finding.step_id,
+                step_index=finding.step_index,
+                description=(
+                    f"AIR detector {finding.detector_id} ({finding.title}) at step "
+                    f"{finding.step_index} is independently corroborated by "
+                    f"{ng_label}{detail} at step {ng_index}. "
+                    f"Two independent signals agree: AIR heuristic + NVIDIA safety model."
+                ),
+            ))
+
+    return findings
+
+
 def run_detectors(
     records: list[AgDRRecord],
     registry: AgentRegistry | None = None,
@@ -1476,7 +1678,7 @@ def run_detectors(
     detectors return no findings rather than fabricating an implicit
     baseline.
     """
-    return [
+    heuristic_findings = [
         *detect_goal_hijack(records),
         *detect_tool_misuse(records),
         *detect_identity_privilege_abuse(records, registry),
@@ -1492,3 +1694,8 @@ def run_detectors(
         *detect_cascading_failures(records),
         *detect_rogue_agent(records, registry),
     ]
+    nemoguard_findings = detect_nemoguard_safety(records)
+    corroboration_findings = detect_nemoguard_corroboration(
+        records, heuristic_findings,
+    )
+    return [*heuristic_findings, *nemoguard_findings, *corroboration_findings]
