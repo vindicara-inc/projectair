@@ -253,6 +253,9 @@ class NemoGuardClient:
         verdict = "JAILBREAK DETECTED" if jailbreak else "safe"
         self._recorder.tool_end(
             tool_output=f"{verdict} (score={score:.4f})",
+            nemoguard_classifier="jailbreak_detect",
+            nemoguard_safe=not jailbreak,
+            nemoguard_score=score,
         )
         return result
 
@@ -318,6 +321,11 @@ class NemoGuardClient:
         cat_str = f" [{', '.join(categories)}]" if categories else ""
         self._recorder.tool_end(
             tool_output=f"user={safe_str}{cat_str}",
+            nemoguard_classifier="content_safety",
+            nemoguard_safe=user_safe,
+            nemoguard_categories=categories,
+            nemoguard_category_labels=labels,
+            nemoguard_response_safe=resp_safe,
         )
         return result
 
@@ -379,5 +387,7 @@ class NemoGuardClient:
 
         self._recorder.tool_end(
             tool_output="on-topic" if on_topic else "OFF-TOPIC",
+            nemoguard_classifier="topic_control",
+            nemoguard_safe=on_topic,
         )
         return result
