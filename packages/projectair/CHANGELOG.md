@@ -2,6 +2,18 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.9.0] - 2026-05-12
+
+**Status: beta (NVIDIA integrations).** Full NVIDIA AI safety stack integration: NeMo Guardrails telemetry, NemoGuard NIM classifiers, and cross-corroboration with AIR's heuristic detector pipeline.
+
+### Added
+- `instrument_nemo_guardrails`: wraps `nemoguardrails.LLMRails` to capture every activated rail (input/output/dialog/generation) and every LLM call the guardrails engine makes as signed capsule records. Supports `generate` and `generate_async`.
+- `NemoGuardClient`: wraps all three NVIDIA NemoGuard NIM classifiers (JailbreakDetect `/v1/classify`, ContentSafety `/v1/completions`, TopicControl `/v1/chat/completions`) with signed `tool_start`/`tool_end` capsule pairs per classification. Supports hosted (build.nvidia.com) and self-hosted NIM endpoints via configurable URLs and API key.
+- **AIR-05 NemoGuard Safety Classification** detector: standalone findings when NemoGuard classifiers flag unsafe content. Severity scales with safety category (S1/S3/S7/S17/S22 = critical, others = high, topic control = medium).
+- **AIR-06 NemoGuard Corroboration** detector: cross-corroboration between AIR heuristic detectors and NemoGuard NIM classifiers. When AIR-01 flags prompt injection and NemoGuard JailbreakDetect independently agrees within 5 steps, emits a critical corroboration finding. Maps: jailbreak -> AIR-01, content_safety -> AIR-01/AIR-02/ASI09, topic_control -> ASI01.
+- NemoGuard `tool_end` records now carry structured extra fields (`nemoguard_classifier`, `nemoguard_safe`, `nemoguard_score`, `nemoguard_categories`) for clean detector consumption.
+- Detector count: 10 OWASP Agentic + 3 OWASP LLM + 3 AIR-native = **16 total**.
+
 ## [0.8.1] - 2026-05-11
 
 ### Added
