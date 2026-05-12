@@ -267,6 +267,22 @@ from airsdk import AIRRecorder, instrument_gemini, instrument_adk
 
 `instrument_gemini` wraps a `google.genai.Client` for `models.generate_content`, `chats.send_message`, and `aio.*` async calls. `instrument_adk` attaches AIR callbacks to a constructed `LlmAgent` via the four ADK callback hooks.
 
+### NVIDIA NemoClaw
+
+```python
+from openclaw_sdk import OpenClawClient
+from airsdk import AIRRecorder
+from airsdk.integrations.nemoclaw import instrument_nemoclaw
+
+recorder = AIRRecorder("clinical-chain.jsonl")
+client = OpenClawClient(api_key="...")
+instrumented = instrument_nemoclaw(client, recorder)
+
+result = instrumented.execute(pipeline="triage", input={"mrn": "20260511-0042"})
+```
+
+`instrument_nemoclaw` captures every agent execution, tool call, inference request, and OpenShell sandbox policy decision as signed Intent Capsules. Built for HIPAA-regulated clinical AI workflows running on NVIDIA's hardened agent runtime.
+
 ### Custom code (any framework)
 
 ```python
@@ -316,8 +332,9 @@ curl https://vindicara-ops-chain-public-399827112476.s3.us-west-2.amazonaws.com/
 - **Layer 4 Wave 2:** cross-tenant federation via Sigstore Fulcio + OIDC Discovery.
 - **Layer 4 v1.5:** private/enterprise federation (Okta, Entra ID, SPIFFE adapters).
 - **ML-DSA-65 post-quantum signatures:** shipped as experimental opt-in. `AIRRecorder(..., signing_algorithm=SigningAlgorithm.ML_DSA_65)`. Crypto-agility ahead of NIST CNSA 2.0 mandates.
+- **NVIDIA NemoClaw integration:** shipped. `instrument_nemoclaw` for clinical AI on NVIDIA's hardened agent runtime.
+- **AIR Cloud:** live at `cloud.vindicara.io`. Hosted chain-of-custody dashboards for all paying tiers.
 - **CrewAI, AutoGen, AG2 framework integrations:** queued.
-- **AIR Cloud:** hosted chain-of-custody dashboards for the Team tier.
 
 ## License
 
