@@ -4,6 +4,7 @@ import os
 
 import aws_cdk as cdk
 
+from vindicara.infra.stacks.air_cloud_stack import AirCloudStack
 from vindicara.infra.stacks.api_stack import APIStack
 from vindicara.infra.stacks.data_stack import DataStack
 from vindicara.infra.stacks.events_stack import EventsStack
@@ -29,6 +30,8 @@ env_site = cdk.Environment(account=account, region=site_region)
 data = DataStack(app, "VindicaraData", env=env_workload)
 events_stack = EventsStack(app, "VindicaraEvents", env=env_workload)
 ops_chain = OpsChainStack(app, "VindicaraOpsChain", env=env_workload)
+
+air_cloud = AirCloudStack(app, "AirCloud", env=env_workload)
 
 api_stack = APIStack(
     app,

@@ -1,0 +1,448 @@
+@import "tailwindcss";
+
+@theme {
+  --color-white-bg: #f7f5f0;
+  --color-white-bg-2: #ede9e0;
+
+  --color-obsidian: #050507;
+  --color-obsidian-2: #0c0c10;
+  --color-obsidian-edge: #1a1a22;
+
+  --color-red: #dc2626;
+  --color-red-bright: #ef4444;
+  --color-red-glow: rgba(220, 38, 38, 0.7);
+  --color-red-soft: rgba(220, 38, 38, 0.2);
+
+  --color-white: #f8f6f1;
+  --color-white-2: rgba(248, 246, 241, 0.75);
+  --color-white-3: rgba(248, 246, 241, 0.5);
+  --color-white-4: rgba(248, 246, 241, 0.25);
+
+  --color-terminal-green: #6effb3;
+  --color-critical: #ff5468;
+  --color-high: #ffb547;
+
+  --color-grid-line: rgba(5, 5, 7, 0.04);
+  --color-panel-edge: rgba(220, 38, 38, 0.18);
+
+  --font-display: 'Syncopate', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --font-term: 'Space Mono', monospace;
+  --font-sans: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-radius: 0 !important;
+  }
+
+  ::selection {
+    background-color: var(--color-red-soft);
+    color: var(--color-obsidian);
+  }
+
+  html {
+    background-color: var(--color-white-bg);
+    color: var(--color-obsidian);
+    font-family: var(--font-mono);
+    font-feature-settings: 'ss01', 'cv01', 'cv02';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-white-bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  /* Obsidian glass card */
+  .obsidian {
+    position: relative;
+    background: linear-gradient(
+      135deg,
+      rgba(15, 15, 22, 0.62) 0%,
+      rgba(8, 8, 12, 0.68) 50%,
+      rgba(20, 20, 28, 0.62) 100%
+    );
+    backdrop-filter: blur(24px) saturate(1.4) brightness(0.85);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4) brightness(0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.22),
+      inset 0 -1.5px 0 rgba(0, 0, 0, 0.55),
+      inset 1.5px 0 0 rgba(255, 255, 255, 0.06),
+      inset -1.5px 0 0 rgba(0, 0, 0, 0.25),
+      0 28px 60px rgba(5, 5, 7, 0.2),
+      0 10px 28px rgba(5, 5, 7, 0.14),
+      0 0 80px rgba(255, 180, 140, 0.08);
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.4s,
+      border-color 0.3s;
+  }
+
+  .obsidian::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 6%;
+    right: 6%;
+    height: 1.5px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.5) 25%,
+      rgba(255, 255, 255, 0.9) 50%,
+      rgba(255, 255, 255, 0.5) 75%,
+      transparent
+    );
+    z-index: 5;
+    filter: blur(0.3px);
+  }
+
+  .obsidian::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    height: 50%;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.02) 50%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .obsidian:hover {
+    border-color: rgba(220, 38, 38, 0.5);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.24),
+      inset 0 -1.5px 0 rgba(0, 0, 0, 0.8),
+      inset 1.5px 0 0 rgba(220, 38, 38, 0.15),
+      inset -1.5px 0 0 rgba(0, 0, 0, 0.3),
+      0 32px 70px rgba(5, 5, 7, 0.3),
+      0 10px 28px rgba(220, 38, 38, 0.22),
+      0 0 100px rgba(220, 38, 38, 0.18),
+      0 0 200px rgba(220, 38, 38, 0.06);
+  }
+
+  /* HUD components (adapted for light-bg context) */
+  .hud-plate {
+    background-color: rgba(10, 10, 12, 0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--color-panel-edge);
+    box-shadow:
+      0 0 32px rgba(220, 38, 38, 0.06),
+      inset 0 0 1px rgba(220, 38, 38, 0.45);
+  }
+
+  .hud-rail {
+    background-color: rgba(17, 17, 20, 0.62);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--color-panel-edge);
+    box-shadow:
+      0 0 24px rgba(220, 38, 38, 0.05),
+      inset 0 0 1px rgba(220, 38, 38, 0.32);
+  }
+
+  .hud-label {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.625rem;
+    line-height: 1;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(5, 5, 7, 0.55);
+  }
+
+  .hud-readout {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--color-red);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hud-tick {
+    color: rgba(5, 5, 7, 0.4);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+  }
+
+  .hud-bracket {
+    position: relative;
+  }
+
+  .hud-bracket::before,
+  .hud-bracket::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 1px solid var(--color-red);
+    pointer-events: none;
+  }
+
+  .hud-bracket::before {
+    top: -1px;
+    left: -1px;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .hud-bracket::after {
+    bottom: -1px;
+    right: -1px;
+    border-left: none;
+    border-top: none;
+  }
+
+  /* Module labels */
+  .module-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: rgba(5, 5, 7, 0.55);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .module-label::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--color-red);
+  }
+
+  .module-label .id {
+    color: var(--color-red);
+    font-weight: 700;
+  }
+
+  /* Status strip */
+  .status-strip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    z-index: 50;
+    background: linear-gradient(
+      180deg,
+      rgba(5, 5, 7, 0.92) 0%,
+      rgba(5, 5, 7, 0.88) 100%
+    );
+    border-bottom: 1px solid rgba(220, 38, 38, 0.3);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 24px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--color-white-2);
+    text-transform: uppercase;
+    box-shadow: 0 4px 20px rgba(5, 5, 7, 0.15);
+  }
+
+  /* Sweep animation on cards */
+  .sweep {
+    position: absolute;
+    top: -50%;
+    left: 0;
+    width: 30%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0.08),
+      transparent
+    );
+    transform: translateX(-100%) rotate(28deg);
+    animation: sweep 12s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  .reactor {
+    position: absolute;
+    inset: -2px;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(220, 38, 38, 0.5) 0%,
+      rgba(220, 38, 38, 0.25) 25%,
+      rgba(220, 38, 38, 0.08) 50%,
+      transparent 75%
+    );
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
+    z-index: -1;
+    filter: blur(12px);
+  }
+
+  .obsidian:hover .reactor {
+    opacity: 1;
+  }
+
+  .hud-pulse {
+    animation: hud-pulse 1.6s ease-in-out infinite;
+  }
+
+  .hud-scanline {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(5, 5, 7, 0.012) 3px,
+      rgba(5, 5, 7, 0.012) 4px
+    );
+    z-index: 50;
+    mix-blend-mode: multiply;
+  }
+
+  /* ASCII grid overlay */
+  .ascii-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image:
+      linear-gradient(rgba(5, 5, 7, 1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(5, 5, 7, 1) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  /* Atmospheric orbs */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.5;
+    animation: drift 24s ease-in-out infinite;
+  }
+
+  /* Gauge readouts */
+  .gauge-readout {
+    font-family: var(--font-display);
+    font-size: 46px;
+    font-weight: 700;
+    color: var(--color-red);
+    letter-spacing: 0.02em;
+    line-height: 0.9;
+    text-shadow: 0 0 20px var(--color-red-soft);
+  }
+
+  .gauge-readout.green {
+    color: var(--color-terminal-green);
+    text-shadow: 0 0 20px rgba(110, 255, 179, 0.35);
+  }
+
+  .gauge-readout.critical {
+    color: var(--color-critical);
+    text-shadow: 0 0 20px rgba(255, 84, 104, 0.35);
+  }
+
+  .gauge-bar-fill {
+    background: linear-gradient(90deg, var(--color-red), var(--color-red-bright));
+    box-shadow: 0 0 10px var(--color-red-glow);
+  }
+
+  /* Feed tags */
+  .feed-tag.info {
+    background: rgba(110, 255, 179, 0.12);
+    color: var(--color-terminal-green);
+    border: 1px solid rgba(110, 255, 179, 0.3);
+  }
+
+  .feed-tag.warn {
+    background: rgba(255, 181, 71, 0.12);
+    color: var(--color-high);
+    border: 1px solid rgba(255, 181, 71, 0.3);
+  }
+
+  .feed-tag.crit {
+    background: rgba(255, 84, 104, 0.15);
+    color: var(--color-critical);
+    border: 1px solid rgba(255, 84, 104, 0.4);
+  }
+
+  .feed-hash {
+    color: var(--color-red);
+  }
+
+  /* Stagger animation */
+  .stagger > * {
+    animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  .stagger > *:nth-child(1) { animation-delay: 0.05s; }
+  .stagger > *:nth-child(2) { animation-delay: 0.12s; }
+  .stagger > *:nth-child(3) { animation-delay: 0.19s; }
+  .stagger > *:nth-child(4) { animation-delay: 0.26s; }
+  .stagger > *:nth-child(5) { animation-delay: 0.33s; }
+}
+
+@keyframes hud-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+@keyframes sweep {
+  0%, 100% { transform: translateX(-100%) rotate(28deg); opacity: 0.3; }
+  50% { opacity: 0.85; }
+  100% { transform: translateX(400%) rotate(28deg); }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(90px, -70px) scale(1.12); }
+  66% { transform: translate(-70px, 90px) scale(0.88); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-pulse {
+    animation: none;
+  }
+  .hud-scanline {
+    display: none;
+  }
+  .sweep {
+    animation: none;
+  }
+  .orb {
+    animation: none;
+  }
+}

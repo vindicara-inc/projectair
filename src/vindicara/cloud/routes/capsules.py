@@ -13,6 +13,7 @@ from fastapi import APIRouter, HTTPException, Query, Request, status
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from vindicara.cloud.capsule_store import CapsuleStore, StoredCapsule
+from vindicara.cloud.event_bus import CapsuleEvent, CapsuleEventBus
 from vindicara.cloud.roles import Capability, require
 
 router = APIRouter()
@@ -56,8 +57,10 @@ async def ingest(request: Request) -> IngestResponse:
         )
 
     store: CapsuleStore = request.app.state.capsule_store
+    bus: CapsuleEventBus = request.app.state.capsule_event_bus
     workspace_id: str = request.state.workspace_id
     store.append(StoredCapsule(workspace_id=workspace_id, record=record))
+    bus.publish(CapsuleEvent(workspace_id=workspace_id, record=record))
     return IngestResponse(step_id=record.step_id, stored=True, workspace_id=workspace_id)
 
 
@@ -73,6 +76,7 @@ async def ingest_bulk(request: Request) -> dict[str, int | str]:
         raise HTTPException(status_code=400, detail="empty body")
 
     store: CapsuleStore = request.app.state.capsule_store
+    bus: CapsuleEventBus = request.app.state.capsule_event_bus
     workspace_id: str = request.state.workspace_id
 
     accepted = 0
@@ -91,6 +95,7 @@ async def ingest_bulk(request: Request) -> dict[str, int | str]:
                 detail=f"line {line_no}: {reason or 'signature verification failed'}",
             )
         store.append(StoredCapsule(workspace_id=workspace_id, record=record))
+        bus.publish(CapsuleEvent(workspace_id=workspace_id, record=record))
         accepted += 1
 
     return {"workspace_id": workspace_id, "stored": accepted}
