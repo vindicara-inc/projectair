@@ -29,6 +29,8 @@ from airsdk.exports import export_json, export_pdf, export_siem
 from airsdk.integrations.adk import instrument_adk, make_air_callbacks
 from airsdk.integrations.gemini import instrument_gemini
 from airsdk.integrations.nemoclaw import instrument_nemoclaw
+from airsdk.integrations.nemo_guardrails import instrument_nemo_guardrails
+from airsdk.integrations.nemoguard import NemoGuardClient
 from airsdk.recorder import AIRRecorder, resolve_signing_key
 from airsdk.registry import (
     AgentDescriptor,
@@ -93,6 +95,8 @@ __all__ = [
     "instrument_adk",
     "instrument_gemini",
     "instrument_nemoclaw",
+    "NemoGuardClient",
+    "instrument_nemo_guardrails",
     "load_chain",
     "load_registry",
     "make_air_callbacks",
