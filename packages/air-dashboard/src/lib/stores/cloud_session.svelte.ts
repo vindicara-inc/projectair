@@ -5,8 +5,8 @@
  * log the user out; calling ``disconnect()`` clears them.
  */
 
-import { AirCloudClient, AirCloudHttpError, DEFAULT_BASE_URL, loadCloudChain } from '../transport/index.ts';
-import type { CloudWorkspace } from '../transport/index.ts';
+import { AirCloudClient, AirCloudHttpError, DEFAULT_BASE_URL, loadCloudChain, streamCapsules } from '../transport/index.ts';
+import type { CloudWorkspace, StreamHandle } from '../transport/index.ts';
 import type { AgDRRecord } from '../agdr/types.ts';
 
 const STORAGE_KEY = 'vindicara.air_cloud_session.v1';
@@ -47,6 +47,7 @@ class CloudSessionStore {
 	error = $state<string | null>(null);
 	private apiKey: string | null = null;
 	private fetchImpl: typeof fetch | undefined;
+	private streamHandle: StreamHandle | null = null;
 
 	constructor(fetchImpl?: typeof fetch) {
 		this.fetchImpl = fetchImpl;
@@ -76,11 +77,23 @@ class CloudSessionStore {
 	}
 
 	disconnect(): void {
+		this.stopStream();
 		this.status = 'disconnected';
 		this.workspace = null;
 		this.error = null;
 		this.apiKey = null;
 		writePersisted(null);
+	}
+
+	startStream(onRecord: (record: AgDRRecord) => void): void {
+		this.stopStream();
+		const client = this._buildClient();
+		this.streamHandle = streamCapsules(client, onRecord);
+	}
+
+	stopStream(): void {
+		this.streamHandle?.close();
+		this.streamHandle = null;
 	}
 
 	async loadCurrentChain(opts?: { limit?: number }): Promise<AgDRRecord[]> {

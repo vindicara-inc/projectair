@@ -108,3 +108,93 @@ export async function loadCloudChain(client: AirCloudClient, opts?: { limit?: nu
 	const page = await client.listCapsules({ limit: opts?.limit ?? 1000 });
 	return page.records;
 }
+
+/**
+ * Open an SSE connection to ``/v1/capsules/stream``. Each ``data:`` frame
+ * is a JSON-encoded AgDRRecord. Returns a handle with ``close()`` to
+ * terminate the connection.
+ *
+ * Falls back to polling ``/v1/capsules`` every ``pollIntervalMs`` if
+ * EventSource is unavailable or the connection fails.
+ */
+export interface StreamHandle {
+	close(): void;
+}
+
+export function streamCapsules(
+	client: AirCloudClient,
+	onRecord: (record: AgDRRecord) => void,
+	opts?: { pollIntervalMs?: number }
+): StreamHandle {
+	const pollInterval = opts?.pollIntervalMs ?? 2000;
+	const url = `${client.baseUrl}/v1/capsules/stream`;
+
+	if (typeof EventSource !== 'undefined') {
+		try {
+			const es = new EventSource(url, { withCredentials: false });
+			let closed = false;
+
+			es.onmessage = (event) => {
+				if (closed) return;
+				try {
+					const record = JSON.parse(event.data) as AgDRRecord;
+					onRecord(record);
+				} catch {
+					/* malformed frame, skip */
+				}
+			};
+
+			es.onerror = () => {
+				if (closed) return;
+				es.close();
+				const fallback = startPolling(client, onRecord, pollInterval);
+				return fallback;
+			};
+
+			return {
+				close() {
+					closed = true;
+					es.close();
+				}
+			};
+		} catch {
+			/* EventSource constructor failed, fall through to polling */
+		}
+	}
+
+	return startPolling(client, onRecord, pollInterval);
+}
+
+function startPolling(
+	client: AirCloudClient,
+	onRecord: (record: AgDRRecord) => void,
+	intervalMs: number
+): StreamHandle {
+	let offset = 0;
+	let stopped = false;
+
+	const poll = async (): Promise<void> => {
+		while (!stopped) {
+			try {
+				const page = await client.listCapsules({ limit: 100, offset });
+				for (const record of page.records) {
+					onRecord(record);
+				}
+				if (page.records.length > 0) {
+					offset += page.records.length;
+				}
+			} catch {
+				/* retry next tick */
+			}
+			await new Promise((r) => setTimeout(r, intervalMs));
+		}
+	};
+
+	poll();
+
+	return {
+		close() {
+			stopped = true;
+		}
+	};
+}
