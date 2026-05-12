@@ -14,6 +14,11 @@ from airsdk._concrete_demo import (
     build_concrete_demo_log,
     tamper_one_byte,
 )
+from airsdk._healthcare_demo import (
+    HEALTHCARE_DEMO_TAMPER_INDEX,
+    HEALTHCARE_DEMO_USER_INTENT,
+    build_healthcare_demo_log,
+)
 from airsdk.agdr import Signer, filter_records_by_date_range, load_chain, verify_chain
 from airsdk.article72 import generate_article72_report
 from airsdk.detections import (
@@ -297,6 +302,11 @@ def demo(
         "--signing-algorithm",
         help="Signing algorithm: ed25519 (default) or ml-dsa-65 (FIPS 204, experimental).",
     ),
+    healthcare: bool = typer.Option(
+        False,
+        "--healthcare",
+        help="Run the HIPAA-aligned clinical decision support demo instead of the default.",
+    ),
 ) -> None:
     """Run the brutal end-to-end demo. Zero setup; under 30 seconds.
 
@@ -306,12 +316,18 @@ def demo(
     chain, classifies findings under OWASP, exports JSON / PDF / CEF, and
     proves the chain is tamper-evident by mutating one byte and showing
     verification fail at the exact record.
+
+    Use --healthcare for a HIPAA-aligned clinical AI scenario.
     """
     workdir.mkdir(parents=True, exist_ok=True)
     log_path = workdir / "agent-trace.log"
     json_export = workdir / "forensic-report.json"
     pdf_export = workdir / "forensic-report.pdf"
     cef_export = workdir / "forensic-report.cef"
+
+    if healthcare:
+        _run_healthcare_demo(workdir, log_path, json_export, pdf_export, cef_export, signing_algorithm)
+        return
 
     typer.secho("\n  Project AIR — concrete demo", fg=typer.colors.WHITE, bold=True)
     typer.secho("  An AI coding agent gets poisoned by a README and exfiltrates an SSH key.", fg=typer.colors.BRIGHT_BLACK)
@@ -425,6 +441,119 @@ def demo(
         typer.secho(f"    reason: {tampered_result.reason}", fg=typer.colors.YELLOW)
     typer.echo()
     typer.secho("  Result: tamper-evident at the byte level. The cover-up is provable.", fg=typer.colors.GREEN, bold=True)
+    typer.secho(f"  Artifacts written to: {workdir.resolve()}", fg=typer.colors.BRIGHT_BLACK)
+    typer.echo()
+
+
+def _run_healthcare_demo(
+    workdir: Path,
+    log_path: Path,
+    json_export: Path,
+    pdf_export: Path,
+    cef_export: Path,
+    signing_algorithm: str,
+) -> None:
+    """HIPAA-aligned clinical decision support demo."""
+    typer.secho("\n  Project AIR — Healthcare Demo (HIPAA-Aligned)", fg=typer.colors.WHITE, bold=True)
+    typer.secho("  A clinical AI agent reviews patient labs, imaging, and medications.", fg=typer.colors.BRIGHT_BLACK)
+    typer.secho("  AIR captures every PHI access as a signed capsule with HIPAA audit controls.", fg=typer.colors.BRIGHT_BLACK)
+
+    _step_header(1, "Clinical AI receives a patient review request")
+    _detail("request", HEALTHCARE_DEMO_USER_INTENT)
+    _detail("agent", "clinical decision support AI with EHR read/write access")
+    _detail("HIPAA scope", "45 CFR 164.312(b) audit controls, 164.312(c) integrity, 164.312(d) auth")
+
+    _step_header(2, "AIR captures every EHR access as a Signed Intent Capsule")
+    try:
+        algo = SigningAlgorithm(signing_algorithm)
+    except ValueError:
+        typer.secho(f"Unknown signing algorithm '{signing_algorithm}'.", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2) from None
+    demo_signer = Signer.generate(algo)
+    build_healthcare_demo_log(log_path, signer=demo_signer)
+    records = load_chain(log_path)
+    _detail("PHI accesses captured", str(len(records)))
+    algo_label = "ML-DSA-65 (FIPS 204)" if algo == SigningAlgorithm.ML_DSA_65 else "Ed25519"
+    _detail("signature", f"{algo_label} over (prev_hash || content_hash)")
+    _detail("chain integrity", "BLAKE3 content hash, tamper-evident linked list")
+    typer.echo()
+    for index, record in enumerate(records):
+        kind_label = record.kind.value
+        excerpt = ""
+        for field in ("prompt", "response", "tool_name", "tool_output", "final_output"):
+            value = getattr(record.payload, field, None)
+            if value:
+                excerpt = _truncate(str(value), limit=64)
+                break
+        typer.secho(f"      [{index:>2}] {kind_label:14s} ", fg=typer.colors.BRIGHT_BLACK, nl=False)
+        typer.secho(excerpt, fg=typer.colors.WHITE)
+
+    _step_header(3, "Chain verification: every signature valid")
+    chain_result = verify_chain(records)
+    if chain_result.status == VerificationStatus.OK:
+        typer.secho("    ✓ HIPAA 164.312(c) satisfied: chain integrity verified.", fg=typer.colors.GREEN, bold=True)
+    else:
+        typer.secho(f"    ✘ chain failed: {chain_result.reason}", fg=typer.colors.RED, bold=True)
+        raise typer.Exit(code=1)
+
+    _step_header(4, "OWASP + HIPAA detector analysis")
+    findings = run_detectors(records, registry=None)
+    if findings:
+        typer.secho(f"    {len(findings)} finding(s):", fg=typer.colors.WHITE, bold=True)
+        for finding in findings:
+            color = _severity_color(finding.severity)
+            typer.secho(
+                f"      {finding.detector_id:8s} {finding.severity.upper():8s} step {finding.step_index:>2}: {finding.title}",
+                fg=color,
+            )
+    else:
+        typer.secho("    No findings (clean clinical workflow).", fg=typer.colors.GREEN)
+
+    _step_header(5, "Export HIPAA-grade evidence (JSON, PDF, CEF)")
+    report = ForensicReport(
+        air_version=airsdk_version,
+        report_id=str(uuid4()),
+        source_log=str(log_path.resolve()),
+        generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        records=len(records),
+        conversations=_count_conversations(records),
+        verification=chain_result,
+        findings=findings,
+    )
+    export_json(report, json_export)
+    export_pdf(report, pdf_export)
+    export_siem(report, cef_export)
+    _detail("JSON", str(json_export.resolve()))
+    _detail("PDF ", str(pdf_export.resolve()))
+    _detail("CEF ", f"{cef_export.resolve()}  (SIEM-compatible)")
+
+    _step_header(6, "Tamper test: modify one byte of a patient lab result")
+    typer.secho("    Simulating an insider altering the HbA1c value in the audit trail.", fg=typer.colors.WHITE)
+    tampered_index = tamper_one_byte(log_path, HEALTHCARE_DEMO_TAMPER_INDEX)
+    _detail("tampered record", f"index {tampered_index} (TOOL_END containing patient lab results)")
+
+    _step_header(7, "Re-verify: AIR detects the tampered PHI record")
+    tampered_records = load_chain(log_path)
+    tampered_result = verify_chain(tampered_records)
+    if tampered_result.status == VerificationStatus.OK:
+        typer.secho("    ✘ unexpected: chain still verifies after tampering.", fg=typer.colors.RED, bold=True)
+        raise typer.Exit(code=1)
+    typer.secho(f"    ✘ INTEGRITY BREACH: {tampered_result.status.value}", fg=typer.colors.RED, bold=True)
+    if tampered_result.failed_step_id is not None:
+        failed_index = next(
+            (i for i, r in enumerate(tampered_records) if r.step_id == tampered_result.failed_step_id),
+            None,
+        )
+        location = f"index {failed_index}" if failed_index is not None else f"step_id {tampered_result.failed_step_id}"
+        typer.secho(f"    ✘ failed at {location} (patient lab results)", fg=typer.colors.RED, bold=True)
+    if tampered_result.reason:
+        typer.secho(f"    reason: {tampered_result.reason}", fg=typer.colors.YELLOW)
+    typer.echo()
+    typer.secho("  HIPAA AUDIT PROOF:", fg=typer.colors.GREEN, bold=True)
+    typer.secho("    Every PHI access is signed, timestamped, and tamper-evident.", fg=typer.colors.GREEN)
+    typer.secho("    Alteration of any record is detectable at the byte level.", fg=typer.colors.GREEN)
+    typer.secho("    45 CFR 164.312(b) audit controls: SATISFIED.", fg=typer.colors.GREEN)
+    typer.secho("    45 CFR 164.312(c) integrity controls: SATISFIED.", fg=typer.colors.GREEN)
     typer.secho(f"  Artifacts written to: {workdir.resolve()}", fg=typer.colors.BRIGHT_BLACK)
     typer.echo()
 

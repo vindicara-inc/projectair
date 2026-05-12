@@ -9,7 +9,7 @@ description = "Server-side engine behind Vindicara AIR Cloud. Not intended for d
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.12"
-authors = [{ name = "Vindicara", email = "eng@vindicara.io" }]
+authors = [{ name = "Kevin Minn", email = "support@vindicara.io" }]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -29,7 +29,7 @@ dependencies = [
     # ingestion. Single source of truth for the wire format; license-compatible
     # (MIT into Apache-2.0). Keep the pin in lockstep with the OSS surface AIR
     # Cloud commits to receiving from.
-    "projectair>=0.7.0,<0.8",
+    "projectair>=0.8.0,<1.0",
 ]
 
 [project.optional-dependencies]
