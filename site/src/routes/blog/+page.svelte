@@ -22,6 +22,18 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Post: HIPAA AI Audit Problem (Healthcare) -->
+      <a href="/blog/hipaa-ai-audit-problem" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20 rounded-full px-2.5 py-0.5">Healthcare</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-500 border border-green-500/20 rounded-full px-2.5 py-0.5">Compliance</span>
+          <span class="text-[10px] text-zinc-600">8 min read</span>
+        </div>
+        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-red transition-colors">The New HIPAA AI Audit Problem (and How to Solve It)</h2>
+        <p class="text-sm text-zinc-400 leading-relaxed">The January 2025 HIPAA Security Rule NPRM eliminates addressable safeguards. AI agents accessing PHI now need cryptographic audit trails. Here is what changed.</p>
+        <p class="text-xs text-zinc-600 mt-4">May 12, 2026</p>
+      </a>
+
       <!-- Post: Forensic layer market map (Perspective) -->
       <a href="/blog/forensic-layer-market-map" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block">
         <div class="flex items-center gap-2 mb-4">
