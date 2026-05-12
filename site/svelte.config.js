@@ -22,7 +22,11 @@ const config = {
 		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
 		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 		prerender: {
-			handleMissingId: 'warn'
+			handleMissingId: 'warn',
+			handleHttpError: ({ path, message }) => {
+				if (path === '/dashboard') return;
+				throw new Error(message);
+			}
 		},
 		adapter: adapter({
 			pages: 'build',
