@@ -22,6 +22,18 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Post: NemoClaw Forensic Evidence (NVIDIA + Healthcare) -->
+      <a href="/blog/nemoclaw-forensic-evidence" class="glass-panel rounded-xl p-6 hover:border-green-500/30 transition-colors group block">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-500 border border-green-500/20 rounded-full px-2.5 py-0.5">NVIDIA</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20 rounded-full px-2.5 py-0.5">Healthcare</span>
+          <span class="text-[10px] text-zinc-600">10 min read</span>
+        </div>
+        <h2 class="text-lg font-semibold mb-2 group-hover:text-green-400 transition-colors">Forensic Evidence for NemoClaw: HIPAA Audit Trails for Sandboxed Clinical AI</h2>
+        <p class="text-sm text-zinc-400 leading-relaxed">NemoClaw controls what the agent can do. AIR proves what it did. Together: the first HIPAA-grade deployment model for autonomous healthcare agents.</p>
+        <p class="text-xs text-zinc-600 mt-4">May 12, 2026</p>
+      </a>
+
       <!-- Post: HIPAA AI Audit Problem (Healthcare) -->
       <a href="/blog/hipaa-ai-audit-problem" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block">
         <div class="flex items-center gap-2 mb-4">
