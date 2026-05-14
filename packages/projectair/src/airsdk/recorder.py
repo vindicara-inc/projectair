@@ -29,7 +29,7 @@ from airsdk.containment import (
     StepUpRequiredError,
 )
 from airsdk.transport import FileTransport, Transport
-from airsdk.types import AgDRPayload, AgDRRecord, HumanApproval, SigningAlgorithm, StepKind
+from airsdk.types import AgDRPayload, AgDRRecord, HumanApproval, IntentSpec, SigningAlgorithm, StepKind
 
 if TYPE_CHECKING:
     from airsdk.anchoring import AnchoringOrchestrator
@@ -100,6 +100,7 @@ class AIRRecorder:
         key: str | SigningKey | None = None,
         *,
         user_intent: str | None = None,
+        intent_spec: IntentSpec | None = None,
         transports: list[Transport] | None = None,
         containment: ContainmentPolicy | None = None,
         auth0_verifier: Auth0Verifier | None = None,
@@ -110,18 +111,19 @@ class AIRRecorder:
         self._log_path = Path(log_path).expanduser()
         self._log_path.parent.mkdir(parents=True, exist_ok=True)
         self._user_intent = user_intent
+        self._intent_spec = intent_spec
         self._transports: list[Transport] = transports if transports is not None else [FileTransport(self._log_path)]
         self._orchestrator: AnchoringOrchestrator | None = None
         self._containment = containment
         self._auth0 = auth0_verifier
-        # Pending step-up challenges keyed by challenge_id. Each value is the
-        # original tool action so ``approve`` can resume it after a verified
-        # token arrives.
         self._pending: dict[str, dict[str, Any]] = {}
-        # Findings the policy uses for ``block_on_findings`` rules. Operators
-        # update this list as detectors fire (or pass run_detectors output
-        # directly into ``tool_start``).
         self._prior_findings: list[Finding] = []
+
+        if intent_spec is not None:
+            self._emit(StepKind.INTENT_DECLARATION, {
+                "user_intent": intent_spec.goal,
+                "intent_spec": intent_spec,
+            })
 
     @property
     def public_key_hex(self) -> str:

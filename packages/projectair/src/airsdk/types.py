@@ -60,6 +60,7 @@ class StepKind(StrEnum):
     AGENT_MESSAGE = "agent_message"
     ANCHOR = "anchor"
     HUMAN_APPROVAL = "human_approval"
+    INTENT_DECLARATION = "intent_declaration"
 
 
 class RFC3161Anchor(BaseModel):
@@ -126,6 +127,24 @@ class HumanApproval(BaseModel):
     signed_token: str  # the original JWT, for offline re-verification
 
 
+class IntentSpec(BaseModel):
+    """Structured intent declaration for structural verification.
+
+    When attached to an INTENT_DECLARATION record, defines the scope the
+    agent is authorized to operate within. The symbolic verification floor
+    checks actual behavior against these constraints deterministically.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    goal: str
+    allowed_tools: list[str] = Field(default_factory=list)
+    allowed_paths: list[str] = Field(default_factory=list)
+    allowed_network: list[str] = Field(default_factory=list)
+    secret_access: bool = False
+    non_goals: list[str] = Field(default_factory=list)
+
+
 class AgDRPayload(BaseModel):
     """Kind-specific payload. Structured but extensible via `extra`."""
 
@@ -138,6 +157,7 @@ class AgDRPayload(BaseModel):
     tool_output: str | None = None
     user_intent: str | None = None
     final_output: str | None = None
+    intent_spec: IntentSpec | None = None
     # Inter-agent communication fields (ASI07). Used when kind == AGENT_MESSAGE.
     source_agent_id: str | None = None
     target_agent_id: str | None = None
