@@ -58,15 +58,15 @@ def test_sample_chain_triggers_all_implemented_detectors(tmp_path: Path) -> None
 
 
 def test_air_demo_runs_end_to_end(tmp_path: Path) -> None:
-    """The brutal 8-step demo writes the trace, exports JSON/PDF/CEF, tampers, and proves break."""
+    """The brutal 9-step demo writes the trace, exports JSON/PDF/CEF, verifies intent, tampers, and proves break."""
     workdir = tmp_path / "demo-out"
 
     result = runner.invoke(app, ["demo", "--workdir", str(workdir)])
 
     assert result.exit_code == 0, result.stdout
-    # Each of the 8 steps surfaces a labelled header.
-    for step_no in range(1, 9):
-        assert f"STEP {step_no}/8" in result.stdout, f"step {step_no} header missing"
+    # Each of the 9 steps surfaces a labelled header.
+    for step_no in range(1, 10):
+        assert f"STEP {step_no}/9" in result.stdout, f"step {step_no} header missing"
     # Cryptographic primitives named for transparency.
     assert "BLAKE3" in result.stdout
     assert "Ed25519" in result.stdout

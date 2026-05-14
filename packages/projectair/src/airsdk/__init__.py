@@ -30,8 +30,8 @@ from airsdk.detections import (
 from airsdk.exports import export_json, export_pdf, export_siem
 from airsdk.integrations.adk import instrument_adk, make_air_callbacks
 from airsdk.integrations.gemini import instrument_gemini
-from airsdk.integrations.nemoclaw import instrument_nemoclaw
 from airsdk.integrations.nemo_guardrails import instrument_nemo_guardrails
+from airsdk.integrations.nemoclaw import instrument_nemoclaw
 from airsdk.integrations.nemoguard import NemoGuardClient
 from airsdk.recorder import AIRRecorder, resolve_signing_key
 from airsdk.registry import (
@@ -47,10 +47,18 @@ from airsdk.types import (
     AgDRRecord,
     Finding,
     ForensicReport,
+    IntentSpec,
     SigningAlgorithm,
     StepKind,
     VerificationResult,
     VerificationStatus,
+)
+from airsdk.verification import (
+    IntentSource,
+    IntentVerdict,
+    IntentVerificationResult,
+    Violation,
+    verify_intent,
 )
 
 __version__ = "0.9.0"
@@ -69,12 +77,18 @@ __all__ = [
     "Finding",
     "ForensicReport",
     "HTTPTransport",
+    "IntentSource",
+    "IntentSpec",
+    "IntentVerdict",
+    "IntentVerificationResult",
+    "NemoGuardClient",
     "Signer",
     "SigningAlgorithm",
     "StepKind",
     "Transport",
     "VerificationResult",
     "VerificationStatus",
+    "Violation",
     "__version__",
     "detect_cascading_failures",
     "detect_goal_hijack",
@@ -98,14 +112,14 @@ __all__ = [
     "generate_article72_report",
     "instrument_adk",
     "instrument_gemini",
-    "instrument_nemoclaw",
-    "NemoGuardClient",
     "instrument_nemo_guardrails",
+    "instrument_nemoclaw",
     "load_chain",
     "load_registry",
     "make_air_callbacks",
     "resolve_signing_key",
     "run_detectors",
     "verify_chain",
+    "verify_intent",
     "verify_record",
 ]

@@ -70,6 +70,9 @@ def _summarize(record: AgDRRecord) -> str:
     if kind == StepKind.ANCHOR:
         rkr = payload.rekor.log_index if payload.rekor else "?"
         return f"anchor (Rekor {rkr})"
+    if kind == StepKind.INTENT_DECLARATION:
+        goal = payload.intent_spec.goal if payload.intent_spec else payload.user_intent or "?"
+        return _truncate(f"intent: {goal}", 80)
     return record.kind.value
 
 

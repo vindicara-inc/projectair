@@ -193,11 +193,7 @@ class InstrumentedLLMRails:
 
         result = self._rails.generate(**call_kwargs)
 
-        log = None
-        if isinstance(result, dict):
-            log = result.get("log")
-        else:
-            log = getattr(result, "log", None)
+        log = result.get("log") if isinstance(result, dict) else getattr(result, "log", None)
         _process_log(self._recorder, log)
 
         bot_text = _extract_bot_response(result)
@@ -235,11 +231,7 @@ class InstrumentedLLMRails:
 
         result = await self._rails.generate_async(**call_kwargs)
 
-        log = None
-        if isinstance(result, dict):
-            log = result.get("log")
-        else:
-            log = getattr(result, "log", None)
+        log = result.get("log") if isinstance(result, dict) else getattr(result, "log", None)
         _process_log(self._recorder, log)
 
         bot_text = _extract_bot_response(result)

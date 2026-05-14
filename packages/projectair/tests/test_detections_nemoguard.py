@@ -11,7 +11,7 @@ from airsdk.detections import (
     run_detectors,
 )
 from airsdk.recorder import AIRRecorder
-from airsdk.types import Finding, VerificationStatus
+from airsdk.types import VerificationStatus
 
 
 def _build_chain_with_nemoguard(

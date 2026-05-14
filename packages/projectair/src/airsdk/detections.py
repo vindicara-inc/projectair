@@ -81,6 +81,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from datetime import UTC, datetime
+from typing import Any
 
 from airsdk.registry import AgentDescriptor, AgentRegistry
 from airsdk.types import AgDRRecord, Finding, StepKind
@@ -1554,7 +1555,7 @@ def detect_nemoguard_safety(records: list[AgDRRecord]) -> list[Finding]:
             has_critical = bool(critical_categories & set(categories))
             severity = "critical" if has_critical else "high"
             cat_str = ", ".join(
-                f"{c} ({l})" for c, l in zip(categories, cat_labels, strict=False)
+                f"{cat} ({label})" for cat, label in zip(categories, cat_labels, strict=False)
             ) if categories else "unspecified"
             findings.append(Finding(
                 detector_id="AIR-05",

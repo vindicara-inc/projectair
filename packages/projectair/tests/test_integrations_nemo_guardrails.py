@@ -7,7 +7,6 @@ from typing import Any
 
 from airsdk.agdr import load_chain, verify_chain
 from airsdk.integrations.nemo_guardrails import (
-    InstrumentedLLMRails,
     instrument_nemo_guardrails,
 )
 from airsdk.recorder import AIRRecorder

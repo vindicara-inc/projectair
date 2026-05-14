@@ -1,6 +1,7 @@
 """Tests for the NVIDIA NemoGuard NIM classifier integration."""
 from __future__ import annotations
 
+import contextlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -167,7 +168,7 @@ def test_content_safety_with_response(tmp_path: Path) -> None:
     assert result.response_safe is False
     assert result.categories == ["S21"]
     assert result.category_labels == ["Unauthorized Advice"]
-    assert verify_chain(records := load_chain(str(log))).status == VerificationStatus.OK
+    assert verify_chain(load_chain(str(log))).status == VerificationStatus.OK
 
 
 # --- Topic Control ---
@@ -323,10 +324,8 @@ def test_jailbreak_error_still_records(tmp_path: Path) -> None:
             raise ConnectionError("NIM unreachable")
 
     guard = NemoGuardClient(recorder=recorder, http_client=ErrorClient())
-    try:
+    with contextlib.suppress(ConnectionError):
         guard.check_jailbreak("test")
-    except ConnectionError:
-        pass
 
     records = load_chain(str(log))
     assert len(records) == 2

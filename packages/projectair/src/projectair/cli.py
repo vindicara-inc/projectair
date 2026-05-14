@@ -36,6 +36,7 @@ from airsdk.types import (
     StepKind,
     VerificationStatus,
 )
+from airsdk.verification import IntentVerdict, verify_intent
 
 app = typer.Typer(
     name="air",
@@ -72,6 +73,11 @@ _register_approve_cli(app)
 from projectair.handoff_cli import register as _register_handoff_cli  # noqa: E402
 
 _register_handoff_cli(app)
+
+# Structural verification: `air verify-intent` (experimental).
+from projectair.verify_intent_cli import register as _register_verify_intent_cli  # noqa: E402
+
+_register_verify_intent_cli(app)
 
 # Pro: SIEM push commands (`air siem datadog|splunk|sumo|sentinel`).
 # All command bodies defer the airsdk_pro import so OSS installs without Pro
@@ -273,9 +279,9 @@ def trace(
     _run_trace_pipeline(log, output, output_format, registry=registry)
 
 
-def _step_header(step_no: int, title: str) -> None:
+def _step_header(step_no: int, title: str, total: int = 9) -> None:
     typer.echo()
-    typer.secho(f"  STEP {step_no}/8 ", fg=typer.colors.BLACK, bg=typer.colors.WHITE, bold=True, nl=False)
+    typer.secho(f"  STEP {step_no}/{total} ", fg=typer.colors.BLACK, bg=typer.colors.WHITE, bold=True, nl=False)
     typer.secho(f" {title}", fg=typer.colors.WHITE, bold=True)
     typer.secho("  " + "─" * 70, fg=typer.colors.BRIGHT_BLACK)
 
@@ -394,7 +400,31 @@ def demo(
             )
 
     # ---- STEP 6 -----------------------------------------------------
-    _step_header(6, "AIR exports the evidence in JSON, PDF, and CEF")
+    _step_header(6, "Structural Verification: did the agent honor its declared intent? (experimental)")
+    sv_result = verify_intent(records)
+    verdict_color = {
+        IntentVerdict.VERIFIED: typer.colors.GREEN,
+        IntentVerdict.FAILED: typer.colors.RED,
+        IntentVerdict.INCONCLUSIVE: typer.colors.YELLOW,
+    }[sv_result.verdict]
+    _detail("intent", sv_result.intent)
+    _detail("verdict", sv_result.verdict.value.upper())
+    if sv_result.violations:
+        typer.secho(f"    {len(sv_result.violations)} structural violation(s):", fg=verdict_color, bold=True)
+        for violation in sv_result.violations:
+            v_color = _severity_color(violation.severity)
+            typer.secho(
+                f"      {violation.check_id:14s} {violation.severity.upper():8s} step {violation.step_index:>2}: {violation.title}",
+                fg=v_color,
+            )
+            if violation.causal_path:
+                path_str = " -> ".join(f"#{o}" for o in violation.causal_path)
+                typer.secho(f"        causal path: {path_str}", fg=typer.colors.CYAN)
+    else:
+        typer.secho(f"    {sv_result.summary}", fg=verdict_color)
+
+    # ---- STEP 7 -----------------------------------------------------
+    _step_header(7, "AIR exports the evidence in JSON, PDF, and CEF")
     report = ForensicReport(
         air_version=airsdk_version,
         report_id=str(uuid4()),
@@ -412,15 +442,15 @@ def demo(
     _detail("PDF ", str(pdf_export.resolve()))
     _detail("CEF ", f"{cef_export.resolve()}  (Splunk / ArcSight / QRadar / Sentinel / Sumo / Datadog compatible)")
 
-    # ---- STEP 7 -----------------------------------------------------
-    _step_header(7, "Tamper with one byte of the leaked-SSH-key record")
+    # ---- STEP 8 -----------------------------------------------------
+    _step_header(8, "Tamper with one byte of the leaked-SSH-key record")
     typer.secho("    An attacker (or insider) edits the JSONL log in place to alter the leaked", fg=typer.colors.WHITE)
     typer.secho("    SSH key payload, hoping to cover their tracks. They change exactly one byte.", fg=typer.colors.WHITE)
     tampered_index = tamper_one_byte(log_path, CONCRETE_DEMO_TAMPER_INDEX)
     _detail("tampered record", f"index {tampered_index} (TOOL_END containing the leaked SSH key)")
 
-    # ---- STEP 8 -----------------------------------------------------
-    _step_header(8, "Re-verify: AIR fails at the exact record that was modified")
+    # ---- STEP 9 -----------------------------------------------------
+    _step_header(9, "Re-verify: AIR fails at the exact record that was modified")
     tampered_records = load_chain(log_path)
     tampered_result = verify_chain(tampered_records)
     if tampered_result.status == VerificationStatus.OK:
@@ -458,12 +488,12 @@ def _run_healthcare_demo(
     typer.secho("  A clinical AI agent reviews patient labs, imaging, and medications.", fg=typer.colors.BRIGHT_BLACK)
     typer.secho("  AIR captures every PHI access as a signed capsule with HIPAA audit controls.", fg=typer.colors.BRIGHT_BLACK)
 
-    _step_header(1, "Clinical AI receives a patient review request")
+    _step_header(1, "Clinical AI receives a patient review request", total=7)
     _detail("request", HEALTHCARE_DEMO_USER_INTENT)
     _detail("agent", "clinical decision support AI with EHR read/write access")
     _detail("HIPAA scope", "45 CFR 164.312(b) audit controls, 164.312(c) integrity, 164.312(d) auth")
 
-    _step_header(2, "AIR captures every EHR access as a Signed Intent Capsule")
+    _step_header(2, "AIR captures every EHR access as a Signed Intent Capsule", total=7)
     try:
         algo = SigningAlgorithm(signing_algorithm)
     except ValueError:
@@ -488,7 +518,7 @@ def _run_healthcare_demo(
         typer.secho(f"      [{index:>2}] {kind_label:14s} ", fg=typer.colors.BRIGHT_BLACK, nl=False)
         typer.secho(excerpt, fg=typer.colors.WHITE)
 
-    _step_header(3, "Chain verification: every signature valid")
+    _step_header(3, "Chain verification: every signature valid", total=7)
     chain_result = verify_chain(records)
     if chain_result.status == VerificationStatus.OK:
         typer.secho("    ✓ HIPAA 164.312(c) satisfied: chain integrity verified.", fg=typer.colors.GREEN, bold=True)
@@ -496,7 +526,7 @@ def _run_healthcare_demo(
         typer.secho(f"    ✘ chain failed: {chain_result.reason}", fg=typer.colors.RED, bold=True)
         raise typer.Exit(code=1)
 
-    _step_header(4, "OWASP + HIPAA detector analysis")
+    _step_header(4, "OWASP + HIPAA detector analysis", total=7)
     findings = run_detectors(records, registry=None)
     if findings:
         typer.secho(f"    {len(findings)} finding(s):", fg=typer.colors.WHITE, bold=True)
@@ -509,7 +539,7 @@ def _run_healthcare_demo(
     else:
         typer.secho("    No findings (clean clinical workflow).", fg=typer.colors.GREEN)
 
-    _step_header(5, "Export HIPAA-grade evidence (JSON, PDF, CEF)")
+    _step_header(5, "Export HIPAA-grade evidence (JSON, PDF, CEF)", total=7)
     report = ForensicReport(
         air_version=airsdk_version,
         report_id=str(uuid4()),
@@ -527,12 +557,12 @@ def _run_healthcare_demo(
     _detail("PDF ", str(pdf_export.resolve()))
     _detail("CEF ", f"{cef_export.resolve()}  (SIEM-compatible)")
 
-    _step_header(6, "Tamper test: modify one byte of a patient lab result")
+    _step_header(6, "Tamper test: modify one byte of a patient lab result", total=7)
     typer.secho("    Simulating an insider altering the HbA1c value in the audit trail.", fg=typer.colors.WHITE)
     tampered_index = tamper_one_byte(log_path, HEALTHCARE_DEMO_TAMPER_INDEX)
     _detail("tampered record", f"index {tampered_index} (TOOL_END containing patient lab results)")
 
-    _step_header(7, "Re-verify: AIR detects the tampered PHI record")
+    _step_header(7, "Re-verify: AIR detects the tampered PHI record", total=7)
     tampered_records = load_chain(log_path)
     tampered_result = verify_chain(tampered_records)
     if tampered_result.status == VerificationStatus.OK:

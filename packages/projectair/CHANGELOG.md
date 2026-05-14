@@ -2,6 +2,19 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+**Status: experimental (Structural Verification).** Intent Capsules record the promise. Structural Verification proves the promise was kept. The symbolic verification floor is deterministic and cannot be prompt-injected.
+
+### Added
+- **Structural Verification** (`airsdk.verification`): verifies that an agent's actual behavior served its declared intent. Runs four symbolic checks over the signed chain: SV-SECRET (secret material access), SV-NET (undeclared network egress), SV-SCOPE (filesystem scope violations), SV-EXFIL (causal exfiltration paths via the Layer 2 causal graph). Produces a VERIFIED / FAILED / INCONCLUSIVE verdict.
+- `IntentSpec` schema: structured intent declaration with `goal`, `allowed_tools`, `allowed_paths`, `allowed_network`, `secret_access`, and `non_goals` fields. Attached to an `INTENT_DECLARATION` record as the first entry in the chain.
+- `StepKind.INTENT_DECLARATION`: new chain record kind for structured intent declarations. Optional; chains without it fall back to extracting intent from `user_intent` fields.
+- `AIRRecorder(intent_spec=IntentSpec(...))`: when provided, the recorder emits an `INTENT_DECLARATION` record as the first chain entry.
+- `air verify-intent <chain>`: CLI command for structural verification. Exits with code 2 on FAILED verdict (CI-friendly). Experimental.
+- `air demo` now includes structural verification as step 6/9, showing the causal exfiltration path (#6 -> #7 -> #8) that proves the SSH-key theft trajectory violated the declared intent.
+- 19 new tests covering all verification checks, the demo chain, benign chains, intent declaration, scope, network, secret access, and trajectory analysis.
+
 ## [0.9.0] - 2026-05-12
 
 **Status: beta (NVIDIA integrations).** Full NVIDIA AI safety stack integration: NeMo Guardrails telemetry, NemoGuard NIM classifiers, and cross-corroboration with AIR's heuristic detector pipeline.
