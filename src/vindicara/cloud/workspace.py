@@ -74,6 +74,7 @@ class ApiKeyStore(Protocol):
     def lookup(self, key: str) -> ApiKey | None: ...
     def for_workspace(self, workspace_id: str) -> list[ApiKey]: ...
     def revoke(self, key_id: str) -> bool: ...
+    def update_role(self, key_id: str, role: str) -> ApiKey | None: ...
 
 
 class InMemoryWorkspaceStore:
@@ -146,6 +147,24 @@ class InMemoryApiKeyStore:
             self._by_id[key_id] = revoked
             self._by_key[revoked.key] = revoked
             return True
+
+    def update_role(self, key_id: str, role: str) -> ApiKey | None:
+        with self._lock:
+            existing = self._by_id.get(key_id)
+            if existing is None or existing.revoked_at is not None:
+                return None
+            updated = ApiKey(
+                key_id=existing.key_id,
+                workspace_id=existing.workspace_id,
+                key=existing.key,
+                role=role,
+                name=existing.name,
+                created_at=existing.created_at,
+                revoked_at=existing.revoked_at,
+            )
+            self._by_id[key_id] = updated
+            self._by_key[existing.key] = updated
+            return updated
 
 
 __all__ = [

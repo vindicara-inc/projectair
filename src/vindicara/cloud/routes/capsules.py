@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from vindicara.cloud.capsule_store import CapsuleStore, StoredCapsule
 from vindicara.cloud.event_bus import CapsuleEvent, CapsuleEventBus
-from vindicara.cloud.roles import Capability, require
+from vindicara.cloud.roles import Capability, Role, require
 
 router = APIRouter()
 
@@ -59,7 +59,8 @@ async def ingest(request: Request) -> IngestResponse:
     store: CapsuleStore = request.app.state.capsule_store
     bus: CapsuleEventBus = request.app.state.capsule_event_bus
     workspace_id: str = request.state.workspace_id
-    store.append(StoredCapsule(workspace_id=workspace_id, record=record))
+    api_key_id: str = request.state.api_key_id
+    store.append(StoredCapsule(workspace_id=workspace_id, record=record, api_key_id=api_key_id))
     bus.publish(CapsuleEvent(workspace_id=workspace_id, record=record))
     return IngestResponse(step_id=record.step_id, stored=True, workspace_id=workspace_id)
 
@@ -78,6 +79,7 @@ async def ingest_bulk(request: Request) -> dict[str, int | str]:
     store: CapsuleStore = request.app.state.capsule_store
     bus: CapsuleEventBus = request.app.state.capsule_event_bus
     workspace_id: str = request.state.workspace_id
+    api_key_id: str = request.state.api_key_id
 
     accepted = 0
     for line_no, raw_line in enumerate(body.splitlines(), 1):
@@ -94,7 +96,7 @@ async def ingest_bulk(request: Request) -> dict[str, int | str]:
                 status_code=422,
                 detail=f"line {line_no}: {reason or 'signature verification failed'}",
             )
-        store.append(StoredCapsule(workspace_id=workspace_id, record=record))
+        store.append(StoredCapsule(workspace_id=workspace_id, record=record, api_key_id=api_key_id))
         bus.publish(CapsuleEvent(workspace_id=workspace_id, record=record))
         accepted += 1
 
@@ -114,11 +116,15 @@ async def list_capsules(
     require(request, Capability.READ_CAPSULES)
     store: CapsuleStore = request.app.state.capsule_store
     workspace_id: str = request.state.workspace_id
-    items = store.for_workspace(workspace_id)
+    role: str = request.state.role
+    if role in (Role.MEMBER, Role.VIEWER):
+        items = store.for_key(workspace_id, request.state.api_key_id)
+    else:
+        items = store.for_workspace(workspace_id)
     page = items[offset : offset + limit]
     return CapsulesPage(
         workspace_id=workspace_id,
-        count=store.count(workspace_id),
+        count=len(items),
         records=[c.record for c in page],
     )
 

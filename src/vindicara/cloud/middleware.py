@@ -1,9 +1,17 @@
-"""ASGI middleware that authenticates AIR Cloud requests via API key.
+"""ASGI middleware that authenticates AIR Cloud requests.
 
-The X-API-Key header is mapped to a workspace through the configured
-:class:`ApiKeyStore`. On success, ``request.state.workspace_id`` is set
-so downstream routes scope their queries to the right tenant. On
-failure the request is rejected with 401 before it touches a route.
+Accepts two credential forms on protected routes:
+
+- ``X-API-Key: <key>`` -- SDK and agent ingestion; looked up in the
+  configured :class:`ApiKeyStore`.
+- ``Authorization: Bearer <token>`` -- dashboard session tokens issued
+  by ``vindicara.cloud.session_token.create_session_token``; verified
+  with ``verify_session_token``.
+
+On success ``request.state.workspace_id``, ``request.state.api_key_id``,
+and ``request.state.role`` are set so downstream routes scope their
+queries to the right tenant. On failure the request is rejected with 401
+before it touches a route.
 
 Routes that are public (health, OpenAPI docs) are listed in
 ``UNAUTHED_PATHS``.
@@ -14,6 +22,8 @@ from typing import TYPE_CHECKING
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse, Response
+
+from vindicara.cloud.session_token import SessionTokenError, verify_session_token
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -39,13 +49,15 @@ API_KEY_HEADER = "X-API-Key"
 
 
 class AirCloudAuthMiddleware(BaseHTTPMiddleware):
-    """Authenticate every non-public AIR Cloud request via an API key.
+    """Authenticate every non-public AIR Cloud request.
 
-    The middleware reads the configured :class:`ApiKeyStore` from
-    ``app.state.cloud_api_keys``; if the store is missing it returns
-    503 (the service is misconfigured, not the caller's fault). On a
-    successful auth check ``request.state.workspace_id`` is populated
-    and the downstream handler runs.
+    Accepts ``X-API-Key`` (SDK/agent ingestion) or
+    ``Authorization: Bearer <session-token>`` (dashboard). The middleware
+    reads the configured :class:`ApiKeyStore` from
+    ``app.state.cloud_api_keys``; if the store is missing it returns 503
+    (the service is misconfigured, not the caller's fault). On a
+    successful auth check ``request.state.workspace_id`` is populated and
+    the downstream handler runs.
     """
 
     def __init__(self, app: ASGIApp, *, prefix: str = "/v1") -> None:
@@ -70,22 +82,35 @@ class AirCloudAuthMiddleware(BaseHTTPMiddleware):
                 status_code=503,
             )
 
-        provided = request.headers.get(API_KEY_HEADER)
-        if not provided:
+        api_key_header = request.headers.get("X-API-Key")
+        bearer_header = request.headers.get("Authorization", "")
+
+        if api_key_header:
+            api_key = store.lookup(api_key_header)
+            if api_key is None:
+                return JSONResponse(
+                    {"detail": "invalid or revoked api key"}, status_code=401
+                )
+            request.state.workspace_id = api_key.workspace_id
+            request.state.api_key_id = api_key.key_id
+            request.state.role = api_key.role
+        elif bearer_header.startswith("Bearer "):
+            raw_token = bearer_header[7:]
+            try:
+                claims = verify_session_token(raw_token)
+            except SessionTokenError:
+                return JSONResponse(
+                    {"detail": "invalid or expired session token"}, status_code=401
+                )
+            request.state.workspace_id = claims.workspace_id
+            request.state.api_key_id = claims.key_id
+            request.state.role = claims.role
+        else:
             return JSONResponse(
-                {"detail": "missing X-API-Key header"},
-                status_code=401,
-            )
-        api_key = store.lookup(provided)
-        if api_key is None:
-            return JSONResponse(
-                {"detail": "invalid or revoked api key"},
+                {"detail": "missing X-API-Key or Authorization header"},
                 status_code=401,
             )
 
-        request.state.workspace_id = api_key.workspace_id
-        request.state.api_key_id = api_key.key_id
-        request.state.role = api_key.role
         return await call_next(request)
 
 
