@@ -4,7 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, ConfigDict
 
-from vindicara.cloud.roles import Capability, is_valid_role, require
+from vindicara.cloud.roles import Capability, Role, is_valid_role, require
 from vindicara.cloud.workspace import (
     ApiKey,
     ApiKeyStore,
@@ -83,6 +83,44 @@ async def issue_key(request: Request, payload: IssueKeyRequest) -> ApiKey:
     )
     store.issue(api_key)
     return api_key
+
+
+class UpdateKeyRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    role: str
+
+
+@router.patch(
+    "/v1/keys/{key_id}",
+    summary="Update the role on an existing API key.",
+)
+async def update_key_role(
+    key_id: str, body: UpdateKeyRequest, request: Request
+) -> dict[str, str]:
+    require(request, Capability.ISSUE_KEY)
+
+    if not is_valid_role(body.role):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"role {body.role!r} is not a valid workspace role",
+        )
+
+    caller_role = Role(request.state.role)
+    target_role = Role(body.role)
+
+    # Only owner can assign admin or owner roles
+    if target_role in (Role.OWNER, Role.ADMIN) and caller_role != Role.OWNER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="only workspace owner can assign admin/owner role",
+        )
+
+    store: ApiKeyStore = request.app.state.cloud_api_keys
+    updated = store.update_role(key_id, body.role)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="key not found or revoked")
+
+    return {"key_id": key_id, "role": body.role}
 
 
 @router.delete(

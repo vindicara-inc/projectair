@@ -25,7 +25,7 @@ from fastapi import FastAPI
 from vindicara.cloud.capsule_store import CapsuleStore, InMemoryCapsuleStore
 from vindicara.cloud.event_bus import CapsuleEventBus
 from vindicara.cloud.middleware import AirCloudAuthMiddleware
-from vindicara.cloud.routes import capsules, keys, sso, workspaces
+from vindicara.cloud.routes import analytics, capsules, compliance, keys, sso, workspaces
 from vindicara.cloud.routes import stream as stream_route
 from vindicara.cloud.sso import InMemorySsoConfigStore, SsoConfigStore
 from vindicara.cloud.workspace import (
@@ -116,6 +116,8 @@ def create_air_cloud_app(
     app.include_router(keys.router)
     app.include_router(sso.router)
     app.include_router(stream_route.router)
+    app.include_router(compliance.router)
+    app.include_router(analytics.router)
 
     @app.get("/health")
     async def _health() -> dict[str, str]:

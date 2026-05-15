@@ -34,10 +34,15 @@ class StoredCapsule:
     the API key that POSTed it. Phase 1.5 multi-tenancy adds workspace
     isolation in the storage backend; for now the field is captured at
     ingestion and stored alongside the record.
+
+    ``api_key_id`` identifies which key ingested the capsule. Members and
+    viewers can read only capsules ingested by their own key; owners and
+    admins see all capsules in the workspace.
     """
 
     workspace_id: str
     record: AgDRRecord
+    api_key_id: str = ""
 
 
 @runtime_checkable
@@ -50,6 +55,10 @@ class CapsuleStore(Protocol):
 
     def for_workspace(self, workspace_id: str) -> list[StoredCapsule]:
         """Return capsules for ``workspace_id`` in insertion order."""
+        ...
+
+    def for_key(self, workspace_id: str, api_key_id: str) -> list[StoredCapsule]:
+        """Return capsules ingested by ``api_key_id`` within ``workspace_id``."""
         ...
 
     def count(self, workspace_id: str | None = None) -> int:
@@ -71,6 +80,13 @@ class InMemoryCapsuleStore:
     def for_workspace(self, workspace_id: str) -> list[StoredCapsule]:
         with self._lock:
             return [c for c in self._items if c.workspace_id == workspace_id]
+
+    def for_key(self, workspace_id: str, api_key_id: str) -> list[StoredCapsule]:
+        with self._lock:
+            return [
+                c for c in self._items
+                if c.workspace_id == workspace_id and c.api_key_id == api_key_id
+            ]
 
     def count(self, workspace_id: str | None = None) -> int:
         with self._lock:
@@ -105,6 +121,7 @@ class JSONLCapsuleStore:
     def append(self, capsule: StoredCapsule) -> None:
         line = json.dumps({
             "workspace_id": capsule.workspace_id,
+            "api_key_id": capsule.api_key_id,
             "record": json.loads(capsule.record.model_dump_json(exclude_none=True)),
         }, separators=(",", ":"))
         with self._lock, self._path_for(capsule.workspace_id).open("a", encoding="utf-8") as handle:
@@ -123,8 +140,15 @@ class JSONLCapsuleStore:
                     continue
                 obj = json.loads(line)
                 record = AgDRRecord.model_validate(obj["record"])
-                out.append(StoredCapsule(workspace_id=obj["workspace_id"], record=record))
+                out.append(StoredCapsule(
+                    workspace_id=obj["workspace_id"],
+                    record=record,
+                    api_key_id=obj.get("api_key_id", ""),
+                ))
         return out
+
+    def for_key(self, workspace_id: str, api_key_id: str) -> list[StoredCapsule]:
+        return [c for c in self.for_workspace(workspace_id) if c.api_key_id == api_key_id]
 
     def count(self, workspace_id: str | None = None) -> int:
         if workspace_id is not None:

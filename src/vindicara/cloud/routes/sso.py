@@ -14,6 +14,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, ConfigDict
 
 from vindicara.cloud.roles import Capability, is_valid_role, require
+from vindicara.cloud.session_token import SessionClaims, create_session_token
 from vindicara.cloud.sso import (
     InMemorySsoConfigStore,
     SsoConfig,
@@ -50,7 +51,8 @@ class SsoLoginRequest(BaseModel):
 class SsoLoginResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     workspace_id: str
-    api_key: ApiKey
+    session_token: str
+    role: str
     sub: str
     email: str | None = None
 
@@ -152,9 +154,16 @@ async def sso_login(request: Request, payload: SsoLoginRequest) -> SsoLoginRespo
         None,
     )
     if existing is not None:
+        session_claims = SessionClaims(
+            workspace_id=payload.workspace_id,
+            role=existing.role,
+            sub=sub,
+            key_id=existing.key_id,
+        )
         return SsoLoginResponse(
             workspace_id=payload.workspace_id,
-            api_key=existing,
+            session_token=create_session_token(session_claims),
+            role=existing.role,
             sub=sub,
             email=email if isinstance(email, str) else None,
         )
@@ -167,9 +176,16 @@ async def sso_login(request: Request, payload: SsoLoginRequest) -> SsoLoginRespo
         name=email if isinstance(email, str) else f"sso:{sub[:24]}",
     )
     api_key_store.issue(new_key)
+    session_claims = SessionClaims(
+        workspace_id=payload.workspace_id,
+        role=new_key.role,
+        sub=sub,
+        key_id=new_key.key_id,
+    )
     return SsoLoginResponse(
         workspace_id=payload.workspace_id,
-        api_key=new_key,
+        session_token=create_session_token(session_claims),
+        role=new_key.role,
         sub=sub,
         email=email if isinstance(email, str) else None,
     )
