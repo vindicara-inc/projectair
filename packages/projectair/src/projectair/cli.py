@@ -79,6 +79,11 @@ from projectair.verify_intent_cli import register as _register_verify_intent_cli
 
 _register_verify_intent_cli(app)
 
+# AIR Cloud push: `air push`.
+from projectair.push_cli import register as _register_push_cli  # noqa: E402
+
+_register_push_cli(app)
+
 # Pro: SIEM push commands (`air siem datadog|splunk|sumo|sentinel`).
 # All command bodies defer the airsdk_pro import so OSS installs without Pro
 # still expose the help text and emit a clean install message at runtime.
@@ -408,7 +413,12 @@ def demo(
         IntentVerdict.INCONCLUSIVE: typer.colors.YELLOW,
     }[sv_result.verdict]
     _detail("intent", sv_result.intent)
-    _detail("verdict", sv_result.verdict.value.upper())
+    verdict_label = {
+        IntentVerdict.VERIFIED: "PASSED (agent honored its declared intent)",
+        IntentVerdict.FAILED: "FAILED BY AIR (agent violated its declared intent)",
+        IntentVerdict.INCONCLUSIVE: "INCONCLUSIVE",
+    }[sv_result.verdict]
+    _detail("verdict", verdict_label)
     if sv_result.violations:
         typer.secho(f"    {len(sv_result.violations)} structural violation(s):", fg=verdict_color, bold=True)
         for violation in sv_result.violations:
