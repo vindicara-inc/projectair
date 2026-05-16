@@ -27,8 +27,9 @@ _KIND_TO_EVIDENCE: dict[StepKind, EvidenceType] = {
     StepKind.AGENT_FINISH: EvidenceType.AGENT_ACTION,
     StepKind.AGENT_MESSAGE: EvidenceType.AGENT_ACTION,
     StepKind.HUMAN_APPROVAL: EvidenceType.AGENT_SUSPENSION,
-    StepKind.INTENT_DECLARATION: EvidenceType.POLICY_CHANGE,
 }
+if hasattr(StepKind, "INTENT_DECLARATION"):
+    _KIND_TO_EVIDENCE[StepKind.INTENT_DECLARATION] = EvidenceType.POLICY_CHANGE
 
 
 class ControlScore(BaseModel):
