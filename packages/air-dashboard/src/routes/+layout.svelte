@@ -6,6 +6,7 @@
 	import { base } from '$app/paths';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { roleStore } from '$lib/stores/role.svelte';
+	import { cloudSession } from '$lib/stores/cloud_session.svelte';
 	import Sidebar from '$lib/panels/Sidebar.svelte';
 	import WelcomeGate from '$lib/panels/WelcomeGate.svelte';
 
@@ -18,6 +19,7 @@
 	});
 
 	$effect(() => {
+		if (!cloudSession.isConnected) return;
 		const path = $page.url.pathname;
 		if (adminRoutes.some((r) => path.startsWith(r)) && !roleStore.isAdmin) {
 			goto(`${base}/`);
