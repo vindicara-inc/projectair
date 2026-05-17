@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { page } from '$app/stores';
 	import { roleStore } from '$lib/stores/role.svelte';
 	import { cloudSession } from '$lib/stores/cloud_session.svelte';
@@ -7,16 +8,12 @@
 	let expanded = $state(false);
 
 	const navItems = [
-		{ href: '/dashboard/', label: 'Chain', icon: '⬡', adminOnly: false },
-		{ href: '/dashboard/team', label: 'Team', icon: '◈', adminOnly: true },
-		{ href: '/dashboard/activity', label: 'Activity', icon: '◉', adminOnly: true },
-		{ href: '/dashboard/compliance', label: 'Compliance', icon: '⬢', adminOnly: true },
-		{ href: '/dashboard/analytics', label: 'Analytics', icon: '△', adminOnly: true },
+		{ href: `${base}/`, label: 'Chain', icon: '⬡' },
+		{ href: `${base}/team`, label: 'Team', icon: '◈' },
+		{ href: `${base}/activity`, label: 'Activity', icon: '◉' },
+		{ href: `${base}/compliance`, label: 'Compliance', icon: '⬢' },
+		{ href: `${base}/analytics`, label: 'Analytics', icon: '△' },
 	];
-
-	const visibleItems = $derived(
-		navItems.filter((item) => !item.adminOnly || roleStore.isAdmin)
-	);
 </script>
 
 <nav
@@ -27,7 +24,7 @@
 	onmouseleave={() => (expanded = false)}
 >
 	<div class="flex-1 pt-4">
-		{#each visibleItems as item}
+		{#each navItems as item}
 			<a
 				href={item.href}
 				class="flex items-center gap-3 px-4 py-3 text-sm transition-colors"
