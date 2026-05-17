@@ -296,13 +296,14 @@
       <button onclick={() => scrollTo('problem')} class="hover:text-white transition-colors cursor-pointer">Incidents</button>
       <button onclick={() => scrollTo('how-it-works')} class="hover:text-white transition-colors cursor-pointer">How It Works</button>
       <button onclick={() => scrollTo('standards')} class="hover:text-white transition-colors cursor-pointer">Standards</button>
+      <a href="/solutions" class="hover:text-white transition-colors">Solutions</a>
       <a href="/pricing" class="hover:text-white transition-colors">Pricing</a>
       <a href="/blog" class="hover:text-white transition-colors">Blog</a>
       <a href="/dashboard" class="hover:text-white transition-colors">Dashboard</a>
     </div>
 
     <div class="hidden md:flex items-center gap-3">
-      <a href="https://github.com/vindicara-inc/projectair#readme" class="btn-secondary text-xs px-4 py-2">Docs</a>
+      <a href="/get-started" class="btn-secondary text-xs px-4 py-2">Get Started</a>
       <a href="/dashboard" class="btn-primary text-xs px-4 py-2">Launch Dashboard</a>
     </div>
 
@@ -326,11 +327,12 @@
       <button onclick={() => scrollTo('problem')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">Incidents</button>
       <button onclick={() => scrollTo('how-it-works')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">How It Works</button>
       <button onclick={() => scrollTo('standards')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">Standards</button>
+      <a href="/solutions" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Solutions</a>
       <a href="/pricing" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Pricing</a>
       <a href="/blog" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Blog</a>
       <a href="/dashboard" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Dashboard</a>
       <div class="flex gap-3 pt-2">
-        <a href="https://github.com/vindicara-inc/projectair#readme" class="btn-secondary text-xs px-4 py-2">Docs</a>
+        <a href="/get-started" class="btn-secondary text-xs px-4 py-2">Get Started</a>
         <a href="/dashboard" class="btn-primary text-xs px-4 py-2">Launch Dashboard</a>
       </div>
     </div>
@@ -355,12 +357,12 @@
         PROJECT AIR™ · EVIDENCE-GRADE INFRASTRUCTURE
       </div>
 
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08] max-w-5xl mx-auto">
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08] max-w-5xl mx-auto">
         <span class="text-gradient-brand">Evidence-grade infrastructure</span><br />
         <span class="text-white">for accountable AI agents.</span>
       </h1>
 
-      <p class="mt-6 text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+      <p class="mt-6 text-base sm:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
         Cryptographic chain-of-custody. Court-supportable records. Rekor-anchored proof. Every action your agents take, bound to a workload identity, anchored on a public transparency log, independently verifiable by anyone.
       </p>
 
@@ -380,14 +382,14 @@
 
     <!-- Animated air trace terminal -->
     <div class="mt-16 max-w-3xl mx-auto">
-      <div class="bg-obsidian-lighter border border-white/10 shadow-2xl shadow-brand-red/10 font-mono text-sm">
+      <div class="bg-obsidian-lighter border border-white/10 shadow-2xl shadow-brand-red/10 font-mono text-xs sm:text-sm overflow-hidden">
         <div class="flex items-center gap-2 px-4 py-3 border-b border-white/5 text-zinc-500 text-xs">
           <span class="w-3 h-3 rounded-full bg-red-500/60"></span>
           <span class="w-3 h-3 rounded-full bg-yellow-500/60"></span>
           <span class="w-3 h-3 rounded-full bg-green-500/60"></span>
           <span class="ml-3 tracking-wider uppercase">air trace</span>
         </div>
-        <div class="p-5 leading-relaxed min-h-[360px]">
+        <div class="p-3 sm:p-5 leading-relaxed min-h-[300px] sm:min-h-[360px] overflow-x-auto">
           {#each TERM_LINES as line, i (i)}
             {#if i < termLineIndex}
               <div class={line.color + ' whitespace-pre'}>{line.text || '\u00A0'}</div>
@@ -609,6 +611,70 @@
           <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5">›</span><span>Insurance-ready forensic evidence packs</span></li>
         </ul>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- STRUCTURAL VERIFICATION -->
+<section class="py-24 relative border-y border-white/5">
+  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-brand-red/[0.02] to-transparent"></div>
+  <div class="relative max-w-screen-xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-3 font-mono">Structural Verification</p>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight max-w-3xl mx-auto">
+        They check messages. <span class="text-gradient-brand">We check missions.</span>
+      </h2>
+      <p class="mt-4 text-zinc-400 text-base max-w-2xl mx-auto leading-relaxed">
+        Intent Capsules are the signed promise. Structural Verification is the proof the promise was kept. A deterministic symbolic floor that cannot be prompt-injected.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <div class="space-y-6">
+        <div class="border border-white/10 bg-obsidian-lighter/40 p-6">
+          <p class="font-mono text-[11px] tracking-wider uppercase text-brand-red mb-3">The problem</p>
+          <p class="text-sm text-zinc-300 leading-relaxed">
+            Per-call guardrails check individual messages. Content classifiers check individual outputs. But nobody checks whether the <em>trajectory</em> of an entire agent session served its declared intent. Reading <code class="font-mono text-brand-red">~/.ssh/id_rsa</code> is not inherently malicious. Posting to an external URL is not inherently malicious. Doing both in a "refactor the auth module" session is exfiltration.
+          </p>
+        </div>
+        <div class="border border-brand-red/30 bg-brand-red/[0.03] p-6">
+          <p class="font-mono text-[11px] tracking-wider uppercase text-brand-red mb-3">The solution</p>
+          <p class="text-sm text-zinc-300 leading-relaxed">
+            Five deterministic checks over the causal graph: <span class="font-mono text-brand-red">SV-SECRET</span> (undeclared secret access), <span class="font-mono text-brand-red">SV-NET</span> (undeclared network egress), <span class="font-mono text-brand-red">SV-SCOPE</span> (filesystem scope violations), <span class="font-mono text-brand-red">SV-ENTITY</span> (unauthorized entity access), <span class="font-mono text-brand-red">SV-EXFIL</span> (causal exfiltration path). The symbolic floor is the guarantee. No LLM in the verification path.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-obsidian-lighter border border-white/10 font-mono text-xs sm:text-sm overflow-hidden">
+        <div class="flex items-center gap-2 px-4 py-3 border-b border-white/5 text-zinc-500 text-xs">
+          <span class="w-3 h-3 rounded-full bg-red-500/60"></span>
+          <span class="w-3 h-3 rounded-full bg-yellow-500/60"></span>
+          <span class="w-3 h-3 rounded-full bg-green-500/60"></span>
+          <span class="ml-3 tracking-wider uppercase">air verify-intent</span>
+        </div>
+        <div class="p-3 sm:p-5 leading-relaxed overflow-x-auto">
+          <div class="text-zinc-200">$ air verify-intent chain.jsonl</div>
+          <div class="text-zinc-400 mt-2">Intent: "Refactor the auth module"</div>
+          <div class="text-zinc-400">Source: INTENT_DECLARATION</div>
+          <div class="text-zinc-500 mt-2">Checking 14 steps...</div>
+          <div class="mt-2 text-brand-red">SV-SECRET  step 5: ~/.ssh/id_rsa</div>
+          <div class="text-brand-red">  secret_access not declared</div>
+          <div class="text-brand-red mt-1">SV-NET    step 7: POST attacker.com</div>
+          <div class="text-brand-red">  not in allowed_network</div>
+          <div class="text-brand-red mt-1">SV-EXFIL  #5 &#8594; #7: causal path</div>
+          <div class="text-brand-red">  secret read &#8594; network egress</div>
+          <div class="mt-3 text-red-400 font-bold">FAILED BY AIR (2 critical, 1 high)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 text-center">
+      <a href="/blog/structural-verification" class="btn-secondary text-sm px-6 py-3">
+        Read the full post
+        <svg class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
     </div>
   </div>
 </section>
@@ -925,23 +991,28 @@
       </h2>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-0 border border-white/10">
-      <div class="p-6 border-b lg:border-b-0 md:border-r border-white/10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 border border-white/10">
+      <div class="p-6 border-b sm:border-r lg:border-r border-white/10">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">OWASP</p>
         <p class="text-sm text-white font-semibold">Top 10 for Agentic Applications 2026</p>
         <p class="text-xs text-zinc-500 mt-2 leading-relaxed">All 10 Agentic ASIs (ASI01 through ASI10) shipped in projectair 0.3.0. Additional detectors cover OWASP LLM01, LLM04, LLM06, and an AIR-native chain-integrity check.</p>
       </div>
-      <div class="p-6 border-b lg:border-b-0 lg:border-r border-white/10">
+      <div class="p-6 border-b lg:border-r border-white/10">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">AgDR</p>
         <p class="text-sm text-white font-semibold">AI Decision Records</p>
         <p class="text-xs text-zinc-500 mt-2 leading-relaxed">BLAKE3 content hashing, Ed25519 signatures, opt-in ML-DSA-65 (FIPS 204) post-quantum signing, forward-chained hash integrity, UUIDv7 for monotonic ordering.</p>
       </div>
-      <div class="p-6 border-b md:border-b-0 md:border-r border-white/10">
+      <div class="p-6 border-b sm:border-r border-white/10">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">EU AI Act</p>
         <p class="text-sm text-white font-semibold">Articles 12 &amp; 72</p>
         <p class="text-xs text-zinc-500 mt-2 leading-relaxed">Audit trail retention and post-market monitoring evidence. Exportable as conformity artifacts.</p>
       </div>
-      <div class="p-6 border-b md:border-b-0 lg:border-r border-white/10">
+      <div class="p-6 border-b lg:border-r border-white/10">
+        <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">HIPAA</p>
+        <p class="text-sm text-white font-semibold">Security Rule (2026 NPRM)</p>
+        <p class="text-xs text-zinc-500 mt-2 leading-relaxed">Cryptographic evidence for 45 CFR 164.312 audit controls, integrity controls, and person authentication. Auth0-verified clinician identity in the chain.</p>
+      </div>
+      <div class="p-6 border-b sm:border-b-0 sm:border-r border-white/10">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">California</p>
         <p class="text-sm text-white font-semibold">SB 53</p>
         <p class="text-xs text-zinc-500 mt-2 leading-relaxed">Frontier model transparency and critical incident disclosure, with forensic evidence attached.</p>
