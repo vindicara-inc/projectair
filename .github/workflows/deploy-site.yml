@@ -52,7 +52,7 @@ jobs:
 
       - name: Build dashboard
         working-directory: packages/air-dashboard
-        run: npm run build
+        run: npx svelte-kit sync && npm run build
 
       - name: Merge dashboard into site
         run: cp -r packages/air-dashboard/build/ site/build/dashboard/
