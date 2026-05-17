@@ -41,8 +41,9 @@ class CloudSessionStore {
 		this.error = null;
 		this.baseUrl = baseUrl.replace(/\/+$/, '');
 		try {
+			const workspaceId = (import.meta.env.VITE_AIR_CLOUD_WORKSPACE as string | undefined) ?? 'ws_vindicara';
 			const tempClient = new AirCloudClient({ baseUrl: this.baseUrl, apiKey: 'unused' });
-			const resp = await tempClient.ssoLogin(auth0Token);
+			const resp = await tempClient.ssoLogin(auth0Token, workspaceId);
 			this.sessionToken = resp.session_token;
 			this.client = new AirCloudClient({
 				baseUrl: this.baseUrl,
