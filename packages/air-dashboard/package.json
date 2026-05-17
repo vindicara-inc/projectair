@@ -1,0 +1,41 @@
+{
+	"name": "air-dashboard",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"test": "vitest run --config vitest.config.ts",
+		"test:watch": "vitest --config vitest.config.ts",
+		"bundle:check": "node scripts/check-bundle.mjs",
+		"ci": "npm run check && npm run test && npm run build && npm run bundle:check"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/kit": "^2.50.2",
+		"@sveltejs/vite-plugin-svelte": "^6.2.4",
+		"@tailwindcss/vite": "^4.2.2",
+		"@types/node": "^22.9.0",
+		"@types/three": "^0.169.0",
+		"svelte": "^5.54.0",
+		"svelte-check": "^4.4.2",
+		"tailwindcss": "^4.2.2",
+		"typescript": "^5.9.3",
+		"vite": "^7.3.1",
+		"vitest": "^2.1.0"
+	},
+	"dependencies": {
+		"@auth0/auth0-spa-js": "^2.19.2",
+		"@noble/curves": "^1.7.0",
+		"@noble/hashes": "^1.6.1",
+		"three": "^0.169.0"
+	},
+	"overrides": {
+		"cookie": "^0.7.2"
+	}
+}
