@@ -38,6 +38,23 @@ from vindicara.cloud.workspace import (
 _log = logging.getLogger(__name__)
 
 
+def _seed_sso_from_env(store: SsoConfigStore) -> None:
+    """Pre-load SSO config from env vars so it survives Lambda cold starts."""
+    workspace_id = os.environ.get("AIR_CLOUD_SSO_WORKSPACE")
+    issuer = os.environ.get("AIR_CLOUD_SSO_ISSUER")
+    audience = os.environ.get("AIR_CLOUD_SSO_AUDIENCE")
+    if not all([workspace_id, issuer, audience]):
+        return
+    from vindicara.cloud.sso import SsoConfig
+    store.put(SsoConfig(
+        workspace_id=workspace_id or "",
+        issuer=issuer or "",
+        audience=audience or "",
+        default_role=os.environ.get("AIR_CLOUD_SSO_DEFAULT_ROLE", "admin"),
+    ))
+    _log.info("air_cloud.sso.seeded_from_env", extra={"workspace_id": workspace_id})
+
+
 def _build_ddb_stores() -> (
     tuple[CapsuleStore, WorkspaceStore, ApiKeyStore] | None
 ):
@@ -106,7 +123,9 @@ def create_air_cloud_app(
         app.state.cloud_workspaces = workspace_store or InMemoryWorkspaceStore()
         app.state.cloud_api_keys = api_key_store or InMemoryApiKeyStore()
 
-    app.state.cloud_sso_configs = sso_config_store or InMemorySsoConfigStore()
+    sso_store = sso_config_store or InMemorySsoConfigStore()
+    _seed_sso_from_env(sso_store)
+    app.state.cloud_sso_configs = sso_store
     app.state.capsule_event_bus = CapsuleEventBus()
 
     app.add_middleware(AirCloudAuthMiddleware, prefix="/v1")
