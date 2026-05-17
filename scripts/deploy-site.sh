@@ -16,6 +16,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SITE_DIR="$REPO_ROOT/site"
 BUILD_DIR="$SITE_DIR/build"
+DASH_DIR="$REPO_ROOT/packages/air-dashboard"
 
 echo "==> Building site"
 (cd "$SITE_DIR" && npm run build)
@@ -24,6 +25,21 @@ if [[ ! -d "$BUILD_DIR" ]]; then
   echo "build directory not found: $BUILD_DIR" >&2
   exit 1
 fi
+
+echo "==> Building AIR Cloud dashboard"
+(cd "$DASH_DIR" && \
+  VITE_AUTH0_DOMAIN=dev-kilt2vkudvbu75ny.us.auth0.com \
+  VITE_AUTH0_CLIENT_ID=GszbWqSkD65eUjv7FrRWYO4IkmGWdd4y \
+  VITE_AIR_CLOUD_URL=https://cloud.vindicara.io \
+  npm run build)
+
+if [[ ! -d "$DASH_DIR/build" ]]; then
+  echo "dashboard build directory not found: $DASH_DIR/build" >&2
+  exit 1
+fi
+
+echo "==> Merging dashboard into site at /dashboard/"
+cp -r "$DASH_DIR/build/" "$BUILD_DIR/dashboard/"
 
 echo "==> Syncing to s3://$VINDICARA_SITE_BUCKET (profile=$AWS_PROFILE)"
 aws s3 sync "$BUILD_DIR/" "s3://$VINDICARA_SITE_BUCKET/" --delete --profile "$AWS_PROFILE"
