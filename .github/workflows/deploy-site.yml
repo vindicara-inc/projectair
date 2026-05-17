@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'site/**'
+      - 'packages/air-dashboard/**'
       - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
 
@@ -41,9 +42,20 @@ jobs:
         working-directory: site
         run: npm run check
 
-      - name: Build
+      - name: Build site
         working-directory: site
         run: npm run build
+
+      - name: Install dashboard dependencies
+        working-directory: packages/air-dashboard
+        run: npm ci
+
+      - name: Build dashboard
+        working-directory: packages/air-dashboard
+        run: npm run build
+
+      - name: Merge dashboard into site
+        run: cp -r packages/air-dashboard/build/ site/build/dashboard/
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
