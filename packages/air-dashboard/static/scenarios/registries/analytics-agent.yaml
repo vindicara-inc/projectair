@@ -1,0 +1,13 @@
+agents:
+- id: analytics-agent
+  signer_key: 9474957069b71153ee776274d7d7b842fe9ddf33df44dc61b851f73c885af800
+  privilege_tier: 1
+  permitted_tools:
+  - crm_read
+  - summarize
+  - wire_transfer
+  behavioral_scope:
+    expected_tools:
+    - crm_read
+    - summarize
+    max_session_tool_calls: 6

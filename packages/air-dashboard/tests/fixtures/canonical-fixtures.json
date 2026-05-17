@@ -1,0 +1,227 @@
+{
+  "schema_version": "1",
+  "generator": "packages/air-dashboard/tests/fixtures/generate.py",
+  "deterministic_seed_hex": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+  "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2",
+  "genesis_prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "cases": [
+    {
+      "name": "simple_prompt",
+      "description": "Smallest realistic payload. Single ASCII string field.",
+      "input_payload": {
+        "prompt": "hello"
+      },
+      "canonical_bytes_hex": "7b2270726f6d7074223a2268656c6c6f227d",
+      "content_hash": "f85c619d7aa613cdca9358a9ee0b501bb29c47c4e351d8def7f302ea798eac2a",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "70ade74aff868194c8747955dea8f67361eb4bd7fcf92bbf8e2a5bc605f0663ea15d8220a611c787fa26f49a9d0a1522ecfd162951b4ef77da5c16bf73eed50f",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "key_ordering_at_root",
+      "description": "AgDRPayload sorts keys alphabetically; tests `response` precedes `tool_name` etc.",
+      "input_payload": {
+        "tool_name": "z_last",
+        "prompt": "a_first"
+      },
+      "canonical_bytes_hex": "7b2270726f6d7074223a22615f6669727374222c22746f6f6c5f6e616d65223a227a5f6c617374227d",
+      "content_hash": "299a98a161ed33902d0080f8facb3a25c4bcd64b08ba2559bcdd83fc14481438",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "4658e9c96f72c1f8de2ae3750c13e0087b16c9e40f33293f839086afe041e56145ad0ea2c6316fe8abf113d603bc0fa9e8959e51de38c3e60bd1a98ee5c5bd09",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "exclude_none_strips_unset_fields",
+      "description": "Pydantic `exclude_none=True` removes explicit None values before canonicalization.",
+      "input_payload": {
+        "prompt": "kept",
+        "response": null,
+        "tool_name": null
+      },
+      "canonical_bytes_hex": "7b2270726f6d7074223a226b657074227d",
+      "content_hash": "23806bf5772db4cd005ab3dadeb0fbbe5c89b943b351b1d3e44d68a77103fdcf",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "9c9ddb22dc736a4f85bbd813f4998fe98ed7466e61ce644b7cd6dc7ff15aee13be8139f5aebbf7d388800c3f777e4a34c92d298f9de62ba753be6bcfa73ea409",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "user_intent_carried_through",
+      "description": "Common case: recorder injects user_intent into every payload.",
+      "input_payload": {
+        "prompt": "x",
+        "user_intent": "Refactor the auth module"
+      },
+      "canonical_bytes_hex": "7b2270726f6d7074223a2278222c22757365725f696e74656e74223a225265666163746f72207468652061757468206d6f64756c65227d",
+      "content_hash": "4abb7986cad4f0d06ee5ffdb514d47d47133c7420be79c6f7088be380dbf963a",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "1a5b71096bfad12cc4a3278a373a4547b8ab02d580d847b4deb645303c2665f7f902bb1acb9e00979538a2d1c4f1a7977de3685ab10e83fa8973a780cf80700d",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "emoji_and_non_bmp",
+      "description": "UTF-8 sequences outside the Basic Multilingual Plane. JS surrogate pairs must encode identically.",
+      "input_payload": {
+        "prompt": "🔐 secrets 😀 chain 🛰️ done"
+      },
+      "canonical_bytes_hex": "7b2270726f6d7074223a22f09f9490207365637265747320f09f988020636861696e20f09f9bb0efb88f20646f6e65227d",
+      "content_hash": "918b77d31899a509b97eb70d4f70a6321e48864449dc9de284688e300a8301ee",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "57bd73f90b5929b54b4cca09115da3d49db39194287255bf71514de6c3e449ddf14c55855913c4106b982f772fed2c1fc517b504880d8d66f1ed52c59369fd0d",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "cjk_content",
+      "description": "Chinese/Japanese/Korean characters round-trip via UTF-8 without escaping.",
+      "input_payload": {
+        "prompt": "你好世界 こんにちは 안녕하세요"
+      },
+      "canonical_bytes_hex": "7b2270726f6d7074223a22e4bda0e5a5bde4b896e7958c20e38193e38293e381abe381a1e381af20ec9588eb8595ed9598ec84b8ec9a94227d",
+      "content_hash": "9b826dc35c5fddd7a02cea6f236cee5fcab8ac93ee41a0df29d1a0e8c25cf216",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "98404e1ead3d99e338c5dd32a5d9c1a9c63168759a2ab3b6924c0ce0520c68348debc9b3fac04490e21fed8e1d0f9f0145429907c4aba45c12adcaa2be74ad08",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "rtl_arabic",
+      "description": "Right-to-left script encoded as UTF-8 (no BiDi marker normalization).",
+      "input_payload": {
+        "prompt": "مرحبا بك في النظام"
+      },
+      "canonical_bytes_hex": "7b2270726f6d7074223a22d985d8b1d8add8a8d8a720d8a8d98320d981d98a20d8a7d984d986d8b8d8a7d985227d",
+      "content_hash": "bce589e76865b6c162d7461943e891211c715f28c661d91e124bb70efe7757a0",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "b3b8c8be09b0d9534adba44f9a9b7a0f29066931c30f77b4276802d82003f7dc59b939d5570d0ca78801d928cf8ab5167b7abaeb49b9bbaacdc37c08ab041201",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "embedded_control_chars",
+      "description": "Newlines, tabs, and quotes use JSON escape sequences in both languages.",
+      "input_payload": {
+        "prompt": "line1\nline2\twith \"quote\" and \\backslash"
+      },
+      "canonical_bytes_hex": "7b2270726f6d7074223a226c696e65315c6e6c696e65325c7477697468205c2271756f74655c2220616e64205c5c6261636b736c617368227d",
+      "content_hash": "62fc2783f9b95a489a85f93969fc1f10ab5d44cf6d7022ccb894b05959a1a3d2",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "e10fbc8f9a790cde028c89c8d3ea1ad89187e02b7be2f610b7ca9c98e2e356e0c8bd1d71be2ef86ba53522cd99c26e1620bfdb2f7c5cd57d37a2a47023b8a201",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "tool_args_nested_object",
+      "description": "tool_args is dict[str, Any]; nested dicts must also have keys sorted recursively.",
+      "input_payload": {
+        "tool_name": "search",
+        "tool_args": {
+          "z_outer": {
+            "z_inner": 1,
+            "a_inner": 2
+          },
+          "a_outer": [
+            "item_b",
+            "item_a"
+          ]
+        }
+      },
+      "canonical_bytes_hex": "7b22746f6f6c5f61726773223a7b22615f6f75746572223a5b226974656d5f62222c226974656d5f61225d2c227a5f6f75746572223a7b22615f696e6e6572223a322c227a5f696e6e6572223a317d7d2c22746f6f6c5f6e616d65223a22736561726368227d",
+      "content_hash": "8b078d024b5905ecd91aed1b543b43271bf2b41a161b6e53a878d43de141af29",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "6cd5b3fb3df8b5b6eba78b16522474794f119b3da56b86adee1e671eda48f79edca72acece3844d81615863c4427d5067ef51b6d95d38ceb926b61eecf0eee0a",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "tool_args_empty_object",
+      "description": "Empty {} and [] must serialize as `{}` and `[]` (no whitespace).",
+      "input_payload": {
+        "tool_name": "noop",
+        "tool_args": {}
+      },
+      "canonical_bytes_hex": "7b22746f6f6c5f61726773223a7b7d2c22746f6f6c5f6e616d65223a226e6f6f70227d",
+      "content_hash": "1e2a352360c7254a9bf6e1623059620ea8cd0700d43b80f45c5e2c11e3a34ab5",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "b9573ae3374e228ded2b57bae12b88a1a5743f5454c05200788f9e927465bdefb9d8420f4220ecbfc66a501988b50c42fe4c5299a0c8aaefe3fb7cf7f445db06",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "tool_args_mixed_array",
+      "description": "Arrays preserve order (JSON arrays are ordered); strings inside follow same UTF-8 rules.",
+      "input_payload": {
+        "tool_name": "x",
+        "tool_args": {
+          "items": [
+            "alpha",
+            "beta",
+            "🔐"
+          ]
+        }
+      },
+      "canonical_bytes_hex": "7b22746f6f6c5f61726773223a7b226974656d73223a5b22616c706861222c2262657461222c22f09f9490225d7d2c22746f6f6c5f6e616d65223a2278227d",
+      "content_hash": "26ec8bcd863551f1329ce56f991b55616f8c6fd98d1bb94e2f56b795a0cfa8bc",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "71e93baca1a2950c35b4be0c49f98da9fa7d30d78a94fa326d52606b4ae6eb187324541a7a180be1382d3ef2292d070a4b6ce38bcdfff9936f8a4087e8173c0c",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "agent_message_fields",
+      "description": "ASI07 inter-agent communication payload shape.",
+      "input_payload": {
+        "source_agent_id": "agent-a",
+        "target_agent_id": "agent-b",
+        "message_id": "01HXYZ12345",
+        "message_content": "ack"
+      },
+      "canonical_bytes_hex": "7b226d6573736167655f636f6e74656e74223a2261636b222c226d6573736167655f6964223a2230314858595a3132333435222c22736f757263655f6167656e745f6964223a226167656e742d61222c227461726765745f6167656e745f6964223a226167656e742d62227d",
+      "content_hash": "768af52c84407df65e58ed630c6a1b7e5ec1448204fbdeeea5bca7c1d1a75f01",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "349d79feb82acf34361f4c717ae16806924323b3ba4830e9fd83fcb5ca961385afcb2c68ba66f9564da54952143690f2540a88321b1d3a8876bea0134433f808",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "agent_finish_with_final_output",
+      "description": "Terminal record kind that closes a session.",
+      "input_payload": {
+        "final_output": "Sales report emailed.",
+        "user_intent": "Draft a Q3 sales report"
+      },
+      "canonical_bytes_hex": "7b2266696e616c5f6f7574707574223a2253616c6573207265706f727420656d61696c65642e222c22757365725f696e74656e74223a22447261667420612051332073616c6573207265706f7274227d",
+      "content_hash": "87bf084b101921fe0e50968922c7b725277802975dadaf3a9ed54b76e8e20f8c",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "0898536a3c5eb28c08bdb0b5f951dd13fe291ba965792908330ed2a0e9fd1c7ad6b311ef9cb6b41a18c337d6fda44e503ff47a484e8746a3d45dc479833bf700",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "deeply_nested_tool_args",
+      "description": "Three levels of nesting; key order at every level must be alphabetical.",
+      "input_payload": {
+        "tool_name": "deep",
+        "tool_args": {
+          "outer": {
+            "middle": {
+              "z_leaf": "z",
+              "a_leaf": "a",
+              "m_leaf": {
+                "nested_z": true,
+                "nested_a": false
+              }
+            }
+          }
+        }
+      },
+      "canonical_bytes_hex": "7b22746f6f6c5f61726773223a7b226f75746572223a7b226d6964646c65223a7b22615f6c656166223a2261222c226d5f6c656166223a7b226e65737465645f61223a66616c73652c226e65737465645f7a223a747275657d2c227a5f6c656166223a227a227d7d7d2c22746f6f6c5f6e616d65223a2264656570227d",
+      "content_hash": "9cd85afa6eae96020dc4c4ac108b0fb14f64109444a27c6ea131087c11b3fbb0",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signature_hex": "e60de4cbc4d6166b84cf7e531c1272ab29f934c17c2c5d05f3df8bbc43be27d8b33aba0ec29cdc99569514ce0c2d2e154e36be6e1d0a1454d16ac68fd4e97b03",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    },
+    {
+      "name": "non_genesis_prev_hash",
+      "description": "Mid-chain record: prev_hash is a real BLAKE3 digest, not all zeros.",
+      "input_payload": {
+        "prompt": "step 5"
+      },
+      "canonical_bytes_hex": "7b2270726f6d7074223a22737465702035227d",
+      "content_hash": "75b887fdc793d86c7afdabf063fe6c6e2ad71dc27eb073a24278a99c19e9b961",
+      "prev_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "signature_hex": "723fd050d17c44bd2b1dd0a7ba0ecf8821b9eea9df68ea68376f7354b030396eb53f5eda34b718130786ab89ab590808407c9e7d5a044355f048e08145753f08",
+      "signer_key_hex": "5cceaad9c202c236cd8c977290a844e3f2f0a15a9b3189220dbe0f9121eb0cd2"
+    }
+  ]
+}
