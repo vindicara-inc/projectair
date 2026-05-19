@@ -27,6 +27,6 @@
 		</div>
 	{/if}
 	<div class="flex-1"></div>
-	<div style="color:var(--color-red);">PROJECT AIR · 0.8.1</div>
+	<div style="color:var(--color-red);">PROJECT AIR · 1.0.0</div>
 	<div>CAPSULES {replayStore.emitted.length}/{replayStore.records.length} · INTEGRITY {verifierStore.integrityScore}%</div>
 </div>

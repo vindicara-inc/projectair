@@ -31,7 +31,8 @@ class AuthStore {
 		}
 		if (await this.client.isAuthenticated()) {
 			this.user = (await this.client.getUser()) ?? null;
-			const token = await this.client.getTokenSilently();
+			const idClaims = await this.client.getIdTokenClaims();
+			const token = idClaims?.__raw;
 			if (token) {
 				const cloudUrl =
 					(import.meta.env.VITE_AIR_CLOUD_URL as string | undefined) ??
