@@ -7,7 +7,6 @@ installed.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -34,7 +33,7 @@ def register(app: typer.Typer) -> None:
     @gov_app.command("index")
     def index_cmd(
         chains: list[Path] = typer.Argument(..., exists=True, readable=True, help="AgDR chain files."),
-        registry_path: Optional[Path] = typer.Option(None, "--registry", help="YAML/JSON data-asset registry."),
+        registry_path: Path | None = typer.Option(None, "--registry", help="YAML/JSON data-asset registry."),
     ) -> None:
         """Build governance index from chains and print summary."""
         try:
@@ -62,8 +61,8 @@ def register(app: typer.Typer) -> None:
     @gov_app.command("query")
     def query_cmd(
         chains: list[Path] = typer.Argument(..., exists=True, readable=True, help="AgDR chain files."),
-        subject: Optional[str] = typer.Option(None, "--subject", help="Filter by data subject ID."),
-        asset: Optional[str] = typer.Option(None, "--asset", help="Filter by data asset ID."),
+        subject: str | None = typer.Option(None, "--subject", help="Filter by data subject ID."),
+        asset: str | None = typer.Option(None, "--asset", help="Filter by data asset ID."),
     ) -> None:
         """Query data accesses by subject or asset."""
         try:
@@ -105,7 +104,7 @@ def register(app: typer.Typer) -> None:
     def export_cmd(
         chains: list[Path] = typer.Argument(..., exists=True, readable=True, help="AgDR chain files."),
         openlineage: bool = typer.Option(True, "--openlineage/--no-openlineage", help="Export as OpenLineage."),
-        output: Optional[Path] = typer.Option(None, "--output", "-o", help="Write to file instead of stdout."),
+        output: Path | None = typer.Option(None, "--output", "-o", help="Write to file instead of stdout."),
     ) -> None:
         """Export governance data as OpenLineage events."""
         try:
