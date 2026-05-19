@@ -29,7 +29,7 @@ from airsdk.containment import (
     StepUpRequiredError,
 )
 from airsdk.transport import FileTransport, Transport
-from airsdk.types import AgDRPayload, AgDRRecord, HumanApproval, IntentSpec, SigningAlgorithm, StepKind
+from airsdk.types import AgDRPayload, AgDRRecord, DataAssetRef, DataSubjectRef, HumanApproval, IntentSpec, SigningAlgorithm, StepKind
 
 if TYPE_CHECKING:
     from airsdk.anchoring import AnchoringOrchestrator
@@ -150,9 +150,21 @@ class AIRRecorder:
 
     # -- Step emitters -----------------------------------------------------
 
-    def llm_start(self, *, prompt: str, **extra: Any) -> AgDRRecord:
+    def llm_start(
+        self,
+        *,
+        prompt: str,
+        data_assets: list[DataAssetRef] | None = None,
+        data_subjects: list[DataSubjectRef] | None = None,
+        **extra: Any,
+    ) -> AgDRRecord:
         """Agent is about to call an LLM with ``prompt``."""
-        return self._emit(StepKind.LLM_START, {"prompt": prompt, **extra})
+        fields: dict[str, Any] = {"prompt": prompt, **extra}
+        if data_assets is not None:
+            fields["data_assets"] = data_assets
+        if data_subjects is not None:
+            fields["data_subjects"] = data_subjects
+        return self._emit(StepKind.LLM_START, fields)
 
     def llm_end(self, *, response: str, **extra: Any) -> AgDRRecord:
         """LLM returned ``response``."""
@@ -164,6 +176,8 @@ class AIRRecorder:
         tool_name: str,
         tool_args: dict[str, Any] | None = None,
         prior_findings: list[Finding] | None = None,
+        data_assets: list[DataAssetRef] | None = None,
+        data_subjects: list[DataSubjectRef] | None = None,
         **extra: Any,
     ) -> AgDRRecord:
         """Agent is about to invoke a tool.
@@ -190,6 +204,10 @@ class AIRRecorder:
             "tool_args": tool_args or {},
             **extra,
         }
+        if data_assets is not None:
+            fields["data_assets"] = data_assets
+        if data_subjects is not None:
+            fields["data_subjects"] = data_subjects
         if self._containment is None:
             return self._emit(StepKind.TOOL_START, fields)
 
