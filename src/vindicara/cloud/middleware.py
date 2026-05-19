@@ -69,6 +69,8 @@ class AirCloudAuthMiddleware(BaseHTTPMiddleware):
         request: Request,
         call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
+        if request.method == "OPTIONS":
+            return Response(status_code=200)
         path = request.url.path
         if path in UNAUTHED_PATHS:
             return await call_next(request)

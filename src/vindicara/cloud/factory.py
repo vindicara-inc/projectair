@@ -21,6 +21,7 @@ import logging
 import os
 
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 from vindicara.cloud.capsule_store import CapsuleStore, InMemoryCapsuleStore
 from vindicara.cloud.event_bus import CapsuleEventBus
@@ -129,6 +130,12 @@ def create_air_cloud_app(
     app.state.capsule_event_bus = CapsuleEventBus()
 
     app.add_middleware(AirCloudAuthMiddleware, prefix="/v1")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+        allow_headers=["*"],
+    )
 
     app.include_router(capsules.router)
     app.include_router(workspaces.router)
