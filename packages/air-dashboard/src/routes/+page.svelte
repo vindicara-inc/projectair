@@ -13,8 +13,10 @@
 	import { focusStore } from '$lib/stores/focus.svelte';
 	import { modeStore } from '$lib/stores/mode.svelte';
 	import { cloudSession } from '$lib/stores/cloud_session.svelte';
+	import { detailStore } from '$lib/stores/detail.svelte';
 	import { runDetectors } from '$lib/detectors';
 	import { SCENARIOS, loadScenario } from '$lib/capsules/loader';
+	import DetailPanel from '$lib/panels/DetailPanel.svelte';
 
 	let lastDetectorRunSize = 0;
 	let loading = $state(false);
@@ -218,22 +220,22 @@
 				<span class="sweep"></span>
 				<div class="reactor"></div>
 				<div class="relative z-[5] grid grid-cols-4 gap-3.5">
-					<div>
+					<button class="text-left cursor-pointer hover:bg-white/5 transition-colors rounded p-1 -m-1" onclick={() => detailStore.open({ kind: 'findings-list', title: 'All Signed Records', findings: [] })}>
 						<div class="text-[32px] font-bold leading-[.95]" style="font-family:var(--font-display); color:var(--color-red);">{replayStore.emitted.length}</div>
 						<div class="text-[9px] tracking-[0.2em] uppercase mt-0.5" style="color:var(--color-white-3);">Records Signed</div>
-					</div>
-					<div>
+					</button>
+					<button class="text-left cursor-pointer hover:bg-white/5 transition-colors rounded p-1 -m-1" onclick={() => detailStore.open({ kind: 'capsule', index: 0 })}>
 						<div class="text-[32px] font-bold leading-[.95]" style="font-family:var(--font-display); color:var(--color-white);">{replayStore.records.length}</div>
 						<div class="text-[9px] tracking-[0.2em] uppercase mt-0.5" style="color:var(--color-white-3);">Total In Chain</div>
-					</div>
-					<div>
+					</button>
+					<button class="text-left cursor-pointer hover:bg-white/5 transition-colors rounded p-1 -m-1" onclick={() => detailStore.open({ kind: 'findings-list', title: `${findingsStore.all.length} Findings`, findings: findingsStore.all })}>
 						<div class="text-[32px] font-bold leading-[.95]" style="font-family:var(--font-display); color:var(--color-critical);">{findingsStore.all.length}</div>
 						<div class="text-[9px] tracking-[0.2em] uppercase mt-0.5" style="color:var(--color-white-3);">Findings</div>
-					</div>
-					<div>
+					</button>
+					<button class="text-left cursor-pointer hover:bg-white/5 transition-colors rounded p-1 -m-1" onclick={() => detailStore.open({ kind: 'severity-info' })}>
 						<div class="text-[32px] font-bold leading-[.95]" style="font-family:var(--font-display); color:var(--color-terminal-green);">{verifierStore.integrityScore}%</div>
 						<div class="text-[9px] tracking-[0.2em] uppercase mt-0.5" style="color:var(--color-white-3);">Chain Verified</div>
-					</div>
+					</button>
 				</div>
 			</div>
 		</div>
@@ -246,6 +248,8 @@
 		<OwaspGrid />
 	</div>
 </div>
+
+<DetailPanel />
 
 <!-- Corner brackets -->
 <div class="fixed bottom-4 left-4 z-[2] pointer-events-none text-sm font-bold" style="color:rgba(5,5,7,.4); font-family:var(--font-mono);">[</div>
