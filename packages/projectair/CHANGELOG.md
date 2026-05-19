@@ -2,18 +2,20 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
-## [Unreleased]
+## [1.0.0] - 2026-05-18
 
-**Status: experimental (Structural Verification).** Intent Capsules record the promise. Structural Verification proves the promise was kept. The symbolic verification floor is deterministic and cannot be prompt-injected.
+**Status: production.** Five-layer architecture complete. Data governance ships as the first Pro-tier governance capability. AgDR schema v0.6.
 
 ### Added
-- **Structural Verification** (`airsdk.verification`): verifies that an agent's actual behavior served its declared intent. Runs four symbolic checks over the signed chain: SV-SECRET (secret material access), SV-NET (undeclared network egress), SV-SCOPE (filesystem scope violations), SV-EXFIL (causal exfiltration paths via the Layer 2 causal graph). Produces a VERIFIED / FAILED / INCONCLUSIVE verdict.
-- `IntentSpec` schema: structured intent declaration with `goal`, `allowed_tools`, `allowed_paths`, `allowed_network`, `secret_access`, and `non_goals` fields. Attached to an `INTENT_DECLARATION` record as the first entry in the chain.
-- `StepKind.INTENT_DECLARATION`: new chain record kind for structured intent declarations. Optional; chains without it fall back to extracting intent from `user_intent` fields.
-- `AIRRecorder(intent_spec=IntentSpec(...))`: when provided, the recorder emits an `INTENT_DECLARATION` record as the first chain entry.
-- `air verify-intent <chain>`: CLI command for structural verification. Exits with code 2 on FAILED verdict (CI-friendly). Experimental.
-- `air demo` now includes structural verification as step 6/9, showing the causal exfiltration path (#6 -> #7 -> #8) that proves the SSH-key theft trajectory violated the declared intent.
-- 19 new tests covering all verification checks, the demo chain, benign chains, intent declaration, scope, network, secret access, and trajectory analysis.
+- **Data Governance schema extensions** (AgDR v0.6). `DataAssetRef` and `DataSubjectRef` types on `AgDRPayload`. Tag any `tool_start` or `llm_start` with the data assets and data subjects it touches. v0.5 chains verify unchanged; the new fields default to `None`.
+- `AIRRecorder.tool_start()` and `llm_start()` accept `data_assets` and `data_subjects` kwargs.
+- **Structural Verification** (`airsdk.verification`): verifies that an agent's actual behavior served its declared intent. Runs four symbolic checks: SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL. Produces VERIFIED / FAILED / INCONCLUSIVE verdict.
+- `IntentSpec` schema: structured intent declaration with `goal`, `allowed_tools`, `allowed_paths`, `allowed_network`, `secret_access`, and `non_goals` fields.
+- `StepKind.INTENT_DECLARATION`: new chain record kind for structured intent declarations.
+- `AIRRecorder(intent_spec=IntentSpec(...))`: emits an `INTENT_DECLARATION` record as the first chain entry.
+- `air verify-intent <chain>`: CLI command for structural verification. Exits with code 2 on FAILED verdict (CI-friendly).
+- `air governance` CLI subcommand group (Pro): `index`, `query`, `dsar`, `export`, `classify`.
+- 34 new tests (15 OSS schema + 19 structural verification).
 
 ## [0.9.0] - 2026-05-12
 
