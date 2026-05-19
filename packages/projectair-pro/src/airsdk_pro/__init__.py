@@ -35,6 +35,16 @@ from airsdk_pro.detectors import (
     run_premium_detectors,
 )
 from airsdk_pro.gate import requires_pro
+from airsdk_pro.governance import (
+    GOVERNANCE_FEATURE,
+    AccessType,
+    AssetDefinition,
+    DataAccessRecord,
+    DataAssetRegistry,
+    GovernanceIndex,
+    GovernanceReport,
+    SubjectAccessReport,
+)
 from airsdk_pro.license import (
     LicenseError,
     LicenseExpiredError,
@@ -65,12 +75,20 @@ __version__ = "0.8.0"
 
 __all__ = [
     "AIR_CLOUD_CLIENT_FEATURE",
+    "AccessType",
+    "AssetDefinition",
+    "DataAccessRecord",
+    "DataAssetRegistry",
+    "GOVERNANCE_FEATURE",
+    "GovernanceIndex",
+    "GovernanceReport",
     "INCIDENT_WORKFLOWS_FEATURE",
     "NIST_RMF_FEATURE",
     "PREMIUM_DETECTORS_FEATURE",
     "PREMIUM_DETECTOR_IDS",
     "SIEM_INTEGRATIONS_FEATURE",
     "SOC2_AI_FEATURE",
+    "SubjectAccessReport",
     "AlertConfigError",
     "AlertPushError",
     "AlertResult",

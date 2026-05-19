@@ -106,6 +106,11 @@ from projectair.alert_cli import register as _register_alert_cli  # noqa: E402
 
 _register_alert_cli(app)
 
+# Pro: data governance (`air governance index | query | dsar | export | classify`).
+from projectair.governance_cli import register as _register_governance_cli  # noqa: E402
+
+_register_governance_cli(app)
+
 
 def _count_conversations(records: list[AgDRRecord]) -> int:
     finishes = sum(1 for r in records if r.kind == StepKind.AGENT_FINISH)

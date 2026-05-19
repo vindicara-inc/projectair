@@ -45,6 +45,8 @@ from airsdk.types import (
     AGDR_VERSION,
     AgDRPayload,
     AgDRRecord,
+    DataAssetRef,
+    DataSubjectRef,
     Finding,
     ForensicReport,
     IntentSpec,
@@ -61,7 +63,7 @@ from airsdk.verification import (
     verify_intent,
 )
 
-__version__ = "0.9.0"
+__version__ = "1.0.0"
 
 __all__ = [
     "AGDR_VERSION",
@@ -71,6 +73,8 @@ __all__ = [
     "AgDRPayload",
     "AgDRRecord",
     "AgentDescriptor",
+    "DataAssetRef",
+    "DataSubjectRef",
     "AgentRegistry",
     "BehavioralScope",
     "FileTransport",

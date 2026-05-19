@@ -43,7 +43,7 @@ from pydantic import BaseModel, ConfigDict, Field
 # 64 hex chars = 256 bits. BLAKE3 default output size and Ed25519 public key size.
 GENESIS_PREV_HASH = "0" * 64
 
-AGDR_VERSION = "0.5"
+AGDR_VERSION = "0.6"
 
 
 class SigningAlgorithm(StrEnum):
@@ -145,6 +145,27 @@ class IntentSpec(BaseModel):
     non_goals: list[str] = Field(default_factory=list)
 
 
+class DataAssetRef(BaseModel):
+    """Reference to a data asset touched by an agent action."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    asset_id: str
+    asset_type: str
+    namespace: str = ""
+    sensitivity: str = ""
+
+
+class DataSubjectRef(BaseModel):
+    """Reference to a data subject whose data an agent action touches."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    subject_id: str
+    subject_type: str = ""
+    jurisdiction: str = ""
+
+
 class AgDRPayload(BaseModel):
     """Kind-specific payload. Structured but extensible via `extra`."""
 
@@ -180,6 +201,10 @@ class AgDRPayload(BaseModel):
     challenge_id: str | None = None
     # Human approval (Layer 3). Used when kind == HUMAN_APPROVAL.
     human_approval: HumanApproval | None = None
+    # Data governance (v0.6). Optional tagging for data-asset lineage
+    # and data-subject tracking across agent actions.
+    data_assets: list[DataAssetRef] | None = None
+    data_subjects: list[DataSubjectRef] | None = None
 
 
 class AgDRRecord(BaseModel):
