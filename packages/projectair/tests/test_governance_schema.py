@@ -1,7 +1,6 @@
 """Tests for v0.6 data governance schema extensions."""
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
 
 import pytest
