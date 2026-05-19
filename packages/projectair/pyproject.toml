@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projectair"
-version = "0.9.0"
+version = "1.0.0"
 description = "Project AIR: forensic reconstruction and incident response for AI agents. Signed AgDR chains, RFC 3161 + Sigstore Rekor anchoring, causal explanation, and Auth0-verified human-in-the-loop containment."
 readme = "README.md"
 license = "MIT"
@@ -12,7 +12,7 @@ requires-python = ">=3.12"
 authors = [{ name = "Kevin Minn", email = "support@vindicara.io" }]
 keywords = ["ai", "security", "incident-response", "forensics", "langchain", "agent", "agdr", "owasp"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",

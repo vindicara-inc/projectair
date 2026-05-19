@@ -40,16 +40,17 @@ air demo
 
 That generates a fresh signed capsule chain (the SSH-exfiltration attack narrative), verifies every signature, runs the detectors, and writes a `forensic-report.json` next to you. Full cold-start in one command, no agent wiring required.
 
-## The four-layer stack
+## The five-layer stack
 
 | Layer | What it does | Status |
 |---|---|---|
 | **1. External Trust Anchor** | RFC 3161 trusted timestamps + Sigstore Rekor transparency log | shipped (0.4.0) |
 | **2. Causal Reasoning** | `air explain` walks the chain, explains why a step happened | shipped (0.5.0) |
-| **3. Containment + Step-Up** | Halt agent actions; require Auth0-verified human approval for high-stakes calls | shipped (0.6.0, 0.6.1) |
-| **4. AgDR Handoff Protocol (A2A)** | Cross-agent chain of custody with W3C Trace Context + Rekor counter-attestation | shipped (0.7.0, Wave 1 alpha) |
+| **3. Containment + Step-Up** | Halt agent actions; require Auth0-verified human approval for high-stakes calls | shipped (0.6.0) |
+| **4. AgDR Handoff Protocol (A2A)** | Cross-agent chain of custody with W3C Trace Context + Rekor counter-attestation | shipped (0.7.0, Wave 1) |
+| **5. Data Governance** | Data-asset lineage, data-subject tracking, DSAR, OpenLineage export | shipped (1.0.0, Pro) |
 
-Layers 1-3 secure the single agent. Layer 4 secures the distributed agentic economy.
+Layers 1-4 secure the agent. Layer 5 answers the governance question: which agent accessed which data, who authorized it, and can you prove it.
 
 ### Layer 1: anchor your chain to public infrastructure
 
@@ -347,6 +348,31 @@ recorder.agent_finish(final_output="...")
 
 For tool calls your code executes, wrap them with `recorder.tool_start(...)` / `recorder.tool_end(...)` so the forensic chain captures them too.
 
+### Data governance tagging (1.0.0)
+
+Tag any tool call or LLM call with the data assets and data subjects it touches:
+
+```python
+from airsdk import AIRRecorder, DataAssetRef, DataSubjectRef
+
+recorder = AIRRecorder(log_path="chain.jsonl")
+recorder.tool_start(
+    tool_name="query_patients",
+    tool_args={"sql": "SELECT * FROM patients WHERE id = 42"},
+    data_assets=[DataAssetRef(asset_id="patients", asset_type="table", namespace="clinic_db", sensitivity="restricted")],
+    data_subjects=[DataSubjectRef(subject_id="patient-42", subject_type="patient", jurisdiction="HIPAA")],
+)
+```
+
+With `projectair-pro`, the governance module indexes tagged chains and answers compliance questions:
+
+```bash
+air governance dsar --subject patient-42 chain.jsonl      # DSAR: all accesses for a data subject
+air governance query --asset patients chain.jsonl          # Which agents accessed this table?
+air governance export --openlineage chain.jsonl            # Export to any OpenLineage-compatible catalog
+air governance classify chain.jsonl                        # Auto-detect PII/PHI in payloads
+```
+
 ## CLI surface
 
 ```
@@ -358,6 +384,11 @@ air anchor <chain>        Force-emit an anchor record covering the unanchored ta
 air explain <chain>       Causal explanation: --step <id> | --finding <detector_id>
 air approve               Layer 3 step-up approval: --token | --device | --authorize-url
 air report article72      Generate EU AI Act Article 72 post-market monitoring template
+air governance index      Build governance index from tagged chains (Pro)
+air governance query      Query data accesses by subject or asset (Pro)
+air governance dsar       Generate a DSAR report for a data subject (Pro)
+air governance export     Export as OpenLineage events (Pro)
+air governance classify   Auto-detect PII/PHI sensitivity in payloads (Pro)
 ```
 
 ## Why AIR exists
@@ -378,11 +409,13 @@ curl https://vindicara-ops-chain-public-399827112476.s3.us-west-2.amazonaws.com/
 
 ## Roadmap
 
+- **Data Governance:** shipped in 1.0.0 (Pro). Data-asset lineage, data-subject tracking, DSAR report generator, OpenLineage export, sensitivity auto-classification.
 - **Layer 4 Wave 2:** cross-tenant federation via Sigstore Fulcio + OIDC Discovery.
 - **Layer 4 v1.5:** private/enterprise federation (Okta, Entra ID, SPIFFE adapters).
-- **ML-DSA-65 post-quantum signatures:** shipped as experimental opt-in. `AIRRecorder(..., signing_algorithm=SigningAlgorithm.ML_DSA_65)`. Crypto-agility ahead of NIST CNSA 2.0 mandates.
-- **NVIDIA integration stack:** shipped. `instrument_nemoclaw` (NemoClaw/OpenShell sandbox), `instrument_nemo_guardrails` (NeMo Guardrails telemetry), `NemoGuardClient` (JailbreakDetect + ContentSafety + TopicControl NIMs), plus AIR-05/AIR-06 detectors wiring NemoGuard into the evidence pipeline with cross-corroboration.
+- **ML-DSA-65 post-quantum signatures:** shipped as experimental opt-in. Crypto-agility ahead of NIST CNSA 2.0 mandates.
+- **NVIDIA integration stack:** shipped. NemoClaw, NeMo Guardrails, NemoGuard NIM classifiers, plus AIR-05/AIR-06 cross-corroboration detectors.
 - **AIR Cloud:** live at `cloud.vindicara.io`. Hosted chain-of-custody dashboards for all paying tiers.
+- **Regulation-specific report packs:** HIPAA Breach Notification, GDPR Article 30 RoPA, CCPA disclosure templates.
 - **CrewAI, AutoGen, AG2 framework integrations:** queued.
 
 ## License
