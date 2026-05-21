@@ -298,6 +298,7 @@
       <button onclick={() => scrollTo('standards')} class="hover:text-white transition-colors cursor-pointer">Standards</button>
       <a href="/solutions" class="hover:text-white transition-colors">Solutions</a>
       <a href="/pricing" class="hover:text-white transition-colors">Pricing</a>
+      <a href="/admissibility#certification" class="hover:text-white transition-colors">FRE 902(13)</a>
       <a href="/blog" class="hover:text-white transition-colors">Blog</a>
       <a href="/dashboard" class="hover:text-white transition-colors">Dashboard</a>
     </div>
@@ -329,6 +330,7 @@
       <button onclick={() => scrollTo('standards')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">Standards</button>
       <a href="/solutions" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Solutions</a>
       <a href="/pricing" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Pricing</a>
+      <a href="/admissibility#certification" class="block text-sm text-zinc-400 hover:text-white w-full text-left">FRE 902(13)</a>
       <a href="/blog" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Blog</a>
       <a href="/dashboard" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Dashboard</a>
       <div class="flex gap-3 pt-2">

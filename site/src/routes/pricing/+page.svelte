@@ -96,6 +96,7 @@
     <div class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
       <a href="/#how-it-works" class="hover:text-white transition-colors">How It Works</a>
       <a href="/#standards" class="hover:text-white transition-colors">Standards</a>
+      <a href="/admissibility#certification" class="hover:text-white transition-colors">FRE 902(13)</a>
       <a href="/blog" class="hover:text-white transition-colors">Blog</a>
       <a href="/pricing" class="text-white">Pricing</a>
     </div>
@@ -126,6 +127,7 @@
     <div class="md:hidden border-t border-white/5 bg-obsidian/95 backdrop-blur-2xl px-6 py-4 space-y-3">
       <a href="/#how-it-works" class="block text-sm text-zinc-400 hover:text-white">How It Works</a>
       <a href="/#standards" class="block text-sm text-zinc-400 hover:text-white">Standards</a>
+      <a href="/admissibility#certification" class="block text-sm text-zinc-400 hover:text-white">FRE 902(13)</a>
       <a href="/blog" class="block text-sm text-zinc-400 hover:text-white">Blog</a>
       <a href="/pricing" class="block text-sm text-white">Pricing</a>
       <div class="flex gap-3 pt-2">

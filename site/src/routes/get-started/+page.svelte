@@ -46,6 +46,7 @@
     <div class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
       <a href="/solutions" class="hover:text-white transition-colors">Solutions</a>
       <a href="/pricing" class="hover:text-white transition-colors">Pricing</a>
+      <a href="/admissibility#certification" class="hover:text-white transition-colors">FRE 902(13)</a>
       <a href="/blog" class="hover:text-white transition-colors">Blog</a>
       <a href="/get-started" class="text-white transition-colors">Get Started</a>
       <a href="/dashboard" class="hover:text-white transition-colors">Dashboard</a>
