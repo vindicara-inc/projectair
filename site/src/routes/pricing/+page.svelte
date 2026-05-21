@@ -6,17 +6,17 @@
 
 <svelte:head>
   <title>Pricing | Vindicara AIR</title>
-  <meta name="description" content="Vindicara AIR pricing. Free OSS forever under MIT license. Individual at $39/mo for AIR Cloud client and premium reports. Team at $599/mo for hosted Cloud workspaces, SIEM, and incident workflows. Enterprise priced on request for SSO, on-prem, and SLA." />
+  <meta name="description" content="Vindicara AIR pricing. Free OSS forever under MIT license. Pro at $99/mo for Structural Verification, premium detectors, AIR Cloud, and compliance reports. Team at $599/mo for hosted Cloud workspaces, SIEM, and incident workflows. Enterprise priced on request for SSO, on-prem, and SLA." />
   <link rel="canonical" href="https://vindicara.io/pricing" />
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://vindicara.io/pricing" />
   <meta property="og:title" content="Pricing | Vindicara AIR" />
-  <meta property="og:description" content="Free OSS forever. Individual at $39/mo. Team at $599/mo. Enterprise priced on request." />
+  <meta property="og:description" content="Free OSS forever. Pro at $99/mo. Team at $599/mo. Enterprise priced on request." />
   <meta property="og:image:alt" content="Vindicara AIR pricing: open source, individual, team, enterprise." />
 
   <meta name="twitter:title" content="Pricing | Vindicara AIR" />
-  <meta name="twitter:description" content="Free OSS forever. Individual at $39/mo. Team at $599/mo. Enterprise priced on request." />
+  <meta name="twitter:description" content="Free OSS forever. Pro at $99/mo. Team at $599/mo. Enterprise priced on request." />
 
   {@html `<script type="application/ld+json">${JSON.stringify({
     '@context': 'https://schema.org',
@@ -38,14 +38,14 @@
       },
       {
         '@type': 'Offer',
-        name: 'Individual',
-        price: '39',
+        name: 'Pro',
+        price: '99',
         priceCurrency: 'USD',
         availability: 'https://schema.org/InStock',
-        description: 'AIR Cloud client SDK, premium compliance reports (NIST AI RMF, SOC2-AI), premium detectors, license-gated via projectair-pro.',
+        description: 'Structural Verification (SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL, SV-ENTITY), Premium ASI04 supply chain detectors, AIR Cloud, NIST AI RMF and SOC2-AI reports, license-gated via projectair-pro.',
         priceSpecification: {
           '@type': 'UnitPriceSpecification',
-          price: '39',
+          price: '99',
           priceCurrency: 'USD',
           billingIncrement: 1,
           unitText: 'MONTH',
@@ -188,13 +188,14 @@
             <h2 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Pro</h2>
             <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">New</span>
           </div>
-          <p class="text-3xl font-black mt-4">$39<span class="text-base font-normal text-zinc-500">/mo</span></p>
-          <p class="text-sm text-zinc-500 mt-1">Or $350/year. Cancel anytime.</p>
+          <p class="text-3xl font-black mt-4">$99<span class="text-base font-normal text-zinc-500">/mo</span></p>
+          <p class="text-sm text-zinc-500 mt-1">Or $890/year. Cancel anytime.</p>
           <ul class="mt-7 space-y-3 text-sm text-zinc-400">
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Open Source</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>AIR Cloud client SDK (push capsules to a hosted workspace)</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong class="text-white">Structural Verification</strong> (SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL, SV-ENTITY)</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong class="text-white">Premium ASI04</strong> supply chain detectors (dependency install, manifest drift, untrusted fetch)</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>AIR Cloud: push capsules to a hosted workspace</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Premium reports: NIST AI RMF, SOC2-AI</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Premium detectors as they ship</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>License works air-gapped (no phone-home)</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Email support</span></li>
           </ul>
@@ -202,12 +203,12 @@
             href="https://buy.stripe.com/aFa14m438d2QgA88Hl1RC00"
             class="btn-primary w-full mt-7 text-sm"
             rel="noopener"
-          >Buy monthly · $39</a>
+          >Buy monthly · $99</a>
           <a
             href="https://buy.stripe.com/cNi9AS0QWfaYbfOe1F1RC01"
             class="block text-center text-xs text-zinc-500 hover:text-zinc-300 mt-3 underline underline-offset-4"
             rel="noopener"
-          >Or pay annually for $350, save $118</a>
+          >Or pay annually for $890, save $298</a>
         </div>
 
         <!-- Team -->
@@ -219,7 +220,7 @@
           <p class="text-3xl font-black mt-4">$599<span class="text-base font-normal text-zinc-500">/mo</span></p>
           <p class="text-sm text-zinc-500 mt-1">Or $5,400/year. Hosted AIR Cloud for your team.</p>
           <ul class="mt-7 space-y-3 text-sm text-zinc-400">
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Individual, organization-wide</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Pro, organization-wide</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Hosted AIR Cloud workspace, multi-agent dashboards</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>SIEM integrations: Datadog, Splunk, Sumo, Sentinel</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Incident workflows + alerting</span></li>
@@ -274,7 +275,7 @@
             <tr class="bg-white/[0.02] text-zinc-400">
               <th class="text-left p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10">Capability</th>
               <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10">Free (OSS)</th>
-              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10 bg-white/[0.015]">Pro ($39/mo)</th>
+              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10 bg-white/[0.015]">Pro ($99/mo)</th>
               <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10">Team ($599/mo)</th>
               <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10">Enterprise</th>
             </tr>
@@ -295,7 +296,14 @@
               <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
-              <td class="p-4">Premium detectors</td>
+              <td class="p-4">Structural Verification (SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL, SV-ENTITY)</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-green-400 bg-white/[0.015]">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+            </tr>
+            <tr class="border-b border-white/5">
+              <td class="p-4">Premium ASI04 supply chain detectors</td>
               <td class="p-4 text-center text-zinc-600">&mdash;</td>
               <td class="p-4 text-center text-green-400 bg-white/[0.015]">&#10003;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
@@ -408,10 +416,10 @@
         </div>
 
         <div>
-          <h3 class="text-lg font-semibold text-white mb-2">What does the $39 Individual tier add?</h3>
+          <h3 class="text-lg font-semibold text-white mb-2">What does the $99 Pro tier add?</h3>
           <p class="text-sm text-zinc-400 leading-relaxed">
-            The Individual tier unlocks the AIR Cloud client SDK (push your capsules to a hosted workspace instead of managing JSONL files yourself), premium compliance reports for NIST AI RMF and SOC2-AI on top of the OSS Article 72 template, and premium detector additions as they ship. The licensed Pro features ship in a separate <code class="font-mono text-zinc-200">projectair-pro</code> package; verification is a local Ed25519 signature check on the license token, with no phone-home, so it works air-gapped.
-        </p>
+            The two headline features are <strong class="text-zinc-200">Structural Verification</strong> and <strong class="text-zinc-200">Premium ASI04 Supply Chain detectors</strong>. Structural Verification runs five deterministic checks (SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL, SV-ENTITY) over the causal graph to verify whether an agent session honored its declared intent. No LLM in the verification path. Premium ASI04 adds dependency-install surface detection, tool manifest drift, and untrusted source fetch on top of the OSS MCP-naming detector. Pro also unlocks AIR Cloud (push capsules to a hosted workspace), NIST AI RMF and SOC2-AI compliance reports, and future premium detectors as they ship. The licensed Pro features ship in a separate <code class="font-mono text-zinc-200">projectair-pro</code> package; verification is a local Ed25519 signature check on the license token, with no phone-home, so it works air-gapped.
+          </p>
         </div>
 
         <div>
