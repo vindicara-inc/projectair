@@ -58,9 +58,8 @@
     },
   ];
 
-  // Tampered chain: attacker modified record 2's payload (send_email -> exfiltrate_data)
-  // but cannot re-sign, so content_hash in the record no longer matches the computed hash,
-  // AND record 3's prev_hash no longer points to the correct (new) content_hash.
+  // Tampered chain: attacker modified record 2 (send_email -> exfiltrate_data) but cannot
+  // re-sign, so content_hash mismatches and record 3's prev_hash link breaks.
   const TAMPERED_CHAIN: Record[] = [
     { ...VALID_CHAIN[0] },
     { ...VALID_CHAIN[1] },
@@ -99,17 +98,20 @@
 
 <div class="glass-panel rounded-lg overflow-hidden">
   <!-- Header: verification status + toggle -->
-  <div class="border-b border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+  <div class="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style="border-bottom: 1px solid var(--border);">
     <div class="flex items-center gap-3">
-      <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">air trace</span>
-      <span class="font-mono text-xs text-zinc-400">my-agent.log</span>
+      <span class="font-mono text-[10px] uppercase tracking-[0.18em]" style="color: var(--text-muted);">air trace</span>
+      <span class="font-mono text-xs" style="color: var(--text-muted);">my-agent.log</span>
     </div>
-    <div class="flex gap-0 font-mono text-[11px] border border-white/15 rounded">
+    <div class="flex gap-0 font-mono text-[11px] rounded" style="border: 1px solid var(--border);">
       <button
         type="button"
         class="px-3 py-1.5 transition-colors uppercase tracking-wider {mode === 'valid'
-          ? 'bg-green-500/20 text-green-400 border-r border-white/15'
-          : 'text-zinc-400 hover:text-white border-r border-white/15'}"
+          ? 'bg-green-500/20 text-green-400'
+          : ''}"
+        style="{mode !== 'valid' ? 'color: var(--text-muted);' : ''} border-right: 1px solid var(--border);"
+        onmouseenter={(e) => { if (mode !== 'valid') e.currentTarget.style.color = 'var(--text-primary)'; }}
+        onmouseleave={(e) => { if (mode !== 'valid') e.currentTarget.style.color = 'var(--text-muted)'; }}
         onclick={() => setMode('valid')}
       >
         Valid chain
@@ -118,7 +120,10 @@
         type="button"
         class="px-3 py-1.5 transition-colors uppercase tracking-wider {mode === 'tampered'
           ? 'bg-brand-red/20 text-brand-red'
-          : 'text-zinc-400 hover:text-white'}"
+          : ''}"
+        style="{mode !== 'tampered' ? 'color: var(--text-muted);' : ''}"
+        onmouseenter={(e) => { if (mode !== 'tampered') e.currentTarget.style.color = 'var(--text-primary)'; }}
+        onmouseleave={(e) => { if (mode !== 'tampered') e.currentTarget.style.color = 'var(--text-muted)'; }}
         onclick={() => setMode('tampered')}
       >
         Tampered chain
@@ -127,38 +132,38 @@
   </div>
 
   <!-- Verification verdict line -->
-  <div class="px-4 sm:px-6 py-3 border-b border-white/10 font-mono text-xs">
+  <div class="px-4 sm:px-6 py-3 font-mono text-xs" style="border-bottom: 1px solid var(--border);">
     {#if mode === 'valid'}
       <span class="text-green-400">[verified]</span>
-      <span class="text-zinc-400">5 records | signatures valid | chain intact | signer: 7c3d9a1e...</span>
+      <span style="color: var(--text-muted);">5 records | signatures valid | chain intact | signer: 7c3d9a1e...</span>
     {:else}
       <span class="text-brand-red">[chain broken at step 2]</span>
-      <span class="text-zinc-400">2 of 5 verified | content_hash mismatch at step 2 | downstream invalid</span>
+      <span style="color: var(--text-muted);">2 of 5 verified | content_hash mismatch at step 2 | downstream invalid</span>
     {/if}
   </div>
 
-  <div class="grid md:grid-cols-[260px_1fr] divide-y md:divide-y-0 md:divide-x divide-white/10">
+  <div class="grid md:grid-cols-[260px_1fr]">
     <!-- Step list -->
-    <div class="p-2">
+    <div class="p-2" style="border-bottom: 1px solid var(--border); border-right: none;" class:md-border-right={true}>
       <ul class="space-y-1">
         {#each chain as record}
           <li>
             <button
               type="button"
-              class="w-full text-left px-3 py-2 rounded font-mono text-xs flex items-center gap-2 transition-colors {selectedStep ===
-              record.step
-                ? 'bg-white/10 text-white'
-                : 'text-zinc-400 hover:bg-white/5 hover:text-white'}"
+              class="w-full text-left px-3 py-2 rounded font-mono text-xs flex items-center gap-2 transition-colors"
+              style="{selectedStep === record.step ? 'background-color: var(--glass); color: var(--text-primary);' : 'color: var(--text-muted);'}"
+              onmouseenter={(e) => { if (selectedStep !== record.step) { e.currentTarget.style.backgroundColor = 'var(--glass)'; e.currentTarget.style.color = 'var(--text-primary)'; }}}
+              onmouseleave={(e) => { if (selectedStep !== record.step) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}}
               onclick={() => (selectedStep = record.step)}
             >
               {#if record.status === 'ok'}
-                <span class="text-green-400" aria-hidden="true">✓</span>
+                <span class="text-green-400" aria-hidden="true">&#10003;</span>
               {:else if record.status === 'content_mismatch'}
-                <span class="text-brand-red animate-pulse-glow" aria-hidden="true">✗</span>
+                <span class="text-brand-red animate-pulse-glow" aria-hidden="true">&#10007;</span>
               {:else}
-                <span class="text-zinc-600" aria-hidden="true">◌</span>
+                <span style="color: var(--text-faint);" aria-hidden="true">&#9676;</span>
               {/if}
-              <span class="text-zinc-500">step {record.step}</span>
+              <span style="color: var(--text-muted);">step {record.step}</span>
               <span class="flex-1 truncate">{record.kind}</span>
             </button>
           </li>
@@ -169,9 +174,9 @@
     <!-- Record detail -->
     <div class="p-4 sm:p-6">
       <div class="flex items-center gap-3 mb-4">
-        <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">record</span>
-        <span class="font-mono text-sm text-white">{current.kind}</span>
-        <span class="font-mono text-xs text-zinc-500">step {current.step}</span>
+        <span class="font-mono text-[10px] uppercase tracking-[0.18em]" style="color: var(--text-muted);">record</span>
+        <span class="font-mono text-sm" style="color: var(--text-primary);">{current.kind}</span>
+        <span class="font-mono text-xs" style="color: var(--text-muted);">step {current.step}</span>
         {#if current.status === 'ok'}
           <span class="ml-auto font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20 rounded">
             verified
@@ -181,7 +186,7 @@
             content mismatch
           </span>
         {:else}
-          <span class="ml-auto font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 rounded">
+          <span class="ml-auto font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded" style="background-color: var(--glass); color: var(--text-muted); border: 1px solid var(--border);">
             unverifiable
           </span>
         {/if}
@@ -189,7 +194,7 @@
 
       <!-- Payload preview -->
       <div class="mb-4">
-        <div class="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 mb-1">
+        <div class="font-mono text-[10px] uppercase tracking-[0.18em] mb-1" style="color: var(--text-muted);">
           payload
         </div>
         <div
@@ -197,10 +202,10 @@
             ? 'border-brand-red/40 bg-brand-red/5'
             : ''}"
         >
-          <span class="text-zinc-300">{current.preview}</span>
+          <span style="color: var(--text-secondary);">{current.preview}</span>
           {#if mode === 'tampered' && current.step === 2}
             <div class="mt-2 text-[11px] text-brand-red">
-              // altered by attacker after signing (send_email → exfiltrate_data)
+              // altered by attacker after signing (send_email -> exfiltrate_data)
             </div>
           {/if}
         </div>
@@ -209,50 +214,55 @@
       <!-- Integrity fields -->
       <dl class="space-y-3 text-xs font-mono">
         <div>
-          <dt class="text-zinc-500 mb-0.5 flex items-center gap-2">
+          <dt class="mb-0.5 flex items-center gap-2" style="color: var(--text-muted);">
             <span>prev_hash</span>
             <span
-              class="text-[9px] uppercase tracking-wider text-zinc-600 border border-white/10 rounded px-1"
+              class="text-[9px] uppercase tracking-wider rounded px-1"
+              style="color: var(--text-faint); border: 1px solid var(--border);"
             >
               link to previous
             </span>
           </dt>
           <dd
-            class="text-zinc-300 break-all {mode === 'tampered' && current.status === 'broken_link'
+            class="break-all {mode === 'tampered' && current.status === 'broken_link'
               ? 'text-brand-red'
               : ''}"
+            style="{!(mode === 'tampered' && current.status === 'broken_link') ? 'color: var(--text-secondary);' : ''}"
           >
             {current.prev_hash}
           </dd>
         </div>
         <div>
-          <dt class="text-zinc-500 mb-0.5 flex items-center gap-2">
+          <dt class="mb-0.5 flex items-center gap-2" style="color: var(--text-muted);">
             <span>content_hash</span>
             <span
-              class="text-[9px] uppercase tracking-wider text-zinc-600 border border-white/10 rounded px-1"
+              class="text-[9px] uppercase tracking-wider rounded px-1"
+              style="color: var(--text-faint); border: 1px solid var(--border);"
             >
               BLAKE3 of canonical payload
             </span>
           </dt>
           <dd
-            class="text-zinc-300 break-all {mode === 'tampered' &&
+            class="break-all {mode === 'tampered' &&
             current.status === 'content_mismatch'
               ? 'text-brand-red'
               : ''}"
+            style="{!(mode === 'tampered' && current.status === 'content_mismatch') ? 'color: var(--text-secondary);' : ''}"
           >
             {current.content_hash}
           </dd>
         </div>
         <div>
-          <dt class="text-zinc-500 mb-0.5 flex items-center gap-2">
+          <dt class="mb-0.5 flex items-center gap-2" style="color: var(--text-muted);">
             <span>signature</span>
             <span
-              class="text-[9px] uppercase tracking-wider text-zinc-600 border border-white/10 rounded px-1"
+              class="text-[9px] uppercase tracking-wider rounded px-1"
+              style="color: var(--text-faint); border: 1px solid var(--border);"
             >
               Ed25519(prev_hash || content_hash)
             </span>
           </dt>
-          <dd class="text-zinc-300 break-all">{current.signature}</dd>
+          <dd class="break-all" style="color: var(--text-secondary);">{current.signature}</dd>
         </div>
       </dl>
 
@@ -268,7 +278,8 @@
 
   <!-- Footer: verification command -->
   <div
-    class="border-t border-white/10 px-4 sm:px-6 py-3 bg-black/30 font-mono text-[11px] text-zinc-500 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+    class="px-4 sm:px-6 py-3 font-mono text-[11px] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+    style="border-top: 1px solid var(--border); background-color: var(--glass); color: var(--text-muted);"
   >
     <span>$ air trace my-agent.log --verify --public-key 7c3d9a1e...</span>
     {#if mode === 'valid'}
@@ -278,3 +289,12 @@
     {/if}
   </div>
 </div>
+
+<style>
+  @media (min-width: 768px) {
+    .md-border-right {
+      border-bottom: none !important;
+      border-right: 1px solid var(--border) !important;
+    }
+  }
+</style>
