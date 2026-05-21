@@ -149,6 +149,12 @@
       <p class="mt-5 text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
         The <code class="font-mono text-zinc-200">air</code> CLI and <code class="font-mono text-zinc-200">airsdk</code> Python SDK are MIT-licensed and free forever, with all 14 detectors and core export formats. Pro adds the AIR Cloud client, premium compliance reports, and licensed enterprise features.
       </p>
+      <div class="mt-6 flex items-center justify-center">
+        <a href="https://www.producthunt.com/posts/project-air-by-vindicara" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2.5 px-4 py-2.5 border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] transition-colors group">
+          <svg class="w-5 h-5 text-[#FF6154]" viewBox="0 0 40 40" fill="currentColor"><path d="M20 0C8.954 0 0 8.954 0 20s8.954 20 20 20 20-8.954 20-20S31.046 0 20 0zm0 36.8C10.728 36.8 3.2 29.272 3.2 20S10.728 3.2 20 3.2 36.8 10.728 36.8 20 29.272 36.8 20 36.8zm2.8-22.4h-7.2v11.2h4.4v-3.2h2.8c2.648 0 4.8-2.152 4.8-4.8V19.2c0-2.648-2.152-4.8-4.8-4.8zm1.6 4.8c0 .884-.716 1.6-1.6 1.6h-2.8v-3.2h2.8c.884 0 1.6.716 1.6 1.6z"/></svg>
+          <span class="text-xs font-mono uppercase tracking-wider text-zinc-400 group-hover:text-zinc-200 transition-colors">Find us on Product Hunt</span>
+        </a>
+      </div>
     </div>
   </section>
 
@@ -179,7 +185,7 @@
         <!-- Individual -->
         <div class="p-7 border-b lg:border-b-0 lg:border-r border-white/10 bg-white/[0.015]">
           <div class="flex items-center justify-between mb-2">
-            <h2 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Individual</h2>
+            <h2 class="text-sm font-mono uppercase tracking-wider text-zinc-400">Pro</h2>
             <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">New</span>
           </div>
           <p class="text-3xl font-black mt-4">$39<span class="text-base font-normal text-zinc-500">/mo</span></p>
@@ -254,15 +260,6 @@
     </div>
   </section>
 
-  <!--
-    FEATURE COMPARISON — hidden until paid-tier features actually ship.
-    Re-enable rows individually as features land:
-      - Wave 1: Premium reports (NIST AI RMF, SOC2-AI), SIEM integrations
-      - Wave 2: AIR Cloud client SDK, Incident workflows + alerting
-      - Wave 3: Hosted AIR Cloud workspace, SSO/SAML/RBAC, on-prem packaging
-    To re-enable, change `{#if false}` below to `{#if true}` (or remove the guard).
-  -->
-  {#if false}
   <!-- FEATURE COMPARISON -->
   <section class="py-20 border-t border-white/5">
     <div class="max-w-screen-xl mx-auto px-6">
@@ -276,110 +273,110 @@
           <thead>
             <tr class="bg-white/[0.02] text-zinc-400">
               <th class="text-left p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10">Capability</th>
-              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10">Open Source</th>
-              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10 bg-white/[0.015]">Individual</th>
-              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10">Team</th>
+              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10">Free (OSS)</th>
+              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10 bg-white/[0.015]">Pro ($39/mo)</th>
+              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10">Team ($599/mo)</th>
               <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold border-b border-white/10">Enterprise</th>
             </tr>
           </thead>
           <tbody class="text-zinc-300">
             <tr class="border-b border-white/5">
-              <td class="p-4"><span class="font-mono text-zinc-200">air</span> CLI and <span class="font-mono text-zinc-200">airsdk</span></td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400 bg-white/[0.015]">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-            </tr>
-            <tr class="border-b border-white/5">
-              <td class="p-4">Signed Intent Capsule chain (BLAKE3 + Ed25519)</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400 bg-white/[0.015]">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-            </tr>
-            <tr class="border-b border-white/5">
               <td class="p-4">14 detectors (10 OWASP Agentic + 3 LLM + 1 AIR-native)</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400 bg-white/[0.015]">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400 bg-white/[0.015]">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
-              <td class="p-4">JSON, PDF, CEF exports + Article 72 template</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400 bg-white/[0.015]">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
+              <td class="p-4">Article 72 export</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400 bg-white/[0.015]">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
-              <td class="p-4">AIR Cloud client SDK</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-green-400 bg-white/[0.015]">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
+              <td class="p-4">Premium detectors</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-green-400 bg-white/[0.015]">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
-              <td class="p-4">Premium reports (NIST AI RMF, SOC2-AI)</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-green-400 bg-white/[0.015]">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
+              <td class="p-4">NIST AI RMF + SOC2-AI reports</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-green-400 bg-white/[0.015]">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
-              <td class="p-4">Hosted AIR Cloud workspace</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">–</td>
-              <td class="p-4 text-center text-green-400">Multi-agent</td>
-              <td class="p-4 text-center text-green-400">Unlimited</td>
+              <td class="p-4">Push to AIR Cloud (single user)</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-green-400 bg-white/[0.015]">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
-              <td class="p-4">SIEM integrations (Datadog, Splunk, Sumo, Sentinel)</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">–</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
+              <td class="p-4">Multi-agent dashboard</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">&mdash;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
-              <td class="p-4">Incident workflows and alerting</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">–</td>
-              <td class="p-4 text-center text-green-400">✓</td>
-              <td class="p-4 text-center text-green-400">✓</td>
+              <td class="p-4">Team workspace + activity feeds</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">&mdash;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+            </tr>
+            <tr class="border-b border-white/5">
+              <td class="p-4">SIEM integrations + alerting</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">&mdash;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
               <td class="p-4">SSO, SAML, RBAC</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">–</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-green-400">✓</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
-              <td class="p-4">On-prem / VPC / air-gapped deployment</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">–</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-green-400">✓</td>
+              <td class="p-4">On-prem / VPC / air-gapped</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
-              <td class="p-4">Branded compliance evidence packaging</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">–</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-green-400">✓</td>
+              <td class="p-4">HIPAA BAA</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+            </tr>
+            <tr class="border-b border-white/5">
+              <td class="p-4">Branded compliance packaging</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
               <td class="p-4">Insurance carrier integrations</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">–</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-green-400">✓</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr class="border-b border-white/5">
-              <td class="p-4">SLA, dedicated IR contact, BAA</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">–</td>
-              <td class="p-4 text-center text-zinc-600">–</td>
-              <td class="p-4 text-center text-green-400">✓</td>
+              <td class="p-4">Dedicated IR contact + SLA</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600 bg-white/[0.015]">&mdash;</td>
+              <td class="p-4 text-center text-zinc-600">&mdash;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr>
               <td class="p-4">Support</td>
@@ -393,7 +390,6 @@
       </div>
     </div>
   </section>
-  {/if}
 
   <!-- FAQ -->
   <section class="py-20 border-t border-white/5">

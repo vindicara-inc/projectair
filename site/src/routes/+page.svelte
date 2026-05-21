@@ -378,6 +378,13 @@
           </svg>
         </a>
       </div>
+
+      <div class="mt-6 flex items-center justify-center">
+        <a href="https://www.producthunt.com/posts/project-air-by-vindicara" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2.5 px-4 py-2.5 border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] transition-colors group">
+          <svg class="w-5 h-5 text-[#FF6154]" viewBox="0 0 40 40" fill="currentColor"><path d="M20 0C8.954 0 0 8.954 0 20s8.954 20 20 20 20-8.954 20-20S31.046 0 20 0zm0 36.8C10.728 36.8 3.2 29.272 3.2 20S10.728 3.2 20 3.2 36.8 10.728 36.8 20 29.272 36.8 20 36.8zm2.8-22.4h-7.2v11.2h4.4v-3.2h2.8c2.648 0 4.8-2.152 4.8-4.8V19.2c0-2.648-2.152-4.8-4.8-4.8zm1.6 4.8c0 .884-.716 1.6-1.6 1.6h-2.8v-3.2h2.8c.884 0 1.6.716 1.6 1.6z"/></svg>
+          <span class="text-xs font-mono uppercase tracking-wider text-zinc-400 group-hover:text-zinc-200 transition-colors">Find us on Product Hunt</span>
+        </a>
+      </div>
     </div>
 
     <!-- Animated air trace terminal -->
@@ -598,11 +605,11 @@
       <div class="border border-brand-red/30 bg-brand-red/[0.03] p-7 flex flex-col">
         <div class="flex items-center justify-between mb-4">
           <span class="font-mono text-[11px] tracking-wider uppercase text-zinc-500">Surface 03</span>
-          <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">Coming Soon</span>
+          <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">Live</span>
         </div>
         <h3 class="text-xl font-bold mb-2 font-mono">AIR Cloud</h3>
         <p class="text-sm text-zinc-400 mb-5 leading-relaxed flex-1">
-          Hosted chain-of-custody. Multi-tenant dashboards. Court-supportable evidence packs. Where security, legal, compliance, and insurance teams actually work.
+          Hosted chain-of-custody. Multi-agent dashboards. SIEM integrations. Court-supportable evidence packs. Where security, legal, compliance, and insurance teams actually work.
         </p>
         <ul class="text-xs text-zinc-400 space-y-1.5 font-mono">
           <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5">›</span><span>Real-time agent dashboard + incident workflows</span></li>
