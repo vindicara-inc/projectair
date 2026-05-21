@@ -200,18 +200,21 @@
 
 <div class="glass-panel rounded-lg overflow-hidden">
   <!-- Tabs -->
-  <div class="border-b border-white/10 flex overflow-x-auto">
+  <div class="flex overflow-x-auto" style="border-bottom: 1px solid var(--border);">
     {#each FRAMEWORKS as framework}
       <button
         type="button"
-        class="px-4 sm:px-6 py-4 font-mono text-[11px] uppercase tracking-[0.18em] whitespace-nowrap transition-colors border-r border-white/10 last:border-r-0 {activeId ===
+        class="px-4 sm:px-6 py-4 font-mono text-[11px] uppercase tracking-[0.18em] whitespace-nowrap transition-colors {activeId ===
         framework.id
-          ? 'bg-white/5 text-white border-b-2 border-b-brand-red -mb-px'
-          : 'text-zinc-500 hover:text-white hover:bg-white/5'}"
+          ? 'bg-white/5 border-b-2 border-b-brand-red -mb-px'
+          : ''}"
+        style="{activeId === framework.id ? 'color: var(--text-primary);' : 'color: var(--text-muted);'} border-right: 1px solid var(--border);"
+        onmouseenter={(e) => { if (activeId !== framework.id) { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.backgroundColor = 'var(--glass)'; }}}
+        onmouseleave={(e) => { if (activeId !== framework.id) { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.backgroundColor = 'transparent'; }}}
         onclick={() => (activeId = framework.id)}
       >
         <span class="block">{framework.short}</span>
-        <span class="block text-[9px] text-zinc-600 font-sans normal-case tracking-normal mt-0.5">
+        <span class="block text-[9px] font-sans normal-case tracking-normal mt-0.5" style="color: var(--text-faint);">
           {framework.region}
         </span>
       </button>
@@ -220,24 +223,24 @@
 
   <div class="p-6 sm:p-8">
     <!-- Framework header -->
-    <div class="mb-8 pb-6 border-b border-white/5">
+    <div class="mb-8 pb-6" style="border-bottom: 1px solid var(--border-subtle);">
       <div class="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-red mb-2">
         {active.region}
       </div>
-      <h3 class="text-2xl sm:text-3xl font-bold text-white mb-3">{active.label}</h3>
-      <p class="text-zinc-400 leading-relaxed">{active.summary}</p>
+      <h3 class="text-2xl sm:text-3xl font-bold mb-3" style="color: var(--text-primary);">{active.label}</h3>
+      <p class="leading-relaxed" style="color: var(--text-muted);">{active.summary}</p>
     </div>
 
     <!-- Claims -->
     <div class="space-y-6">
       {#each active.claims as claim}
-        <div class="grid md:grid-cols-[1fr_1fr] gap-6 md:gap-8 pb-6 border-b border-white/5 last:border-b-0 last:pb-0">
+        <div class="grid md:grid-cols-[1fr_1fr] gap-6 md:gap-8 pb-6 last:pb-0" style="border-bottom: 1px solid var(--border-subtle);">
           <div>
-            <div class="font-mono text-[10px] uppercase tracking-wider text-zinc-500 mb-2">
+            <div class="font-mono text-[10px] uppercase tracking-wider mb-2" style="color: var(--text-muted);">
               The rule
             </div>
-            <div class="text-white font-semibold mb-2">{claim.title}</div>
-            <p class="text-zinc-400 text-sm leading-relaxed">{claim.body}</p>
+            <div class="font-semibold mb-2" style="color: var(--text-primary);">{claim.title}</div>
+            <p class="text-sm leading-relaxed" style="color: var(--text-muted);">{claim.body}</p>
             <a
               href={claim.sourceUrl}
               target="_blank"
@@ -245,14 +248,14 @@
               class="inline-flex items-center gap-1.5 mt-3 font-mono text-[11px] text-brand-cyan hover:text-white transition-colors"
             >
               {claim.sourceLabel}
-              <span aria-hidden="true">↗</span>
+              <span aria-hidden="true">&#8599;</span>
             </a>
           </div>
           <div class="border-l-2 border-brand-red/40 pl-6">
             <div class="font-mono text-[10px] uppercase tracking-wider text-brand-red mb-2">
               What AIR provides
             </div>
-            <p class="text-zinc-200 text-sm leading-relaxed">{claim.airProvides}</p>
+            <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">{claim.airProvides}</p>
           </div>
         </div>
       {/each}

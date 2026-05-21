@@ -111,12 +111,12 @@ ${entity}
   <div class="glass-panel rounded-lg p-6">
     <div class="flex items-center gap-2 mb-5">
       <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-red">inputs</span>
-      <span class="text-xs text-zinc-500">Your details fill the template live.</span>
+      <span class="text-xs" style="color: var(--text-muted);">Your details fill the template live.</span>
     </div>
 
     <div class="space-y-4">
       <div>
-        <label class="block font-mono text-[10px] uppercase tracking-wider text-zinc-400 mb-1.5" for="cg-name">
+        <label class="block font-mono text-[10px] uppercase tracking-wider mb-1.5" style="color: var(--text-muted);" for="cg-name">
           Custodian full name
         </label>
         <input
@@ -124,12 +124,13 @@ ${entity}
           type="text"
           bind:value={custodianName}
           placeholder="Jane Doe"
-          class="w-full bg-obsidian-lighter border border-white/10 focus:border-brand-red rounded px-3 py-2 text-sm font-mono text-white outline-none transition-colors"
+          class="w-full focus:border-brand-red rounded px-3 py-2 text-sm font-mono outline-none transition-colors"
+          style="background-color: var(--surface-overlay); border: 1px solid var(--border); color: var(--text-primary);"
         />
       </div>
 
       <div>
-        <label class="block font-mono text-[10px] uppercase tracking-wider text-zinc-400 mb-1.5" for="cg-title">
+        <label class="block font-mono text-[10px] uppercase tracking-wider mb-1.5" style="color: var(--text-muted);" for="cg-title">
           Custodian title
         </label>
         <input
@@ -137,12 +138,13 @@ ${entity}
           type="text"
           bind:value={custodianTitle}
           placeholder="Records Custodian"
-          class="w-full bg-obsidian-lighter border border-white/10 focus:border-brand-red rounded px-3 py-2 text-sm font-mono text-white outline-none transition-colors"
+          class="w-full focus:border-brand-red rounded px-3 py-2 text-sm font-mono outline-none transition-colors"
+          style="background-color: var(--surface-overlay); border: 1px solid var(--border); color: var(--text-primary);"
         />
       </div>
 
       <div>
-        <label class="block font-mono text-[10px] uppercase tracking-wider text-zinc-400 mb-1.5" for="cg-entity">
+        <label class="block font-mono text-[10px] uppercase tracking-wider mb-1.5" style="color: var(--text-muted);" for="cg-entity">
           Operator entity (legal name)
         </label>
         <input
@@ -150,12 +152,13 @@ ${entity}
           type="text"
           bind:value={entityName}
           placeholder="Acme Technologies, Inc."
-          class="w-full bg-obsidian-lighter border border-white/10 focus:border-brand-red rounded px-3 py-2 text-sm font-mono text-white outline-none transition-colors"
+          class="w-full focus:border-brand-red rounded px-3 py-2 text-sm font-mono outline-none transition-colors"
+          style="background-color: var(--surface-overlay); border: 1px solid var(--border); color: var(--text-primary);"
         />
       </div>
 
       <div>
-        <label class="block font-mono text-[10px] uppercase tracking-wider text-zinc-400 mb-1.5" for="cg-key">
+        <label class="block font-mono text-[10px] uppercase tracking-wider mb-1.5" style="color: var(--text-muted);" for="cg-key">
           Ed25519 public key (64 hex chars)
         </label>
         <input
@@ -163,13 +166,14 @@ ${entity}
           type="text"
           bind:value={publicKey}
           placeholder="7c3d9a1e4b8c2f5d7a3e9b1c4d6f8a2e5b7c9d1f3a5e7b9c1d3f5a7e9b1c3d5f"
-          class="w-full bg-obsidian-lighter border border-white/10 focus:border-brand-red rounded px-3 py-2 text-sm font-mono text-white outline-none transition-colors"
+          class="w-full focus:border-brand-red rounded px-3 py-2 text-sm font-mono outline-none transition-colors"
+          style="background-color: var(--surface-overlay); border: 1px solid var(--border); color: var(--text-primary);"
         />
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block font-mono text-[10px] uppercase tracking-wider text-zinc-400 mb-1.5" for="cg-jur">
+          <label class="block font-mono text-[10px] uppercase tracking-wider mb-1.5" style="color: var(--text-muted);" for="cg-jur">
             Jurisdiction
           </label>
           <input
@@ -177,11 +181,12 @@ ${entity}
             type="text"
             bind:value={jurisdiction}
             placeholder="California"
-            class="w-full bg-obsidian-lighter border border-white/10 focus:border-brand-red rounded px-3 py-2 text-sm font-mono text-white outline-none transition-colors"
+            class="w-full focus:border-brand-red rounded px-3 py-2 text-sm font-mono outline-none transition-colors"
+            style="background-color: var(--surface-overlay); border: 1px solid var(--border); color: var(--text-primary);"
           />
         </div>
         <div>
-          <label class="block font-mono text-[10px] uppercase tracking-wider text-zinc-400 mb-1.5" for="cg-count">
+          <label class="block font-mono text-[10px] uppercase tracking-wider mb-1.5" style="color: var(--text-muted);" for="cg-count">
             Verified record count
           </label>
           <input
@@ -189,13 +194,14 @@ ${entity}
             type="text"
             bind:value={recordCount}
             placeholder="247"
-            class="w-full bg-obsidian-lighter border border-white/10 focus:border-brand-red rounded px-3 py-2 text-sm font-mono text-white outline-none transition-colors"
+            class="w-full focus:border-brand-red rounded px-3 py-2 text-sm font-mono outline-none transition-colors"
+            style="background-color: var(--surface-overlay); border: 1px solid var(--border); color: var(--text-primary);"
           />
         </div>
       </div>
     </div>
 
-    <div class="mt-5 text-[11px] text-zinc-500 leading-relaxed">
+    <div class="mt-5 text-[11px] leading-relaxed" style="color: var(--text-muted);">
       This template is adapted from FRE 902(13). It is a starting point, not legal advice.
       Have qualified counsel review before you file or serve it.
     </div>
@@ -204,16 +210,18 @@ ${entity}
   <!-- Output -->
   <div class="glass-panel rounded-lg overflow-hidden flex flex-col">
     <div
-      class="border-b border-white/10 px-4 py-3 flex items-center justify-between bg-black/30"
+      class="px-4 py-3 flex items-center justify-between"
+      style="border-bottom: 1px solid var(--border); background-color: var(--glass);"
     >
-      <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+      <span class="font-mono text-[10px] uppercase tracking-[0.18em]" style="color: var(--text-muted);">
         fre-902-13-certification.md
       </span>
       <div class="flex gap-2">
         <button
           type="button"
           onclick={copyToClipboard}
-          class="font-mono text-[11px] uppercase tracking-wider px-3 py-1 border border-white/15 rounded hover:border-brand-red hover:text-brand-red transition-colors"
+          class="font-mono text-[11px] uppercase tracking-wider px-3 py-1 rounded hover:border-brand-red hover:text-brand-red transition-colors"
+          style="border: 1px solid var(--border);"
         >
           {copied ? 'copied' : 'copy'}
         </button>
@@ -227,6 +235,7 @@ ${entity}
       </div>
     </div>
     <pre
-      class="font-mono text-[11px] leading-relaxed text-zinc-300 p-4 overflow-auto max-h-[560px] whitespace-pre-wrap">{certification}</pre>
+      class="font-mono text-[11px] leading-relaxed p-4 overflow-auto max-h-[560px] whitespace-pre-wrap"
+      style="background: #12121a; color: #e4e4e7;">{certification}</pre>
   </div>
 </div>
