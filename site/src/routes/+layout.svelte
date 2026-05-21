@@ -21,6 +21,16 @@
 
 	<meta name="theme-color" content="#0a0a0f" />
 
+	{@html `<script>
+  (function(){
+    var t=localStorage.getItem('vindicara-theme');
+    if(!t){t=window.matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}
+    document.documentElement.setAttribute('data-theme',t);
+    var m=document.querySelector('meta[name="theme-color"]');
+    if(m)m.setAttribute('content',t==='dark'?'#0a0a0f':'#f0e6ef');
+  })();
+<\/script>`}
+
 	<!-- Organization + WebSite graph. Per-page schemas live in their own <svelte:head>. -->
 	{@html `<script type="application/ld+json">${JSON.stringify({
 		'@context': 'https://schema.org',
