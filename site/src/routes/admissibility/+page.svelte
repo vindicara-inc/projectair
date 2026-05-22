@@ -1,9 +1,13 @@
 <script lang="ts">
-  import vindicaraLogo from '$lib/assets/vindicara-logo.png';
+  import vindicaraLogoDay from '$lib/assets/vindicara-logo-day.png';
+  import vindicaraLogoNight from '$lib/assets/vindicara-logo-night.png';
+  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+  import { getTheme } from '$lib/theme.svelte';
   import ChainExplorer from '$lib/components/admissibility/ChainExplorer.svelte';
   import CertificationGenerator from '$lib/components/admissibility/CertificationGenerator.svelte';
   import FrameworkTabs from '$lib/components/admissibility/FrameworkTabs.svelte';
 
+  let logo = $derived(getTheme() === 'dark' ? vindicaraLogoNight : vindicaraLogoDay);
   let mobileMenuOpen = $state(false);
 
   function scrollTo(id: string) {
@@ -153,42 +157,46 @@
 </svelte:head>
 
 <!-- NAV -->
-<nav class="fixed top-0 w-full z-50 bg-obsidian/60 backdrop-blur-2xl border-b border-white/5">
+<nav class="fixed top-0 w-full z-50 backdrop-blur-2xl" style="background-color: color-mix(in srgb, var(--surface) 60%, transparent); border-bottom: 1px solid var(--border-subtle);">
   <div class="max-w-screen-2xl mx-auto px-6 flex items-center justify-between h-16">
     <a href="/" class="flex items-center gap-1">
-      <img src={vindicaraLogo} alt="Vindicara" class="h-10 w-auto mix-blend-screen" />
-      <span class="font-mono text-[10px] tracking-[0.18em] uppercase text-white border border-white/30 px-1.5 py-0.5 shadow-[0_0_10px_rgba(255,255,255,0.25)]">Project AIR™</span>
+      <img src={logo} alt="Vindicara" class="h-10 w-auto" />
+      <span class="font-mono text-[10px] tracking-[0.18em] uppercase px-1.5 py-0.5" style="color: var(--text-primary); border: 1px solid var(--border); box-shadow: 0 0 10px var(--badge-shadow);">Project AIR&#8482;</span>
     </a>
-    <div class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-      <button onclick={() => scrollTo('four-bars')} class="hover:text-white transition-colors cursor-pointer">The four bars</button>
-      <button onclick={() => scrollTo('chain')} class="hover:text-white transition-colors cursor-pointer">Chain explorer</button>
-      <button onclick={() => scrollTo('frameworks')} class="hover:text-white transition-colors cursor-pointer">Frameworks</button>
-      <button onclick={() => scrollTo('certification')} class="hover:text-white transition-colors cursor-pointer">Certification</button>
-      <a href="/pricing" class="hover:text-white transition-colors">Pricing</a>
-      <a href="/blog" class="hover:text-white transition-colors">Blog</a>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <button style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} onclick={() => scrollTo('four-bars')} class="transition-colors cursor-pointer">The four bars</button>
+      <button style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} onclick={() => scrollTo('chain')} class="transition-colors cursor-pointer">Chain explorer</button>
+      <button style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} onclick={() => scrollTo('frameworks')} class="transition-colors cursor-pointer">Frameworks</button>
+      <button style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} onclick={() => scrollTo('certification')} class="transition-colors cursor-pointer">Certification</button>
+      <a href="/pricing" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Pricing</a>
+      <a href="/blog" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Blog</a>
     </div>
     <div class="hidden md:flex items-center gap-3">
+      <ThemeToggle />
       <a href="https://github.com/vindicara-inc/projectair#readme" class="btn-secondary text-xs px-4 py-2">Docs</a>
       <a href="#certification" onclick={(e) => { e.preventDefault(); scrollTo('certification'); }} class="btn-primary text-xs px-4 py-2">Generate certification</a>
     </div>
-    <button class="md:hidden text-zinc-400 hover:text-white" onclick={() => (mobileMenuOpen = !mobileMenuOpen)}>
-      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        {#if mobileMenuOpen}
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        {:else}
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-        {/if}
-      </svg>
-    </button>
+    <div class="md:hidden flex items-center gap-2">
+      <ThemeToggle />
+      <button style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} onclick={() => (mobileMenuOpen = !mobileMenuOpen)}>
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          {#if mobileMenuOpen}
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          {:else}
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          {/if}
+        </svg>
+      </button>
+    </div>
   </div>
   {#if mobileMenuOpen}
-    <div class="md:hidden border-t border-white/5 bg-obsidian/95 backdrop-blur-2xl px-6 py-4 space-y-3">
-      <button onclick={() => scrollTo('four-bars')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">The four bars</button>
-      <button onclick={() => scrollTo('chain')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">Chain explorer</button>
-      <button onclick={() => scrollTo('frameworks')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">Frameworks</button>
-      <button onclick={() => scrollTo('certification')} class="block text-sm text-zinc-400 hover:text-white w-full text-left">Certification</button>
-      <a href="/pricing" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Pricing</a>
-      <a href="/blog" class="block text-sm text-zinc-400 hover:text-white w-full text-left">Blog</a>
+    <div class="md:hidden backdrop-blur-2xl px-6 py-4 space-y-3" style="border-top: 1px solid var(--border-subtle); background-color: color-mix(in srgb, var(--surface) 95%, transparent);">
+      <button onclick={() => scrollTo('four-bars')} style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">The four bars</button>
+      <button onclick={() => scrollTo('chain')} style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Chain explorer</button>
+      <button onclick={() => scrollTo('frameworks')} style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Frameworks</button>
+      <button onclick={() => scrollTo('certification')} style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Certification</button>
+      <a href="/pricing" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Pricing</a>
+      <a href="/blog" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Blog</a>
     </div>
   {/if}
 </nav>
@@ -208,7 +216,7 @@
           <br />
           <span class="text-gradient-brand">Admissible by design.</span>
         </h1>
-        <p class="text-lg text-zinc-400 mt-6 leading-relaxed max-w-2xl">
+        <p class="text-lg mt-6 leading-relaxed max-w-2xl" style="color: var(--text-muted);">
           Your agent took an action. Something went wrong. Prevention tools tell you you tried to stop it. Project AIR tells you what happened, proves the record is untampered, and gets the proof accepted as evidence.
         </p>
         <div class="flex flex-col sm:flex-row gap-3 mt-8">
@@ -220,14 +228,14 @@
           </button>
           <button type="button" onclick={() => scrollTo('chain')} class="btn-secondary">See the chain verify itself</button>
         </div>
-        <div class="mt-6 text-xs text-zinc-500 leading-relaxed max-w-xl border-l-2 border-white/10 pl-4">
+        <div class="mt-6 text-xs leading-relaxed max-w-xl pl-4" style="color: var(--text-muted); border-left: 2px solid var(--border);">
           Technical documentation, not legal advice. Admissibility is decided by the court hearing the matter. Consult qualified counsel before relying on Project AIR records in any legal proceeding.
         </div>
       </div>
 
       <!-- Hero terminal -->
-      <div class="glass-panel rounded-xl overflow-hidden glow-red">
-        <div class="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-black/40">
+      <div class="dark-embed rounded-xl overflow-hidden glow-red">
+        <div class="flex items-center gap-2 px-4 py-3 bg-black/40" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
           <span class="w-3 h-3 rounded-full bg-brand-red/80"></span>
           <span class="w-3 h-3 rounded-full bg-amber-500/60"></span>
           <span class="w-3 h-3 rounded-full bg-green-500/60"></span>
@@ -247,14 +255,14 @@
 </section>
 
 <!-- THE FOUR BARS -->
-<section id="four-bars" class="py-20 px-6 border-t border-white/5">
+<section id="four-bars" class="py-20 px-6" style="border-top: 1px solid var(--border-subtle);">
   <div class="max-w-screen-xl mx-auto">
     <div class="max-w-3xl mb-12">
       <div class="font-mono text-[10px] uppercase tracking-[0.22em] text-brand-red mb-3">The framework</div>
       <h2 class="text-3xl sm:text-4xl font-bold leading-tight">
         Four bars. Evidence clears all four, or it is not evidence.
       </h2>
-      <p class="text-zinc-400 mt-4 leading-relaxed">
+      <p class="mt-4 leading-relaxed" style="color: var(--text-muted);">
         A court, a regulator, an auditor, an insurance loss adjuster. Every party that looks at your logs asks the same four questions. Project AIR answers the cryptographic ones by construction. You handle the procedural one. The line is explicit, not implied.
       </p>
     </div>
@@ -262,27 +270,27 @@
     <div class="grid md:grid-cols-2 gap-4">
       {#each FOUR_BARS as bar, i}
         <div class="glass-panel rounded-lg p-6 relative overflow-hidden">
-          <div class="absolute top-0 right-0 font-mono text-[120px] leading-none text-white/[0.02] pointer-events-none select-none">
+          <div class="absolute top-0 right-0 font-mono text-[120px] leading-none pointer-events-none select-none" style="color: color-mix(in srgb, var(--text-primary) 2%, transparent);">
             0{i + 1}
           </div>
           <div class="relative">
             <div class="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-red mb-2">
               Bar {i + 1}
             </div>
-            <h3 class="text-xl font-bold text-white mb-1">{bar.label}</h3>
-            <p class="text-sm text-zinc-500 italic mb-5">{bar.short}</p>
+            <h3 class="text-xl font-bold mb-1" style="color: var(--text-primary);">{bar.label}</h3>
+            <p class="text-sm italic mb-5" style="color: var(--text-muted);">{bar.short}</p>
             <div class="space-y-3 text-sm">
               <div>
                 <span class="inline-block font-mono text-[10px] uppercase tracking-wider text-green-400 border border-green-500/30 bg-green-500/5 rounded px-1.5 py-0.5 mr-2">
                   AIR
                 </span>
-                <span class="text-zinc-200 leading-relaxed">{bar.airLine}</span>
+                <span class="leading-relaxed" style="color: var(--text-secondary);">{bar.airLine}</span>
               </div>
               <div>
                 <span class="inline-block font-mono text-[10px] uppercase tracking-wider text-amber-400 border border-amber-500/30 bg-amber-500/5 rounded px-1.5 py-0.5 mr-2">
                   You
                 </span>
-                <span class="text-zinc-400 leading-relaxed">{bar.operatorLine}</span>
+                <span class="leading-relaxed" style="color: var(--text-muted);">{bar.operatorLine}</span>
               </div>
             </div>
           </div>
@@ -293,21 +301,21 @@
 </section>
 
 <!-- CHAIN EXPLORER -->
-<section id="chain" class="py-20 px-6 border-t border-white/5 bg-gradient-to-b from-transparent via-brand-red/[0.02] to-transparent">
+<section id="chain" class="py-20 px-6 bg-gradient-to-b from-transparent via-brand-red/[0.02] to-transparent" style="border-top: 1px solid var(--border-subtle);">
   <div class="max-w-screen-xl mx-auto">
     <div class="max-w-3xl mb-10">
       <div class="font-mono text-[10px] uppercase tracking-[0.22em] text-brand-red mb-3">Integrity, live</div>
       <h2 class="text-3xl sm:text-4xl font-bold leading-tight">
         Tamper with the chain. Watch verification break at the exact step.
       </h2>
-      <p class="text-zinc-400 mt-4 leading-relaxed">
+      <p class="mt-4 leading-relaxed" style="color: var(--text-muted);">
         Every Project AIR record is a Signed Intent Capsule: BLAKE3 content hash, Ed25519 signature over the link to the previous record. Change any byte, anywhere, and the verifier reports the exact record where the chain snaps.
       </p>
     </div>
 
     <ChainExplorer />
 
-    <div class="mt-6 grid sm:grid-cols-3 gap-3 text-xs font-mono text-zinc-500">
+    <div class="mt-6 grid sm:grid-cols-3 gap-3 text-xs font-mono" style="color: var(--text-muted);">
       <div class="glass-panel rounded p-3">
         <span class="text-green-400">[ok]</span> signature verifies, payload hash matches, chain intact upstream.
       </div>
@@ -315,43 +323,43 @@
         <span class="text-brand-red">[content mismatch]</span> the payload was altered after signing. Detected deterministically.
       </div>
       <div class="glass-panel rounded p-3">
-        <span class="text-zinc-400">[unverifiable]</span> upstream break means downstream records cannot be trusted.
+        <span style="color: var(--text-secondary);">[unverifiable]</span> upstream break means downstream records cannot be trusted.
       </div>
     </div>
   </div>
 </section>
 
 <!-- THE RECORD -->
-<section class="py-20 px-6 border-t border-white/5">
+<section class="py-20 px-6" style="border-top: 1px solid var(--border-subtle);">
   <div class="max-w-screen-xl mx-auto grid lg:grid-cols-[1fr_1.2fr] gap-10 items-start">
     <div>
       <div class="font-mono text-[10px] uppercase tracking-[0.22em] text-brand-red mb-3">On-disk record shape (AgDR v0.2)</div>
       <h2 class="text-3xl sm:text-4xl font-bold leading-tight mb-5">
         Every record is a Signed Intent Capsule.
       </h2>
-      <p class="text-zinc-400 leading-relaxed">
+      <p class="leading-relaxed" style="color: var(--text-muted);">
         OWASP's Agentic Security Initiative names "Signed Intent Capsule" as the emerging pattern for binding an agent's declared goal, constraints, and context to each execution cycle in a signed envelope. Project AIR writes that envelope for every agent step.
       </p>
-      <p class="text-zinc-400 leading-relaxed mt-4">
+      <p class="leading-relaxed mt-4" style="color: var(--text-muted);">
         The format is AgDR-compatible: the same shape consumed by the open accountability.ai spec, so downstream verifiers, SIEMs, and custody chains work without proprietary tooling. Three primitives combine to produce the integrity guarantee.
       </p>
-      <ul class="mt-6 space-y-3 text-sm text-zinc-300">
+      <ul class="mt-6 space-y-3 text-sm" style="color: var(--text-secondary);">
         <li class="flex gap-3">
           <span class="font-mono text-[10px] uppercase tracking-wider text-brand-red mt-1 shrink-0">01</span>
-          <span><strong class="text-white">BLAKE3 content hashing.</strong> Canonicalised payload, 256-bit digest, reproducible offline.</span>
+          <span><strong style="color: var(--text-primary);">BLAKE3 content hashing.</strong> Canonicalised payload, 256-bit digest, reproducible offline.</span>
         </li>
         <li class="flex gap-3">
           <span class="font-mono text-[10px] uppercase tracking-wider text-brand-red mt-1 shrink-0">02</span>
-          <span><strong class="text-white">Ed25519 digital signatures.</strong> RFC 8032. Deterministic, batch-verifiable, approx. 128 bits of security.</span>
+          <span><strong style="color: var(--text-primary);">Ed25519 digital signatures.</strong> RFC 8032. Deterministic, batch-verifiable, approx. 128 bits of security.</span>
         </li>
         <li class="flex gap-3">
           <span class="font-mono text-[10px] uppercase tracking-wider text-brand-red mt-1 shrink-0">03</span>
-          <span><strong class="text-white">Forward-chained integrity.</strong> Each signature covers the previous record's hash. A single altered record invalidates every record downstream.</span>
+          <span><strong style="color: var(--text-primary);">Forward-chained integrity.</strong> Each signature covers the previous record's hash. A single altered record invalidates every record downstream.</span>
         </li>
       </ul>
     </div>
 
-    <div class="glass-panel rounded-lg p-5 overflow-hidden">
+    <div class="dark-embed rounded-lg p-5 overflow-hidden">
       <div class="flex items-center gap-2 mb-3">
         <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">record.json</span>
       </div>
@@ -378,14 +386,14 @@
 </section>
 
 <!-- FRAMEWORK TABS -->
-<section id="frameworks" class="py-20 px-6 border-t border-white/5">
+<section id="frameworks" class="py-20 px-6" style="border-top: 1px solid var(--border-subtle);">
   <div class="max-w-screen-xl mx-auto">
     <div class="max-w-3xl mb-10">
       <div class="font-mono text-[10px] uppercase tracking-[0.22em] text-brand-red mb-3">Mapping to evidentiary frameworks</div>
       <h2 class="text-3xl sm:text-4xl font-bold leading-tight">
         The rules that will actually apply. And how Project AIR clears them.
       </h2>
-      <p class="text-zinc-400 mt-4 leading-relaxed">
+      <p class="mt-4 leading-relaxed" style="color: var(--text-muted);">
         Every claim on this page is grounded in published law. Click through the jurisdictions. Each rule gets a concrete citation and a specific statement of what Project AIR does to satisfy it.
       </p>
     </div>
@@ -395,14 +403,14 @@
 </section>
 
 <!-- CERTIFICATION GENERATOR (primary CTA) -->
-<section id="certification" class="py-24 px-6 border-t border-white/5 bg-gradient-to-b from-transparent via-brand-red/[0.04] to-transparent">
+<section id="certification" class="py-24 px-6 bg-gradient-to-b from-transparent via-brand-red/[0.04] to-transparent" style="border-top: 1px solid var(--border-subtle);">
   <div class="max-w-screen-xl mx-auto">
     <div class="max-w-3xl mb-10">
       <div class="font-mono text-[10px] uppercase tracking-[0.22em] text-brand-red mb-3">The hook</div>
       <h2 class="text-3xl sm:text-5xl font-bold leading-tight">
         Generate your FRE 902(13) certification.
       </h2>
-      <p class="text-zinc-400 mt-4 leading-relaxed text-lg">
+      <p class="mt-4 leading-relaxed text-lg" style="color: var(--text-muted);">
         The declaration that turns a log file into self-authenticating evidence. Fill in the fields. Get a signed-ready template. Paste into Word, hand to counsel, file with your exhibit.
       </p>
     </div>
@@ -412,19 +420,19 @@
     <div class="mt-8 grid md:grid-cols-3 gap-4 text-sm">
       <div class="glass-panel rounded-lg p-5">
         <div class="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-red mb-2">Template only</div>
-        <p class="text-zinc-400 leading-relaxed">
+        <p class="leading-relaxed" style="color: var(--text-muted);">
           Adapted from the form contemplated by FRE 902(13) and 902(11). It is a starting point, not legal advice.
         </p>
       </div>
       <div class="glass-panel rounded-lg p-5">
         <div class="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-red mb-2">Have counsel review</div>
-        <p class="text-zinc-400 leading-relaxed">
+        <p class="leading-relaxed" style="color: var(--text-muted);">
           Procedural requirements vary by jurisdiction and case posture. Qualified counsel should review before you sign or file.
         </p>
       </div>
       <div class="glass-panel rounded-lg p-5">
         <div class="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-red mb-2">Chain of custody</div>
-        <p class="text-zinc-400 leading-relaxed">
+        <p class="leading-relaxed" style="color: var(--text-muted);">
           The certification describes the system. The operator still documents key management, log retention, and access controls.
         </p>
       </div>
@@ -433,14 +441,14 @@
 </section>
 
 <!-- WE PROVIDE / YOU PROVIDE -->
-<section class="py-20 px-6 border-t border-white/5">
+<section class="py-20 px-6" style="border-top: 1px solid var(--border-subtle);">
   <div class="max-w-screen-xl mx-auto">
     <div class="max-w-3xl mb-12">
       <div class="font-mono text-[10px] uppercase tracking-[0.22em] text-brand-red mb-3">Chain of custody</div>
       <h2 class="text-3xl sm:text-4xl font-bold leading-tight">
         What Project AIR provides. What you provide.
       </h2>
-      <p class="text-zinc-400 mt-4 leading-relaxed">
+      <p class="mt-4 leading-relaxed" style="color: var(--text-muted);">
         Cryptography prevents in-file tampering. It does not prevent whole-file substitution, key misuse, or retention failure. The line is explicit.
       </p>
     </div>
@@ -451,9 +459,9 @@
           <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-green-400 border border-green-500/30 bg-green-500/5 rounded px-2 py-0.5">
             Project AIR
           </span>
-          <span class="text-zinc-400 text-sm">provides</span>
+          <span class="text-sm" style="color: var(--text-muted);">provides</span>
         </div>
-        <ul class="space-y-4 text-sm text-zinc-300">
+        <ul class="space-y-4 text-sm" style="color: var(--text-secondary);">
           {#each [
             ['Integrity', 'Any alteration within a chain breaks verification. Detected deterministically by air trace.'],
             ['Authentication', 'Each record carries the signer\'s public key. Any party can verify offline.'],
@@ -464,8 +472,8 @@
             <li class="flex gap-3">
               <span class="text-green-400 shrink-0 font-mono">✓</span>
               <span>
-                <strong class="text-white">{label}.</strong>
-                <span class="text-zinc-400">{body}</span>
+                <strong style="color: var(--text-primary);">{label}.</strong>
+                <span style="color: var(--text-muted);">{body}</span>
               </span>
             </li>
           {/each}
@@ -477,9 +485,9 @@
           <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-amber-400 border border-amber-500/30 bg-amber-500/5 rounded px-2 py-0.5">
             Operator
           </span>
-          <span class="text-zinc-400 text-sm">provides</span>
+          <span class="text-sm" style="color: var(--text-muted);">provides</span>
         </div>
-        <ul class="space-y-4 text-sm text-zinc-300">
+        <ul class="space-y-4 text-sm" style="color: var(--text-secondary);">
           {#each [
             ['Key management', 'Who generates the signing key, where it is stored, who has access, rotation, revocation. Document in a key management policy.'],
             ['Log storage and preservation', 'Append-only storage (S3 Object Lock, GCS retention locks, WORM hardware). Retention policy documented.'],
@@ -491,8 +499,8 @@
             <li class="flex gap-3">
               <span class="text-amber-400 shrink-0 font-mono">•</span>
               <span>
-                <strong class="text-white">{label}.</strong>
-                <span class="text-zinc-400">{body}</span>
+                <strong style="color: var(--text-primary);">{label}.</strong>
+                <span style="color: var(--text-muted);">{body}</span>
               </span>
             </li>
           {/each}
@@ -503,44 +511,44 @@
 </section>
 
 <!-- CRYPTOGRAPHIC PRIMITIVES -->
-<section class="py-20 px-6 border-t border-white/5">
+<section class="py-20 px-6" style="border-top: 1px solid var(--border-subtle);">
   <div class="max-w-screen-xl mx-auto">
     <div class="max-w-3xl mb-10">
       <div class="font-mono text-[10px] uppercase tracking-[0.22em] text-brand-red mb-3">Primitives</div>
       <h2 class="text-3xl sm:text-4xl font-bold leading-tight">
         Open standards, audited choices.
       </h2>
-      <p class="text-zinc-400 mt-4 leading-relaxed">
+      <p class="mt-4 leading-relaxed" style="color: var(--text-muted);">
         No pre-image attack, collision attack, or signature forgery is known against Ed25519 or BLAKE3 at the time of this writing. Both are conservative, audited, widely deployed choices.
       </p>
     </div>
 
     <div class="glass-panel rounded-lg overflow-hidden">
-      <div class="hidden md:grid grid-cols-[1fr_1fr_2fr] px-6 py-3 border-b border-white/10 bg-black/30 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+      <div class="hidden md:grid grid-cols-[1fr_1fr_2fr] px-6 py-3 font-mono text-[10px] uppercase tracking-[0.18em]" style="border-bottom: 1px solid var(--border); background-color: var(--glass); color: var(--text-muted);">
         <div>Primitive</div>
         <div>Specification</div>
         <div>Security note</div>
       </div>
       {#each CRYPTO_PRIMITIVES as prim, i}
         <div
-          class="grid md:grid-cols-[1fr_1fr_2fr] gap-3 md:gap-6 px-6 py-5 text-sm {i <
-          CRYPTO_PRIMITIVES.length - 1
-            ? 'border-b border-white/5'
-            : ''}"
+          class="grid md:grid-cols-[1fr_1fr_2fr] gap-3 md:gap-6 px-6 py-5 text-sm"
+          style={i < CRYPTO_PRIMITIVES.length - 1 ? 'border-bottom: 1px solid var(--border-subtle);' : ''}
         >
-          <div class="font-mono text-white">{prim.primitive}</div>
+          <div class="font-mono" style="color: var(--text-primary);">{prim.primitive}</div>
           <div>
             <a
               href={prim.url}
               target="_blank"
               rel="noopener noreferrer"
-              class="font-mono text-brand-cyan hover:text-white transition-colors inline-flex items-center gap-1"
+              class="font-mono text-brand-cyan transition-colors inline-flex items-center gap-1"
+            onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+            onmouseleave={(e) => e.currentTarget.style.color = ''}
             >
               {prim.spec}
               <span aria-hidden="true">↗</span>
             </a>
           </div>
-          <div class="text-zinc-400 leading-relaxed">{prim.security}</div>
+          <div class="leading-relaxed" style="color: var(--text-muted);">{prim.security}</div>
         </div>
       {/each}
     </div>
@@ -548,14 +556,14 @@
 </section>
 
 <!-- LIMITATIONS -->
-<section class="py-20 px-6 border-t border-white/5 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent">
+<section class="py-20 px-6 bg-gradient-to-b from-transparent via-transparent to-transparent" style="border-top: 1px solid var(--border-subtle);">
   <div class="max-w-screen-xl mx-auto">
     <div class="max-w-3xl mb-10">
       <div class="font-mono text-[10px] uppercase tracking-[0.22em] text-brand-red mb-3">Honest disclosures</div>
       <h2 class="text-3xl sm:text-4xl font-bold leading-tight">
         Limitations we own, out loud.
       </h2>
-      <p class="text-zinc-400 mt-4 leading-relaxed">
+      <p class="mt-4 leading-relaxed" style="color: var(--text-muted);">
         A security product that overclaims is worse than useless. Here is what Project AIR does not do.
       </p>
     </div>
@@ -570,9 +578,9 @@
         ['Key compromise is operational', 'Past signatures remain valid (the attacker cannot retroactively forge). Records produced between compromise and revocation are attacker-controlled. Standard opsec applies.'],
       ] as [label, body]}
         <div class="glass-panel rounded-lg p-5">
-          <div class="font-mono text-[10px] uppercase tracking-wider text-zinc-500 mb-2">Disclosure</div>
-          <h3 class="text-white font-semibold mb-2">{label}</h3>
-          <p class="text-sm text-zinc-400 leading-relaxed">{body}</p>
+          <div class="font-mono text-[10px] uppercase tracking-wider mb-2" style="color: var(--text-muted);">Disclosure</div>
+          <h3 class="font-semibold mb-2" style="color: var(--text-primary);">{label}</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--text-muted);">{body}</p>
         </div>
       {/each}
     </div>
@@ -580,7 +588,7 @@
 </section>
 
 <!-- CTA -->
-<section class="py-24 px-6 border-t border-white/5">
+<section class="py-24 px-6" style="border-top: 1px solid var(--border-subtle);">
   <div class="max-w-screen-xl mx-auto">
     <div class="glass-panel rounded-xl p-8 sm:p-12 glow-red relative overflow-hidden">
       <div class="absolute inset-0 bg-gradient-to-br from-brand-red/10 via-transparent to-transparent pointer-events-none"></div>
@@ -590,7 +598,7 @@
           <h2 class="text-3xl sm:text-4xl font-bold leading-tight mb-4">
             Admissibility by design. Everything else is operations.
           </h2>
-          <p class="text-zinc-400 leading-relaxed">
+          <p class="leading-relaxed" style="color: var(--text-muted);">
             Instrument your agent, write the chain, hand your custodian a pre-filled certification. Read the EU AI Act post-market monitoring playbook, or pick the pricing tier that covers your stack.
           </p>
         </div>
@@ -605,7 +613,10 @@
             href="https://github.com/vindicara-inc/projectair"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-center font-mono text-[11px] uppercase tracking-wider text-zinc-500 hover:text-white transition-colors pt-2"
+            class="text-center font-mono text-[11px] uppercase tracking-wider transition-colors pt-2"
+            style="color: var(--text-muted);"
+            onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+            onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
           >
             Source: github.com/vindicara-inc/projectair ↗
           </a>
@@ -613,11 +624,11 @@
       </div>
 
       <!-- pip install bar -->
-      <div class="relative mt-8 pt-6 border-t border-white/10">
-        <div class="font-mono text-[11px] text-zinc-500 mb-2">One line to instrument:</div>
+      <div class="relative mt-8 pt-6" style="border-top: 1px solid var(--border);">
+        <div class="font-mono text-[11px] mb-2" style="color: var(--text-muted);">One line to instrument:</div>
         <div class="code-block flex items-center justify-between gap-3">
-          <span class="text-zinc-300"><span class="text-brand-red">$</span> pip install projectair</span>
-          <span class="font-mono text-[10px] uppercase tracking-wider text-zinc-600">v0.2.4 · MIT</span>
+          <span style="color: var(--text-secondary);"><span class="text-brand-red">$</span> pip install projectair</span>
+          <span class="font-mono text-[10px] uppercase tracking-wider" style="color: var(--text-faint);">v0.2.4 · MIT</span>
         </div>
       </div>
     </div>
@@ -625,54 +636,54 @@
 </section>
 
 <!-- FOOTER -->
-<footer class="w-full border-t border-white/5 bg-obsidian relative z-20">
+<footer class="w-full relative z-20" style="border-top: 1px solid var(--border-subtle); background-color: var(--surface);">
   <div class="max-w-screen-xl mx-auto px-6 py-14">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
       <div class="col-span-2 md:col-span-1">
         <div class="flex items-center gap-1 mb-4">
-          <img src={vindicaraLogo} alt="Vindicara" class="h-10 w-auto mix-blend-screen" />
-          <span class="font-mono text-[10px] tracking-[0.18em] uppercase text-white border border-white/30 px-1.5 py-0.5 shadow-[0_0_10px_rgba(255,255,255,0.25)]">Project AIR™</span>
+          <img src={logo} alt="Vindicara" class="h-10 w-auto" />
+          <span class="font-mono text-[10px] tracking-[0.18em] uppercase px-1.5 py-0.5" style="color: var(--text-primary); border: 1px solid var(--border); box-shadow: 0 0 10px var(--badge-shadow);">Project AIR™</span>
         </div>
-        <p class="text-sm text-zinc-500 leading-relaxed">
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">
           AI Incident Response. Forensic reconstruction, signed evidence, and containment for autonomous agents.
         </p>
       </div>
       <div>
-        <h4 class="text-sm font-semibold mb-4">Admissibility</h4>
-        <ul class="space-y-2 text-sm text-zinc-500">
-          <li><button onclick={() => scrollTo('four-bars')} class="hover:text-white transition-colors">The four bars</button></li>
-          <li><button onclick={() => scrollTo('chain')} class="hover:text-white transition-colors">Chain explorer</button></li>
-          <li><button onclick={() => scrollTo('frameworks')} class="hover:text-white transition-colors">Frameworks</button></li>
-          <li><button onclick={() => scrollTo('certification')} class="hover:text-white transition-colors">FRE 902(13) template</button></li>
+        <h4 class="text-sm font-semibold mb-4" style="color: var(--text-primary);">Admissibility</h4>
+        <ul class="space-y-2 text-sm" style="color: var(--text-muted);">
+          <li><button onclick={() => scrollTo('four-bars')} class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>The four bars</button></li>
+          <li><button onclick={() => scrollTo('chain')} class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>Chain explorer</button></li>
+          <li><button onclick={() => scrollTo('frameworks')} class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>Frameworks</button></li>
+          <li><button onclick={() => scrollTo('certification')} class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>FRE 902(13) template</button></li>
         </ul>
       </div>
       <div>
-        <h4 class="text-sm font-semibold mb-4">Product</h4>
-        <ul class="space-y-2 text-sm text-zinc-500">
-          <li><a href="/" class="hover:text-white transition-colors">Home</a></li>
-          <li><a href="/pricing" class="hover:text-white transition-colors">Pricing</a></li>
-          <li><a href="/blog" class="hover:text-white transition-colors">Blog</a></li>
-          <li><a href="https://github.com/vindicara-inc/projectair#readme" class="hover:text-white transition-colors">Docs</a></li>
+        <h4 class="text-sm font-semibold mb-4" style="color: var(--text-primary);">Product</h4>
+        <ul class="space-y-2 text-sm" style="color: var(--text-muted);">
+          <li><a href="/" class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>Home</a></li>
+          <li><a href="/pricing" class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>Pricing</a></li>
+          <li><a href="/blog" class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>Blog</a></li>
+          <li><a href="https://github.com/vindicara-inc/projectair#readme" class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>Docs</a></li>
         </ul>
       </div>
       <div>
-        <h4 class="text-sm font-semibold mb-4">Company</h4>
-        <ul class="space-y-2 text-sm text-zinc-500">
-          <li><a href="mailto:Kevin.Minn@vindicara.io" class="hover:text-white transition-colors">Kevin.Minn@vindicara.io</a></li>
-          <li><a href="mailto:legal@vindicara.io" class="hover:text-white transition-colors">legal@vindicara.io</a></li>
-          <li><a href="mailto:security@vindicara.io" class="hover:text-white transition-colors">security@vindicara.io</a></li>
-          <li><a href="https://github.com/vindicara-inc/projectair" class="hover:text-white transition-colors">GitHub</a></li>
+        <h4 class="text-sm font-semibold mb-4" style="color: var(--text-primary);">Company</h4>
+        <ul class="space-y-2 text-sm" style="color: var(--text-muted);">
+          <li><a href="mailto:Kevin.Minn@vindicara.io" class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>Kevin.Minn@vindicara.io</a></li>
+          <li><a href="mailto:legal@vindicara.io" class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>legal@vindicara.io</a></li>
+          <li><a href="mailto:security@vindicara.io" class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>security@vindicara.io</a></li>
+          <li><a href="https://github.com/vindicara-inc/projectair" class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>GitHub</a></li>
         </ul>
       </div>
     </div>
-    <div class="mt-12 pt-8 border-t border-white/5 flex items-center gap-4">
+    <div class="mt-12 pt-8 flex items-center gap-4" style="border-top: 1px solid var(--border-subtle);">
       <img src="/nvidia-inception-program-badge.svg" alt="NVIDIA Inception program member" class="h-8 w-auto" />
-      <p class="text-xs text-zinc-500">Vindicara is a member of the NVIDIA Inception program.</p>
+      <p class="text-xs" style="color: var(--text-muted);">Vindicara is a member of the NVIDIA Inception program.</p>
     </div>
 
     <div class="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-      <p class="text-xs text-zinc-600">&copy; 2026 Vindicara, Inc. · AI Incident Response.</p>
-      <p class="text-xs text-zinc-600">Technical documentation. Not legal advice.</p>
+      <p class="text-xs" style="color: var(--text-faint);">&copy; 2026 Vindicara, Inc. · AI Incident Response.</p>
+      <p class="text-xs" style="color: var(--text-faint);">Technical documentation. Not legal advice.</p>
     </div>
   </div>
 </footer>
