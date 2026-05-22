@@ -1,5 +1,8 @@
 <script lang="ts">
-  import vindicaraLogo from '$lib/assets/vindicara-logo.png';
+  import vindicaraLogoDay from '$lib/assets/vindicara-logo-day.png';
+  import vindicaraLogoNight from '$lib/assets/vindicara-logo-night.png';
+  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+
 
   const industries = [
     {
@@ -28,19 +31,20 @@
   <meta name="description" content="Industry-specific forensic evidence for AI agents. Healthcare, financial services, government." />
 </svelte:head>
 
-<nav class="fixed top-0 w-full z-50 bg-obsidian/60 backdrop-blur-2xl border-b border-white/5">
+<nav class="fixed top-0 w-full z-50 backdrop-blur-2xl" style="background-color: color-mix(in srgb, var(--surface) 60%, transparent); border-bottom: 1px solid var(--border-subtle);">
   <div class="max-w-screen-2xl mx-auto px-6 flex items-center justify-between h-16">
     <a href="/" class="flex items-center gap-1">
-      <img src={vindicaraLogo} alt="Vindicara" class="h-10 w-auto mix-blend-screen" />
+      <img src={vindicaraLogoNight} alt="Vindicara" class="h-10 w-auto logo-night mix-blend-screen" /><img src={vindicaraLogoDay} alt="Vindicara" class="h-10 w-auto logo-day" />
     </a>
-    <div class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-      <a href="/solutions" class="text-white transition-colors">Solutions</a>
-      <a href="/pricing" class="hover:text-white transition-colors">Pricing</a>
-      <a href="/blog" class="hover:text-white transition-colors">Blog</a>
-      <a href="/get-started" class="hover:text-white transition-colors">Get Started</a>
-      <a href="/dashboard" class="hover:text-white transition-colors">Dashboard</a>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <a href="/solutions" style="color: var(--text-primary);" class="transition-colors">Solutions</a>
+      <a href="/pricing" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Pricing</a>
+      <a href="/blog" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Blog</a>
+      <a href="/get-started" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Get Started</a>
+      <a href="/dashboard" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Dashboard</a>
     </div>
     <div class="hidden md:flex items-center gap-3">
+      <ThemeToggle />
       <a href="/get-started" class="btn-primary text-xs px-4 py-2">Get Started</a>
     </div>
   </div>
@@ -52,7 +56,7 @@
     <h1 class="text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
       Forensic evidence<br />for every industry
     </h1>
-    <p class="text-xl text-zinc-400 max-w-2xl mb-20">
+    <p class="text-xl max-w-2xl mb-20" style="color: var(--text-muted);">
       AI agents operate in regulated environments. Project AIR provides the cryptographically signed audit trail that proves compliance, detects threats, and survives legal scrutiny.
     </p>
 
@@ -64,13 +68,13 @@
         >
           <p class="text-brand-red text-xs font-mono uppercase tracking-wider mb-2">{industry.tagline}</p>
           <h2 class="text-2xl font-bold mb-3 group-hover:text-brand-red transition-colors">{industry.name}</h2>
-          <p class="text-zinc-400 leading-relaxed">{industry.description}</p>
+          <p class="leading-relaxed" style="color: var(--text-muted);">{industry.description}</p>
         </a>
       {/each}
     </div>
 
     <div class="mt-20 text-center">
-      <p class="text-zinc-500 text-sm mb-6">Works with any AI framework. Install in under 60 seconds.</p>
+      <p class="text-sm mb-6" style="color: var(--text-muted);">Works with any AI framework. Install in under 60 seconds.</p>
       <div class="flex items-center justify-center gap-4">
         <a href="/get-started" class="btn-primary text-sm px-8 py-3">Get Started</a>
         <a href="/pricing" class="btn-secondary text-sm px-8 py-3">View Pricing</a>

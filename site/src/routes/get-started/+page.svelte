@@ -2,9 +2,7 @@
   import vindicaraLogoDay from '$lib/assets/vindicara-logo-day.png';
   import vindicaraLogoNight from '$lib/assets/vindicara-logo-night.png';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-  import { getTheme } from '$lib/theme.svelte';
 
-  let logo = $derived(getTheme() === 'dark' ? vindicaraLogoNight : vindicaraLogoDay);
 
   let copiedPip = $state(false);
   let copiedPipx = $state(false);
@@ -45,7 +43,7 @@
 <nav class="fixed top-0 w-full z-50 backdrop-blur-2xl" style="background-color: color-mix(in srgb, var(--surface) 60%, transparent); border-bottom: 1px solid var(--border-subtle);">
   <div class="max-w-screen-2xl mx-auto px-6 flex items-center justify-between h-16">
     <a href="/" class="flex items-center gap-1">
-      <img src={logo} alt="Vindicara" class="h-10 w-auto" />
+      <img src={vindicaraLogoNight} alt="Vindicara" class="h-10 w-auto logo-night mix-blend-screen" /><img src={vindicaraLogoDay} alt="Vindicara" class="h-10 w-auto logo-day" />
       <span class="font-mono text-[10px] tracking-[0.18em] uppercase px-1.5 py-0.5" style="color: var(--text-primary); border: 1px solid var(--border); box-shadow: 0 0 10px var(--badge-shadow);">Project AIR&#8482;</span>
     </a>
     <div class="hidden md:flex items-center gap-8 text-sm">
@@ -115,7 +113,7 @@
           <p class="text-sm font-semibold" style="color: var(--text-primary);">Python 3.10 or newer</p>
           {#if platform === 'mac'}
             <p class="text-sm mt-1" style="color: var(--text-muted);">macOS ships with Python 3 on recent versions. Check with <code class="font-mono text-brand-cyan">python3 --version</code>. If not installed, the fastest path:</p>
-            <div class="bg-obsidian-lighter border border-white/10 p-3 mt-2 font-mono text-xs text-zinc-300">
+            <div class="dark-embed p-3 mt-2 font-mono text-xs text-zinc-300">
               <div><span class="text-zinc-500"># Option A: Homebrew (recommended)</span></div>
               <div>brew install python@3.13</div>
               <div class="mt-2"><span class="text-zinc-500"># Option B: Official installer</span></div>
@@ -123,7 +121,7 @@
             </div>
           {:else if platform === 'windows'}
             <p class="text-sm mt-1" style="color: var(--text-muted);">Open PowerShell or Command Prompt and run <code class="font-mono text-brand-cyan">python --version</code>. If Python is not installed:</p>
-            <div class="bg-obsidian-lighter border border-white/10 p-3 mt-2 font-mono text-xs text-zinc-300">
+            <div class="dark-embed p-3 mt-2 font-mono text-xs text-zinc-300">
               <div><span class="text-zinc-500"># Option A: Microsoft Store (easiest)</span></div>
               <div>winget install Python.Python.3.13</div>
               <div class="mt-2"><span class="text-zinc-500"># Option B: Official installer</span></div>
@@ -132,7 +130,7 @@
             </div>
           {:else}
             <p class="text-sm mt-1" style="color: var(--text-muted);">Most distributions ship Python 3. Check with <code class="font-mono text-brand-cyan">python3 --version</code>. If missing:</p>
-            <div class="bg-obsidian-lighter border border-white/10 p-3 mt-2 font-mono text-xs text-zinc-300">
+            <div class="dark-embed p-3 mt-2 font-mono text-xs text-zinc-300">
               <div><span class="text-zinc-500"># Ubuntu / Debian</span></div>
               <div>sudo apt update && sudo apt install python3 python3-pip python3-venv</div>
               <div class="mt-2"><span class="text-zinc-500"># Fedora / RHEL</span></div>
@@ -150,17 +148,17 @@
           <p class="text-sm font-semibold" style="color: var(--text-primary);">pip or pipx</p>
           <p class="text-sm mt-1" style="color: var(--text-muted);"><code class="font-mono text-brand-cyan">pip</code> works in any virtual environment. <code class="font-mono text-brand-cyan">pipx</code> installs the <code class="font-mono" style="color: var(--text-secondary);">air</code> CLI globally without polluting your system Python.</p>
           {#if platform === 'mac'}
-            <div class="bg-obsidian-lighter border border-white/10 p-3 mt-2 font-mono text-xs text-zinc-300">
+            <div class="dark-embed p-3 mt-2 font-mono text-xs text-zinc-300">
               brew install pipx && pipx ensurepath
             </div>
           {:else if platform === 'windows'}
-            <div class="bg-obsidian-lighter border border-white/10 p-3 mt-2 font-mono text-xs text-zinc-300">
+            <div class="dark-embed p-3 mt-2 font-mono text-xs text-zinc-300">
               <div>python -m pip install --user pipx</div>
               <div>python -m pipx ensurepath</div>
               <div class="text-zinc-500 mt-1"># Restart your terminal after ensurepath</div>
             </div>
           {:else}
-            <div class="bg-obsidian-lighter border border-white/10 p-3 mt-2 font-mono text-xs text-zinc-300">
+            <div class="dark-embed p-3 mt-2 font-mono text-xs text-zinc-300">
               <div>python3 -m pip install --user pipx</div>
               <div>python3 -m pipx ensurepath</div>
             </div>
@@ -189,7 +187,7 @@
         </div>
         <button
           onclick={() => copy('pipx install projectair', 'pipx')}
-          class="w-full bg-obsidian-lighter border border-white/10 p-3 font-mono text-sm text-left flex items-center justify-between cursor-pointer hover:border-brand-red/30 transition-all"
+          class="w-full dark-embed p-3 font-mono text-sm text-left flex items-center justify-between cursor-pointer hover:border-brand-red/30 transition-all"
         >
           {#if platform === 'windows'}
             <span><span class="text-zinc-500">PS&gt;</span> pipx install projectair</span>
@@ -208,7 +206,7 @@
         </div>
         <button
           onclick={() => copy('pip install projectair', 'pip')}
-          class="w-full bg-obsidian-lighter border border-white/10 p-3 font-mono text-sm text-left flex items-center justify-between cursor-pointer hover:border-brand-red/30 transition-all"
+          class="w-full dark-embed p-3 font-mono text-sm text-left flex items-center justify-between cursor-pointer hover:border-brand-red/30 transition-all"
         >
           {#if platform === 'windows'}
             <span><span class="text-zinc-500">PS&gt;</span> pip install projectair</span>
@@ -238,7 +236,7 @@
       <h2 class="text-2xl font-bold">Verify the install</h2>
     </div>
 
-    <div class="bg-obsidian-lighter border border-white/10 font-mono text-sm overflow-hidden">
+    <div class="dark-embed font-mono text-sm overflow-hidden">
       <div class="flex items-center gap-2 px-4 py-2.5 border-b border-white/5 text-zinc-500 text-xs">
         <span class="w-3 h-3 rounded-full bg-red-500/60"></span>
         <span class="w-3 h-3 rounded-full bg-yellow-500/60"></span>
@@ -278,7 +276,7 @@
 
     <p class="text-sm mb-4" style="color: var(--text-muted);">The recorder writes signed, tamper-evident records to a local JSONL chain. Every call is an Intent Capsule: BLAKE3-hashed, Ed25519-signed, forward-chained.</p>
 
-    <div class="bg-obsidian-lighter border border-white/10 p-5 font-mono text-sm leading-relaxed overflow-x-auto">
+    <div class="dark-embed p-5 font-mono text-sm leading-relaxed overflow-x-auto">
       <pre class="text-zinc-300"><span class="text-brand-cyan">from</span> airsdk <span class="text-brand-cyan">import</span> AIRRecorder
 
 recorder = AIRRecorder(<span class="text-green-400">"chain.jsonl"</span>)
@@ -322,7 +320,7 @@ recorder.agent_finish(final_output=<span class="text-green-400">"Task complete"<
       <h2 class="text-2xl font-bold">Analyze and export</h2>
     </div>
 
-    <div class="bg-obsidian-lighter border border-white/10 font-mono text-sm overflow-hidden">
+    <div class="dark-embed font-mono text-sm overflow-hidden">
       <div class="flex items-center gap-2 px-4 py-2.5 border-b border-white/5 text-zinc-500 text-xs">
         <span class="w-3 h-3 rounded-full bg-red-500/60"></span>
         <span class="w-3 h-3 rounded-full bg-yellow-500/60"></span>
@@ -417,7 +415,7 @@ recorder.agent_finish(final_output=<span class="text-green-400">"Task complete"<
     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
       <div class="col-span-2 md:col-span-1">
         <div class="flex items-center gap-1 mb-4">
-          <img src={logo} alt="Vindicara" class="h-10 w-auto" />
+          <img src={vindicaraLogoNight} alt="Vindicara" class="h-10 w-auto logo-night mix-blend-screen" /><img src={vindicaraLogoDay} alt="Vindicara" class="h-10 w-auto logo-day" />
         </div>
         <p class="text-sm leading-relaxed" style="color: var(--text-muted);">
           AI Incident Response. Forensic reconstruction, signed evidence, and containment for autonomous agents.

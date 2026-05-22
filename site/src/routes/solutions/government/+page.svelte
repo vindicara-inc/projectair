@@ -1,5 +1,8 @@
 <script lang="ts">
-  import vindicaraLogo from '$lib/assets/vindicara-logo.png';
+  import vindicaraLogoDay from '$lib/assets/vindicara-logo-day.png';
+  import vindicaraLogoNight from '$lib/assets/vindicara-logo-night.png';
+  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+
 
   const capabilities = [
     { title: 'NIST AI RMF Aligned', description: 'Forensic evidence mapped to the four RMF functions: GOVERN, MAP, MEASURE, MANAGE. Generate compliance reports directly from your signed chain.' },
@@ -16,19 +19,20 @@
   <meta name="description" content="Zero-trust forensic evidence for government AI deployments. NIST AI RMF aligned, post-quantum ready, air-gapped capable." />
 </svelte:head>
 
-<nav class="fixed top-0 w-full z-50 bg-obsidian/60 backdrop-blur-2xl border-b border-white/5">
+<nav class="fixed top-0 w-full z-50 backdrop-blur-2xl" style="background-color: color-mix(in srgb, var(--surface) 60%, transparent); border-bottom: 1px solid var(--border-subtle);">
   <div class="max-w-screen-2xl mx-auto px-6 flex items-center justify-between h-16">
     <a href="/" class="flex items-center gap-1">
-      <img src={vindicaraLogo} alt="Vindicara" class="h-10 w-auto mix-blend-screen" />
+      <img src={vindicaraLogoNight} alt="Vindicara" class="h-10 w-auto logo-night mix-blend-screen" /><img src={vindicaraLogoDay} alt="Vindicara" class="h-10 w-auto logo-day" />
     </a>
-    <div class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-      <a href="/solutions" class="hover:text-white transition-colors">Solutions</a>
-      <a href="/pricing" class="hover:text-white transition-colors">Pricing</a>
-      <a href="/blog" class="hover:text-white transition-colors">Blog</a>
-      <a href="/get-started" class="hover:text-white transition-colors">Get Started</a>
-      <a href="/dashboard" class="hover:text-white transition-colors">Dashboard</a>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <a href="/solutions" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Solutions</a>
+      <a href="/pricing" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Pricing</a>
+      <a href="/blog" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Blog</a>
+      <a href="/get-started" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Get Started</a>
+      <a href="/dashboard" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Dashboard</a>
     </div>
     <div class="hidden md:flex items-center gap-3">
+      <ThemeToggle />
       <a href="/get-started" class="btn-primary text-xs px-4 py-2">Get Started</a>
     </div>
   </div>
@@ -36,17 +40,17 @@
 
 <section class="pt-32 pb-12 px-6">
   <div class="max-w-screen-lg mx-auto">
-    <div class="flex items-center gap-2 text-sm text-zinc-500 mb-8 font-mono">
-      <a href="/solutions" class="hover:text-white transition-colors">Solutions</a>
+    <div class="flex items-center gap-2 text-sm mb-8 font-mono" style="color: var(--text-muted);">
+      <a href="/solutions" class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>Solutions</a>
       <span>/</span>
-      <span class="text-zinc-300">Government</span>
+      <span style="color: var(--text-secondary);">Government</span>
     </div>
 
     <div class="max-w-3xl mx-auto text-center mb-20">
       <h1 class="text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
         Trust but verify.<br />Cryptographically.
       </h1>
-      <p class="text-xl text-zinc-400 mb-8">
+      <p class="text-xl mb-8" style="color: var(--text-muted);">
         Government AI systems operate under strict oversight requirements. Project AIR delivers NIST-aligned, tamper-evident forensic evidence that satisfies compliance mandates without compromising operational security.
       </p>
       <div class="flex items-center justify-center gap-4">
@@ -64,7 +68,7 @@
       {#each capabilities as cap}
         <div class="glass-panel p-6">
           <h3 class="text-lg font-bold mb-2">{cap.title}</h3>
-          <p class="text-zinc-400 text-sm leading-relaxed">{cap.description}</p>
+          <p class="text-sm leading-relaxed" style="color: var(--text-muted);">{cap.description}</p>
         </div>
       {/each}
     </div>

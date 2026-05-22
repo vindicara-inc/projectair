@@ -1,5 +1,8 @@
 <script lang="ts">
-  import vindicaraLogo from '$lib/assets/vindicara-logo.png';
+  import vindicaraLogoDay from '$lib/assets/vindicara-logo-day.png';
+  import vindicaraLogoNight from '$lib/assets/vindicara-logo-night.png';
+  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+
 
   const capabilities = [
     { title: 'PHI Access Audit Trail', description: 'Every patient record access by an AI agent is captured as a signed intent capsule with BLAKE3 chain hashing and Ed25519 signatures. No PHI touches go unrecorded.' },
@@ -16,19 +19,20 @@
   <meta name="description" content="HIPAA-grade forensic evidence for clinical AI agents. Signed audit trails, PHI access logging, breach detection." />
 </svelte:head>
 
-<nav class="fixed top-0 w-full z-50 bg-obsidian/60 backdrop-blur-2xl border-b border-white/5">
+<nav class="fixed top-0 w-full z-50 backdrop-blur-2xl" style="background-color: color-mix(in srgb, var(--surface) 60%, transparent); border-bottom: 1px solid var(--border-subtle);">
   <div class="max-w-screen-2xl mx-auto px-6 flex items-center justify-between h-16">
     <a href="/" class="flex items-center gap-1">
-      <img src={vindicaraLogo} alt="Vindicara" class="h-10 w-auto mix-blend-screen" />
+      <img src={vindicaraLogoNight} alt="Vindicara" class="h-10 w-auto logo-night mix-blend-screen" /><img src={vindicaraLogoDay} alt="Vindicara" class="h-10 w-auto logo-day" />
     </a>
-    <div class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-      <a href="/solutions" class="hover:text-white transition-colors">Solutions</a>
-      <a href="/pricing" class="hover:text-white transition-colors">Pricing</a>
-      <a href="/blog" class="hover:text-white transition-colors">Blog</a>
-      <a href="/get-started" class="hover:text-white transition-colors">Get Started</a>
-      <a href="/dashboard" class="hover:text-white transition-colors">Dashboard</a>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <a href="/solutions" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Solutions</a>
+      <a href="/pricing" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Pricing</a>
+      <a href="/blog" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Blog</a>
+      <a href="/get-started" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Get Started</a>
+      <a href="/dashboard" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Dashboard</a>
     </div>
     <div class="hidden md:flex items-center gap-3">
+      <ThemeToggle />
       <a href="/get-started" class="btn-primary text-xs px-4 py-2">Get Started</a>
     </div>
   </div>
@@ -36,17 +40,17 @@
 
 <section class="pt-32 pb-12 px-6">
   <div class="max-w-screen-lg mx-auto">
-    <div class="flex items-center gap-2 text-sm text-zinc-500 mb-8 font-mono">
-      <a href="/solutions" class="hover:text-white transition-colors">Solutions</a>
+    <div class="flex items-center gap-2 text-sm mb-8 font-mono" style="color: var(--text-muted);">
+      <a href="/solutions" class="transition-colors" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>Solutions</a>
       <span>/</span>
-      <span class="text-zinc-300">Healthcare</span>
+      <span style="color: var(--text-secondary);">Healthcare</span>
     </div>
 
     <div class="max-w-3xl mx-auto text-center mb-20">
       <h1 class="text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
         Prove every<br />clinical AI decision
       </h1>
-      <p class="text-xl text-zinc-400 mb-8">
+      <p class="text-xl mb-8" style="color: var(--text-muted);">
         AI agents in healthcare access PHI, recommend treatments, and make clinical decisions. Project AIR provides the cryptographic proof that every access was authorized, every decision was logged, and every action can be audited.
       </p>
       <div class="flex items-center justify-center gap-4">
@@ -64,7 +68,7 @@
       {#each capabilities as cap}
         <div class="glass-panel p-6">
           <h3 class="text-lg font-bold mb-2">{cap.title}</h3>
-          <p class="text-zinc-400 text-sm leading-relaxed">{cap.description}</p>
+          <p class="text-sm leading-relaxed" style="color: var(--text-muted);">{cap.description}</p>
         </div>
       {/each}
     </div>
@@ -75,7 +79,7 @@
   <div class="max-w-screen-lg mx-auto">
     <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-4 font-mono">Quick Start</p>
     <h2 class="text-3xl font-bold mb-8">Instrument a clinical agent in 4 lines</h2>
-    <div class="glass-panel p-6 font-mono text-sm leading-relaxed">
+    <div class="dark-embed rounded-lg p-6 font-mono text-sm leading-relaxed">
       <pre class="text-zinc-300 overflow-x-auto"><span class="text-brand-cyan">from</span> airsdk <span class="text-brand-cyan">import</span> AIRRecorder
 
 recorder = AIRRecorder(<span class="text-green-400">"clinical-chain.jsonl"</span>)
@@ -88,6 +92,6 @@ recorder.llm_end(response=<span class="text-green-400">"Recommend titrating metf
 
 recorder.agent_finish(final_output=<span class="text-green-400">"Clinical review complete"</span>)</pre>
     </div>
-    <p class="text-zinc-500 text-sm mt-4">Every call generates a signed, tamper-evident record. Run <code class="font-mono text-brand-cyan">air demo --healthcare</code> to see it in action.</p>
+    <p class="text-sm mt-4" style="color: var(--text-muted);">Every call generates a signed, tamper-evident record. Run <code class="font-mono text-brand-cyan">air demo --healthcare</code> to see it in action.</p>
   </div>
 </section>

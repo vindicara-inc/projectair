@@ -24,7 +24,7 @@
   <div class="max-w-screen-md mx-auto px-6 text-center">
     <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-3">Redirecting</p>
     <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Opening the Project AIR repository on GitHub.</h1>
-    <p class="mt-4 text-zinc-400">
+    <p class="mt-4" style="color: var(--text-secondary);">
       If your browser does not redirect automatically, continue to
       <a href={GITHUB_URL} class="text-brand-red underline hover:text-brand-red/80">{GITHUB_URL}</a>.
     </p>
