@@ -27,7 +27,7 @@
 		"tailwindcss": "^4.2.2",
 		"typescript": "^5.9.3",
 		"vite": "^7.3.1",
-		"vitest": "^2.1.0"
+		"vitest": "^4.1.7"
 	},
 	"dependencies": {
 		"@auth0/auth0-spa-js": "^2.19.2",
