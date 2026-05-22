@@ -206,9 +206,9 @@
         type="button"
         class="px-4 sm:px-6 py-4 font-mono text-[11px] uppercase tracking-[0.18em] whitespace-nowrap transition-colors {activeId ===
         framework.id
-          ? 'bg-white/5 border-b-2 border-b-brand-red -mb-px'
+          ? 'border-b-2 border-b-brand-red -mb-px'
           : ''}"
-        style="{activeId === framework.id ? 'color: var(--text-primary);' : 'color: var(--text-muted);'} border-right: 1px solid var(--border);"
+        style="{activeId === framework.id ? 'color: var(--text-primary); background-color: var(--glass);' : 'color: var(--text-muted);'} border-right: 1px solid var(--border);"
         onmouseenter={(e) => { if (activeId !== framework.id) { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.backgroundColor = 'var(--glass)'; }}}
         onmouseleave={(e) => { if (activeId !== framework.id) { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.backgroundColor = 'transparent'; }}}
         onclick={() => (activeId = framework.id)}
