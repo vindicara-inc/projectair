@@ -1,5 +1,10 @@
 <script lang="ts">
-  import vindicaraLogo from '$lib/assets/vindicara-logo.png';
+  import vindicaraLogoDay from '$lib/assets/vindicara-logo-day.png';
+  import vindicaraLogoNight from '$lib/assets/vindicara-logo-night.png';
+  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+  import { getTheme } from '$lib/theme.svelte';
+
+  let logo = $derived(getTheme() === 'dark' ? vindicaraLogoNight : vindicaraLogoDay);
 
   let copiedPip = $state(false);
   let copiedPipx = $state(false);
@@ -37,21 +42,22 @@
   <link rel="canonical" href="https://vindicara.io/get-started" />
 </svelte:head>
 
-<nav class="fixed top-0 w-full z-50 bg-obsidian/60 backdrop-blur-2xl border-b border-white/5">
+<nav class="fixed top-0 w-full z-50 backdrop-blur-2xl" style="background-color: color-mix(in srgb, var(--surface) 60%, transparent); border-bottom: 1px solid var(--border-subtle);">
   <div class="max-w-screen-2xl mx-auto px-6 flex items-center justify-between h-16">
     <a href="/" class="flex items-center gap-1">
-      <img src={vindicaraLogo} alt="Vindicara" class="h-10 w-auto mix-blend-screen" />
-      <span class="font-mono text-[10px] tracking-[0.18em] uppercase text-white border border-white/30 px-1.5 py-0.5 shadow-[0_0_10px_rgba(255,255,255,0.25)]">Project AIR&#8482;</span>
+      <img src={logo} alt="Vindicara" class="h-10 w-auto" />
+      <span class="font-mono text-[10px] tracking-[0.18em] uppercase px-1.5 py-0.5" style="color: var(--text-primary); border: 1px solid var(--border); box-shadow: 0 0 10px var(--badge-shadow);">Project AIR&#8482;</span>
     </a>
-    <div class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-      <a href="/solutions" class="hover:text-white transition-colors">Solutions</a>
-      <a href="/pricing" class="hover:text-white transition-colors">Pricing</a>
-      <a href="/admissibility#certification" class="hover:text-white transition-colors">FRE 902(13)</a>
-      <a href="/blog" class="hover:text-white transition-colors">Blog</a>
-      <a href="/get-started" class="text-white transition-colors">Get Started</a>
-      <a href="/dashboard" class="hover:text-white transition-colors">Dashboard</a>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <a href="/solutions" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Solutions</a>
+      <a href="/pricing" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Pricing</a>
+      <a href="/admissibility#certification" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">FRE 902(13)</a>
+      <a href="/blog" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Blog</a>
+      <a href="/get-started" style="color: var(--text-primary);" class="transition-colors">Get Started</a>
+      <a href="/dashboard" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Dashboard</a>
     </div>
     <div class="hidden md:flex items-center gap-3">
+      <ThemeToggle />
       <a href="https://github.com/vindicara-inc/projectair" class="btn-primary text-xs px-4 py-2">
         <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
         GitHub
@@ -67,7 +73,7 @@
     <h1 class="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.1] mb-4">
       First forensic report<br />in under 5 minutes
     </h1>
-    <p class="text-xl text-zinc-400 mb-4">From install to signed evidence chain. Works on macOS, Windows, and Linux.</p>
+    <p class="text-xl mb-4" style="color: var(--text-muted);">From install to signed evidence chain. Works on macOS, Windows, and Linux.</p>
   </div>
 </section>
 
@@ -76,15 +82,18 @@
   <div class="max-w-screen-md mx-auto">
     <div class="flex gap-2">
       <button
-        class="px-4 py-2 text-sm font-mono uppercase tracking-wider transition-all cursor-pointer border {platform === 'mac' ? 'bg-brand-red text-white border-brand-red' : 'border-white/15 text-zinc-400 hover:text-white'}"
+        class="px-4 py-2 text-sm font-mono uppercase tracking-wider transition-all cursor-pointer border {platform === 'mac' ? 'bg-brand-red text-white border-brand-red' : 'border-[var(--border)] hover:text-[var(--text-primary)]'}"
+        style={platform !== 'mac' ? 'color: var(--text-muted);' : ''}
         onclick={() => platform = 'mac'}
       >macOS</button>
       <button
-        class="px-4 py-2 text-sm font-mono uppercase tracking-wider transition-all cursor-pointer border {platform === 'windows' ? 'bg-brand-red text-white border-brand-red' : 'border-white/15 text-zinc-400 hover:text-white'}"
+        class="px-4 py-2 text-sm font-mono uppercase tracking-wider transition-all cursor-pointer border {platform === 'windows' ? 'bg-brand-red text-white border-brand-red' : 'border-[var(--border)] hover:text-[var(--text-primary)]'}"
+        style={platform !== 'windows' ? 'color: var(--text-muted);' : ''}
         onclick={() => platform = 'windows'}
       >Windows</button>
       <button
-        class="px-4 py-2 text-sm font-mono uppercase tracking-wider transition-all cursor-pointer border {platform === 'linux' ? 'bg-brand-red text-white border-brand-red' : 'border-white/15 text-zinc-400 hover:text-white'}"
+        class="px-4 py-2 text-sm font-mono uppercase tracking-wider transition-all cursor-pointer border {platform === 'linux' ? 'bg-brand-red text-white border-brand-red' : 'border-[var(--border)] hover:text-[var(--text-primary)]'}"
+        style={platform !== 'linux' ? 'color: var(--text-muted);' : ''}
         onclick={() => platform = 'linux'}
       >Linux</button>
     </div>
@@ -99,13 +108,13 @@
       <h2 class="text-2xl font-bold">Prerequisites</h2>
     </div>
 
-    <div class="border border-white/10 p-6 space-y-4">
+    <div class="p-6 space-y-4" style="border: 1px solid var(--border);">
       <div class="flex items-start gap-3">
         <span class="text-brand-red font-mono mt-0.5 shrink-0">&#8250;</span>
         <div>
-          <p class="text-sm text-white font-semibold">Python 3.10 or newer</p>
+          <p class="text-sm font-semibold" style="color: var(--text-primary);">Python 3.10 or newer</p>
           {#if platform === 'mac'}
-            <p class="text-sm text-zinc-400 mt-1">macOS ships with Python 3 on recent versions. Check with <code class="font-mono text-brand-cyan">python3 --version</code>. If not installed, the fastest path:</p>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">macOS ships with Python 3 on recent versions. Check with <code class="font-mono text-brand-cyan">python3 --version</code>. If not installed, the fastest path:</p>
             <div class="bg-obsidian-lighter border border-white/10 p-3 mt-2 font-mono text-xs text-zinc-300">
               <div><span class="text-zinc-500"># Option A: Homebrew (recommended)</span></div>
               <div>brew install python@3.13</div>
@@ -113,7 +122,7 @@
               <div>https://www.python.org/downloads/macos/</div>
             </div>
           {:else if platform === 'windows'}
-            <p class="text-sm text-zinc-400 mt-1">Open PowerShell or Command Prompt and run <code class="font-mono text-brand-cyan">python --version</code>. If Python is not installed:</p>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">Open PowerShell or Command Prompt and run <code class="font-mono text-brand-cyan">python --version</code>. If Python is not installed:</p>
             <div class="bg-obsidian-lighter border border-white/10 p-3 mt-2 font-mono text-xs text-zinc-300">
               <div><span class="text-zinc-500"># Option A: Microsoft Store (easiest)</span></div>
               <div>winget install Python.Python.3.13</div>
@@ -122,7 +131,7 @@
               <div class="mt-1 text-zinc-500">IMPORTANT: Check "Add Python to PATH" during install</div>
             </div>
           {:else}
-            <p class="text-sm text-zinc-400 mt-1">Most distributions ship Python 3. Check with <code class="font-mono text-brand-cyan">python3 --version</code>. If missing:</p>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">Most distributions ship Python 3. Check with <code class="font-mono text-brand-cyan">python3 --version</code>. If missing:</p>
             <div class="bg-obsidian-lighter border border-white/10 p-3 mt-2 font-mono text-xs text-zinc-300">
               <div><span class="text-zinc-500"># Ubuntu / Debian</span></div>
               <div>sudo apt update && sudo apt install python3 python3-pip python3-venv</div>
@@ -138,8 +147,8 @@
       <div class="flex items-start gap-3">
         <span class="text-brand-red font-mono mt-0.5 shrink-0">&#8250;</span>
         <div>
-          <p class="text-sm text-white font-semibold">pip or pipx</p>
-          <p class="text-sm text-zinc-400 mt-1"><code class="font-mono text-brand-cyan">pip</code> works in any virtual environment. <code class="font-mono text-brand-cyan">pipx</code> installs the <code class="font-mono text-zinc-200">air</code> CLI globally without polluting your system Python.</p>
+          <p class="text-sm font-semibold" style="color: var(--text-primary);">pip or pipx</p>
+          <p class="text-sm mt-1" style="color: var(--text-muted);"><code class="font-mono text-brand-cyan">pip</code> works in any virtual environment. <code class="font-mono text-brand-cyan">pipx</code> installs the <code class="font-mono" style="color: var(--text-secondary);">air</code> CLI globally without polluting your system Python.</p>
           {#if platform === 'mac'}
             <div class="bg-obsidian-lighter border border-white/10 p-3 mt-2 font-mono text-xs text-zinc-300">
               brew install pipx && pipx ensurepath
@@ -170,12 +179,12 @@
       <h2 class="text-2xl font-bold">Install Project AIR</h2>
     </div>
 
-    <p class="text-sm text-zinc-400 mb-4">Choose one method. Both give you the <code class="font-mono text-zinc-200">air</code> CLI and <code class="font-mono text-zinc-200">airsdk</code> library.</p>
+    <p class="text-sm mb-4" style="color: var(--text-muted);">Choose one method. Both give you the <code class="font-mono" style="color: var(--text-secondary);">air</code> CLI and <code class="font-mono" style="color: var(--text-secondary);">airsdk</code> library.</p>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div class="border border-white/10 p-5">
+      <div style="border: 1px solid var(--border);" class="p-5">
         <div class="flex items-center justify-between mb-3">
-          <p class="text-sm font-bold font-mono text-white">pipx (recommended)</p>
+          <p class="text-sm font-bold font-mono" style="color: var(--text-primary);">pipx (recommended)</p>
           <span class="text-[10px] font-mono uppercase tracking-wider text-green-400 border border-green-400/30 bg-green-400/5 px-2 py-0.5">Global CLI</span>
         </div>
         <button
@@ -189,13 +198,13 @@
           {/if}
           <span class="text-xs text-zinc-500">{copiedPipx ? 'Copied' : 'Copy'}</span>
         </button>
-        <p class="text-xs text-zinc-500 mt-2">Isolated install. Does not touch your project venv.</p>
+        <p class="text-xs mt-2" style="color: var(--text-muted);">Isolated install. Does not touch your project venv.</p>
       </div>
 
-      <div class="border border-white/10 p-5">
+      <div style="border: 1px solid var(--border);" class="p-5">
         <div class="flex items-center justify-between mb-3">
-          <p class="text-sm font-bold font-mono text-white">pip</p>
-          <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 border border-white/10 px-2 py-0.5">In venv</span>
+          <p class="text-sm font-bold font-mono" style="color: var(--text-primary);">pip</p>
+          <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5" style="color: var(--text-muted); border: 1px solid var(--border);">In venv</span>
         </div>
         <button
           onclick={() => copy('pip install projectair', 'pip')}
@@ -208,14 +217,14 @@
           {/if}
           <span class="text-xs text-zinc-500">{copiedPip ? 'Copied' : 'Copy'}</span>
         </button>
-        <p class="text-xs text-zinc-500 mt-2">Inside a virtual environment or project.</p>
+        <p class="text-xs mt-2" style="color: var(--text-muted);">Inside a virtual environment or project.</p>
       </div>
     </div>
 
     {#if platform === 'windows'}
       <div class="border border-yellow-500/20 bg-yellow-500/5 p-4 mt-4">
         <p class="text-sm text-yellow-300 font-semibold mb-1">Windows note</p>
-        <p class="text-xs text-zinc-400 leading-relaxed">If you get <code class="font-mono text-zinc-300">'air' is not recognized</code>, make sure Python's Scripts directory is on your PATH. Run <code class="font-mono text-zinc-300">python -m projectair.cli</code> as a fallback, or restart your terminal after <code class="font-mono text-zinc-300">pipx ensurepath</code>.</p>
+        <p class="text-xs leading-relaxed" style="color: var(--text-muted);">If you get <code class="font-mono" style="color: var(--text-secondary);">&#39;air&#39; is not recognized</code>, make sure Python's Scripts directory is on your PATH. Run <code class="font-mono" style="color: var(--text-secondary);">python -m projectair.cli</code> as a fallback, or restart your terminal after <code class="font-mono" style="color: var(--text-secondary);">pipx ensurepath</code>.</p>
       </div>
     {/if}
   </div>
@@ -255,7 +264,7 @@
         <div class="text-emerald-400">[AIR] Chain verified. Report saved to forensic-report.json</div>
       </div>
     </div>
-    <p class="text-sm text-zinc-400 mt-3"><code class="font-mono text-brand-cyan">air demo</code> generates a real signed chain, runs all 14 detectors, and exports a forensic report. No API key, no cloud, no config. Under 30 seconds.</p>
+    <p class="text-sm mt-3" style="color: var(--text-muted);"><code class="font-mono text-brand-cyan">air demo</code> generates a real signed chain, runs all 14 detectors, and exports a forensic report. No API key, no cloud, no config. Under 30 seconds.</p>
   </div>
 </section>
 
@@ -267,7 +276,7 @@
       <h2 class="text-2xl font-bold">Instrument your agent</h2>
     </div>
 
-    <p class="text-zinc-400 text-sm mb-4">The recorder writes signed, tamper-evident records to a local JSONL chain. Every call is an Intent Capsule: BLAKE3-hashed, Ed25519-signed, forward-chained.</p>
+    <p class="text-sm mb-4" style="color: var(--text-muted);">The recorder writes signed, tamper-evident records to a local JSONL chain. Every call is an Intent Capsule: BLAKE3-hashed, Ed25519-signed, forward-chained.</p>
 
     <div class="bg-obsidian-lighter border border-white/10 p-5 font-mono text-sm leading-relaxed overflow-x-auto">
       <pre class="text-zinc-300"><span class="text-brand-cyan">from</span> airsdk <span class="text-brand-cyan">import</span> AIRRecorder
@@ -292,16 +301,16 @@ recorder.agent_finish(final_output=<span class="text-green-400">"Task complete"<
       <span class="w-8 h-8 flex items-center justify-center text-sm font-bold font-mono bg-brand-red text-white">4</span>
       <h2 class="text-2xl font-bold">Framework integrations</h2>
     </div>
-    <p class="text-zinc-400 text-sm mb-6">Already using a framework? One-line instrumentation. Same signed chain, zero boilerplate.</p>
+    <p class="text-sm mb-6" style="color: var(--text-muted);">Already using a framework? One-line instrumentation. Same signed chain, zero boilerplate.</p>
     <div class="grid gap-3">
       {#each frameworks as fw}
-        <div class="border border-white/10 px-5 py-4">
+        <div class="px-5 py-4" style="border: 1px solid var(--border);">
           <p class="text-sm font-bold mb-2">{fw.name}</p>
-          <pre class="font-mono text-xs text-zinc-400 overflow-x-auto">{fw.code}</pre>
+          <pre class="font-mono text-xs overflow-x-auto" style="color: var(--text-muted);">{fw.code}</pre>
         </div>
       {/each}
     </div>
-    <p class="text-xs text-zinc-500 mt-4 font-mono">Any OpenAI-compatible endpoint (NVIDIA NIM, vLLM, Together AI, Groq, Fireworks) also works via instrument_openai.</p>
+    <p class="text-xs mt-4 font-mono" style="color: var(--text-muted);">Any OpenAI-compatible endpoint (NVIDIA NIM, vLLM, Together AI, Groq, Fireworks) also works via instrument_openai.</p>
   </div>
 </section>
 
@@ -338,11 +347,11 @@ recorder.agent_finish(final_output=<span class="text-green-400">"Task complete"<
 <section class="pb-16 px-6">
   <div class="max-w-screen-md mx-auto">
     <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-6 font-mono">CLI Reference</p>
-    <div class="border border-white/10 overflow-hidden">
+    <div class="overflow-hidden" style="border: 1px solid var(--border);">
       {#each cliCommands as { cmd, desc }, i}
-        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 px-5 py-3 text-sm {i < cliCommands.length - 1 ? 'border-b border-white/5' : ''}">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 px-5 py-3 text-sm" style={i < cliCommands.length - 1 ? 'border-bottom: 1px solid var(--border-subtle);' : ''}>
           <code class="font-mono text-brand-cyan shrink-0 sm:w-64">{cmd}</code>
-          <span class="text-zinc-400 text-xs sm:text-sm">{desc}</span>
+          <span class="text-xs sm:text-sm" style="color: var(--text-muted);">{desc}</span>
         </div>
       {/each}
     </div>
@@ -355,43 +364,43 @@ recorder.agent_finish(final_output=<span class="text-green-400">"Task complete"<
     <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-6 font-mono">Troubleshooting</p>
     <div class="space-y-6">
       <div>
-        <h3 class="text-sm font-semibold text-white mb-2"><code class="font-mono text-brand-cyan">air</code> command not found</h3>
+        <h3 class="text-sm font-semibold mb-2" style="color: var(--text-primary);"><code class="font-mono text-brand-cyan">air</code> command not found</h3>
         {#if platform === 'windows'}
-          <p class="text-sm text-zinc-400 leading-relaxed">Restart your terminal after installing. If still missing, check that Python's <code class="font-mono text-zinc-300">Scripts</code> folder is on your PATH: <code class="font-mono text-zinc-300">$env:PATH -split ";"</code>. As a fallback: <code class="font-mono text-zinc-300">python -m projectair.cli demo</code>.</p>
+          <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Restart your terminal after installing. If still missing, check that Python's <code class="font-mono" style="color: var(--text-secondary);">Scripts</code> folder is on your PATH: <code class="font-mono" style="color: var(--text-secondary);">$env:PATH -split ";"</code>. As a fallback: <code class="font-mono" style="color: var(--text-secondary);">python -m projectair.cli demo</code>.</p>
         {:else if platform === 'mac'}
-          <p class="text-sm text-zinc-400 leading-relaxed">If you used pipx, run <code class="font-mono text-zinc-300">pipx ensurepath</code> and restart your shell. If you installed with pip inside a venv, make sure the venv is activated. As a fallback: <code class="font-mono text-zinc-300">python3 -m projectair.cli demo</code>.</p>
+          <p class="text-sm leading-relaxed" style="color: var(--text-muted);">If you used pipx, run <code class="font-mono" style="color: var(--text-secondary);">pipx ensurepath</code> and restart your shell. If you installed with pip inside a venv, make sure the venv is activated. As a fallback: <code class="font-mono" style="color: var(--text-secondary);">python3 -m projectair.cli demo</code>.</p>
         {:else}
-          <p class="text-sm text-zinc-400 leading-relaxed">Run <code class="font-mono text-zinc-300">pipx ensurepath</code> and restart your shell, or add <code class="font-mono text-zinc-300">~/.local/bin</code> to your PATH manually. As a fallback: <code class="font-mono text-zinc-300">python3 -m projectair.cli demo</code>.</p>
+          <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Run <code class="font-mono" style="color: var(--text-secondary);">pipx ensurepath</code> and restart your shell, or add <code class="font-mono" style="color: var(--text-secondary);">~/.local/bin</code> to your PATH manually. As a fallback: <code class="font-mono" style="color: var(--text-secondary);">python3 -m projectair.cli demo</code>.</p>
         {/if}
       </div>
 
       <div>
-        <h3 class="text-sm font-semibold text-white mb-2">Python version too old</h3>
-        <p class="text-sm text-zinc-400 leading-relaxed">Project AIR requires Python 3.10+. Check with <code class="font-mono text-zinc-300">{platform === 'windows' ? 'python' : 'python3'} --version</code>. If you have multiple versions, use <code class="font-mono text-zinc-300">python3.13 -m pip install projectair</code> to target the right one.</p>
+        <h3 class="text-sm font-semibold mb-2" style="color: var(--text-primary);">Python version too old</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Project AIR requires Python 3.10+. Check with <code class="font-mono" style="color: var(--text-secondary);">{platform === 'windows' ? 'python' : 'python3'} --version</code>. If you have multiple versions, use <code class="font-mono" style="color: var(--text-secondary);">python3.13 -m pip install projectair</code> to target the right one.</p>
       </div>
 
       <div>
-        <h3 class="text-sm font-semibold text-white mb-2">Permission errors on install</h3>
+        <h3 class="text-sm font-semibold mb-2" style="color: var(--text-primary);">Permission errors on install</h3>
         {#if platform === 'windows'}
-          <p class="text-sm text-zinc-400 leading-relaxed">Run PowerShell as Administrator, or use <code class="font-mono text-zinc-300">pip install --user projectair</code>. Better yet, use pipx, which handles isolation for you.</p>
+          <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Run PowerShell as Administrator, or use <code class="font-mono" style="color: var(--text-secondary);">pip install --user projectair</code>. Better yet, use pipx, which handles isolation for you.</p>
         {:else}
-          <p class="text-sm text-zinc-400 leading-relaxed">Never use <code class="font-mono text-zinc-300">sudo pip install</code>. Use pipx (installs to <code class="font-mono text-zinc-300">~/.local/</code>) or create a virtual environment: <code class="font-mono text-zinc-300">python3 -m venv .venv && source .venv/bin/activate && pip install projectair</code>.</p>
+          <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Never use <code class="font-mono" style="color: var(--text-secondary);">sudo pip install</code>. Use pipx (installs to <code class="font-mono" style="color: var(--text-secondary);">~/.local/</code>) or create a virtual environment: <code class="font-mono" style="color: var(--text-secondary);">python3 -m venv .venv && source .venv/bin/activate && pip install projectair</code>.</p>
         {/if}
       </div>
 
       <div>
-        <h3 class="text-sm font-semibold text-white mb-2">Still stuck?</h3>
-        <p class="text-sm text-zinc-400 leading-relaxed">Open an issue on <a href="https://github.com/vindicara-inc/projectair/issues" class="text-brand-cyan hover:underline">GitHub</a> or email <a href="mailto:support@vindicara.io" class="text-brand-cyan hover:underline">support@vindicara.io</a>.</p>
+        <h3 class="text-sm font-semibold mb-2" style="color: var(--text-primary);">Still stuck?</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Open an issue on <a href="https://github.com/vindicara-inc/projectair/issues" class="text-brand-cyan hover:underline">GitHub</a> or email <a href="mailto:support@vindicara.io" class="text-brand-cyan hover:underline">support@vindicara.io</a>.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- CTA -->
-<section class="py-16 px-6 border-t border-white/5">
+<section class="py-16 px-6" style="border-top: 1px solid var(--border-subtle);">
   <div class="max-w-screen-md mx-auto text-center">
     <h2 class="text-2xl font-bold tracking-tight mb-4">Ready for more?</h2>
-    <p class="text-zinc-400 text-sm mb-8 max-w-lg mx-auto">Full documentation, architecture deep-dives, and the complete API reference live on GitHub.</p>
+    <p class="text-sm mb-8 max-w-lg mx-auto" style="color: var(--text-muted);">Full documentation, architecture deep-dives, and the complete API reference live on GitHub.</p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
       <a href="https://github.com/vindicara-inc/projectair#readme" class="btn-primary text-sm px-6 py-3">
         <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
@@ -403,44 +412,44 @@ recorder.agent_finish(final_output=<span class="text-green-400">"Task complete"<
 </section>
 
 <!-- FOOTER -->
-<footer class="w-full border-t border-white/5 bg-obsidian relative z-20">
+<footer class="w-full relative z-20" style="border-top: 1px solid var(--border-subtle); background-color: var(--surface);">
   <div class="max-w-screen-xl mx-auto px-6 py-14">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
       <div class="col-span-2 md:col-span-1">
         <div class="flex items-center gap-1 mb-4">
-          <img src={vindicaraLogo} alt="Vindicara" class="h-10 w-auto mix-blend-screen" />
+          <img src={logo} alt="Vindicara" class="h-10 w-auto" />
         </div>
-        <p class="text-sm text-zinc-500 leading-relaxed">
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">
           AI Incident Response. Forensic reconstruction, signed evidence, and containment for autonomous agents.
         </p>
       </div>
       <div>
         <h3 class="text-sm font-semibold mb-4">Product</h3>
-        <ul class="space-y-2 text-sm text-zinc-500">
-          <li><a href="/#how-it-works" class="hover:text-white transition-colors">How It Works</a></li>
-          <li><a href="/pricing" class="hover:text-white transition-colors">Pricing</a></li>
-          <li><a href="https://github.com/vindicara-inc/projectair#readme" class="hover:text-white transition-colors">Docs</a></li>
+        <ul class="space-y-2 text-sm" style="color: var(--text-muted);">
+          <li><a href="/#how-it-works" style="color: inherit;" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">How It Works</a></li>
+          <li><a href="/pricing" style="color: inherit;" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Pricing</a></li>
+          <li><a href="https://github.com/vindicara-inc/projectair#readme" style="color: inherit;" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Docs</a></li>
         </ul>
       </div>
       <div>
         <h3 class="text-sm font-semibold mb-4">Company</h3>
-        <ul class="space-y-2 text-sm text-zinc-500">
-          <li><a href="mailto:Kevin.Minn@vindicara.io" class="hover:text-white transition-colors">Kevin.Minn@vindicara.io</a></li>
-          <li><a href="/blog" class="hover:text-white transition-colors">Blog</a></li>
-          <li><a href="https://github.com/vindicara-inc/projectair" class="hover:text-white transition-colors">GitHub</a></li>
+        <ul class="space-y-2 text-sm" style="color: var(--text-muted);">
+          <li><a href="mailto:Kevin.Minn@vindicara.io" style="color: inherit;" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Kevin.Minn@vindicara.io</a></li>
+          <li><a href="/blog" style="color: inherit;" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Blog</a></li>
+          <li><a href="https://github.com/vindicara-inc/projectair" style="color: inherit;" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">GitHub</a></li>
         </ul>
       </div>
       <div>
         <h3 class="text-sm font-semibold mb-4">Legal</h3>
-        <ul class="space-y-2 text-sm text-zinc-500">
-          <li><a href="/terms" class="hover:text-white transition-colors">Terms of Service</a></li>
-          <li><a href="/privacy" class="hover:text-white transition-colors">Privacy Policy</a></li>
-          <li><a href="/security" class="hover:text-white transition-colors">Security Disclosure</a></li>
+        <ul class="space-y-2 text-sm" style="color: var(--text-muted);">
+          <li><a href="/terms" style="color: inherit;" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Terms of Service</a></li>
+          <li><a href="/privacy" style="color: inherit;" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Privacy Policy</a></li>
+          <li><a href="/security" style="color: inherit;" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Security Disclosure</a></li>
         </ul>
       </div>
     </div>
     <div class="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-      <p class="text-xs text-zinc-600">&copy; 2026 Vindicara, Inc.</p>
+      <p class="text-xs" style="color: var(--text-faint);">&copy; 2026 Vindicara, Inc.</p>
     </div>
   </div>
 </footer>
