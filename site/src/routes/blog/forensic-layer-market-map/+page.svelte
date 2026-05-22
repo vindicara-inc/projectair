@@ -235,7 +235,7 @@
     <code class="font-mono text-brand-red">projectair</code> 0.3.2 is live on PyPI under MIT license. Ten detectors covering the full OWASP Top 10 for Agentic Applications shipped in 0.3.0 on April 22, alongside the Article 72 evidence generator. 0.3.1 added a LlamaIndex integration. 0.3.2 added the Google Gemini SDK and Google ADK integrations.
   </p>
 
-  <pre class="bg-zinc-900/50 border border-white/5 rounded-lg p-4 mt-6 overflow-x-auto"><code class="font-mono text-sm text-zinc-300">pip install projectair
+  <pre class="dark-embed rounded-lg p-4 mt-6 overflow-x-auto"><code class="font-mono text-sm text-zinc-300">pip install projectair
 air demo</code></pre>
 
   <p class="leading-relaxed mt-4" style="color: var(--text-secondary);">
@@ -248,7 +248,7 @@ air demo</code></pre>
 
   <h2 class="text-2xl font-bold mt-12 mb-4" style="color: var(--text-primary);">Try it</h2>
 
-  <pre class="bg-zinc-900/50 border border-white/5 rounded-lg p-4 mt-6 overflow-x-auto"><code class="font-mono text-sm text-zinc-300">pip install projectair
+  <pre class="dark-embed rounded-lg p-4 mt-6 overflow-x-auto"><code class="font-mono text-sm text-zinc-300">pip install projectair
 air demo</code></pre>
 
   <p class="leading-relaxed mt-4" style="color: var(--text-secondary);">

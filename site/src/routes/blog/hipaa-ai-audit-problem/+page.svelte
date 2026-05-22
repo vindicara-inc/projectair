@@ -112,7 +112,7 @@
     This is what <a href="https://pypi.org/project/projectair/" class="text-brand-red hover:text-brand-red/80 underline" target="_blank" rel="noopener noreferrer">Project AIR</a> builds. Here is what it looks like for a clinical AI agent:
   </p>
 
-  <div class="bg-obsidian-lighter rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
+  <div class="dark-embed rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
     <pre class="text-zinc-300"><span class="text-brand-red">$</span> air demo --healthcare
 
   <span class="text-white font-bold">Project AIR: Healthcare Demo (HIPAA-Aligned)</span>
@@ -196,7 +196,7 @@
     Project AIR is an open-source Python library. Instrumenting a healthcare AI agent takes four lines:
   </p>
 
-  <div class="bg-obsidian-lighter rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
+  <div class="dark-embed rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
     <pre class="text-zinc-300"><span class="text-brand-red">from</span> airsdk <span class="text-brand-red">import</span> AIRRecorder
 
 recorder = AIRRecorder(<span class="text-green-400">"clinical-chain.jsonl"</span>)

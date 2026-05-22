@@ -133,7 +133,7 @@
     Free-text intent ("refactor the auth module") is hard to verify precisely. Structural Verification introduces a structured <code class="font-mono text-brand-red">IntentSpec</code> that defines what the agent is authorized to do:
   </p>
 
-  <div class="bg-obsidian-lighter rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
+  <div class="dark-embed rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
     <pre class="text-zinc-300"><span class="text-brand-red">from</span> airsdk <span class="text-brand-red">import</span> AIRRecorder
 <span class="text-brand-red">from</span> airsdk.types <span class="text-brand-red">import</span> IntentSpec
 
@@ -160,7 +160,7 @@ recorder = AIRRecorder(
 
   <h2 class="text-2xl font-bold mt-12 mb-4" style="color: var(--text-primary);">Try it</h2>
 
-  <div class="bg-obsidian-lighter rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
+  <div class="dark-embed rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
     <pre class="text-zinc-300"><span class="text-brand-red">$</span> pip install projectair
 <span class="text-brand-red">$</span> air demo
 <span class="text-zinc-500"># Step 6/9 runs structural verification on the SSH-exfil chain</span>

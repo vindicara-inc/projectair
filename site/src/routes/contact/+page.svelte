@@ -2,10 +2,8 @@
   import vindicaraLogoDay from '$lib/assets/vindicara-logo-day.png';
   import vindicaraLogoNight from '$lib/assets/vindicara-logo-night.png';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-  import { getTheme } from '$lib/theme.svelte';
   import { page } from '$app/state';
 
-  let logo = $derived(getTheme() === 'dark' ? vindicaraLogoNight : vindicaraLogoDay);
 
   let mobileMenuOpen = $state(false);
 
@@ -92,7 +90,7 @@
 <nav class="fixed top-0 w-full z-50 backdrop-blur-2xl" style="background-color: color-mix(in srgb, var(--surface) 60%, transparent); border-bottom: 1px solid var(--border-subtle);">
   <div class="max-w-screen-2xl mx-auto px-6 flex items-center justify-between h-16">
     <a href="/" class="flex items-center gap-1">
-      <img src={logo} alt="Vindicara" class="h-10 w-auto" />
+      <img src={vindicaraLogoNight} alt="Vindicara" class="h-10 w-auto logo-night mix-blend-screen" /><img src={vindicaraLogoDay} alt="Vindicara" class="h-10 w-auto logo-day" />
       <span class="font-mono text-[10px] tracking-[0.18em] uppercase px-1.5 py-0.5" style="color: var(--text-primary); border: 1px solid var(--border); box-shadow: 0 0 10px var(--badge-shadow);">Project AIR&#8482;</span>
     </a>
     <div class="hidden md:flex items-center gap-8 text-sm">

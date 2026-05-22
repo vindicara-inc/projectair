@@ -143,7 +143,13 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #e4e4e7;
   }
+
+  .logo-night { display: block; }
+  .logo-day { display: none; }
 }
+
+:root[data-theme="light"] .logo-day { display: block; }
+:root[data-theme="light"] .logo-night { display: none; }
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }

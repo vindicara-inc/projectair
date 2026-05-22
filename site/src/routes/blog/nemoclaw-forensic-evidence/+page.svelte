@@ -130,7 +130,7 @@
     The <code class="font-mono text-brand-red">instrument_nemoclaw</code> integration hooks into the OpenClaw agent lifecycle inside NemoClaw's sandbox. Every execution, every tool call, every inference request, and every OpenShell policy decision is captured as a signed capsule.
   </p>
 
-  <div class="bg-obsidian-lighter rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
+  <div class="dark-embed rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
     <pre class="text-zinc-300"><span class="text-brand-red">from</span> openclaw_sdk <span class="text-brand-red">import</span> OpenClawClient
 <span class="text-brand-red">from</span> airsdk <span class="text-brand-red">import</span> AIRRecorder
 <span class="text-brand-red">from</span> airsdk.integrations.nemoclaw <span class="text-brand-red">import</span> instrument_nemoclaw
@@ -274,7 +274,7 @@ result = instrumented.execute(
     A health system deploys a clinical decision support agent on NemoClaw. The agent reads patient labs, imaging reports, and medication history, then generates a treatment recommendation for a clinician to review.
   </p>
 
-  <div class="bg-obsidian-lighter rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
+  <div class="dark-embed rounded-xl p-5 mt-6 font-mono text-sm overflow-x-auto border border-white/10">
     <pre class="text-zinc-300"><span class="text-brand-red">$</span> air demo --healthcare
 
   <span class="text-white font-bold">Project AIR: Healthcare Demo (HIPAA-Aligned)</span>
