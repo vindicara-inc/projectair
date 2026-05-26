@@ -2,6 +2,17 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [1.0.1] - 2026-05-25
+
+### Changed
+- **Broadened `cryptography` dependency** from `>=48.0.0,<49.0` to `>=42.0.0,<47.0`. ML-DSA-65 (FIPS 204) post-quantum signatures now gracefully degrade on environments without `cryptography>=48.0.0`: Ed25519 signing and verification continue working; ML-DSA-65 operations raise a clear `RuntimeError` with upgrade instructions instead of crashing on import.
+- ML-DSA-65 imports are now conditional (`_HAS_MLDSA` flag in `agdr.py` and `recorder.py`).
+- Pinned `sigstore>=3.0,<4.0` (was `<5.0`) for compatibility stability.
+
+### Added
+- `betterproto>=2.0.0b6` dependency.
+- Rewritten Auth0 Marketplace installation guide with step-by-step checkpoints, cross-platform instructions, and troubleshooting table.
+
 ## [1.0.0] - 2026-05-18
 
 **Status: production.** Five-layer architecture complete. Data governance ships as the first Pro-tier governance capability. AgDR schema v0.6.
