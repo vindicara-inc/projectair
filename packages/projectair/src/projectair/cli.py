@@ -112,6 +112,14 @@ from projectair.governance_cli import register as _register_governance_cli  # no
 _register_governance_cli(app)
 
 
+@app.callback(invoke_without_command=True)
+def _app_callback(ctx: typer.Context) -> None:
+    """Global pre-command hook: run the update checker before any subcommand."""
+    if ctx.invoked_subcommand is not None:
+        from projectair.update_check import maybe_check_update
+        maybe_check_update()
+
+
 def _count_conversations(records: list[AgDRRecord]) -> int:
     finishes = sum(1 for r in records if r.kind == StepKind.AGENT_FINISH)
     return max(finishes, 1)
@@ -285,6 +293,8 @@ def trace(
     ),
 ) -> None:
     """Ingest an AgDR log, verify its signatures, and output a forensic timeline."""
+    from projectair.first_run import maybe_prompt_first_run
+    maybe_prompt_first_run()
     registry = _load_registry_or_exit(agent_registry)
     _run_trace_pipeline(log, output, output_format, registry=registry)
 
@@ -335,6 +345,8 @@ def demo(
 
     Use --healthcare for a HIPAA-aligned clinical AI scenario.
     """
+    from projectair.first_run import maybe_prompt_first_run
+    maybe_prompt_first_run()
     workdir.mkdir(parents=True, exist_ok=True)
     log_path = workdir / "agent-trace.log"
     json_export = workdir / "forensic-report.json"
@@ -733,13 +745,13 @@ def _pro_unavailable_message() -> str:
     return (
         "Pro features require the projectair-pro package.\n\n"
         "  pip install projectair-pro\n"
-        "  air login --license <token>\n\n"
+        "  air install-license --license <token>\n\n"
         "Buy a license at https://vindicara.io/pricing"
     )
 
 
-@app.command()
-def login(
+@app.command(name="install-license")
+def install_license(
     license_token: str = typer.Option(
         None,
         "--license",
@@ -781,6 +793,95 @@ def login(
     typer.echo(f"  days remaining:  {parsed.days_remaining}")
 
 
+# -- Auth commands ----------------------------------------------------------
+
+_AUTH0_CLI_CLIENT_ID = "GszbWqSkD65eUjv7FrRWYO4IkmGWdd4y"
+_AUTH0_DOMAIN = "dev-kilt2vkudvbu75ny.us.auth0.com"
+_AUTH0_AUDIENCE = "https://api.vindicara.io"
+
+
+@app.command()
+def login() -> None:
+    """Authenticate with Vindicara via Auth0."""
+    import time as _time
+
+    import jwt as _jwt
+
+    from airsdk.containment.auth0_flows import Auth0Tenant, poll_device_token, start_device_flow
+    from projectair.config import save_session
+
+    tenant = Auth0Tenant(
+        domain=_AUTH0_DOMAIN,
+        audience=_AUTH0_AUDIENCE,
+        client_id=_AUTH0_CLI_CLIENT_ID,
+    )
+
+    try:
+        device = start_device_flow(tenant)
+    except Exception as exc:
+        typer.secho(f"Login failed: {exc}", fg=typer.colors.RED)
+        raise typer.Exit(code=1) from exc
+
+    typer.echo(f"  Open: {device.verification_uri}")
+    typer.echo(f"  Code: {device.user_code}")
+    typer.echo("Waiting for browser authentication...")
+
+    try:
+        token = poll_device_token(tenant, device.device_code, interval=device.interval)
+    except Exception as exc:
+        typer.secho(f"Login failed: {exc}", fg=typer.colors.RED)
+        raise typer.Exit(code=1) from exc
+
+    claims = _jwt.decode(token, options={"verify_signature": False})
+    email: str = claims.get("email") or claims.get("sub", "unknown")
+    sub: str = claims.get("sub", "")
+    exp: int = int(claims.get("exp", int(_time.time()) + 3600))
+
+    save_session(
+        {
+            "email": email,
+            "sub": sub,
+            "expires_at": exp,
+            "access_token": token,
+        }
+    )
+
+    typer.secho(f"Logged in as {email}", fg=typer.colors.GREEN, bold=True)
+
+
+@app.command()
+def logout() -> None:
+    """Remove saved Vindicara session."""
+    from projectair.config import delete_session
+
+    removed = delete_session()
+    if removed:
+        typer.secho("Logged out.", fg=typer.colors.GREEN)
+    else:
+        typer.echo("Not logged in.")
+
+
+@app.command()
+def whoami() -> None:
+    """Show current login status."""
+    import time as _time
+
+    from projectair.config import load_session
+
+    session = load_session()
+    if session is None:
+        typer.echo("Not logged in. Run `air login`.")
+        return
+
+    expires_at = session.get("expires_at")
+    if expires_at is None or int(expires_at) <= int(_time.time()):
+        typer.echo("Session expired. Run `air login` to re-authenticate.")
+        return
+
+    email = session.get("email", "unknown")
+    typer.secho(f"Logged in as {email}", fg=typer.colors.GREEN)
+
+
 @app.command()
 def status() -> None:
     """Show whether a Pro license is installed and what it grants."""
@@ -797,7 +898,7 @@ def status() -> None:
         typer.secho("No active Pro license.", fg=typer.colors.YELLOW)
         typer.echo("")
         typer.echo("Free OSS detectors and exports continue to work.")
-        typer.echo("Run `air login --license <token>` to activate Pro features.")
+        typer.echo("Run `air install-license --license <token>` to activate Pro features.")
         return
 
     typer.secho("Pro license active.", fg=typer.colors.GREEN, bold=True)
