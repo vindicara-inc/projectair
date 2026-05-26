@@ -206,6 +206,13 @@ class AgDRPayload(BaseModel):
     # and data-subject tracking across agent actions.
     data_assets: list[DataAssetRef] | None = None
     data_subjects: list[DataSubjectRef] | None = None
+    # HL7v2 / FHIR clinical chain fields (Pro). Set by ``instrument_hl7`` when
+    # capturing HL7v2 messages into the forensic chain. The parsing and mapping
+    # logic lives in ``airsdk_pro.hl7``; these fields are schema stubs available
+    # to any chain reader without importing the Pro package.
+    hl7v2_message_type: str | None = None
+    hl7v2_segments: dict[str, Any] | None = None
+    fhir_resources: list[dict[str, Any]] | None = None
 
 
 class AgDRRecord(BaseModel):
