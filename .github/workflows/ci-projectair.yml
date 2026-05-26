@@ -11,6 +11,9 @@ on:
       - 'packages/projectair/**'
       - '.github/workflows/ci-projectair.yml'
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: python-${{ matrix.python-version }}

@@ -1,5 +1,6 @@
 """Dashboard sub-application factory with HTMX API endpoints."""
 
+import structlog
 from pathlib import Path
 
 from fastapi import FastAPI, Form, Request
@@ -15,6 +16,8 @@ from vindicara.api.deps import (
 from vindicara.compliance.models import ComplianceFramework
 from vindicara.dashboard.demo import advance_demo, get_demo_state, start_demo
 from vindicara.mcp.findings import ScanMode
+
+logger = structlog.get_logger()
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
@@ -63,7 +66,8 @@ def create_dashboard_app() -> FastAPI:
                 f'{rules_html}</div>'
             )
         except Exception as exc:
-            return HTMLResponse(f'<div style="color:#E63946;padding:8px;">{exc}</div>')
+            logger.exception("dashboard.guard.error")
+            return HTMLResponse('<div style="color:#E63946;padding:8px;">An error occurred. Please try again.</div>')
 
     @app.post("/api/agents/register", response_class=HTMLResponse)
     async def register_agent_htmx(
@@ -128,7 +132,8 @@ def create_dashboard_app() -> FastAPI:
                 f'{findings_html}</div>'
             )
         except Exception as exc:
-            return HTMLResponse(f'<div class="card" style="padding:16px;color:#E63946;">{exc}</div>')
+            logger.exception("dashboard.mcp_scan.error")
+            return HTMLResponse('<div class="card" style="padding:16px;color:#E63946;">Scan failed. Please try again.</div>')
 
     @app.get("/api/compliance/report/{framework_id}", response_class=HTMLResponse)
     async def generate_report_htmx(framework_id: str) -> HTMLResponse:
@@ -147,7 +152,8 @@ def create_dashboard_app() -> FastAPI:
                 f'<tbody>{controls_html}</tbody></table></div>'
             )
         except Exception as exc:
-            return HTMLResponse(f'<div style="color:#E63946;padding:16px;">{exc}</div>')
+            logger.exception("dashboard.compliance_report.error")
+            return HTMLResponse('<div style="color:#E63946;padding:16px;">Report generation failed. Please try again.</div>')
 
     @app.post("/api/demo/start", response_class=HTMLResponse)
     async def start_demo_htmx(request: Request) -> HTMLResponse:

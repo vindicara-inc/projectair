@@ -1,6 +1,8 @@
-"""API key authentication middleware with hash-based validation."""
+"""API key authentication middleware with HMAC-based validation."""
 
 import hashlib
+import hmac
+import os
 
 import structlog
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
@@ -12,6 +14,9 @@ from vindicara.config.constants import API_KEY_HEADER, API_KEY_PREFIX
 logger = structlog.get_logger()
 
 _PUBLIC_PATHS = {"/health", "/ready", "/docs", "/openapi.json", "/redoc"}
+_API_KEY_HMAC_SECRET = os.environ.get(
+    "VINDICARA_API_KEY_HMAC_SECRET", "vindicara-dev-hmac-secret-change-in-prod",
+).encode("utf-8")
 
 
 class APIKeyStore:
@@ -43,7 +48,9 @@ class APIKeyStore:
 
     @staticmethod
     def _hash_key(raw_key: str) -> str:
-        return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
+        return hmac.new(
+            _API_KEY_HMAC_SECRET, raw_key.encode("utf-8"), hashlib.sha256,
+        ).hexdigest()
 
 
 class APIKeyAuthMiddleware(BaseHTTPMiddleware):
