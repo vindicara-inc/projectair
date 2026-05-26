@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Routine code edits only need this file. For product decisions, external content, new subsystem design, or full engineering standards, see the **Further reading** section at the bottom.
 
-## Current state (2026-05-11)
+## Current state (2026-05-25)
 
 Brand hierarchy:
 - Company: Vindicara
@@ -18,24 +18,12 @@ The AIR pivot shipped. The OSS promise is live on PyPI. Read this before doing a
 
 ### On PyPI
 
-- `projectair` **0.8.1** is the latest live release (published 2026-05-11). MIT. Ships the `air` CLI and the `airsdk` library. This is the public product. The four-layer architecture is now complete: detector coverage (Layer 0) + external trust anchor (Layer 1) + causal reasoning (Layer 2) + Auth0-verified containment (Layer 3) + AgDR Handoff Protocol Wave 1 (Layer 4). 0.8.1 adds `--from`/`--to` date-range filtering to all `air report` commands (full chain verified, only windowed records used for detectors and reports).
-- **ML-DSA-65 (FIPS 204) post-quantum signatures** shipped in 0.8.0 as opt-in experimental. `Signer.generate(algorithm=SigningAlgorithm.ML_DSA_65)` or `AIRRecorder(..., signing_algorithm=SigningAlgorithm.ML_DSA_65)`. AgDR schema bumped to **0.5** (adds `signature_algorithm` field; v0.4 records without the field default to `"ed25519"` and verify unchanged). Requires `cryptography>=48.0.0`. Ed25519 remains the default. Mixed-algorithm chains verify correctly. Layer 4 handoff identity is still Ed25519-only (separate scope). Mark as `experimental` in all docs until at least one customer uses it.
-- Release lineage (each is a real PyPI release unless marked):
-  - 0.1.0–0.1.5: initial detectors, signing, LangChain + OpenAI + Anthropic integrations.
-  - 0.2.1 ASI06+ASI07; 0.2.3 ASI05+ASI09; 0.2.4 ASI08. (0.2.0 and 0.2.2 were local-only.)
-  - 0.3.0 (2026-04-22): full 10 of 10 OWASP Agentic via ASI03 + ASI10 (Zero-Trust enforcement); `air report article72`.
-  - 0.3.1 (2026-04-23): LlamaIndex (`instrument_llamaindex`).
-  - 0.3.2 (2026-05-01): Google Gemini SDK (`instrument_gemini` over `google-genai`) + Google ADK (`instrument_adk` over `google-adk`); NVIDIA NIM verified to work via `instrument_openai`.
-  - 0.4.0 (2026-05-06): **Layer 1** External Trust Anchor. RFC 3161 + Sigstore Rekor anchoring; `air anchor` / `air verify` / `air verify-public`; `FileTransport.emit` now `os.fsync`s after every record (~5% overhead on macOS APFS). Reference chain anchored on public Rekor at log index 1455601514. AgDR `version` advanced to 0.3 with `StepKind.ANCHOR`.
-  - 0.5.0 (2026-05-07): **Layer 2** Causal Reasoning. `airsdk.causal.{build_causal_graph, explain_step, explain_finding}`; `air explain --step` and `air explain --finding`. Hard edges (CHAIN_LINK / LLM_PAIR / TOOL_PAIR / LLM_DECISION / AGENT_MESSAGE) at confidence 1.0; soft edges (OUTPUT_REUSE) at 0.5–1.0.
-  - 0.6.0 (2026-05-07): **Layer 3** Auth0-verified containment v1. `ContainmentPolicy`, `Auth0Verifier`, `StepKind.HUMAN_APPROVAL`. AgDR schema 0.3 → **0.4**.
-  - 0.6.1 (2026-05-07): `air approve` CLI (`--token`, `--device`, `--authorize-url`); device flow + PKCE + authorize-URL helpers.
-  - 0.7.0 (2026-05-07): **Layer 4 Wave 1 (alpha)** AgDR Handoff Protocol (A2A). `airsdk.handoff.*`, `air handoff verify`, `agdr/v2.handoff` and `agdr/v2.handoff_acceptance` schemas. Live demo against real Auth0 tenant `dev-kilt2vkudvbu75ny.us.auth0.com`; Rekor anchor at log index 1465403522. Wave 1 is single-tenant + synchronous Rekor mode + the full eight-step verifier; Wave 2 (cross-tenant via Sigstore Fulcio + OIDC Discovery) ships once Wave 1 has at least one reference deployment.
-  - 0.7.1 (2026-05-07): `air upgrade` pricing alignment (no code-path changes).
-  - 0.8.0 (2026-05-11): **ML-DSA-65 (FIPS 204) post-quantum signatures** (experimental, opt-in). AgDR schema 0.4 -> **0.5** (`signature_algorithm` field). Package author updated to Kevin Minn <support@vindicara.io>.
-  - 0.8.1 (2026-05-11): `--from`/`--to` date-range filtering on all `air report` commands.
+- `projectair` **1.0.0** is the latest live release (published 2026-05-18). MIT. Ships the `air` CLI and the `airsdk` library. This is the public product. The five-layer architecture is now complete: detector coverage (Layer 0) + external trust anchor (Layer 1) + causal reasoning (Layer 2) + Auth0-verified containment (Layer 3) + AgDR Handoff Protocol Wave 1 (Layer 4) + structural verification + data governance schema (Layer 5, Pro). AgDR schema is **v0.6**.
+- **1.0.1 is in-flight** (uncommitted). Relaxes `cryptography` dep from `>=48.0.0` to `>=42.0.0,<47.0` for broader compatibility; ML-DSA-65 imports are now conditional (`_HAS_MLDSA` flag). Adds `betterproto` dependency.
+- **ML-DSA-65 (FIPS 204) post-quantum signatures** shipped in 0.8.0 as opt-in experimental. `Signer.generate(algorithm=SigningAlgorithm.ML_DSA_65)` or `AIRRecorder(..., signing_algorithm=SigningAlgorithm.ML_DSA_65)`. Ed25519 remains the default. Mixed-algorithm chains verify correctly. Layer 4 handoff identity is still Ed25519-only (separate scope). Mark as `experimental` in all docs until at least one customer uses it.
+- Key releases: 0.3.0 (10/10 OWASP Agentic), 0.4.0 (Layer 1), 0.5.0 (Layer 2), 0.6.0 (Layer 3), 0.7.0 (Layer 4 Wave 1), 0.8.0 (ML-DSA-65), 0.8.1 (date filtering), 0.9.0 (NVIDIA NeMo/NemoGuard), 1.0.0 (Structural Verification + Data Governance). Full history in `packages/projectair/CHANGELOG.md`.
 - To publish a new release: add a `[<ver>]` section to `packages/projectair/CHANGELOG.md` (Keep a Changelog format), bump `packages/projectair/pyproject.toml` + `airsdk/__init__.py`, then from `packages/projectair/`: `rm -f dist/*.whl dist/*.tar.gz && python -m build && python -m twine check dist/* && python -m twine upload dist/projectair-<ver>*`. Always `cd packages/projectair` first; running `python -m build` from the repo root produces a vindicara wheel instead.
-- The simple index at `https://pypi.org/simple/projectair/` updates faster than the JSON endpoint when checking propagation. Credentials live in `~/.pypirc` (permissions `-rw-------`, username `__token__`, password is the PyPI API token starting with `pypi-`). With `~/.pypirc` in place, `twine upload` is non-interactive.
+- The simple index at `https://pypi.org/simple/projectair/` updates faster than the JSON endpoint when checking propagation. Credentials are in `~/.pypirc`; with it in place, `twine upload` is non-interactive.
 - `vindicara` 0.2.0 live, repositioned as "server-side engine behind AIR Cloud." `vindicara` 0.1.0 yanked.
 
 ### Detector coverage (honest, ground in actual OWASP specs, do not fabricate)
@@ -53,12 +41,13 @@ The AIR pivot shipped. The OSS promise is live on PyPI. Read this before doing a
   - `ASI10` Rogue Agents (shipped 0.3.0; Zero-Trust behavioral-scope enforcement via `BehavioralScope`: unexpected tool / fan-out breach / off-hours activity / session tool budget)
 - `UNIMPLEMENTED_DETECTORS` is now empty.
 - OWASP **Top 10 for LLM Applications** (3 categories, implemented as AIR-specific detectors): `AIR-01` → LLM01 Prompt Injection, `AIR-02` → LLM06 Sensitive Information Disclosure, `AIR-03` → LLM04 Model Denial of Service.
-- **AIR-native**: `AIR-04` Untraceable Action (forensic-chain-integrity check; no direct OWASP equivalent).
-- Correct public framing as of 0.3.0: **"10 OWASP Agentic + 3 OWASP LLM + 1 AIR-native."** Every public claim must cite this exact taxonomy. Never revert to the "8 of 10" or "3 of 10" framing from earlier releases.
+- **AIR-native**: `AIR-04` Untraceable Action (forensic-chain-integrity check; no direct OWASP equivalent), `AIR-05` NemoGuard Safety Classification, `AIR-06` NemoGuard Corroboration (see below).
+- **AIR-native**: `AIR-05` NemoGuard Safety Classification (critical/high/medium severity scaled by safety category; 0.9.0), `AIR-06` NemoGuard Corroboration (cross-corroboration between AIR heuristic detectors and NemoGuard NIM classifiers; 0.9.0).
+- Correct public framing as of 0.9.0: **"10 OWASP Agentic + 3 OWASP LLM + 3 AIR-native."** Detector count is **16 total**. Every public claim must cite this exact taxonomy. Never revert to the "14" or "8 of 10" framing from earlier releases.
 - **ASI10 is Zero-Trust enforcement, not anomaly detection.** Frame it as declared-scope enforcement in every doc, docstring, README, and HN post. The learned-baseline anomaly-detection variant (statistical profiling, peer comparison) is explicitly on the roadmap for a later release and is labelled as such in `detections.py`. Calling the shipped detector "anomaly detection" is overclaim.
 - **Do not conflate AIR-04 with ASI10.** AIR-04 detects gaps in our own chain (missing tool_end records, silent intervals). ASI10 Rogue Agents is about agents acting outside their authorization scope / stealth infiltration. OWASP lists signed audit logs as a *mitigation* for ASI10, not a detection signal. Calling AIR-04 "ASI10 coverage" is overclaim. Real ASI10 coverage requires a behavioral-scope detector.
 
-### Layered architecture (the spine of the product as of 0.8.1)
+### Layered architecture (the spine of the product as of 1.0.0)
 
 The detectors above are Layer 0. Each subsequent layer is a separate `airsdk` subpackage with its own demo script, CLI surface, and crypto trust contract. Treat layers as independently dependable: a customer can adopt Layer 1 without Layer 2, Layer 3 without Layer 4, etc.
 
@@ -67,7 +56,10 @@ The detectors above are Layer 0. Each subsequent layer is a separate `airsdk` su
 - **Layer 3, Containment with Auth0 (`airsdk.containment/`).** `ContainmentPolicy` (deny_tools / deny_arg_patterns / block_on_findings / step_up_for_actions; deny rules override step-up). `Auth0Verifier` does real RS256/RS384/RS512 JWT verification via `PyJWKClient`; named for Auth0 because Auth0 is the documented integration target but the implementation is generic OIDC + JWKS. `StepKind.HUMAN_APPROVAL` carries the verified `Auth0Claims` (`sub`, `email`, `iss`, `aud`, `iat`, `exp`, `jti`) plus the original signed JWT; AgDR schema is **0.4**. `AIRRecorder.tool_start()` consults the policy and either allows, blocks, or step-ups (raising `BlockedActionError` or `StepUpRequiredError`); `AIRRecorder.approve(challenge_id, token)` validates the token, records `HUMAN_APPROVAL`, then re-emits the originally-halted tool_start as a fresh non-blocked record. Forged or wrong-issuer tokens leave the action permanently halted. CLI: `air approve` with `--token` / `--device` / `--authorize-url` modes. `Auth0Tenant`, `build_authorize_url`, `make_pkce_pair`, `start_device_flow`, `poll_device_token` are the wiring helpers. Demo: `scripts/e2e_layer3.py`.
 - **Layer 4, AgDR Handoff Protocol Wave 1 (alpha) (`airsdk.handoff/`).** Cross-agent chain of custody: when Agent A delegates to Agent B, a Parent Trace ID (`PTID` = W3C trace_id verbatim, 32 lowercase hex) propagates through capability tokens and HTTP headers, a `HANDOFF` record at the source pairs cryptographically with a `HANDOFF_ACCEPTANCE` record at the target, and a Sigstore Rekor counter-attestation with hashed identifiers proves Agent B validated the capability token without leaking topology to the public log. New schemas: `agdr/v2.handoff`, `agdr/v2.handoff_acceptance`, `agdr/v2.validation_attestation` (independent of v0.4 record schema; legacy chain integrity unchanged). Modules: `canonicalize` (RFC 8785 JCS; rejects bytes / datetime / UUID / Decimal / Enum / pathlib / tuple inputs to prevent cross-language interop bugs being locked into a permanent Rekor anchor), `trace` (W3C Trace Context; `reconcile_channels` fails closed when JWT `air_ptid` / W3C `traceparent` / `Air-Parent-Trace-Id` disagree), `identity` (`IdentityFormat` enum: `sigstore_fulcio` / `x509_pem` / `local_dev`), `handoff_record`, `idp.{Auth0Adapter, AdapterRouter, OktaAdapter, EntraAdapter, SpiffeAdapter}` (Auth0 is the only live adapter in Wave 1; Okta / Entra / Spiffe ship in v1.5 alongside enterprise federation), `validation_proof` (Rekor counter-attestation with hashed identifiers), `verifier.CrossAgentVerifier` (eight-step verification, Section 8.2). CLI: `air handoff verify --ptid <ptid> --chain <path>`. Demo: `scripts/e2e_layer4.py` (use `--live-rekor` to submit to public Sigstore Rekor). Wave 1 was demonstrated live against Auth0 tenant `dev-kilt2vkudvbu75ny.us.auth0.com` on 2026-05-07; Rekor anchor at log index 1465403522. Three pre-spec design decisions are locked: (4) Rekor counter-attestation replaces self-attested validation, (5) PTID = W3C trace_id verbatim with `air_ptid` JWT claim, (6) cross-tenant in v1 via Sigstore Fulcio + OIDC Discovery (no pre-arranged trust); see `project_layer4_design_decisions.md` in memory.
 
-The four layers correspond to the public framing: detection (what wrong looks like) + verification (was the chain real?) + explanation (why did it happen?) + containment (stop it + bind to a human) + cross-agent trust (the chain survives delegation).
+- **Structural Verification (`airsdk.verification/`).** Verifies that an agent's actual behavior served its declared intent. `verify_intent(records, intent_spec=)` runs four symbolic checks: SV-SECRET (secret access without declaration), SV-NET (undeclared network targets), SV-SCOPE (tool use outside allowed set), SV-EXFIL (data exfiltration patterns). Returns `IntentVerificationResult` with verdict VERIFIED / FAILED / INCONCLUSIVE. `IntentSpec` schema (`goal`, `allowed_tools`, `allowed_paths`, `allowed_network`, `secret_access`, `non_goals`) declares what the agent should do; `StepKind.INTENT_DECLARATION` records it in the chain. `AIRRecorder(intent_spec=IntentSpec(...))` emits an `INTENT_DECLARATION` as the first record. CLI: `air verify-intent <chain>` (exits code 2 on FAILED for CI). Tests: `tests/verification/` (28 tests across verifier, trajectory, entity, incremental). Shipped 1.0.0.
+- **Layer 5, Data Governance (Pro, `airsdk_pro.governance/`).** Data-asset lineage, data-subject tracking, DSAR, OpenLineage export. `DataAssetRef` and `DataSubjectRef` types on `AgDRPayload` (AgDR v0.6). `AIRRecorder.tool_start()` and `llm_start()` accept `data_assets` and `data_subjects` kwargs. CLI: `air governance index|query|dsar|export|classify` (Pro). Shipped 1.0.0.
+
+The five layers correspond to the public framing: detection (what wrong looks like) + verification (was the chain real?) + explanation (why did it happen?) + containment (stop it + bind to a human) + cross-agent trust (the chain survives delegation) + data governance (which agent touched which data, who authorized it).
 
 ### Terminology: "Intent Capsule" is the public-facing term
 
@@ -75,7 +67,7 @@ OWASP's ASI01 mitigation #5 names "intent capsule" as the emerging pattern for b
 
 ### Roadmap (next)
 
-Layers 1, 2, 3, and 4 Wave 1 shipped between 2026-05-06 and 2026-05-07. Detector coverage is 10 of 10 Agentic + 3 LLM + 1 AIR-native. Next-release targets:
+Layers 1-4 shipped 2026-05-06 to 2026-05-07. NVIDIA integrations shipped 0.9.0 (2026-05-12). Structural Verification + Data Governance shipped 1.0.0 (2026-05-18). Detector coverage is 10 of 10 Agentic + 3 LLM + 3 AIR-native = 16. Next-release targets:
 - Layer 4 Wave 2: cross-tenant federation via Sigstore Fulcio + OIDC Discovery (lifts the v1 single-tenant feature flag once Wave 1 has at least one reference deployment).
 - Layer 4 v1.5: private / enterprise federation (custom CA roots, archived JWKS); live `OktaAdapter` / `EntraAdapter` / `SpiffeAdapter` (Wave 1 ships interface-only placeholders that raise `IdPNotImplementedError`).
 - Layer 1 v0.4.1: anchoring key rotation with key transparency log; bundled TSA root certificate set; `docs/anchoring.md` + `docs/threat-model.md`.
@@ -101,23 +93,23 @@ This is engine-side, not part of the OSS `projectair` distribution. Customers do
 
 ### Framework integrations shipped
 
-LangChain (`AIRCallbackHandler`), OpenAI (`instrument_openai`), Anthropic (`instrument_anthropic`), LlamaIndex (`instrument_llamaindex`, shipped 0.3.1), Google Gemini SDK (`instrument_gemini` over `google-genai`, shipped 0.3.2), Google ADK (`instrument_adk` over `google-adk`, shipped 0.3.2). LangChain lives in `callback.py` at the top of `airsdk/`; everything else lives in `packages/projectair/src/airsdk/integrations/`.
+LangChain (`AIRCallbackHandler`), OpenAI (`instrument_openai`), Anthropic (`instrument_anthropic`), LlamaIndex (`instrument_llamaindex`, shipped 0.3.1), Google Gemini SDK (`instrument_gemini` over `google-genai`, shipped 0.3.2), Google ADK (`instrument_adk` over `google-adk`, shipped 0.3.2), NVIDIA NeMo Guardrails (`instrument_nemo_guardrails`, shipped 0.9.0), NVIDIA NemoGuard NIM (`NemoGuardClient` for JailbreakDetect / ContentSafety / TopicControl classifiers, shipped 0.9.0), NVIDIA NemoClaw (`instrument_nemoclaw` for OpenClaw + OpenShell agent lifecycle, unreleased). LangChain lives in `callback.py` at the top of `airsdk/`; everything else lives in `packages/projectair/src/airsdk/integrations/`.
 
 **Any OpenAI-compatible endpoint also works via `instrument_openai`** including NVIDIA NIM (`Llama 3.3 70B Instruct NIM`, etc.), vLLM, TGI, Together AI, Groq, Mistral, and Fireworks. Verified by network-gated E2E test at `tests/test_integrations_nim_e2e.py` and runnable demo at `examples/nim_demo.py` (requires `NVIDIA_API_KEY` from build.nvidia.com). This is compatibility through the existing OpenAI integration, not a separate integration module.
 
 ### Code location
 
 - `packages/projectair/` is the public MIT package (the OSS top-of-funnel, the `air` CLI + `airsdk` library)
-- `packages/projectair-pro/` is the licensed commercial tier (`projectair-pro` 0.1.0, `airsdk_pro` namespace). Holds AIR Cloud client, premium detectors, premium reports. Not on PyPI; distributed under a commercial license to paying tiers
+- `packages/projectair-pro/` is the licensed commercial tier (`projectair-pro`, `airsdk_pro` namespace). Holds AIR Cloud client (`cloud/`), premium detectors (`detectors/asi04_premium.py`), premium reports (`report_nist_rmf.py`, `report_soc2_ai.py`), data governance (`governance/`: classifier, dsar, indexer, openlineage, query, registry), SIEM push (`siem/`: `splunk.py` Splunk HEC, `datadog.py`, `sentinel.py` Microsoft Sentinel, `sumo.py` Sumo Logic; gated by `siem-integrations` license flag; raw CEF export lives in OSS `airsdk/exports.py`), gating (`gate.py`), licensing (`license.py`). Not on PyPI; distributed under a commercial license to paying tiers
 - `packages/air-dashboard/` is the **dedicated AIR Cloud dashboard** (SvelteKit 2 + Svelte 5 + Tailwind 4, static adapter, Three.js rendering deps). Separate from `site/` (the marketing site) and from `src/vindicara/dashboard/` (the legacy SSR dashboard mounted under `/dashboard` of the FastAPI app). When the user says "the dashboard," confirm which one
-- `site/` is the marketing + pricing site (also SvelteKit 2 + Svelte 5 + Tailwind 4); homepage, blog, pricing, contact, privacy/terms/security/acceptable-use pages
+- `site/` is the marketing + pricing site (also SvelteKit 2 + Svelte 5 + Tailwind 4); homepage, blog, pricing, contact, privacy/terms/security/acceptable-use pages. Has a day/night theme system: CSS custom properties on `:root` with `data-theme="light"` override, theme store at `site/src/lib/theme.svelte.ts`, flash-prevention inline script in `+layout.svelte`, `ThemeToggle.svelte` component (sun/moon icon). Day palette is peachy lilac (`#f0e6ef`), not white. Terminal/code blocks stay dark in both modes via `.dark-embed` class. Logos swap via `.logo-day`/`.logo-night` CSS classes
 - `src/vindicara/` is Apache-2.0 engine substrate, not directly pip-installable anymore
 - All four live in this monorepo
 - Pitch the split as **Snyk-style: MIT CLI + SDK top-of-funnel, commercial pro tier + engine behind the cloud**
 
 ### Working venv
 
-`/Users/KMiI/Desktop/vindicara/.venv-air/` (Python 3.13). `air` binary lives there.
+`.venv-air/` (Python 3.13). The `air` binary lives there.
 
 ### Context
 
@@ -149,6 +141,7 @@ air verify-public path/to/chain.jsonl         # Layer 1: five-step verification 
 air explain --finding ASI02                   # Layer 2: narrowed evidence excerpt for a flagged step
 air approve --token <jwt>                     # Layer 3: submit verified Auth0 token to resume a halted action
 air handoff verify --ptid <ptid> --chain <p>  # Layer 4: eight-step cross-agent verifier
+air verify-intent path/to/chain.jsonl        # Structural Verification: exits 2 on FAILED
 ```
 
 End-to-end demos for each layer (run after `pip install -e "packages/projectair[dev]"`):
@@ -161,13 +154,13 @@ python packages/projectair/scripts/e2e_layer4.py            # Layer 4: handoff +
 python packages/projectair/scripts/e2e_layer4.py --live-rekor  # submits real attestation to public Sigstore Rekor
 ```
 
-Lint, format check, type check (runs ruff + mypy strict):
+Lint, format check, type check (runs ruff + mypy strict; **covers `src/vindicara` + `tests/` only**, not the projectair package):
 
 ```bash
 ./scripts/lint.sh
 ```
 
-Run the full test suite with coverage (fails under 80%):
+Run the engine test suite with coverage (fails under 80%; **covers `src/vindicara` only**):
 
 ```bash
 ./scripts/test.sh
@@ -207,7 +200,12 @@ cd site && npm run check                 # svelte-check (this is the lint bar; f
 cd site && npm run build                 # static build (run after check passes)
 ```
 
-Site deploy script: `scripts/deploy-site.sh`. See `reference_site_deploy.md` in memory for the S3/CloudFront wiring.
+Site deploy: auto-deploys on push to `main` when `site/**` changes via `.github/workflows/deploy-site.yml`. Manual: `scripts/deploy-site.sh`. See `reference_site_deploy.md` in memory for the S3/CloudFront wiring.
+
+CI (GitHub Actions):
+
+- `ci-projectair.yml`: runs ruff + pytest on Python 3.12/3.13 for every push/PR touching `packages/projectair/**`. This is the gate for the OSS package.
+- `deploy-site.yml`: auto-deploys the marketing site on push to `main` when `site/**` changes.
 
 AIR Cloud dashboard (SvelteKit, `packages/air-dashboard/`):
 
@@ -231,20 +229,21 @@ cd packages/air-dashboard && npm run ci                # check + test + build + 
   - `callback.py` (`AIRCallbackHandler` for LangChain; lives at the top of `airsdk/`, not under `integrations/`)
   - `recorder.py` (`AIRRecorder` writes signed records; consumes `containment=` + `auth0_verifier=` for Layer 3)
   - `transport.py` (transport sinks; `FileTransport` `os.fsync`s after every record so Layer 1's chain-as-spool recovery model is sound; opt out with `FileTransport(path, fsync=False)` for max throughput at the cost of weaker crash recovery)
-  - `agdr.py` (BLAKE3 + Ed25519/ML-DSA-65 signing; the "AgDR format" layer, product-labelled "Signed Intent Capsule"; current AgDR `version` is **0.5** as of ML-DSA-65 addition)
+  - `agdr.py` (BLAKE3 + Ed25519/ML-DSA-65 signing; the "AgDR format" layer, product-labelled "Signed Intent Capsule"; current AgDR `version` is **0.6** as of Data Governance addition; ML-DSA-65 imports are conditional via `_HAS_MLDSA` flag since 1.0.1)
   - `detections.py` (all ASI + AIR-XX detectors)
   - `registry.py` (`AgentRegistry`, `AgentDescriptor`, `BehavioralScope` pydantic schemas; YAML/JSON loader for the operator-supplied Zero-Trust declaration that ASI03 + ASI10 enforce against)
   - `article72.py` + `_article72_content.py` (Markdown report generator behind `air report article72`)
   - `exports.py` (JSON/PDF/CEF emitters)
-  - `types.py` (`AgDRRecord`, `AgDRPayload`, `Finding`, `ForensicReport`, `StepKind`, `SigningAlgorithm` including `ANCHOR` from Layer 1 and `HUMAN_APPROVAL` from Layer 3)
-  - `_concrete_demo.py` (the brutal narrative chain that `air demo` actually runs: poisoned README → SSH key exfiltration). `_demo.py` is the older sanity-only demo and is no longer the default.
-- `packages/projectair/src/airsdk/anchoring/` — Layer 1. `rfc3161.py` (`RFC3161Client`, FreeTSA default), `rekor.py` (`RekorClient`, ECDSA P-256 Prehashed), `orchestrator.py` (`AnchoringOrchestrator`, `FailurePolicy`), `policy.py`, `identity.py` (`load_anchoring_key`; `AIRSDK_ANCHORING_KEY` env or `~/.config/projectair/anchoring_key.pem` mode 0600), `exceptions.py`.
-- `packages/projectair/src/airsdk/causal/` — Layer 2. `inference.py` (`build_causal_graph`), `explain.py` (`explain_step`, `explain_finding`), `types.py` (`CausalGraph`, `Edge`, `Explanation`).
-- `packages/projectair/src/airsdk/containment/` — Layer 3. `policy.py` (`ContainmentPolicy`), `auth0.py` (`Auth0Verifier`, `Auth0Claims`), `auth0_flows.py` (device flow, PKCE, authorize-URL helpers, polling), `exceptions.py` (`BlockedActionError`, `StepUpRequiredError`, `ApprovalInvalidError`, `Auth0DeviceFlowError`).
-- `packages/projectair/src/airsdk/handoff/` — Layer 4 Wave 1 (alpha). `canonicalize.py` (RFC 8785 JCS, strict input policy), `trace.py` (W3C Trace Context, `generate_ptid`, `parse_traceparent`, `child_context`, `reconcile_channels`), `identity.py` (`IdentityFormat`, `AgentIdentity`, `generate_local_dev_identity`), `handoff_record.py` (`agdr/v2.handoff` + `agdr/v2.handoff_acceptance` builders), `idp/` (`IdPAdapter`, `AdapterRouter`, `Auth0Adapter` live; `OktaAdapter`/`EntraAdapter`/`SpiffeAdapter` raise `IdPNotImplementedError` until v1.5), `validation_proof.py` (Rekor counter-attestation with hashed identifiers), `verifier.py` (`CrossAgentVerifier` eight-step), `exceptions.py` (`ReplayAnomalyError`, `UnregisteredIssuerError`, `CustomClaimMissingError`, etc.).
-- `packages/projectair/src/airsdk/integrations/` — `openai.py` (`instrument_openai`), `anthropic.py` (`instrument_anthropic`), `llamaindex.py` (`instrument_llamaindex`, transparent proxy over any `llama_index.core.llms.LLM` subclass), `gemini.py` (`instrument_gemini` over `google-genai`, with streaming helpers in `_gemini_streams.py`), `adk.py` (`instrument_adk` over `google-adk`).
-- `packages/projectair/src/projectair/cli.py` — Typer CLI. All `air` subcommands live here: `demo`, `trace`, `report`, `anchor`, `verify`, `verify-public` (Layer 1); `explain` (Layer 2); `approve` (Layer 3); `handoff` (Layer 4); `upgrade`.
-- `packages/projectair/tests/` — pytest suite for the MIT package. Separate from the root `tests/`. Subdirs include `tests/anchoring/`, `tests/causal/`, `tests/containment/`, `tests/handoff/` (56 Layer 4 tests). Run with `pytest packages/projectair/tests`.
+  - `types.py` (`AgDRRecord`, `AgDRPayload`, `Finding`, `ForensicReport`, `StepKind`, `SigningAlgorithm`, `IntentSpec`, `DataAssetRef`, `DataSubjectRef`; `StepKind` includes `ANCHOR` from Layer 1, `HUMAN_APPROVAL` from Layer 3, `INTENT_DECLARATION` from Structural Verification)
+  - `_concrete_demo.py` (the brutal narrative chain that `air demo` actually runs: poisoned README → SSH key exfiltration). `_healthcare_demo.py` (HIPAA-focused clinical AI demo available via `air demo --scenario healthcare`). `_demo.py` is the older sanity-only demo and is no longer the default.
+- `packages/projectair/src/airsdk/anchoring/` — Layer 1 (see "Layered architecture" above for trust contracts). Key modules: `rfc3161.py`, `rekor.py`, `orchestrator.py`, `identity.py` (`AIRSDK_ANCHORING_KEY` env or `~/.config/projectair/anchoring_key.pem`).
+- `packages/projectair/src/airsdk/causal/` — Layer 2. `inference.py` (`build_causal_graph`), `explain.py`, `types.py`.
+- `packages/projectair/src/airsdk/containment/` — Layer 3. `policy.py`, `auth0.py`, `auth0_flows.py`, `exceptions.py`.
+- `packages/projectair/src/airsdk/handoff/` — Layer 4 Wave 1 (alpha). `canonicalize.py`, `trace.py`, `identity.py`, `handoff_record.py`, `idp/` (Auth0 live; Okta/Entra/Spiffe placeholders), `validation_proof.py`, `verifier.py`.
+- `packages/projectair/src/airsdk/verification/` — Structural Verification (1.0.0). `verifier.py` (`verify_intent`), `intent.py` (`extract_intent`), `types.py` (`IntentVerdict`, `Violation`, `IntentVerificationResult`). Checks under `checks/`: `scope.py` (SV-SCOPE), `secrets.py` (SV-SECRET), `network.py` (SV-NET), `trajectory.py` (SV-EXFIL), `entity.py` (entity-level checks).
+- `packages/projectair/src/airsdk/integrations/` — `openai.py` (`instrument_openai`), `anthropic.py` (`instrument_anthropic`), `llamaindex.py` (`instrument_llamaindex`, transparent proxy over any `llama_index.core.llms.LLM` subclass), `gemini.py` (`instrument_gemini` over `google-genai`, with streaming helpers in `_gemini_streams.py`), `adk.py` (`instrument_adk` over `google-adk`), `nemo_guardrails.py` (`instrument_nemo_guardrails`), `nemoguard.py` (`NemoGuardClient`), `nemoclaw.py` (`instrument_nemoclaw`).
+- `packages/projectair/src/projectair/cli.py` — Typer CLI (~1080 lines). All `air` subcommands live here: `demo` (supports `--scenario healthcare`), `trace`, `report` (subcommands: `article72`, `nist-rmf`, `soc2-ai`), `anchor`, `verify`, `verify-public` (Layer 1); `explain` (Layer 2); `approve` (Layer 3); `handoff` (Layer 4); `verify-intent` (Structural Verification, exit code 2 on FAILED); `governance` (Pro: `index`, `query`, `dsar`, `export`, `classify`); `upgrade`.
+- `packages/projectair/tests/` — pytest suite for the MIT package. Separate from the root `tests/`. Subdirs include `tests/anchoring/`, `tests/causal/`, `tests/containment/`, `tests/handoff/` (56 Layer 4 tests), `tests/verification/` (28 tests: verifier, trajectory, entity, incremental). Run with `pytest packages/projectair/tests`.
 - `packages/projectair/scripts/` — `e2e_layer1.py`, `e2e_layer3.py`, `e2e_layer4.py`, `bench_fsync.py` (the source of the ~5% APFS overhead claim).
 - `packages/projectair/examples/` — `build_sample_trace.py` and `sample_trace.log` for manual testing of `air trace`; `gemini_demo.py`, `adk_demo.py`, `nim_demo.py`.
 
@@ -278,7 +277,7 @@ There is no `tests/e2e/` directory, no `scripts/deploy.sh`, and no `src/vindicar
 - **SDK namespaces.** `Client` composes sub-namespaces (`MCPNamespace`, `AgentsNamespace`, monitor, compliance), each wrapping a single engine/registry/reporter. Adding a new SDK surface means: build the engine in `src/vindicara/<module>/`, then wire a namespace class inside `sdk/client.py` and expose it as a property on `Client`. Re-export anything public from `vindicara/__init__.py`.
 - **Lambda vs local.** `lambda_handler.py` and local `uvicorn` both call `create_app()`, so behavior should be identical. DynamoDB/S3 access in Lambda runs under the IAM role from `APIStack`; locally it falls back to whatever `boto3` picks up from the environment. `VINDICARA_OFFLINE_MODE=true` disables cloud calls entirely for local/SDK use.
 - **CDK wiring.** `infra/app.py` instantiates `DataStack` and `EventsStack` first, then passes their outputs into `APIStack` as constructor args. Stacks are NOT auto-discovered; adding a stack means editing `infra/app.py` to instantiate it.
-- **Chain signing: Ed25519 (default) or ML-DSA-65 (FIPS 204, experimental opt-in).** `Signer` auto-detects the algorithm from the key type. `AgDRRecord.signature_algorithm` field (v0.5) tells `verify_record` which verifier to dispatch to. Ed25519 signatures are 64 bytes; ML-DSA-65 signatures are 3,309 bytes (~7 KB hex per record). Both use 32-byte seeds. Mixed-algorithm chains (some records Ed25519, some ML-DSA-65) verify correctly.
+- **Chain signing: Ed25519 (default) or ML-DSA-65 (FIPS 204, experimental opt-in).** `Signer` auto-detects the algorithm from the key type. `AgDRRecord.signature_algorithm` field (v0.6) tells `verify_record` which verifier to dispatch to. Ed25519 signatures are 64 bytes; ML-DSA-65 signatures are 3,309 bytes (~7 KB hex per record). Both use 32-byte seeds. Mixed-algorithm chains (some records Ed25519, some ML-DSA-65) verify correctly. As of 1.0.1, ML-DSA imports are conditional (`_HAS_MLDSA` flag in `agdr.py`); environments with `cryptography<48.0.0` silently disable ML-DSA while Ed25519 continues working.
 - **Layer 1 anchoring crypto: ECDSA Prehashed, not Ed25519 or ML-DSA.** `RekorClient` signs with raw ECDSA P-256 over the **already-hashed** 32-byte SHA-256 chain root using `cryptography`'s `Prehashed` mode (no further hashing at sign time). Ed25519 is in the rekor-types schema but `rekor.sigstore.dev` does not actually exercise Ed25519 hashedrekord verification in production. ML-DSA is not supported by Rekor. Do not "fix" the code to use Ed25519 or ML-DSA for anchoring; both break Rekor inclusion-proof verification empirically. The two-key model (chain signer = Ed25519 or ML-DSA; anchoring identity = ECDSA P-256) is correct.
 - **Layer 1 chain-as-spool recovery.** `AnchoringOrchestrator` does not buffer pending anchor requests in memory; the chain on disk *is* the spool. `FileTransport.emit` `os.fsync`s after every record (~5% APFS overhead per `bench_fsync.py`); on startup, `hydrate_from_chain` reads the on-disk chain and re-emits any pending anchors. macOS `os.fsync` does not force the platter write (`F_FULLFSYNC` does, not yet wired); on macOS the durability guarantee is weaker than Linux until that lands. Linux ext4/xfs durability is strong but on rotational disks expect noticeably higher overhead than the macOS APFS measurement; high-throughput Linux deployments should benchmark.
 - **Layer 3 fail-closed semantics.** Forged or wrong-issuer Auth0 tokens leave the originally-halted action permanently halted. An attacker submitting a bad token to `AIRRecorder.approve()` cannot drive the agent forward. Deny rules in `ContainmentPolicy` always override step-up rules — "absolutely never" stays absolute even when an operator forgets to remove a step-up rule for the same tool.
