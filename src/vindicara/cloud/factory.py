@@ -74,11 +74,7 @@ def _build_ddb_stores() -> (
     from vindicara.cloud.ddb_workspace_store import DDBWorkspaceStore
 
     ddb = boto3.resource("dynamodb")
-    _log.info("air_cloud.ddb_stores.wired", extra={
-        "capsules": capsules_table,
-        "workspaces": workspaces_table,
-        "api_keys": api_keys_table,
-    })
+    _log.info("air_cloud.ddb_stores.wired")
     return (
         DDBCapsuleStore(ddb.Table(capsules_table)),
         DDBWorkspaceStore(ddb.Table(workspaces_table)),

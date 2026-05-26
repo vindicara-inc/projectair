@@ -1,5 +1,7 @@
 """Auth API endpoints."""
 
+import html
+
 import structlog
 from fastapi import APIRouter, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -42,7 +44,8 @@ async def signup(
     try:
         user = store.create_user(email, password)
     except ValueError as exc:
-        return HTMLResponse(f'<div style="color:#E63946;padding:8px;">{exc}</div>')
+        logger.warning("auth.signup.failed", error=str(exc))
+        return HTMLResponse('<div style="color:#E63946;padding:8px;">Registration failed. That email may already be in use.</div>')
 
     session = store.create_session(user.user_id)
     access = create_access_token(user.user_id, user.email)
@@ -76,8 +79,8 @@ async def login(
                 '<div style="padding:8px;">'
                 '<label style="font-size:11px;color:#444458;display:block;margin-bottom:4px;">MFA CODE</label>'
                 '<input type="text" name="totp_code" placeholder="000000" style="width:120px;" autofocus>'
-                '<input type="hidden" name="email" value="' + email + '">'
-                '<input type="hidden" name="password" value="' + password + '">'
+                '<input type="hidden" name="email" value="' + html.escape(email) + '">'
+                '<input type="hidden" name="password" value="' + html.escape(password) + '">'
                 '</div>'
             )
         if not verify_totp(user.mfa_secret, totp_code):
