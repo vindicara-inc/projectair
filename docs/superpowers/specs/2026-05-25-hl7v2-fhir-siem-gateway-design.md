@@ -1,7 +1,7 @@
 # HL7v2 + FHIR R4 Clinical Evidence Sidecar Design
 
 Date: 2026-05-25
-Status: Draft (v2, post-review)
+Status: Draft (v3, post-review)
 Tier: Pro (`airsdk_pro.hl7/`), Enterprise pricing
 
 ## Problem
@@ -45,7 +45,7 @@ MLLP listener ships for orgs without a modern integration engine (small clinics,
 - **PHI redaction by default.** Patient MRN is PHI under HIPAA. Rekor stores hashes, not payloads, but the on-disk chain contains the payload. Default behavior: redacted projection (hashed MRN, hashed patient name, structured clinical codes without free-text). Raw mode (`phi_mode="raw"`) requires explicit opt-in and a `baa_acknowledged=True` flag. Without this, hospital InfoSec kills the deal in legal review.
 - **MLLP ships in v1** (not deferred to v1.5). Without MLLP at GA, the only v1 customer is a net-new HTTP-native deployment, which is vanishingly few in healthcare integration. MLLP is the deal-maker for real hospital deployments.
 - **Enterprise-only pricing.** No hospital pays $599 for clinical interop infrastructure. Mirth Connect Pro starts mid-five-figures; Redox is higher. Clinical interop justifies a per-bed or PMPM pricing axis above the current Enterprise band. Putting it in Team commoditizes the most strategically important capability in the release.
-- **Async pipeline after ACK.** A 500-bed hospital does 100K-1M HL7v2 messages/day. ORU bursts at lab result times. ACK on receipt-and-parse only (commit-level). Everything downstream (FHIR mapping, signing, detection, SIEM push, FHIR server push) is async with bounded queues, dead-letter handling, and a `gateway_lag_seconds` metric exposed to SIEM. The HL7v2 ACK means "we accepted the message," not "we completed the pipeline."
+- **Async pipeline after ACK.** A 500-bed hospital does 100K-1M HL7v2 messages/day. ORU bursts at lab result times. ACK on receipt-and-parse-and-stage only (truly commit-level; no fsync on the ACK path). Signing runs on a separate write thread that batches fsync calls (real-time HL7 receivers, including Mirth Connect, do not fsync per message). Everything downstream (FHIR mapping, detection, SIEM push, FHIR server push) is async with bounded queues, dead-letter handling, and a `gateway_lag_seconds` metric exposed to SIEM. The HL7v2 ACK means "we accepted the message," not "we signed it" or "we completed the pipeline."
 - **Intent capsule declares patient scope.** The SV-ENTITY detection only works if the signed intent capsule declares authorized MRNs/facilities/message types at run start. Without this, the detector has no ground truth. Make this explicit in the API and the demo.
 - **Pro-gated via `@requires_pro(feature="hl7-fhir-integration")`.**
 
@@ -74,41 +74,77 @@ _vendor/
 
 This section is non-negotiable. Getting PHI handling wrong ships a HIPAA breach as a feature.
 
+#### All clinical chains contain PHI; BAA is always required
+
+A BLAKE3-hashed MRN is pseudonymized data, not de-identified data under HIPAA Safe Harbor (45 CFR 164.514(b)). Safe Harbor requires removal of the 18 identifiers, not pseudonymization. The MRN namespace at any hospital is small and known-format (often sequential or checksum-validated), so a hash is reversibly correlatable. Under HIPAA, hashed identifiers constitute a "limited data set" at best, which still requires either a BAA or a Data Use Agreement.
+
+**Consequence: `baa_acknowledged=True` is a precondition of `instrument_hl7()` for all clinical chains regardless of PHI mode.** The `PHIMode` enum controls exposure reduction within the BAA scope (less data at risk if the chain is exfiltrated), not whether a BAA is required. Marketing copy must say: "PHI is redacted by default to minimize exposure; BAA required for all clinical deployments."
+
 #### Rekor stores hashes, not payloads
 
 When anchoring runs (Layer 1), the `AnchoringOrchestrator` computes BLAKE3 over chain roots and submits the hash to Sigstore Rekor. No payload data, no patient identifiers, no clinical content reaches the public transparency log. The hash is a commitment; the payload stays on disk under the customer's control. This is already true for all AIR chains; spell it out explicitly for clinical chains because the question will come up in every hospital security review.
 
-#### PHI redaction runs by default
+#### Network egress disclosure
+
+Hospital InfoSec will ask exactly what leaves the network. Pre-answer for the healthcare page FAQ: "The only data that leaves your network is a BLAKE3 hash (32 bytes) submitted to Sigstore Rekor for timestamping. No PHI, no clinical content, no patient identifiers, no message payloads. The hash is a one-way cryptographic commitment that proves the chain existed at a point in time. It cannot be reversed to recover any clinical data."
+
+#### PHI redaction policy
 
 `capture.py` applies a `RedactionPolicy` before writing clinical data to the chain:
 
 ```python
 class PHIMode(StrEnum):
-    REDACTED = "redacted"    # default: hashed MRN, hashed name, codes only
-    RAW = "raw"              # explicit opt-in, requires baa_acknowledged=True
+    REDACTED = "redacted"    # default: hashed MRN, omitted name, reduced DOB, codes only
+    RAW = "raw"              # all fields preserved as-is
+
+# Fields classified as PHI under Safe Harbor (18 identifiers).
+# Used by the model validator to prevent un-redaction without BAA.
+PHI_CLASS_FIELDS: frozenset[str] = frozenset({
+    "mrn", "name", "family_name", "given_name", "date_of_birth",
+    "ssn", "address", "phone", "email", "medical_record_number",
+    "account_number", "visit_number", "device_serial",
+})
 
 class RedactionPolicy(BaseModel):
     model_config = ConfigDict(extra="forbid")
     phi_mode: PHIMode = PHIMode.REDACTED
-    baa_acknowledged: bool = False
+    baa_acknowledged: bool = True   # required True for all clinical chains
     allowed_fields: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_phi_safety(self) -> RedactionPolicy:
+        if not self.baa_acknowledged:
+            raise ValueError(
+                "baa_acknowledged must be True for clinical chains. "
+                "All HL7v2 chains contain PHI-derived data regardless "
+                "of redaction mode."
+            )
+        if self.phi_mode == PHIMode.REDACTED and self.allowed_fields:
+            phi_leak = PHI_CLASS_FIELDS & set(self.allowed_fields)
+            if phi_leak:
+                raise ValueError(
+                    f"allowed_fields contains PHI-class fields "
+                    f"{sorted(phi_leak)} in REDACTED mode. Either "
+                    f"switch to PHIMode.RAW or remove these fields."
+                )
+        return self
 ```
 
 In `REDACTED` mode (default):
-- Patient MRN: BLAKE3 hash of the MRN, not the MRN itself
+- Patient MRN: BLAKE3 hash of the MRN (reduces exposure; still PHI)
 - Patient name: omitted entirely
-- DOB: year only (age-bucket, not identifying)
-- Clinical codes (LOINC, ICD-10, CPT): preserved (not PHI under Safe Harbor)
-- Free-text fields (OBX-5 text observations, TXA document content): omitted
-- Sending/receiving facility: preserved (not PHI)
-- Message control ID: preserved
+- DOB: year only; ages 90+ aggregated to "90+" (Safe Harbor 164.514(b)(2)(i)(C))
+- Clinical codes (LOINC, ICD-10, CPT): preserved (not identifiers under Safe Harbor)
+- Free-text fields (OBX-5 text observations, TXA document content): preserved when `baa_acknowledged=True` (the realistic case; omitting free-text defeats AI-scribe value props)
+- Sending/receiving facility: preserved (not an individual identifier)
+- Message control IDs: date components stripped if present (MCIDs that embed dates like "20260511-0042" are a partial Safe Harbor concern)
 
 In `RAW` mode:
-- All fields preserved as-is
-- Requires `baa_acknowledged=True` or raises `PHIRedactionError`
-- Customer has signed a BAA and accepted liability for on-disk PHI storage
+- All fields preserved as-is, including clear MRN, name, full DOB
+- Same `baa_acknowledged=True` requirement (already enforced by validator)
+- Higher exposure surface if the chain is exfiltrated
 
-The `allowed_fields` list lets customers selectively un-redact specific fields (e.g., allow MRN but not name) for deployments with partial BAA coverage.
+The `allowed_fields` list lets customers selectively un-redact specific non-PHI fields in REDACTED mode. The model validator prevents un-redacting PHI-class fields in REDACTED mode (use RAW mode instead; the distinction is intentional so the mode label is honest).
 
 ### Layer 1: HL7v2 Parser (`parser.py`)
 
@@ -228,7 +264,7 @@ Uses `fhir.resources` (auto-generated from the HL7 FHIR R4 spec) for the resourc
 | MSH | MessageHeader | source, destination, event coding, timestamp |
 | PID | Patient | identifier (all, with assigning authority), name (HumanName), birthDate, gender |
 | OBX | Observation | code (CodeableConcept with original coding system, not assumed LOINC), value (dispatched by OBX-2 type), units, status, referenceRange |
-| ORC | ServiceRequest | identifier, status, intent, requester |
+| ORC | ServiceRequest | identifier, status, intent, requester (ORC-12 ordering provider; most evidentiarily important field) |
 | OBR | DiagnosticReport | code, status, resultsInterpreter |
 | PV1 | Encounter | class, period, location, participant (attending) |
 | TXA | DocumentReference | type, status, author, date |
@@ -299,8 +335,9 @@ def instrument_hl7(
     the FHIR R4 resource mappings in the payload.
 
     PHI redaction applies by default. Patient MRN in the chain
-    payload is BLAKE3-hashed unless phi_mode="raw" with
-    baa_acknowledged=True.
+    payload is BLAKE3-hashed unless phi_mode="raw".
+    baa_acknowledged=True is required for all clinical chains
+    regardless of PHI mode (enforced by RedactionPolicy validator).
 
     If PID is present and data_subjects is not provided, auto-creates
     a DataSubjectRef from the (hashed or raw) patient MRN with
@@ -312,22 +349,67 @@ def instrument_hl7(
 
 #### Intent capsule integration
 
-The SV-ENTITY detector fires when an agent accesses entities outside its declared scope. For clinical chains, the intent capsule must declare authorized patient scope:
+The SV-ENTITY detector fires when an agent accesses entities outside its declared scope. For clinical chains, the intent capsule must declare authorized patient scope. A static list works for per-patient consults, but real clinical workflows require broader scope mechanisms.
+
+**Scope mechanisms (in order of specificity):**
 
 ```python
+# 1. Static list: per-patient consult
 spec = IntentSpec(
     goal="Review patient MRN-0042 lab results",
-    allowed_entities=["MRN-0042"],          # authorized MRNs
+    allowed_entities=["MRN-0042"],
     allowed_tools=["ehr_query", "hl7v2_receive"],
 )
-recorder = AIRRecorder(
-    "clinical-chain.jsonl",
-    intent_spec=spec,
-    verify_on_step=True,
+
+# 2. Facility scope: AI scribe handling ward 5-East admissions
+spec = IntentSpec(
+    goal="Transcribe clinical encounters for ward 5-East",
+    entity_scope=EntityScope(
+        scope_type="facility",
+        facility="HOSP-MAIN",
+        unit="5-EAST",
+        time_window_hours=12,
+    ),
+    allowed_tools=["ehr_query", "hl7v2_receive", "transcribe"],
+)
+
+# 3. Roster source: CDS agent processing ICU patient roster
+spec = IntentSpec(
+    goal="Clinical decision support for ICU roster",
+    entity_scope=EntityScope(
+        scope_type="roster",
+        roster_source="fhir://hospital.org/List/icu-active",
+        refresh_interval_seconds=300,
+    ),
+    allowed_tools=["ehr_query", "hl7v2_receive"],
+)
+
+# 4. Predicate: lab-result agent processing results for a service line
+spec = IntentSpec(
+    goal="Process lab results for endocrinology service",
+    entity_scope=EntityScope(
+        scope_type="predicate",
+        predicate="message_type == 'ORU^R01' AND ordering_service == 'ENDO'",
+    ),
+    allowed_tools=["hl7v2_receive"],
 )
 ```
 
-When an HL7v2 message arrives containing a PID for MRN-9999 (not in `allowed_entities`), `SV-ENTITY-01` fires. This is the strong-signal version: intent capsules declare authorized MRNs up front, and the detector has ground truth to verify against. Without this declaration, the detector has no baseline and falls back to anomaly detection on action logs (the weak signal everyone else has).
+```python
+class EntityScope(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope_type: str       # "static" | "facility" | "roster" | "predicate"
+    facility: str | None = None
+    unit: str | None = None
+    time_window_hours: int | None = None
+    roster_source: str | None = None
+    refresh_interval_seconds: int = 300
+    predicate: str | None = None
+```
+
+`IntentSpec.allowed_entities` (static list) and `IntentSpec.entity_scope` are mutually exclusive. If neither is set, SV-ENTITY has no ground truth and the detector is skipped (no false positives on legitimate access, but no scope enforcement either; log a warning).
+
+This is the intent expressiveness moat. The clinical demo should show at minimum the static list and the facility scope to prove both work.
 
 ### Layer 4: FHIR R4 Server Push (`fhir_client.py`)
 
@@ -388,15 +470,17 @@ def create_hl7_router(
       Body: raw HL7v2 message
 
     ACK contract:
-      - AA (Application Accept): message parsed and signed successfully.
-        Downstream processing (FHIR mapping, detection, SIEM push,
-        FHIR server push) happens async.
-      - AE (Application Error): message parsed but signing failed.
+      - AA (Application Accept): message parsed and staged to signing
+        queue. Signing (batched fsync) and all downstream processing
+        (FHIR mapping, detection, SIEM push, FHIR push) happen async.
+      - AE (Application Error): message parsed but staging failed
+        (queue full, internal error).
       - AR (Application Reject): message malformed, cannot parse.
 
-    The ACK means "we accepted the message." It does NOT mean
-    "we completed the FHIR push." Downstream failures go to
-    dead-letter queue and surface as gateway_lag_seconds metric.
+    The ACK means "we accepted and staged the message." It does NOT
+    mean "we signed it" or "we completed the FHIR push." Downstream
+    failures go to dead-letter queue and surface as gateway_lag_seconds
+    metric and SIEM alert events.
     """
 ```
 
@@ -446,10 +530,10 @@ class ClinicalSidecar:
     message and proves whether it honored its declared intent.
 
     Synchronous path (before ACK):
-      parse -> sign -> enqueue
+      parse -> stage to signing queue
 
     Async path (after ACK, bounded queue):
-      FHIR map -> detect -> SIEM push -> FHIR server push
+      sign (batched fsync) -> FHIR map -> detect -> SIEM push -> FHIR server push
     """
 
     def __init__(
@@ -472,6 +556,7 @@ class ClinicalSidecar:
     def lag_seconds(self) -> float: ...
     @property
     def dead_letter_count(self) -> int: ...
+    async def replay_dead_letters(self, max_batch: int = 100) -> int: ...
 ```
 
 `SidecarConfig`:
@@ -490,6 +575,16 @@ class SidecarConfig(BaseModel):
     worker_count: int = 4
     dead_letter_path: str | None = None
 ```
+
+#### Dead-letter operations
+
+Dead-lettered messages are messages that parsed successfully but failed somewhere in the async pipeline (signing error, FHIR server timeout, SIEM push failure). They are PHI and require the same encryption, access controls, and retention as the chain itself.
+
+- **Storage**: dead-letter files live alongside the chain at `dead_letter_path` (default: `<chain_dir>/dead-letter/`). Each file is a JSON record containing the raw HL7v2 message, the failure reason, the timestamp, and a retry count. Files are encrypted at rest using the same key material as the chain.
+- **Alerting**: when `dead_letter_count` exceeds a configurable threshold (default: 10), the sidecar emits a `vindicara_air:clinical_dead_letter` SIEM event to all configured SIEM targets. This is the paging signal for ops teams.
+- **Replay**: `replay_dead_letters(max_batch=100)` re-processes dead-lettered messages through the full async pipeline. Failed replays increment the retry count; messages exceeding `max_retries` (default: 3) are moved to a permanent dead-letter archive and generate a critical SIEM alert.
+- **Retention**: dead-letter files follow the same retention policy as the chain. HIPAA minimum retention is 6 years (45 CFR 164.530(j)). The sidecar does not auto-delete; retention enforcement is the customer's responsibility (documented in the operator runbook), matching the chain retention model.
+- **Monitoring**: `lag_seconds` (time between oldest queued message and now) and `dead_letter_count` are exposed as properties for health checks and SIEM metric events. Both are included in the `vindicara_air:clinical` sourcetype as enrichment fields.
 
 #### SIEM event enrichment
 
@@ -542,8 +637,11 @@ Do NOT add to Team tier. Clinical interop is the most strategically important ca
 ### Healthcare solutions page (`site/src/routes/solutions/healthcare/+page.svelte`)
 
 Add two capability cards:
-- "HL7v2 Clinical Evidence": every ADT, ORM, ORU, MDM message your clinical AI agent handles is parsed and recorded as a signed capsule. PHI is redacted by default; raw mode requires a BAA.
+- "HL7v2 Clinical Evidence": every ADT, ORM, ORU, MDM message your clinical AI agent handles is parsed and recorded as a signed capsule. PHI is redacted by default to minimize exposure; BAA required for all clinical deployments.
 - "FHIR R4 Structured Evidence": HL7v2 segments are mapped to FHIR R4 resources (Patient, Observation, ServiceRequest, DiagnosticReport) using the HL7-published spec models. Auditors see structured clinical data with proper coding system attribution.
+
+Add FAQ entry to healthcare page:
+- "What data leaves my network?" -> "The only data that leaves your network is a BLAKE3 hash (32 bytes) submitted to Sigstore Rekor for timestamping. No PHI, no clinical content, no patient identifiers, no message payloads. The hash is a one-way cryptographic commitment that proves the chain existed at a point in time."
 
 Update quick-start code sample to show `instrument_hl7()` with intent capsule declaring patient scope.
 
@@ -560,23 +658,25 @@ New post: "Clinical Evidence Sidecar: Cryptographic Audit Trails for HL7v2 and F
 
 `packages/projectair-pro/scripts/e2e_hl7_fhir.py`:
 
-1. Declare intent capsule with `allowed_entities=["MRN-0042"]`
-2. Generate sample ORU^R01 message (lab results, MRN-0042, mixed LOINC + local codes)
-3. Parse via vendored hl7apy wrapper
-4. Map to FHIR R4 (Patient with hashed MRN, 3x Observation with proper code systems)
-5. Capture as signed capsules with default PHI redaction
-6. Run detectors (nothing fires: in-scope access)
-7. Inject second ORU^R01 with MRN-9999 (unauthorized)
-8. SV-ENTITY-01 fires: "entity access outside declared scope"
-9. Print sidecar result with SIEM event preview showing clinical enrichment
-10. Optionally push to local HAPI FHIR server (`--live-fhir`)
-11. Optionally run with `--phi-raw --baa` to show unredacted mode
+1. Declare intent capsule with `allowed_entities=["MRN-0042"]` (static scope demo)
+2. Create `RedactionPolicy(baa_acknowledged=True)` (BAA always required)
+3. Generate sample ORU^R01 message (lab results, MRN-0042, mixed LOINC + local codes, OBX-2 type variety)
+4. Parse via vendored hl7apy wrapper
+5. Map to FHIR R4 (Patient with hashed MRN, 3x Observation with proper code system normalization)
+6. Capture as signed capsules with default PHI redaction (hashed MRN, DOB year-only, free-text preserved under BAA)
+7. Run detectors (nothing fires: in-scope access)
+8. Inject second ORU^R01 with MRN-9999 (unauthorized)
+9. SV-ENTITY-01 fires: "entity access outside declared scope"
+10. Re-run with `EntityScope(scope_type="facility", facility="HOSP-MAIN", unit="5-EAST")` to demonstrate facility scope
+11. Print sidecar result with SIEM event preview showing clinical enrichment
+12. Optionally push to local HAPI FHIR server (`--live-fhir`)
+13. Optionally run with `--phi-raw` to show unredacted mode (still BAA-required)
 
 Runtime: under 30 seconds without live FHIR.
 
 ## Dependencies
 
-- `hl7apy`: vendored into `_vendor/hl7apy/`, hash-pinned, version-locked. Parser and segment handling.
+- `hl7apy`: vendored into `_vendor/hl7apy/`, hash-pinned, version-locked. Parser and segment handling. **Re-vendoring policy**: check upstream releases quarterly. Pull security fixes immediately. Pull feature releases on next minor version. Each re-vendor is a tracked commit with the upstream version, commit hash, and diff summary. Owner: whoever ships the next `projectair-pro` minor release.
 - `fhir.resources`: PyPI dependency. FHIR R4 resource models auto-generated from HL7 spec.
 - `httpx` (already a dependency): FHIR server push, HTTP receiver.
 - `fastapi` (already a dependency): HTTP router.
