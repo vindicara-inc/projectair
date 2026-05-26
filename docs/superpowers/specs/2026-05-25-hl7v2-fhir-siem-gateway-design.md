@@ -1,27 +1,52 @@
-# HL7v2 + FHIR R4 + SIEM Gateway Design
+# HL7v2 + FHIR R4 Clinical Evidence Sidecar Design
 
 Date: 2026-05-25
-Status: Draft
-Tier: Pro (`airsdk_pro.hl7/`)
+Status: Draft (v2, post-review)
+Tier: Pro (`airsdk_pro.hl7/`), Enterprise pricing
 
 ## Problem
 
-Healthcare orgs deploying clinical AI agents need forensic evidence that flows into their existing infrastructure. Hospital integration engines speak HL7v2 (pipe-delimited, MLLP/HTTP). Modern clinical data platforms speak FHIR R4. Security teams watch Splunk/Datadog/Sentinel. Today these are disconnected: the AI agent acts, the EHR records the order, and the SIEM gets a generic log line with no clinical context.
+Healthcare orgs deploying clinical AI agents need forensic evidence that flows into their existing infrastructure. Hospital integration engines (Mirth Connect, Cloverleaf, Rhapsody, Iguana) already handle HL7v2 routing. Modern clinical data platforms speak FHIR R4. Security teams watch Splunk/Datadog/Sentinel. Today these are disconnected: the AI agent acts, the EHR records the order, and the SIEM gets a generic log line with no clinical context and no proof of what the agent intended vs. what it did.
 
-AIR already captures agent actions as signed capsules and pushes findings to SIEM. What's missing is the clinical protocol layer: parsing HL7v2 messages into the chain, mapping them to FHIR R4 resources for structured evidence, and enriching SIEM events with clinical context.
+AIR already captures agent actions as signed capsules and pushes findings to SIEM. What's missing is the clinical protocol layer: recording HL7v2 messages the agent emits or consumes into the chain, mapping them to FHIR R4 resources for structured evidence, and enriching SIEM events with clinical context.
+
+## Positioning: evidence sidecar, not integration engine
+
+AIR is not a replacement for Mirth Connect, Cloverleaf, or Rhapsody. Those engines have 15+ years of vendor-specific routing, transformation, and HL7v2 quirk handling. Competing on feature completeness is a losing position.
+
+AIR is the **evidence sidecar** that an existing integration engine taps. Mirth has channels with HTTP/TCP destinations; point a copy of the message stream at AIR. Cloverleaf has scripted destinations. Redox has webhooks. AIR's value is "we record what your AI agent did with the message and prove whether it honored its declared intent," not "we receive and route the message."
+
+The primary integration pattern is:
+
+```
+Integration Engine (Mirth/Cloverleaf/Rhapsody)
+    |
+    | copy of message stream (HTTP POST or MLLP tap)
+    v
+AIR Clinical Sidecar
+    |-- parse + sign (forensic record)
+    |-- map to FHIR R4 (structured evidence)
+    |-- verify intent-vs-action (SV-ENTITY)
+    |-- push clinical-enriched findings to SIEM
+    |-- optionally push FHIR resources to FHIR server
+```
+
+MLLP listener ships for orgs without a modern integration engine (small clinics, academic research labs). But lead with the sidecar pattern in all external messaging.
 
 ## Customer-facing value
 
-"AIR captures every HL7v2 message your clinical AI agent sends or receives as a signed, tamper-evident forensic record, maps it to FHIR R4 for structured evidence, and pushes clinical-context-enriched alerts to your SIEM. One integration replaces months of custom compliance wiring."
+"AIR records every HL7v2 message your clinical AI agent emits or consumes as a signed, tamper-evident forensic record that proves intent-vs-action conformance, paired with your existing integration engine, not replacing it."
 
 ## Decisions locked
 
 - **All HL7v2/FHIR/Gateway code in Pro** (`airsdk_pro.hl7/`). Healthcare customers are paying customers.
-- **Own the parser.** No third-party HL7v2 parsing libraries (`hl7apy`, `python-hl7`). HL7v2 pipe-delimited format is well-specified and simple. Owning the parser means zero supply-chain risk in the evidence path.
-- **Own the FHIR models.** Pydantic models for the subset of FHIR R4 resources we map to. No `fhir.resources` dependency. Same reasoning: compliance customers need to audit the full path.
-- **File + HTTP transport in v1.** MLLP (TCP) listener ships in v1.5.
-- **FHIR server push in v1.** SMART on FHIR / OAuth2 client credentials auth. Supports HAPI FHIR, Azure Health Data Services, GCP Healthcare API.
-- **SIEM gateway in v1.** Full pipeline orchestrator composing parser + FHIR mapper + capsule capture + detectors + SIEM push.
+- **Vendor the parser.** HL7v2 has four separator characters (MSH-2: `^~\&`), eight escape sequences (`\F\`, `\S\`, `\T\`, `\R\`, `\E\`, `\X..\`, `\Z..\`, `\H\/\N\`), variable-precision datetimes, MSH-18 character set declarations, and a long tail of vendor Z-segments (Epic, Cerner, Meditech). `python-hl7` and `hl7apy` exist because this is harder than it looks. Owning the parser eliminates supply-chain risk but replaces it with maintenance risk that compounds with every EHR vendor quirk. Fix: vendor `hl7apy`, pin the hash, mirror the source into the repo for audit. Write a thin typed Pydantic wrapper (`parser.py`) that gives strict models at the AIR boundary. We own the envelope and the wrapper; hl7apy carries the long-tail parsing bugs.
+- **Use `fhir.resources` for FHIR models.** FHIR R4 has ~145 resources; we map 7. `fhir.resources` is auto-generated from the HL7 spec and handles extensions, contained resources, `_meta`, and US Core profile constraints. `extra="forbid"` on our own models would reject real FHIR server responses the first time HAPI/Azure/GCP returns a field we didn't anticipate. Fix: use `fhir.resources` for off-the-shelf models, layer strict Pydantic schemas only at the AIR-chain boundary, use `extra="ignore"` on inbound FHIR from servers. Strictness inside the chain where it matters for evidence; tolerance on inbound where real-world FHIR is messy.
+- **PHI redaction by default.** Patient MRN is PHI under HIPAA. Rekor stores hashes, not payloads, but the on-disk chain contains the payload. Default behavior: redacted projection (hashed MRN, hashed patient name, structured clinical codes without free-text). Raw mode (`phi_mode="raw"`) requires explicit opt-in and a `baa_acknowledged=True` flag. Without this, hospital InfoSec kills the deal in legal review.
+- **MLLP ships in v1** (not deferred to v1.5). Without MLLP at GA, the only v1 customer is a net-new HTTP-native deployment, which is vanishingly few in healthcare integration. MLLP is the deal-maker for real hospital deployments.
+- **Enterprise-only pricing.** No hospital pays $599 for clinical interop infrastructure. Mirth Connect Pro starts mid-five-figures; Redox is higher. Clinical interop justifies a per-bed or PMPM pricing axis above the current Enterprise band. Putting it in Team commoditizes the most strategically important capability in the release.
+- **Async pipeline after ACK.** A 500-bed hospital does 100K-1M HL7v2 messages/day. ORU bursts at lab result times. ACK on receipt-and-parse only (commit-level). Everything downstream (FHIR mapping, signing, detection, SIEM push, FHIR server push) is async with bounded queues, dead-letter handling, and a `gateway_lag_seconds` metric exposed to SIEM. The HL7v2 ACK means "we accepted the message," not "we completed the pipeline."
+- **Intent capsule declares patient scope.** The SV-ENTITY detection only works if the signed intent capsule declares authorized MRNs/facilities/message types at run start. Without this, the detector has no ground truth. Make this explicit in the API and the demo.
 - **Pro-gated via `@requires_pro(feature="hl7-fhir-integration")`.**
 
 ## Architecture
@@ -30,21 +55,64 @@ AIR already captures agent actions as signed capsules and pushes findings to SIE
 
 ```
 airsdk_pro/hl7/
-  __init__.py       -- public API re-exports
-  parser.py         -- HL7v2 message parsing (pipe-delimited)
-  fhir.py           -- HL7v2 segment -> FHIR R4 resource mapping
-  capture.py        -- instrument_hl7() capsule capture
-  fhir_client.py    -- FHIR R4 server push (SMART on FHIR)
-  http.py           -- HTTP endpoint for receiving HL7v2 messages
-  gateway.py        -- HL7 SIEM Gateway pipeline orchestrator
-  types.py          -- Pydantic models: segments, FHIR resources, config
+  __init__.py        -- public API re-exports
+  parser.py          -- thin Pydantic wrapper over vendored hl7apy
+  fhir.py            -- HL7v2 segment -> FHIR R4 resource mapping
+  capture.py         -- instrument_hl7() capsule capture + PHI redaction
+  fhir_client.py     -- FHIR R4 server push (SMART on FHIR)
+  http.py            -- HTTP endpoint for receiving HL7v2 messages
+  mllp.py            -- MLLP (TCP) listener with async framing
+  gateway.py         -- clinical evidence sidecar pipeline orchestrator
+  redaction.py       -- PHI redaction policy (default: redacted projection)
+  types.py           -- Pydantic models: parsed segments, config, results
+
+_vendor/
+  hl7apy/            -- vendored, hash-pinned, version-locked
 ```
 
-Each module has zero coupling to the others except through types. The gateway composes them.
+### PHI safety model (P0)
+
+This section is non-negotiable. Getting PHI handling wrong ships a HIPAA breach as a feature.
+
+#### Rekor stores hashes, not payloads
+
+When anchoring runs (Layer 1), the `AnchoringOrchestrator` computes BLAKE3 over chain roots and submits the hash to Sigstore Rekor. No payload data, no patient identifiers, no clinical content reaches the public transparency log. The hash is a commitment; the payload stays on disk under the customer's control. This is already true for all AIR chains; spell it out explicitly for clinical chains because the question will come up in every hospital security review.
+
+#### PHI redaction runs by default
+
+`capture.py` applies a `RedactionPolicy` before writing clinical data to the chain:
+
+```python
+class PHIMode(StrEnum):
+    REDACTED = "redacted"    # default: hashed MRN, hashed name, codes only
+    RAW = "raw"              # explicit opt-in, requires baa_acknowledged=True
+
+class RedactionPolicy(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    phi_mode: PHIMode = PHIMode.REDACTED
+    baa_acknowledged: bool = False
+    allowed_fields: list[str] = Field(default_factory=list)
+```
+
+In `REDACTED` mode (default):
+- Patient MRN: BLAKE3 hash of the MRN, not the MRN itself
+- Patient name: omitted entirely
+- DOB: year only (age-bucket, not identifying)
+- Clinical codes (LOINC, ICD-10, CPT): preserved (not PHI under Safe Harbor)
+- Free-text fields (OBX-5 text observations, TXA document content): omitted
+- Sending/receiving facility: preserved (not PHI)
+- Message control ID: preserved
+
+In `RAW` mode:
+- All fields preserved as-is
+- Requires `baa_acknowledged=True` or raises `PHIRedactionError`
+- Customer has signed a BAA and accepted liability for on-disk PHI storage
+
+The `allowed_fields` list lets customers selectively un-redact specific fields (e.g., allow MRN but not name) for deployments with partial BAA coverage.
 
 ### Layer 1: HL7v2 Parser (`parser.py`)
 
-Parses raw HL7v2 pipe-delimited messages into typed Pydantic models.
+Thin typed wrapper over vendored `hl7apy`. Delegates all parsing (separator handling, escape sequences, character set decoding, Z-segment passthrough) to the vendored library. Surfaces results as strict Pydantic models at the AIR boundary.
 
 #### Supported message types
 
@@ -57,16 +125,17 @@ Parses raw HL7v2 pipe-delimited messages into typed Pydantic models.
 
 #### Parsed segments
 
-| Segment | What it carries | Model |
+| Segment | What it carries | Notes |
 |---|---|---|
-| MSH | Message header: sending facility, message type, timestamp, encoding | `MSHSegment` |
-| PID | Patient identification: MRN, name, DOB, gender, address | `PIDSegment` |
-| PV1 | Patient visit: class (inpatient/outpatient), location, attending | `PV1Segment` |
-| OBX | Observation: code (LOINC), value, units, status, reference range | `OBXSegment` |
-| ORC | Order control: order number, status, requester | `ORCSegment` |
-| OBR | Observation request: procedure code, ordering provider, priority | `OBRSegment` |
-| TXA | Document header: type, status, author, authentication | `TXASegment` |
-| NK1 | Next of kin (parsed but not mapped to FHIR in v1) | `NK1Segment` |
+| MSH | Message header, encoding characters, sending facility | MSH-7 timestamp: variable precision (YYYY through YYYYMMDDHHMMSS.ssss+ZZZZ), parsed to ISO 8601 with precision preserved |
+| PID | Patient identifiers (plural: MRN, SSN, account, visit number, each with assigning authority), name, DOB, gender | Multiple identifiers preserved with assigning authority; not flattened to single MRN |
+| PV1 | Patient visit: class, location, attending | |
+| OBX | Observation value | OBX-2 type dispatch: NM (numeric), ST (string), CWE (coded with exceptions), TS (timestamp), DT (date), TX (text), FT (formatted text), SN (structured numeric). OBX-3 code system: not always LOINC; may be local codes, SNOMED, CPT, or mixed. Code system identifier preserved as-is with normalization to URN where recognizable |
+| ORC | Order control | |
+| OBR | Observation request | |
+| TXA | Document header | |
+| NK1 | Next of kin | Parsed but not mapped to FHIR in v1 |
+| Z-segments | Vendor-specific (Epic ZPM, Cerner ZCS, etc.) | Preserved as opaque key-value blobs in `z_segments` dict. Not dropped, not strictly modeled. Dropping = data loss the customer audits and finds |
 
 #### Parsing contract
 
@@ -74,27 +143,27 @@ Parses raw HL7v2 pipe-delimited messages into typed Pydantic models.
 def parse_hl7v2(raw: str) -> HL7v2Message:
     """Parse a raw HL7v2 pipe-delimited message.
 
-    Splits on segment terminators (\\r, \\n, or \\r\\n).
-    Each segment is split on the field separator from MSH-1 (default |).
-    Component separator from MSH-2 (default ^) splits composite fields.
+    Delegates to vendored hl7apy for separator handling, escape
+    sequences, character set decoding, and segment parsing.
+    Wraps the result in strict Pydantic models.
 
     Raises HL7v2ParseError for malformed messages (missing MSH,
-    invalid segment structure, encoding violations).
+    invalid segment structure).
     """
 ```
-
-`HL7v2Message` is a Pydantic model:
 
 ```python
 class HL7v2Message(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     raw: str
-    message_type: str          # e.g. "ORU^R01"
-    message_control_id: str    # MSH-10
-    timestamp: str             # MSH-7, ISO 8601 converted
-    sending_facility: str      # MSH-4
-    receiving_facility: str    # MSH-6
+    message_type: str               # e.g. "ORU^R01"
+    message_control_id: str         # MSH-10
+    timestamp: str                  # MSH-7, ISO 8601 with original precision
+    timestamp_precision: str        # "year" | "month" | "day" | "second" | "millisecond"
+    sending_facility: str           # MSH-4
+    receiving_facility: str         # MSH-6
+    character_set: str              # MSH-18, default "ASCII"
     msh: MSHSegment
     pid: PIDSegment | None = None
     pv1: PV1Segment | None = None
@@ -103,69 +172,115 @@ class HL7v2Message(BaseModel):
     obr: OBRSegment | None = None
     txa: TXASegment | None = None
     nk1: list[NK1Segment] = Field(default_factory=list)
+    z_segments: dict[str, list[list[str]]] = Field(default_factory=dict)
+```
+
+#### PID identifier model
+
+```python
+class PatientIdentifier(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    value: str                       # the identifier value
+    type_code: str                   # MR (MRN), SS (SSN), AN (account), VN (visit), etc.
+    assigning_authority: str = ""    # which system issued this ID
+
+class PIDSegment(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    identifiers: list[PatientIdentifier]   # all identifiers, not flattened
+    primary_mrn: str | None = None         # convenience: first MR-type identifier
+    family_name: str | None = None
+    given_name: str | None = None
+    date_of_birth: str | None = None       # ISO 8601, precision preserved
+    gender: str | None = None
+    # ... other PID fields
+```
+
+#### OBX value dispatch
+
+```python
+class OBXSegment(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    set_id: int
+    value_type: str                  # OBX-2: NM, ST, CWE, TS, DT, TX, FT, SN
+    observation_id: str              # OBX-3.1 (code)
+    observation_id_system: str       # OBX-3.3 (coding system: LN, SCT, CPT, LOCAL, etc.)
+    observation_id_text: str         # OBX-3.2 (display text)
+    value_numeric: float | None = None        # when OBX-2 = NM or SN
+    value_string: str | None = None           # when OBX-2 = ST, TX, FT
+    value_coded: str | None = None            # when OBX-2 = CWE (code)
+    value_coded_system: str | None = None     # CWE coding system
+    value_coded_text: str | None = None       # CWE display text
+    value_datetime: str | None = None         # when OBX-2 = TS or DT
+    units: str | None = None
+    reference_range: str | None = None
+    abnormal_flags: str | None = None
+    observation_status: str | None = None
 ```
 
 ### Layer 2: FHIR R4 Resource Mapping (`fhir.py`)
 
-Deterministic mapping from HL7v2 segments to FHIR R4 resources. Each mapping function takes a parsed segment and returns a Pydantic model following the FHIR R4 spec.
+Uses `fhir.resources` (auto-generated from the HL7 FHIR R4 spec) for the resource models. Strict Pydantic schemas apply only at the AIR-chain boundary (what gets written to the capsule payload). Inbound FHIR from servers uses `extra="ignore"` to tolerate fields we don't map.
 
 #### Mapping table
 
 | HL7v2 Segment | FHIR R4 Resource | Key fields mapped |
 |---|---|---|
 | MSH | MessageHeader | source, destination, event coding, timestamp |
-| PID | Patient | identifier (MRN), name (HumanName), birthDate, gender |
-| OBX | Observation | code (LOINC CodeableConcept), value, units, status, referenceRange |
+| PID | Patient | identifier (all, with assigning authority), name (HumanName), birthDate, gender |
+| OBX | Observation | code (CodeableConcept with original coding system, not assumed LOINC), value (dispatched by OBX-2 type), units, status, referenceRange |
 | ORC | ServiceRequest | identifier, status, intent, requester |
 | OBR | DiagnosticReport | code, status, resultsInterpreter |
 | PV1 | Encounter | class, period, location, participant (attending) |
 | TXA | DocumentReference | type, status, author, date |
 
+#### Code system normalization
+
+OBX-3 is not always LOINC. The mapping preserves the original coding system from OBX-3.3:
+
+| OBX-3.3 value | FHIR Coding.system | Notes |
+|---|---|---|
+| `LN` or `LOINC` | `http://loinc.org` | Standard |
+| `SCT` or `SNOMED` | `http://snomed.info/sct` | |
+| `CPT` or `CPT4` | `http://www.ama-assn.org/go/cpt` | |
+| `I10` or `ICD10` | `http://hl7.org/fhir/sid/icd-10-cm` | |
+| anything else | `urn:oid:2.16.840.1.113883.6.LOCAL` with original value | Unknown/local passthrough |
+
 #### Mapping contract
 
 ```python
-def map_to_fhir(message: HL7v2Message) -> list[FHIRResource]:
+def map_to_fhir(
+    message: HL7v2Message,
+    *,
+    redaction_policy: RedactionPolicy | None = None,
+) -> list[FHIRResource]:
     """Map parsed HL7v2 segments to FHIR R4 resources.
 
-    Returns one resource per mappable segment. OBX segments produce
-    one Observation each. All resources share a common subject
-    reference derived from PID (Patient).
+    Uses fhir.resources models. Returns one resource per mappable
+    segment. OBX segments produce one Observation each. All resources
+    share a common subject reference derived from PID (Patient).
 
-    Resources are Pydantic models with resourceType, id, and
-    the mapped fields. Unmapped fields are omitted (not nulled).
+    When redaction_policy is REDACTED (default), Patient.identifier
+    values are BLAKE3-hashed, Patient.name is omitted, and
+    Patient.birthDate is truncated to year.
     """
 ```
 
-#### FHIR resource models (subset)
+#### AIR-chain boundary models
+
+At the chain boundary (what gets serialized into `AgDRPayload.fhir_resources`), we project each `fhir.resources` object into a strict dict with `extra="forbid"`:
 
 ```python
-class FHIRResource(BaseModel):
+class ChainFHIRProjection(BaseModel):
+    """Strict projection of a FHIR resource for chain storage."""
     model_config = ConfigDict(extra="forbid")
     resourceType: str
-    id: str = Field(default_factory=lambda: str(uuid4()))
-
-class FHIRPatient(FHIRResource):
-    resourceType: str = "Patient"
-    identifier: list[FHIRIdentifier] = Field(default_factory=list)
-    name: list[FHIRHumanName] = Field(default_factory=list)
-    birthDate: str | None = None
-    gender: str | None = None
-
-class FHIRObservation(FHIRResource):
-    resourceType: str = "Observation"
-    status: str = "final"
-    code: FHIRCodeableConcept
-    subject: FHIRReference | None = None
-    valueQuantity: FHIRQuantity | None = None
-    valueString: str | None = None
-    referenceRange: list[FHIRReferenceRange] = Field(default_factory=list)
+    id: str
+    # only the fields we explicitly mapped; everything else stripped
 ```
 
-Full set: `FHIRPatient`, `FHIRObservation`, `FHIRServiceRequest`, `FHIRDiagnosticReport`, `FHIREncounter`, `FHIRDocumentReference`, `FHIRMessageHeader`. Supporting types: `FHIRIdentifier`, `FHIRHumanName`, `FHIRCodeableConcept`, `FHIRCoding`, `FHIRReference`, `FHIRQuantity`, `FHIRReferenceRange`, `FHIRPeriod`.
+This gives us: tolerance on inbound (real-world FHIR), strictness in the chain (evidence integrity).
 
 ### Layer 3: Capsule Capture (`capture.py`)
-
-Wires HL7v2 message processing into the AIR forensic chain.
 
 ```python
 @requires_pro(feature="hl7-fhir-integration")
@@ -174,28 +289,49 @@ def instrument_hl7(
     raw_message: str,
     *,
     map_fhir: bool = True,
+    redaction_policy: RedactionPolicy | None = None,
     data_subjects: list[DataSubjectRef] | None = None,
 ) -> tuple[AgDRRecord, AgDRRecord]:
     """Parse an HL7v2 message and record it as signed capsules.
 
     Emits a TOOL_START record with tool_name="hl7v2_receive",
-    the parsed message type, patient MRN, sending facility, and
-    optionally the FHIR R4 resource mappings in the payload.
+    the parsed message type, sending facility, and optionally
+    the FHIR R4 resource mappings in the payload.
 
-    Emits a TOOL_END record with the HL7v2 ACK message.
+    PHI redaction applies by default. Patient MRN in the chain
+    payload is BLAKE3-hashed unless phi_mode="raw" with
+    baa_acknowledged=True.
 
     If PID is present and data_subjects is not provided, auto-creates
-    a DataSubjectRef from the patient MRN with jurisdiction="HIPAA".
+    a DataSubjectRef from the (hashed or raw) patient MRN with
+    jurisdiction="HIPAA".
 
     Returns (tool_start_record, tool_end_record).
     """
 ```
 
-Auto-tagging: when a PID segment is present, the capture function automatically creates a `DataSubjectRef(subject_id=mrn, subject_type="patient", jurisdiction="HIPAA")` and a `DataAssetRef` for each OBX observation. This wires into the existing data governance module for DSAR queries.
+#### Intent capsule integration
+
+The SV-ENTITY detector fires when an agent accesses entities outside its declared scope. For clinical chains, the intent capsule must declare authorized patient scope:
+
+```python
+spec = IntentSpec(
+    goal="Review patient MRN-0042 lab results",
+    allowed_entities=["MRN-0042"],          # authorized MRNs
+    allowed_tools=["ehr_query", "hl7v2_receive"],
+)
+recorder = AIRRecorder(
+    "clinical-chain.jsonl",
+    intent_spec=spec,
+    verify_on_step=True,
+)
+```
+
+When an HL7v2 message arrives containing a PID for MRN-9999 (not in `allowed_entities`), `SV-ENTITY-01` fires. This is the strong-signal version: intent capsules declare authorized MRNs up front, and the detector has ground truth to verify against. Without this declaration, the detector has no baseline and falls back to anomaly detection on action logs (the weak signal everyone else has).
 
 ### Layer 4: FHIR R4 Server Push (`fhir_client.py`)
 
-Pushes FHIR R4 resources to a FHIR server. Each push is itself recorded as a signed capsule for full chain of custody.
+Pushes FHIR R4 resources to a FHIR server. Each push is recorded as a signed capsule.
 
 ```python
 @requires_pro(feature="hl7-fhir-integration")
@@ -205,6 +341,10 @@ class FHIRClient:
     Supports SMART on FHIR (OAuth2 client credentials) auth.
     Tested against HAPI FHIR, Azure Health Data Services,
     GCP Healthcare API.
+
+    Uses fhir.resources models on inbound (extra="ignore" tolerates
+    unknown fields from server responses). Outbound bundles use the
+    same fhir.resources models for spec compliance.
     """
 
     def __init__(
@@ -223,40 +363,23 @@ class FHIRClient:
         self,
         resources: list[FHIRResource],
     ) -> FHIRPushResult: ...
-
-    def push_resource(
-        self,
-        resource: FHIRResource,
-    ) -> FHIRPushResult: ...
 ```
 
 Auth flow:
-1. If `token_url` + `client_id` + `client_secret` provided: OAuth2 client credentials grant, token cached until expiry.
-2. If no auth params: unauthenticated (for local HAPI FHIR dev servers).
-3. Token refresh is automatic; 401 triggers one retry with fresh token.
-
-`FHIRPushResult`:
-```python
-class FHIRPushResult(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    success: bool
-    status_code: int
-    resources_created: int
-    resources_failed: int
-    server_response: dict | None = None
-    error: str | None = None
-```
+1. `token_url` + `client_id` + `client_secret`: SMART on FHIR client credentials grant, token cached until expiry.
+2. No auth params: unauthenticated (local HAPI FHIR dev servers).
+3. 401 triggers one retry with fresh token.
 
 ### Layer 5: HTTP Receiver (`http.py`)
 
-Lightweight FastAPI router for receiving HL7v2 messages over HTTP.
+Lightweight FastAPI router. **ACK is commit-level, not application-level.**
 
 ```python
 def create_hl7_router(
     recorder: AIRRecorder,
     *,
-    fhir_client: FHIRClient | None = None,
-    siem_targets: list[SiemTarget] | None = None,
+    pipeline_queue: asyncio.Queue | None = None,
+    redaction_policy: RedactionPolicy | None = None,
 ) -> APIRouter:
     """Create a FastAPI router for HL7v2 message ingestion.
 
@@ -264,28 +387,69 @@ def create_hl7_router(
       Content-Type: application/hl7-v2 or x-application/hl7-v2+er7
       Body: raw HL7v2 message
 
-    Returns HL7v2 ACK (MSA segment) on success, NAK on parse failure.
+    ACK contract:
+      - AA (Application Accept): message parsed and signed successfully.
+        Downstream processing (FHIR mapping, detection, SIEM push,
+        FHIR server push) happens async.
+      - AE (Application Error): message parsed but signing failed.
+      - AR (Application Reject): message malformed, cannot parse.
+
+    The ACK means "we accepted the message." It does NOT mean
+    "we completed the FHIR push." Downstream failures go to
+    dead-letter queue and surface as gateway_lag_seconds metric.
     """
 ```
 
-Mountable into any FastAPI app:
-```python
-from airsdk_pro.hl7 import create_hl7_router
-app.include_router(create_hl7_router(recorder), prefix="/clinical")
-```
+### Layer 6: MLLP Listener (`mllp.py`)
 
-### Layer 6: SIEM Gateway (`gateway.py`)
-
-Full pipeline orchestrator. Composes all layers into a single `process()` call.
+Persistent TCP server with HL7v2 framing for hospitals without a modern integration engine.
 
 ```python
 @requires_pro(feature="hl7-fhir-integration")
-class HL7SIEMGateway:
-    """HL7v2 -> Parse -> FHIR Map -> Sign -> Detect -> SIEM push.
+class MLLPListener:
+    """Async MLLP (Minimum Lower Layer Protocol) TCP server.
 
-    Sits between clinical systems and security infrastructure.
-    Every HL7v2 message becomes a signed forensic record; every
-    finding becomes a SIEM event with clinical context.
+    Framing: start byte 0x0b, end bytes 0x1c 0x0d.
+    ACK on parse-and-sign only; downstream is async.
+    """
+
+    def __init__(
+        self,
+        host: str = "0.0.0.0",
+        port: int = 2575,
+        recorder: AIRRecorder | None = None,
+        pipeline_queue: asyncio.Queue | None = None,
+        redaction_policy: RedactionPolicy | None = None,
+    ) -> None: ...
+
+    async def start(self) -> None: ...
+    async def stop(self) -> None: ...
+```
+
+Connection handling:
+- One connection per integration engine (long-lived)
+- Framing validation: reject messages without proper start/end bytes
+- ACK/NAK per the same contract as HTTP (AA/AE/AR)
+- Backpressure: if `pipeline_queue` is full, NAK with AR and let the sender retry
+
+### Layer 7: Clinical Evidence Sidecar (`gateway.py`)
+
+Async pipeline orchestrator. ACK is synchronous (parse + sign). Everything else is queued.
+
+```python
+@requires_pro(feature="hl7-fhir-integration")
+class ClinicalSidecar:
+    """HL7v2 clinical evidence sidecar.
+
+    Pairs with your existing integration engine (Mirth, Cloverleaf,
+    Rhapsody). Records what your AI agent did with each clinical
+    message and proves whether it honored its declared intent.
+
+    Synchronous path (before ACK):
+      parse -> sign -> enqueue
+
+    Async path (after ACK, bounded queue):
+      FHIR map -> detect -> SIEM push -> FHIR server push
     """
 
     def __init__(
@@ -293,17 +457,26 @@ class HL7SIEMGateway:
         recorder: AIRRecorder,
         *,
         fhir_client: FHIRClient | None = None,
-        siem_config: GatewayConfig | None = None,
+        siem_config: SidecarConfig | None = None,
+        redaction_policy: RedactionPolicy | None = None,
+        queue_size: int = 10_000,
+        dead_letter_path: Path | None = None,
     ) -> None: ...
 
-    def process(self, raw_message: str) -> GatewayResult: ...
+    async def process(self, raw_message: str) -> SidecarResult: ...
+    async def process_file(self, path: Path) -> list[SidecarResult]: ...
+    async def start_workers(self, count: int = 4) -> None: ...
+    async def shutdown(self, timeout: float = 30.0) -> None: ...
 
-    def process_file(self, path: Path) -> list[GatewayResult]: ...
+    @property
+    def lag_seconds(self) -> float: ...
+    @property
+    def dead_letter_count(self) -> int: ...
 ```
 
-`GatewayConfig`:
+`SidecarConfig`:
 ```python
-class GatewayConfig(BaseModel):
+class SidecarConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     splunk: SplunkConfig | None = None
@@ -313,97 +486,66 @@ class GatewayConfig(BaseModel):
     push_fhir: bool = True
     run_detectors: bool = True
     auto_tag_subjects: bool = True
-```
-
-`GatewayResult`:
-```python
-class GatewayResult(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    message_type: str
-    patient_mrn: str | None
-    records_written: int
-    fhir_resources: list[FHIRResource]
-    findings: list[Finding]
-    siem_push_results: list[SiemPushResult]
-    fhir_push_result: FHIRPushResult | None
+    queue_size: int = 10_000
+    worker_count: int = 4
+    dead_letter_path: str | None = None
 ```
 
 #### SIEM event enrichment
 
-When findings are pushed to SIEM, the gateway enriches each event with clinical context:
+Clinical-enriched SIEM events use sourcetype `vindicara_air:clinical`:
 
 | SIEM field | Source | Example |
 |---|---|---|
 | `sourcetype` | hardcoded | `vindicara_air:clinical` |
-| `patient_mrn` | PID-3 | `20260511-0042` |
+| `patient_mrn_hash` | BLAKE3(PID-3) in redacted mode | `a7f3c2...` |
+| `patient_mrn` | PID-3 in raw mode only | `20260511-0042` |
 | `message_type` | MSH-9 | `ORU^R01` |
 | `sending_facility` | MSH-4 | `EPIC_PROD` |
 | `fhir_resource_types` | mapped resources | `["Patient", "Observation"]` |
 | `clinician` | step-up approver (if any) | `dr.chen@hospital.org` |
-
-Standard AIR finding fields (detector_id, severity, evidence, step_id, chain_hash) are included alongside the clinical fields.
+| `gateway_lag_seconds` | pipeline lag metric | `0.34` |
 
 ### AgDR payload extensions
 
 New optional fields on `AgDRPayload` (in OSS `airsdk/types.py`, matching governance pattern):
 
 ```python
-hl7v2_message_type: str | None = None       # e.g. "ORU^R01"
-hl7v2_segments: dict[str, Any] | None = None # parsed segment data
-fhir_resources: list[dict[str, Any]] | None = None  # FHIR R4 resource dicts
+hl7v2_message_type: str | None = None
+hl7v2_segments: dict[str, Any] | None = None   # redacted by default
+fhir_resources: list[dict[str, Any]] | None = None  # chain-boundary projection
 ```
 
-These are structural schema fields (like `data_assets` and `data_subjects`). The parsing and mapping logic lives in Pro; the fields are available to anyone reading the chain.
+These are structural schema fields. AgDR schema stays at **v0.6**; the new fields are optional and existing chains verify unchanged.
 
 ### CLI surface
 
 New subcommand group under `air hl7` (Pro-gated):
 
 ```
-air hl7 parse <file.hl7>                           Parse and display HL7v2 messages
-air hl7 capture <file.hl7> --chain <chain.jsonl>   Parse, map to FHIR, write signed capsules
-air hl7 push --fhir-url <url> --chain <chain.jsonl> Push FHIR resources from chain to server
-air hl7 gateway --config gateway.yaml               Run the full SIEM gateway pipeline
+air hl7 parse <file.hl7>                              Parse and display HL7v2 messages
+air hl7 capture <file.hl7> --chain <chain.jsonl>      Parse, map to FHIR, write signed capsules
+air hl7 push --fhir-url <url> --chain <chain.jsonl>   Push FHIR resources from chain to server
+air hl7 sidecar --config sidecar.yaml                 Run the full clinical evidence sidecar
 ```
-
-### E2E demo script
-
-`packages/projectair-pro/scripts/e2e_hl7_fhir.py`:
-
-1. Generate sample ORU^R01 message (lab results for a diabetic patient)
-2. Parse into typed segments
-3. Map to FHIR R4 (Patient, 3x Observation)
-4. Capture as signed capsules
-5. Run detectors (should flag nothing for in-scope access)
-6. Inject an unauthorized patient MRN in a second message
-7. Re-run detectors (SV-ENTITY-01 fires)
-8. Print gateway result with SIEM event preview
-9. Optionally push to a local HAPI FHIR server (`--live-fhir`)
-
-Runtime: under 30 seconds without live FHIR. Under 60 with.
 
 ## Marketing updates
 
 ### Pricing page (`site/src/routes/pricing/+page.svelte`)
 
-Add to Team tier feature list:
+**Enterprise tier only.** Add:
 - "HL7v2 + FHIR R4 clinical interop"
+- "Clinical evidence sidecar (SIEM gateway)"
 
-Add to Enterprise tier feature list:
-- "HL7v2 + FHIR R4 clinical interop"
-- "Clinical SIEM gateway"
-
-Add to feature comparison table:
-- Row: "Clinical interop (HL7v2 / FHIR R4)" with checkmarks on Team + Enterprise
+Do NOT add to Team tier. Clinical interop is the most strategically important capability in this release. Commoditizing it at $599 undercuts the pricing axis that justifies Enterprise contracts.
 
 ### Healthcare solutions page (`site/src/routes/solutions/healthcare/+page.svelte`)
 
 Add two capability cards:
-- "HL7v2 Message Capture": every ADT, ORM, ORU, MDM message your clinical AI agent handles is parsed and recorded as a signed capsule with patient MRN, sending facility, and message control ID.
-- "FHIR R4 Evidence": HL7v2 segments are mapped to FHIR R4 resources (Patient, Observation, ServiceRequest, DiagnosticReport) stored in the forensic chain. Auditors see structured clinical data, not raw pipes.
+- "HL7v2 Clinical Evidence": every ADT, ORM, ORU, MDM message your clinical AI agent handles is parsed and recorded as a signed capsule. PHI is redacted by default; raw mode requires a BAA.
+- "FHIR R4 Structured Evidence": HL7v2 segments are mapped to FHIR R4 resources (Patient, Observation, ServiceRequest, DiagnosticReport) using the HL7-published spec models. Auditors see structured clinical data with proper coding system attribution.
 
-Update quick-start code sample to show `instrument_hl7()`.
+Update quick-start code sample to show `instrument_hl7()` with intent capsule declaring patient scope.
 
 ### README (`packages/projectair/README.md`)
 
@@ -412,47 +554,75 @@ Add to framework integrations table:
 
 ### Blog
 
-New post: "HL7v2 Forensic Evidence: Cryptographic Audit Trails for Clinical AI Messages" covering the pipeline, FHIR mapping, SIEM gateway, and HIPAA compliance story.
+New post: "Clinical Evidence Sidecar: Cryptographic Audit Trails for HL7v2 and FHIR R4" covering the sidecar pattern, PHI redaction, intent-vs-action verification, and SIEM enrichment.
+
+## E2E demo script
+
+`packages/projectair-pro/scripts/e2e_hl7_fhir.py`:
+
+1. Declare intent capsule with `allowed_entities=["MRN-0042"]`
+2. Generate sample ORU^R01 message (lab results, MRN-0042, mixed LOINC + local codes)
+3. Parse via vendored hl7apy wrapper
+4. Map to FHIR R4 (Patient with hashed MRN, 3x Observation with proper code systems)
+5. Capture as signed capsules with default PHI redaction
+6. Run detectors (nothing fires: in-scope access)
+7. Inject second ORU^R01 with MRN-9999 (unauthorized)
+8. SV-ENTITY-01 fires: "entity access outside declared scope"
+9. Print sidecar result with SIEM event preview showing clinical enrichment
+10. Optionally push to local HAPI FHIR server (`--live-fhir`)
+11. Optionally run with `--phi-raw --baa` to show unredacted mode
+
+Runtime: under 30 seconds without live FHIR.
+
+## Dependencies
+
+- `hl7apy`: vendored into `_vendor/hl7apy/`, hash-pinned, version-locked. Parser and segment handling.
+- `fhir.resources`: PyPI dependency. FHIR R4 resource models auto-generated from HL7 spec.
+- `httpx` (already a dependency): FHIR server push, HTTP receiver.
+- `fastapi` (already a dependency): HTTP router.
 
 ## Test plan
 
 ### Unit tests (`packages/projectair-pro/tests/hl7/`)
 
-- `test_parser.py`: parse each message type (ADT A01, ORM O01, ORU R01, MDM T02), malformed messages, encoding edge cases (custom delimiters, escape sequences, empty segments, multi-line OBX)
-- `test_fhir.py`: each segment-to-resource mapping, missing optional fields, multiple OBX segments, LOINC code extraction, value type dispatch (quantity vs string vs coded)
-- `test_capture.py`: message in -> signed capsule out, chain verifies, auto-tagging of DataSubjectRef/DataAssetRef, FHIR resources in payload
-- `test_fhir_client.py`: mock FHIR server, bundle create, single resource create, auth flow (token request, refresh, 401 retry), error handling
-- `test_http.py`: POST endpoint, content-type handling, ACK/NAK response, malformed input
-- `test_gateway.py`: full pipeline with mock SIEM targets, clinical enrichment fields, detector integration, config variants
-- `test_types.py`: Pydantic model validation, extra="forbid" enforcement, serialization round-trips
+- `test_parser.py`: each message type (ADT A01, ORM O01, ORU R01, MDM T02), custom delimiters (MSH-1/MSH-2), all eight escape sequences, variable-precision timestamps (YYYY through YYYYMMDDHHMMSS.ssss+ZZZZ), MSH-18 character sets (ASCII, UTF-8, ISO-8859-1), Z-segment preservation as opaque blobs, multiple PID identifiers with assigning authority, malformed messages
+- `test_obx_dispatch.py`: OBX-2 type dispatch for NM, ST, CWE, TS, DT, TX, FT, SN. OBX-3 code system normalization for LOINC, SNOMED, CPT, ICD-10, local/unknown
+- `test_fhir.py`: each segment-to-resource mapping, missing optional fields, multiple OBX segments, code system attribution, US Core profile field coverage, `extra="ignore"` on inbound FHIR
+- `test_redaction.py`: default mode hashes MRN/omits name/truncates DOB, raw mode requires BAA flag, `allowed_fields` selective un-redaction, chain payload verification
+- `test_capture.py`: message in -> signed capsule out, chain verifies, auto-tagging DataSubjectRef with hashed MRN, FHIR resources in chain-boundary projection
+- `test_fhir_client.py`: mock FHIR server, bundle create, SMART on FHIR auth flow (token request, refresh, 401 retry), error handling, `extra="ignore"` on server response
+- `test_http.py`: POST endpoint, content-type handling, ACK types (AA/AE/AR), async pipeline decoupling, malformed input
+- `test_mllp.py`: TCP framing (0x0b start, 0x1c 0x0d end), ACK/NAK, connection lifecycle, backpressure when queue full
+- `test_gateway.py`: full sidecar pipeline with mock SIEM, clinical enrichment fields, intent capsule scope verification, dead-letter handling, lag metric
+- `test_types.py`: Pydantic model validation, serialization round-trips
 
 ### Integration tests
 
-- `test_capture_integration.py`: end-to-end from raw HL7v2 string through capture to verified chain with FHIR resources in payload
-- `test_gateway_integration.py`: gateway with mock Splunk HEC endpoint, verify SIEM event contains clinical fields
+- `test_capture_integration.py`: raw HL7v2 -> capture -> verified chain with redacted FHIR resources
+- `test_sidecar_integration.py`: sidecar with mock Splunk HEC, verify clinical SIEM event fields
+- `test_intent_scope.py`: intent capsule with allowed_entities, inject out-of-scope MRN, verify SV-ENTITY-01 fires
 
 ### E2E
 
-- `scripts/e2e_hl7_fhir.py`: full demo (see above)
-- `--live-fhir` flag for testing against a real HAPI FHIR server
+- `scripts/e2e_hl7_fhir.py` (see above)
+- `--live-fhir` for HAPI FHIR server
+- `--phi-raw --baa` for unredacted mode demo
 
 ### Coverage target
 
-80% floor (matching repo standard). Parser and FHIR mapping should be near 100% since they are pure deterministic logic.
-
-## Dependencies
-
-No new external dependencies for parsing or FHIR models (pure Pydantic). `httpx` (already a dependency) for FHIR server push and HTTP receiver. `fastapi` (already a dependency) for the HTTP router.
+80% floor. Parser wrapper and FHIR mapping near 100% (deterministic logic). Redaction logic 100% (safety-critical).
 
 ## Versioning
 
-- AgDR schema stays at **v0.6**. The new payload fields (`hl7v2_message_type`, `hl7v2_segments`, `fhir_resources`) are optional; existing chains verify unchanged.
-- Ships as part of `projectair-pro` (no OSS version bump needed for the Pro module).
-- Target release: **projectair-pro 1.1.0**.
+- AgDR schema stays at **v0.6**.
+- Ships as part of `projectair-pro`. Target release: **projectair-pro 1.1.0**.
+- New dependency: `fhir.resources` added to `projectair-pro` pyproject.toml.
+- Vendored `hl7apy` does not appear in dependency list; it is in-tree.
 
-## Future (v1.5, not in this spec)
+## Future (not in this spec)
 
-- **MLLP (TCP) listener**: persistent TCP server with HL7v2 framing (`\x0b`...`\x1c\x0d`), ACK/NAK, connection management.
 - **HL7v2 ADT event detector**: flag unusual patient transfer patterns (rapid readmission, cross-facility transfers outside declared scope).
 - **FHIR Subscription**: subscribe to FHIR server change notifications and capture them as signed capsules.
 - **CDA (Clinical Document Architecture)** mapping alongside FHIR R4 for orgs still on CDA.
+- **US Core conformance validation**: validate that mapped FHIR resources meet US Core profile requirements before push.
+- **Per-bed / PMPM pricing model**: pricing axis for payer-vertical SKU above current Enterprise band.
