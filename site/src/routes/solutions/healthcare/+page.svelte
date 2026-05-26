@@ -11,6 +11,8 @@
     { title: 'Breach Detection', description: '16 OWASP-mapped detectors run locally with zero data exfiltration. Prompt injection, data leakage, privilege escalation, and tool misuse are flagged in real time.' },
     { title: 'Human-in-the-Loop', description: 'Auth0-verified containment (Layer 3) ensures sensitive clinical actions require human approval via JWT-verified step-up authentication. Deny rules override step-up rules.' },
     { title: 'Compliance Reporting', description: 'Generate HIPAA evidence reports, EU AI Act Article 72 reports, and NIST AI RMF assessments directly from your signed forensic chain.' },
+    { title: 'HL7v2 Clinical Evidence', description: 'Every ADT, ORM, ORU, MDM message your clinical AI agent handles is parsed and recorded as a signed capsule. PHI is redacted by default to minimize exposure; BAA required for all clinical deployments.' },
+    { title: 'FHIR R4 Structured Evidence', description: 'HL7v2 segments are mapped to FHIR R4 resources (Patient, Observation, ServiceRequest, DiagnosticReport) using the HL7-published spec models. Auditors see structured clinical data with proper coding system attribution.' },
   ];
 </script>
 
@@ -93,5 +95,15 @@ recorder.llm_end(response=<span class="text-green-400">"Recommend titrating metf
 recorder.agent_finish(final_output=<span class="text-green-400">"Clinical review complete"</span>)</pre>
     </div>
     <p class="text-sm mt-4" style="color: var(--text-muted);">Every call generates a signed, tamper-evident record. Run <code class="font-mono text-brand-cyan">air demo --healthcare</code> to see it in action.</p>
+  </div>
+</section>
+
+<section class="pb-20 px-6">
+  <div class="max-w-screen-lg mx-auto">
+    <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-8 font-mono">FAQ</p>
+    <div class="glass-panel p-6 rounded-xl">
+      <h3 class="text-lg font-bold mb-2" style="color: var(--text-primary);">What data leaves my network?</h3>
+      <p class="text-sm leading-relaxed" style="color: var(--text-muted);">The only data that leaves your network is a BLAKE3 hash (32 bytes) submitted to Sigstore Rekor for timestamping. No PHI, no clinical content, no patient identifiers, no message payloads. The hash is a one-way cryptographic commitment that proves the chain existed at a point in time.</p>
+    </div>
   </div>
 </section>

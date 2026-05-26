@@ -271,6 +271,8 @@
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Branded compliance evidence packaging</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Insurance carrier integrations</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>SLA, dedicated IR contact, BAA</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>HL7v2 + FHIR R4 clinical interop</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Clinical evidence sidecar (SIEM gateway)</span></li>
           </ul>
           <a href="/contact?tier=enterprise" class="btn-secondary w-full mt-7 text-sm">Talk to us</a>
         </div>
@@ -409,6 +411,13 @@
               <td class="p-4 text-center" style="color: var(--text-faint); background-color: var(--glass);">&mdash;</td>
               <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td class="p-4">Clinical interop (HL7v2 / FHIR R4)</td>
+              <td class="p-4 text-center">-</td>
+              <td class="p-4 text-center">-</td>
+              <td class="p-4 text-center">-</td>
+              <td class="p-4 text-center text-brand-red">✓</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
               <td class="p-4">Dedicated IR contact + SLA</td>
