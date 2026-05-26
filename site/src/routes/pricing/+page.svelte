@@ -211,7 +211,7 @@
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Email support</span></li>
           </ul>
           <a
-            href="https://buy.stripe.com/aFa14m438d2QgA88Hl1RC00"
+            href="https://buy.stripe.com/fZu6oG1V01k82JibTx1RC04"
             class="btn-primary w-full mt-7 text-sm"
             rel="noopener"
           >Buy monthly · $99</a>
