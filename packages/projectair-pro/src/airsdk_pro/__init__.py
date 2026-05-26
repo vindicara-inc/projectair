@@ -58,6 +58,16 @@ from airsdk_pro.license import (
     load_license,
     verify_token,
 )
+from airsdk_pro.hl7 import (
+    HL7_FHIR_FEATURE,
+    ClinicalSidecar,
+    FHIRClient,
+    MLLPListener,
+    RedactionPolicy,
+    create_hl7_router,
+    instrument_hl7,
+    parse_hl7v2,
+)
 from airsdk_pro.report_nist_rmf import NIST_RMF_FEATURE, generate_nist_rmf_report
 from airsdk_pro.report_soc2_ai import SOC2_AI_FEATURE, generate_soc2_ai_report
 from airsdk_pro.siem import (
@@ -76,6 +86,14 @@ __version__ = "0.8.0"
 __all__ = [
     "AIR_CLOUD_CLIENT_FEATURE",
     "AccessType",
+    "ClinicalSidecar",
+    "FHIRClient",
+    "HL7_FHIR_FEATURE",
+    "MLLPListener",
+    "RedactionPolicy",
+    "create_hl7_router",
+    "instrument_hl7",
+    "parse_hl7v2",
     "AssetDefinition",
     "DataAccessRecord",
     "DataAssetRegistry",

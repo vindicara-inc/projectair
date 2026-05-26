@@ -65,3 +65,24 @@ class DataStack(Stack):
                 ),
             ],
         )
+
+        self.identity_registrations_table = dynamodb.Table(
+            self,
+            "IdentityRegistrationsTable",
+            table_name="vindicara-identity-registrations",
+            partition_key=dynamodb.Attribute(name="email", type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(name="registered_at", type=dynamodb.AttributeType.STRING),
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
+            removal_policy=RemovalPolicy.RETAIN,
+        )
+
+        self.telemetry_pings_table = dynamodb.Table(
+            self,
+            "TelemetryPingsTable",
+            table_name="vindicara-telemetry-pings",
+            partition_key=dynamodb.Attribute(name="session_id", type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(name="timestamp", type=dynamodb.AttributeType.STRING),
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
+            removal_policy=RemovalPolicy.DESTROY,
+            time_to_live_attribute="ttl",
+        )

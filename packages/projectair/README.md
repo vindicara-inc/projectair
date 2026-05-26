@@ -201,6 +201,19 @@ Total: **10 + 3 + 3 = 16 detectors** running over every chain, mapped to public 
 
 ## Instrument your agent
 
+| Framework | Entrypoint | Since |
+|---|---|---|
+| LangChain | `AIRCallbackHandler` | 0.1.0 |
+| OpenAI SDK (+ NIM, vLLM, Groq, …) | `instrument_openai` | 0.2.0 |
+| Anthropic SDK | `instrument_anthropic` | 0.2.0 |
+| LlamaIndex | `instrument_llamaindex` | 0.3.1 |
+| Google Gemini SDK | `instrument_gemini` | 0.3.2 |
+| Google ADK | `instrument_adk` | 0.3.2 |
+| NVIDIA NemoClaw | `instrument_nemoclaw` | 0.8.0 |
+| NVIDIA NeMo Guardrails | `instrument_nemo_guardrails` | 0.8.0 |
+| NVIDIA NemoGuard NIM | `NemoGuardClient` | 0.8.0 |
+| HL7v2 / FHIR R4 | `instrument_hl7` (Pro) | 1.1.0 |
+
 ### LangChain
 
 ```python
@@ -332,6 +345,21 @@ tc = guard.check_topic_control(
 ```
 
 `NemoGuardClient` wraps all three NemoGuard NIM classifiers (JailbreakDetect, ContentSafety, TopicControl). Every classification emits a signed `tool_start`/`tool_end` capsule pair with structured verdict data. When NemoGuard classifiers agree with AIR's heuristic detectors (AIR-06 corroboration), the finding carries critical severity: two independent signals from different vendors.
+
+### HL7v2 / FHIR R4 (Pro)
+
+```python
+from airsdk import AIRRecorder
+from airsdk.integrations.hl7 import instrument_hl7
+
+recorder = AIRRecorder("clinical-chain.jsonl")
+instrumented = instrument_hl7(recorder)
+
+# Parse an HL7v2 message and record a signed capsule
+result = instrumented.handle_message(hl7_message_str)
+```
+
+`instrument_hl7` is available in `projectair-pro` 1.1.0+. Every ADT, ORM, ORU, and MDM message your clinical AI agent processes is parsed and recorded as a signed Intent Capsule. PHI is redacted by default; the capsule carries the FHIR R4 resource mapping (Patient, Observation, ServiceRequest, DiagnosticReport) alongside the signed chain record. BAA required for all clinical deployments.
 
 ### Custom code (any framework)
 
