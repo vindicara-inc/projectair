@@ -38,7 +38,7 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # 64 hex chars = 256 bits. BLAKE3 default output size and Ed25519 public key size.
 GENESIS_PREV_HASH = "0" * 64
@@ -127,6 +127,31 @@ class HumanApproval(BaseModel):
     signed_token: str  # the original JWT, for offline re-verification
 
 
+class EntityScope(BaseModel):
+    """Dynamic scope mechanism for entity access control.
+
+    Supports four scope types beyond static allowed_entities lists:
+    facility scope (all patients at a facility/unit), roster scope
+    (subscription to a FHIR patient list), and predicate scope
+    (expression-based filtering on message attributes).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    scope_type: str  # "static" | "facility" | "roster" | "predicate"
+    facility: str | None = None
+    unit: str | None = None
+    time_window_hours: int | None = None
+    roster_source: str | None = None
+    refresh_interval_seconds: int = 300
+    predicate: str | None = None
+
+    def matches_facility(self, facility: str) -> bool:
+        if self.scope_type != "facility":
+            return True
+        return self.facility is not None and self.facility == facility
+
+
 class IntentSpec(BaseModel):
     """Structured intent declaration for structural verification.
 
@@ -142,8 +167,19 @@ class IntentSpec(BaseModel):
     allowed_paths: list[str] = Field(default_factory=list)
     allowed_network: list[str] = Field(default_factory=list)
     allowed_entities: list[str] = Field(default_factory=list)
+    entity_scope: EntityScope | None = None
     secret_access: bool = False
     non_goals: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_scope_exclusivity(self) -> "IntentSpec":
+        if self.allowed_entities and self.entity_scope:
+            raise ValueError(
+                "allowed_entities and entity_scope are mutually exclusive. "
+                "Use allowed_entities for static lists or entity_scope for "
+                "facility/roster/predicate scoping."
+            )
+        return self
 
 
 class DataAssetRef(BaseModel):
