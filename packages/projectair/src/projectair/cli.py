@@ -111,6 +111,70 @@ from projectair.governance_cli import register as _register_governance_cli  # no
 
 _register_governance_cli(app)
 
+# Pro: HL7v2 + FHIR R4 clinical evidence (`air hl7 parse | capture`).
+from projectair.hl7_cli import register as _register_hl7_cli  # noqa: E402
+
+_register_hl7_cli(app)
+
+
+# Configuration management: `air config set / get / list`.
+config_app = typer.Typer(
+    name="config",
+    help="Manage AIR CLI configuration.",
+    no_args_is_help=True,
+    add_completion=False,
+)
+app.add_typer(config_app, name="config")
+
+
+@config_app.command("set")
+def config_set(
+    key_value: str = typer.Argument(..., help="section.key format (e.g. telemetry.update_check)"),
+    value: str = typer.Argument(..., help="Value to store."),
+) -> None:
+    """Set a config value (e.g. air config set telemetry.update_check false)."""
+    from projectair.config import set_config
+    parts = key_value.split(".", 1)
+    if len(parts) != 2:
+        typer.secho(
+            "Key must be in section.key format (e.g. telemetry.update_check)",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(1)
+    set_config(parts[0], parts[1], value)
+    typer.echo(f"  {key_value} = {value}")
+
+
+@config_app.command("get")
+def config_get(
+    key: str = typer.Argument(..., help="section.key format"),
+) -> None:
+    """Get a config value."""
+    from projectair.config import get_config
+    parts = key.split(".", 1)
+    if len(parts) != 2:
+        typer.secho("Key must be in section.key format", fg=typer.colors.RED)
+        raise typer.Exit(1)
+    val = get_config(parts[0], parts[1])
+    if val is None:
+        typer.echo(f"  {key}: (not set)")
+    else:
+        typer.echo(f"  {key} = {val}")
+
+
+@config_app.command("list")
+def config_list_cmd() -> None:
+    """Show all config values."""
+    from projectair.config import list_config
+    data = list_config()
+    if not data:
+        typer.echo("  No config set.")
+        return
+    for section, kvs in data.items():
+        typer.echo(f"  [{section}]")
+        for k, v in kvs.items():
+            typer.echo(f"    {k} = {v}")
+
 
 @app.callback(invoke_without_command=True)
 def _app_callback(ctx: typer.Context) -> None:
