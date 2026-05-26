@@ -141,6 +141,7 @@ class IntentSpec(BaseModel):
     allowed_tools: list[str] = Field(default_factory=list)
     allowed_paths: list[str] = Field(default_factory=list)
     allowed_network: list[str] = Field(default_factory=list)
+    allowed_entities: list[str] = Field(default_factory=list)
     secret_access: bool = False
     non_goals: list[str] = Field(default_factory=list)
 
