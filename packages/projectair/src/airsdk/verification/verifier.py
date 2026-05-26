@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from airsdk.causal.inference import build_causal_graph
 from airsdk.types import AgDRRecord, IntentSpec, StepKind
+from airsdk.verification.checks.entity import check_entities
 from airsdk.verification.checks.network import check_network
 from airsdk.verification.checks.scope import check_scope
 from airsdk.verification.checks.secrets import check_secrets
@@ -68,6 +69,7 @@ def verify_intent(
     violations.extend(check_network(records, chain_spec))
     violations.extend(check_scope(records, chain_spec))
     violations.extend(check_exfiltration(records, graph))
+    violations.extend(check_entities(records, chain_spec))
 
     violations = _deduplicate(violations)
     violations.sort(key=lambda v: (_severity_rank(v.severity), v.step_index))

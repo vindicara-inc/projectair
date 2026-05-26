@@ -16,8 +16,14 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from cryptography.hazmat.primitives.asymmetric.mldsa import MLDSA65PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
+
+from airsdk.agdr import _HAS_MLDSA
+
+if _HAS_MLDSA:
+    from cryptography.hazmat.primitives.asymmetric.mldsa import MLDSA65PrivateKey
+else:
+    MLDSA65PrivateKey = None  # type: ignore[assignment,misc]
 
 from airsdk.agdr import Signer, SigningKey, _uuid7
 from airsdk.containment import (
@@ -30,6 +36,8 @@ from airsdk.containment import (
 )
 from airsdk.transport import FileTransport, Transport
 from airsdk.types import AgDRPayload, AgDRRecord, DataAssetRef, DataSubjectRef, HumanApproval, IntentSpec, SigningAlgorithm, StepKind
+from airsdk.verification.verifier import verify_intent as _verify_intent
+from airsdk.verification.types import IntentVerdict
 
 if TYPE_CHECKING:
     from airsdk.anchoring import AnchoringOrchestrator
@@ -48,14 +56,15 @@ def resolve_signing_key(
     """
     if key is None:
         return None
-    if isinstance(key, (Ed25519PrivateKey, MLDSA65PrivateKey)):
+    accepted_types = (Ed25519PrivateKey, MLDSA65PrivateKey) if _HAS_MLDSA else (Ed25519PrivateKey,)
+    if isinstance(key, accepted_types):
         return key
     data = key.strip()
     if data.startswith("-----BEGIN"):
         priv = load_pem_private_key(data.encode(), password=None)
-        if isinstance(priv, (Ed25519PrivateKey, MLDSA65PrivateKey)):
+        if isinstance(priv, accepted_types):
             return priv
-        raise ValueError(f"key PEM must hold Ed25519 or ML-DSA-65, got {type(priv).__name__}")
+        raise ValueError(f"key PEM must hold Ed25519, got {type(priv).__name__}")
     try:
         seed = bytes.fromhex(data)
     except ValueError as exc:
@@ -63,7 +72,12 @@ def resolve_signing_key(
     if len(seed) != 32:
         raise ValueError(f"hex key must decode to 32 bytes, got {len(seed)}")
     if algorithm == SigningAlgorithm.ML_DSA_65:
-        return MLDSA65PrivateKey.from_seed_bytes(seed)
+        if not _HAS_MLDSA:
+            raise RuntimeError(
+                "ML-DSA-65 requires cryptography>=48.0.0. "
+                "Upgrade with: pip install 'cryptography>=48.0.0'"
+            )
+        return MLDSA65PrivateKey.from_seed_bytes(seed)  # type: ignore[union-attr]
     return Ed25519PrivateKey.from_private_bytes(seed)
 
 
@@ -105,6 +119,7 @@ class AIRRecorder:
         containment: ContainmentPolicy | None = None,
         auth0_verifier: Auth0Verifier | None = None,
         signing_algorithm: SigningAlgorithm = SigningAlgorithm.ED25519,
+        verify_on_step: bool = False,
     ) -> None:
         priv = resolve_signing_key(key, algorithm=signing_algorithm)
         self._signer = Signer(priv) if priv is not None else Signer.generate(signing_algorithm)
@@ -118,6 +133,8 @@ class AIRRecorder:
         self._auth0 = auth0_verifier
         self._pending: dict[str, dict[str, Any]] = {}
         self._prior_findings: list[Finding] = []
+        self._verify_on_step = verify_on_step
+        self._chain_records: list[AgDRRecord] = []
 
         if intent_spec is not None:
             self._emit(StepKind.INTENT_DECLARATION, {
@@ -389,6 +406,15 @@ class AIRRecorder:
         record = self._signer.sign(kind=kind, payload=payload)
         for transport in self._transports:
             transport.emit(record)
+        self._chain_records.append(record)
         if self._orchestrator is not None:
             self._orchestrator.observe_step(record)
+        if self._verify_on_step and self._intent_spec is not None:
+            if kind == StepKind.TOOL_END:
+                result = _verify_intent(self._chain_records, self._intent_spec)
+                if result.verdict == IntentVerdict.FAILED:
+                    raise BlockedActionError(
+                        f"Structural verification failed: {result.summary}",
+                        tool_name=fields.get("tool_name", ""),
+                    )
         return record
