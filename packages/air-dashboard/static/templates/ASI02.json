@@ -1,0 +1,24 @@
+{
+  "template_id": "ASI02-tool-misuse",
+  "version": "1.0.0",
+  "detector_id": "ASI02",
+  "finding_type": "tool_misuse",
+  "layer1": "Agent {agent_name} called {tool_name} with suspicious arguments at {timestamp}.",
+  "layer2": [
+    { "framework": "OWASP", "reference": "ASI02", "description": "Tool Misuse and Exploitation: agent invokes tools in ways that exceed or subvert intended functionality." },
+    { "framework": "SOC 2", "reference": "CC6.1", "description": "Logical access controls must prevent unauthorized or anomalous use of system components." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Block Tool", "action": "block_tool" },
+      { "label": "Review Args", "action": "review_tool_args" },
+      { "label": "Approve", "action": "approve" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "tool_name", "source": "payload.tool_name" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}
