@@ -1,0 +1,22 @@
+{
+  "template_id": "AIR-01-prompt-injection",
+  "version": "1.0.0",
+  "detector_id": "AIR-01",
+  "finding_type": "prompt_injection",
+  "layer1": "Prompt injection pattern detected in agent {agent_name}'s input at {timestamp}.",
+  "layer2": [
+    { "framework": "OWASP LLM", "reference": "LLM01", "description": "Prompt Injection: crafted input attempts to override system instructions or hijack model behavior." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Block Input", "action": "block_input" },
+      { "label": "Review Pattern", "action": "review_pattern" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}

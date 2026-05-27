@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
-	import ParticleNetwork from './ParticleNetwork.svelte';
 	import { authStore } from '$lib/stores/auth.svelte';
 
 	type Phase = 'welcome' | 'disintegrating';
@@ -86,7 +85,6 @@
 	role="presentation"
 	onmousemove={trackMouse}
 >
-	<ParticleNetwork />
 	<canvas bind:this={dCanvas} class="fixed inset-0 z-[102] pointer-events-none"></canvas>
 
 	<div class="fixed inset-0 z-[101] flex flex-col items-center justify-center">

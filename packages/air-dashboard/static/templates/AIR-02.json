@@ -1,0 +1,23 @@
+{
+  "template_id": "AIR-02-data-exposure",
+  "version": "1.0.0",
+  "detector_id": "AIR-02",
+  "finding_type": "data_exposure",
+  "layer1": "Sensitive data appeared in agent {agent_name}'s chain at {timestamp}.",
+  "layer2": [
+    { "framework": "HIPAA", "reference": "45 CFR 164.514(d)", "description": "Minimum necessary standard: PHI must not be disclosed beyond what is required for the intended purpose." },
+    { "framework": "GDPR", "reference": "Art. 32", "description": "Controllers must implement appropriate technical measures to ensure personal data security." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Redact", "action": "redact_record" },
+      { "label": "Export for DSAR", "action": "export_dsar" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}

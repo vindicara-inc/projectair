@@ -31,7 +31,7 @@
 	<div class="sidebar-user">
 		{#if expanded}
 			<div class="user-avatar">
-				{(roleStore.email ?? 'U')[0].toUpperCase()}
+				{(roleStore.email ?? 'U')[0]!.toUpperCase()}
 			</div>
 			<div class="user-info">
 				<p class="user-name">{cloudSession.workspace?.name ?? 'Not connected'}</p>
@@ -42,7 +42,7 @@
 			</div>
 		{:else}
 			<div class="user-avatar-sm">
-				{(roleStore.email ?? 'U')[0].toUpperCase()}
+				{(roleStore.email ?? 'U')[0]!.toUpperCase()}
 			</div>
 		{/if}
 	</div>
@@ -120,7 +120,7 @@
 <style>
 	.sidebar {
 		background: linear-gradient(180deg, rgba(5,5,7,0.96) 0%, rgba(8,8,12,0.98) 100%);
-		border-right: 1px solid rgba(220,38,38,0.12);
+		border-right: 1px solid rgba(255,179,71,0.12);
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
 	}
@@ -143,9 +143,9 @@
 		display: flex; align-items: center; justify-content: center;
 		font-family: var(--font-display);
 		font-size: 12px; font-weight: 700;
-		color: var(--color-red);
-		background: rgba(220,38,38,0.1);
-		border: 1px solid rgba(220,38,38,0.25);
+		color: var(--color-amber);
+		background: rgba(255,179,71,0.1);
+		border: 1px solid rgba(255,179,71,0.25);
 		flex-shrink: 0;
 	}
 
@@ -154,9 +154,9 @@
 		display: flex; align-items: center; justify-content: center;
 		font-family: var(--font-display);
 		font-size: 10px; font-weight: 700;
-		color: var(--color-red);
-		background: rgba(220,38,38,0.1);
-		border: 1px solid rgba(220,38,38,0.25);
+		color: var(--color-amber);
+		background: rgba(255,179,71,0.1);
+		border: 1px solid rgba(255,179,71,0.25);
 		margin: 0 auto;
 	}
 
@@ -187,7 +187,7 @@
 		margin-top: 4px;
 	}
 
-	.user-role.owner { background: rgba(220,38,38,0.15); color: var(--color-red); }
+	.user-role.owner { background: rgba(255,179,71,0.15); color: var(--color-amber); }
 	.user-role.admin { background: rgba(255,181,71,0.12); color: var(--color-high); }
 	.user-role.member { background: rgba(255,255,255,0.06); color: var(--color-white-3); }
 
@@ -219,8 +219,8 @@
 	}
 
 	.nav-item.active {
-		color: var(--color-red);
-		background: rgba(220,38,38,0.06);
+		color: var(--color-amber);
+		background: rgba(255,179,71,0.06);
 	}
 
 	.nav-icon {
@@ -302,8 +302,8 @@
 
 	.panel-btn:hover {
 		color: var(--color-white);
-		border-color: rgba(220,38,38,0.2);
-		background: rgba(220,38,38,0.04);
+		border-color: rgba(255,179,71,0.2);
+		background: rgba(255,179,71,0.04);
 	}
 
 	.sidebar-bottom {
@@ -325,7 +325,7 @@
 		transition: color 0.12s;
 	}
 
-	.signout-btn:hover { color: var(--color-red); }
+	.signout-btn:hover { color: var(--color-amber); }
 
 	@keyframes panelIn {
 		from { opacity: 0; transform: translateY(-4px); }

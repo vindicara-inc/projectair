@@ -1,0 +1,23 @@
+{
+  "template_id": "ASI05-code-execution",
+  "version": "1.0.0",
+  "detector_id": "ASI05",
+  "finding_type": "code_execution",
+  "layer1": "Agent {agent_name} executed code it was not authorized to run at {timestamp}.",
+  "layer2": [
+    { "framework": "OWASP", "reference": "ASI05", "description": "Unexpected Code Execution: agent dynamically generates and runs code outside its declared scope." },
+    { "framework": "SOC 2", "reference": "CC8.1", "description": "Change management controls must prevent unauthorized code from executing in production environments." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Quarantine Agent", "action": "quarantine_agent" },
+      { "label": "Review Code", "action": "review_code" },
+      { "label": "Approve", "action": "approve" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}
