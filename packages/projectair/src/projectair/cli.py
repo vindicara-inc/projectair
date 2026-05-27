@@ -84,7 +84,7 @@ from projectair.push_cli import register as _register_push_cli  # noqa: E402
 
 _register_push_cli(app)
 
-# Pro: SIEM push commands (`air siem datadog|splunk|sumo|sentinel`).
+# Pro: SIEM push commands (`air siem datadog|splunk|sumo|sentinel|slack`).
 # All command bodies defer the airsdk_pro import so OSS installs without Pro
 # still expose the help text and emit a clean install message at runtime.
 from projectair.siem_cli import register as _register_siem_cli  # noqa: E402
