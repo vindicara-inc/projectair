@@ -31,7 +31,7 @@
 	<div class="sidebar-user">
 		{#if expanded}
 			<div class="user-avatar">
-				{(roleStore.email ?? 'U')[0].toUpperCase()}
+				{(roleStore.email ?? 'U')[0]!.toUpperCase()}
 			</div>
 			<div class="user-info">
 				<p class="user-name">{cloudSession.workspace?.name ?? 'Not connected'}</p>
@@ -42,7 +42,7 @@
 			</div>
 		{:else}
 			<div class="user-avatar-sm">
-				{(roleStore.email ?? 'U')[0].toUpperCase()}
+				{(roleStore.email ?? 'U')[0]!.toUpperCase()}
 			</div>
 		{/if}
 	</div>

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Finding, AgDRRecord, Severity } from '$lib/agdr/types.ts';
-  import type { FindingTemplate } from '$lib/templates/types.ts';
-  import type { IncidentStatus } from '$lib/templates/types.ts';
+  import type { Finding, AgDRRecord, Severity } from '$lib/agdr/types';
+  import type { FindingTemplate } from '$lib/templates/types';
+  import type { IncidentStatus } from '$lib/templates/types';
   import { prioritizeFindings } from '$lib/stores/triage.svelte';
   import { triageStore } from '$lib/stores/triage.svelte';
   import IncidentCard from './IncidentCard.svelte';

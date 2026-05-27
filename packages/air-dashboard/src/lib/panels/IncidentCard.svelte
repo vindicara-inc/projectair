@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { Finding, AgDRRecord } from '$lib/agdr/types.ts';
-  import type { FindingTemplate } from '$lib/templates/types.ts';
-  import { fillTemplate } from '$lib/templates/fill.ts';
+  import type { Finding, AgDRRecord } from '$lib/agdr/types';
+  import type { FindingTemplate } from '$lib/templates/types';
+  import { fillTemplate } from '$lib/templates/fill';
   import { triageStore } from '$lib/stores/triage.svelte';
   import { drawerStore } from '$lib/stores/drawer.svelte';
-  import { checkEntailment } from '$lib/templates/entailment.ts';
+  import { checkEntailment } from '$lib/templates/entailment';
 
   interface Props {
     finding: Finding;

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Severity } from '$lib/agdr/types.ts';
-  import type { IncidentStatus } from '$lib/templates/types.ts';
+  import type { Severity } from '$lib/agdr/types';
+  import type { IncidentStatus } from '$lib/templates/types';
 
   interface Props {
     onSeverityChange?: (severity: Severity | null) => void;
