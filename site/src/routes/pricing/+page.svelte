@@ -36,7 +36,7 @@
         price: '0',
         priceCurrency: 'USD',
         availability: 'https://schema.org/InStock',
-        description: 'MIT-licensed air CLI, airsdk Python SDK with LangChain, OpenAI, Anthropic, and LlamaIndex instrumentation. 14 detectors. JSON, PDF, CEF, and Article 72 template export. Community support.',
+        description: 'MIT-licensed air CLI, airsdk Python SDK with LangChain, OpenAI, Anthropic, and LlamaIndex instrumentation. 16 detectors (10 OWASP Agentic + 3 OWASP LLM + 3 AIR-native). JSON, PDF, CEF, and Article 72 template export. Community support.',
         url: 'https://github.com/vindicara-inc/projectair',
       },
       {
@@ -45,7 +45,7 @@
         price: '99',
         priceCurrency: 'USD',
         availability: 'https://schema.org/InStock',
-        description: 'Structural Verification (SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL, SV-ENTITY), Premium ASI04 supply chain detectors, AIR Cloud, NIST AI RMF and SOC2-AI reports, license-gated via projectair-pro.',
+        description: 'Personal AIR Cloud workspace with multi-agent dashboard, Structural Verification (SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL, SV-ENTITY), Premium ASI04 supply-chain detectors, NIST AI RMF and SOC2-AI reports, 14-day money-back guarantee, license-gated via projectair-pro.',
         priceSpecification: {
           '@type': 'UnitPriceSpecification',
           price: '99',
@@ -60,7 +60,7 @@
         price: '599',
         priceCurrency: 'USD',
         availability: 'https://schema.org/InStock',
-        description: 'Hosted AIR Cloud workspace, multi-agent dashboards, SIEM export, incident workflows, and alerting.',
+        description: 'Shared team workspace with multi-agent dashboards, activity feeds, role-based access, SIEM integrations (Datadog, Splunk, Sumo Logic, Microsoft Sentinel), incident workflows with alerting and assignment.',
         priceSpecification: {
           '@type': 'UnitPriceSpecification',
           price: '599',
@@ -73,7 +73,7 @@
         '@type': 'Offer',
         name: 'Enterprise',
         availability: 'https://schema.org/InStock',
-        description: 'SSO, SAML, RBAC, on-premises deployment, EU AI Act Article 72 evidence packaging, SLA, BAA, dedicated IR contact, insurance carrier integrations. Pricing on request.',
+        description: 'SSO, SAML, RBAC, on-premises / VPC / air-gapped deployment, HIPAA BAA, branded compliance evidence packaging (Article 72, NIST AI RMF, SOC2-AI, SB 53), insurance carrier integrations for AI liability policies, dedicated IR contact, 24/7 support, SLA. Pricing on request.',
       },
     ],
   })}<\/script>`}
@@ -156,9 +156,9 @@
     </div>
     <div class="relative max-w-screen-xl mx-auto px-6 text-center">
       <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-4 font-mono">Pricing</p>
-      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight max-w-3xl mx-auto">Free for individuals to evaluate. Paid when it pays you back.</h1>
+      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight max-w-3xl mx-auto">Free for individuals to evaluate. Paid when the evidence becomes the workflow.</h1>
       <p class="mt-5 text-lg max-w-2xl mx-auto leading-relaxed" style="color: var(--text-muted);">
-        The <code class="font-mono" style="color: var(--text-secondary);">air</code> CLI and <code class="font-mono" style="color: var(--text-secondary);">airsdk</code> Python SDK are MIT-licensed and free forever, with all 14 detectors and core export formats. Pro adds the AIR Cloud client, premium compliance reports, and licensed enterprise features.
+        The <code class="font-mono" style="color: var(--text-secondary);">air</code> CLI and <code class="font-mono" style="color: var(--text-secondary);">airsdk</code> Python SDK are MIT-licensed and free forever, with all 16 detectors and core export formats. Pro adds the personal AIR Cloud workspace, Structural Verification, premium detectors, and licensed enterprise features. Team adds the shared team workspace, SIEM, and incident workflows. Enterprise adds SSO, on-prem, BAA, and SLA.
       </p>
       <div class="mt-6 flex items-center justify-center">
         <a href="https://www.producthunt.com/posts/project-air-by-vindicara" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2.5 px-4 py-2.5 transition-colors group" style="border: 1px solid var(--border); background-color: var(--glass);" onmouseenter={(e) => e.currentTarget.style.backgroundColor = 'var(--glass-border)'} onmouseleave={(e) => e.currentTarget.style.backgroundColor = 'var(--glass)'}>
@@ -181,33 +181,36 @@
           </div>
           <p class="text-3xl font-black mt-4">Free</p>
           <p class="text-sm mt-1" style="color: var(--text-muted);">Forever. MIT license.</p>
+          <p class="text-xs mt-1" style="color: var(--text-faint);">Self-hosted. No seat limits. No phone-home.</p>
           <ul class="mt-7 space-y-3 text-sm" style="color: var(--text-muted);">
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><span class="font-mono" style="color: var(--text-secondary);">air</span> CLI: trace, demo, report</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><span class="font-mono" style="color: var(--text-secondary);">airsdk</span>: LangChain, OpenAI, Anthropic, LlamaIndex</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>14 detectors (10 OWASP Agentic + 3 LLM + 1 AIR-native)</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><span class="font-mono" style="color: var(--text-secondary);">airsdk</span>: LangChain, OpenAI, Anthropic, LlamaIndex, Gemini, Google ADK</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>All 16 detectors (10 OWASP Agentic ASI01&#8211;ASI10 + 3 OWASP LLM + 3 AIR-native)</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Signed Intent Capsule chain, local-only</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>JSON, PDF, CEF, Article 72 template export</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>JSON, PDF, CEF, EU AI Act Article 72 template export</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Zero-Trust agent registry enforcement</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Community support</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Community support (GitHub Issues)</span></li>
           </ul>
           <a href="https://github.com/vindicara-inc/projectair" class="btn-secondary w-full mt-7 text-sm">View on GitHub</a>
         </div>
 
-        <!-- Individual -->
+        <!-- Pro — MOST POPULAR -->
         <div class="p-7" style="border-bottom: 1px solid var(--border); background-color: var(--glass);">
           <div class="flex items-center justify-between mb-2">
             <h2 class="text-sm font-mono uppercase tracking-wider" style="color: var(--text-muted);">Pro</h2>
-            <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">New</span>
+            <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">Most popular</span>
           </div>
           <p class="text-3xl font-black mt-4">$99<span class="text-base font-normal" style="color: var(--text-muted);">/mo</span></p>
           <p class="text-sm mt-1" style="color: var(--text-muted);">Or $890/year. Cancel anytime.</p>
+          <p class="text-xs mt-1" style="color: var(--text-faint);">Your personal AIR control plane. Run your agents, see them in one dashboard, prove intent.</p>
           <ul class="mt-7 space-y-3 text-sm" style="color: var(--text-muted);">
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Open Source</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">Structural Verification</strong> (SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL, SV-ENTITY)</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">Premium ASI04</strong> supply chain detectors (dependency install, manifest drift, untrusted fetch)</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>AIR Cloud: push capsules to a hosted workspace</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Premium reports: NIST AI RMF, SOC2-AI</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>License works air-gapped (no phone-home)</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">Personal AIR Cloud workspace</strong> with <strong style="color: var(--text-primary);">multi-agent dashboard</strong></span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">Structural Verification</strong> (SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL, SV-ENTITY): deterministic intent enforcement, no LLM in the verification path</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">Premium ASI04</strong> supply-chain detectors (dependency install, manifest drift, untrusted fetch)</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">Premium compliance reports</strong>: NIST AI RMF, SOC2-AI</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>License works air-gapped (local Ed25519 verification, no phone-home)</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>14-day money-back guarantee</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Email support</span></li>
           </ul>
           <a
@@ -215,9 +218,10 @@
             class="btn-primary w-full mt-7 text-sm"
             rel="noopener"
           >Buy monthly · $99</a>
+          <p class="text-center text-[10px] mt-1.5" style="color: var(--text-faint);">14-day refund. No questions.</p>
           <a
             href="https://buy.stripe.com/cNi9AS0QWfaYbfOe1F1RC01"
-            class="block text-center text-xs mt-3 underline underline-offset-4"
+            class="block text-center text-xs mt-2 underline underline-offset-4"
             style="color: var(--text-muted);"
             onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
             onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
@@ -229,16 +233,17 @@
         <div class="p-7" style="border-bottom: 1px solid var(--border);">
           <div class="flex items-center justify-between mb-2">
             <h2 class="text-sm font-mono uppercase tracking-wider" style="color: var(--text-muted);">Team</h2>
-            <span class="font-mono text-[10px] text-brand-red border border-brand-red/30 bg-brand-red/5 px-2 py-0.5 uppercase tracking-wider">New</span>
+            <span class="font-mono text-[10px] px-2 py-0.5 uppercase tracking-wider" style="color: var(--text-secondary); border: 1px solid var(--border); background-color: var(--glass);">Team workspace</span>
           </div>
           <p class="text-3xl font-black mt-4">$599<span class="text-base font-normal" style="color: var(--text-muted);">/mo</span></p>
           <p class="text-sm mt-1" style="color: var(--text-muted);">Or $5,400/year. Hosted AIR Cloud for your team.</p>
+          <p class="text-xs mt-1" style="color: var(--text-faint);">Plus your security team. Shared workspace, SIEM, incident workflows.</p>
           <ul class="mt-7 space-y-3 text-sm" style="color: var(--text-muted);">
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Pro, organization-wide</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Hosted AIR Cloud workspace, multi-agent dashboards</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>SIEM integrations: Datadog, Splunk, Sumo, Sentinel</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Incident workflows + alerting</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Shared keys + workspace roles</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">Shared team workspace</strong> with multi-agent dashboards, activity feeds, and role-based access</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">SIEM integrations</strong>: Datadog, Splunk, Sumo Logic, Microsoft Sentinel</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">Incident workflows</strong> with alerting and assignment</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Shared keys, workspace roles, audit log</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Email + Slack support</span></li>
           </ul>
           <a
@@ -263,16 +268,16 @@
             <span class="font-mono text-[10px] px-2 py-0.5 uppercase tracking-wider" style="color: var(--text-secondary); border: 1px solid var(--border); background-color: var(--glass);">Custom</span>
           </div>
           <p class="text-3xl font-black mt-4">Talk to us</p>
-          <p class="text-sm mt-1" style="color: var(--text-muted);">Regulated industries, on-prem, SLA.</p>
+          <p class="text-sm mt-1" style="color: var(--text-muted);">Regulated industries, on-prem, SLA, BAA.</p>
           <ul class="mt-7 space-y-3 text-sm" style="color: var(--text-muted);">
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Team</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>SSO, SAML, RBAC</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>On-prem / VPC / air-gapped deployment</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Branded compliance evidence packaging</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Insurance carrier integrations</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>SLA, dedicated IR contact, BAA</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>HL7v2 + FHIR R4 clinical interop</span></li>
-            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Clinical evidence sidecar (SIEM gateway)</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>HIPAA BAA</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Branded compliance evidence packaging (Article 72, NIST AI RMF, SOC2-AI, SB 53)</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Insurance carrier integrations for AI liability policies</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Dedicated IR contact, 24/7 support, SLA</span></li>
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Volume-tiered pricing aligned to agents instrumented</span></li>
           </ul>
           <a href="/contact?tier=enterprise" class="btn-secondary w-full mt-7 text-sm">Talk to us</a>
         </div>
@@ -308,21 +313,42 @@
             <tr style="background-color: var(--glass); color: var(--text-muted);">
               <th class="text-left p-4 font-mono text-xs uppercase tracking-wider font-semibold" style="border-bottom: 1px solid var(--border);">Capability</th>
               <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold" style="border-bottom: 1px solid var(--border);">Free (OSS)</th>
-              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold" style="border-bottom: 1px solid var(--border); background-color: var(--glass);">Pro ($99/mo)</th>
-              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold" style="border-bottom: 1px solid var(--border);">Team ($599/mo)</th>
+              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold" style="border-bottom: 1px solid var(--border); background-color: var(--glass);">Pro $99/mo</th>
+              <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold" style="border-bottom: 1px solid var(--border);">Team $599/mo</th>
               <th class="text-center p-4 font-mono text-xs uppercase tracking-wider font-semibold" style="border-bottom: 1px solid var(--border);">Enterprise</th>
             </tr>
           </thead>
           <tbody style="color: var(--text-secondary);">
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td class="p-4">14 detectors (10 OWASP Agentic + 3 LLM + 1 AIR-native)</td>
+              <td class="p-4">All 16 detectors (10 OWASP Agentic + 3 LLM + 3 AIR-native)</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
               <td class="p-4 text-center text-green-400" style="background-color: var(--glass);">&#10003;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td class="p-4">Article 72 export</td>
+              <td class="p-4">Signed Intent Capsule chain (local)</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400" style="background-color: var(--glass);">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td class="p-4">EU AI Act Article 72 template export</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400" style="background-color: var(--glass);">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td class="p-4">JSON / PDF / CEF export</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400" style="background-color: var(--glass);">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td class="p-4">Zero-Trust agent registry enforcement</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
               <td class="p-4 text-center text-green-400" style="background-color: var(--glass);">&#10003;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
@@ -336,7 +362,7 @@
               <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td class="p-4">Premium ASI04 supply chain detectors</td>
+              <td class="p-4">Premium ASI04 supply-chain detectors</td>
               <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
               <td class="p-4 text-center text-green-400" style="background-color: var(--glass);">&#10003;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
@@ -350,28 +376,56 @@
               <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td class="p-4">Push to AIR Cloud (single user)</td>
+              <td class="p-4">Personal AIR Cloud workspace</td>
               <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
               <td class="p-4 text-center text-green-400" style="background-color: var(--glass);">&#10003;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td class="p-4">Multi-agent dashboard</td>
+              <td class="p-4"><strong>Multi-agent dashboard</strong></td>
+              <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
+              <td class="p-4 text-center" style="background-color: var(--glass); color: var(--text-secondary);">&#10003; (single user)</td>
+              <td class="p-4 text-center" style="color: var(--text-secondary);">&#10003; (team)</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td class="p-4">Air-gapped license verification</td>
+              <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
+              <td class="p-4 text-center text-green-400" style="background-color: var(--glass);">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td class="p-4">14-day money-back guarantee</td>
+              <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
+              <td class="p-4 text-center text-green-400" style="background-color: var(--glass);">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center" style="color: var(--text-secondary);">Custom terms</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td class="p-4">Shared team workspace + activity feeds</td>
               <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
               <td class="p-4 text-center" style="color: var(--text-faint); background-color: var(--glass);">&mdash;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td class="p-4">Team workspace + activity feeds</td>
+              <td class="p-4">Role-based workspace access</td>
               <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
               <td class="p-4 text-center" style="color: var(--text-faint); background-color: var(--glass);">&mdash;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td class="p-4">SIEM integrations + alerting</td>
+              <td class="p-4">SIEM integrations (Datadog / Splunk / Sumo / Sentinel)</td>
+              <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
+              <td class="p-4 text-center" style="color: var(--text-faint); background-color: var(--glass);">&mdash;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+              <td class="p-4 text-center text-green-400">&#10003;</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td class="p-4">Incident workflows + alerting</td>
               <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
               <td class="p-4 text-center" style="color: var(--text-faint); background-color: var(--glass);">&mdash;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
@@ -385,7 +439,7 @@
               <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td class="p-4">On-prem / VPC / air-gapped</td>
+              <td class="p-4">On-prem / VPC / air-gapped deployment</td>
               <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
               <td class="p-4 text-center" style="color: var(--text-faint); background-color: var(--glass);">&mdash;</td>
               <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
@@ -411,13 +465,6 @@
               <td class="p-4 text-center" style="color: var(--text-faint); background-color: var(--glass);">&mdash;</td>
               <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
-            </tr>
-            <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td class="p-4">Clinical interop (HL7v2 / FHIR R4)</td>
-              <td class="p-4 text-center">-</td>
-              <td class="p-4 text-center">-</td>
-              <td class="p-4 text-center">-</td>
-              <td class="p-4 text-center text-brand-red">✓</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
               <td class="p-4">Dedicated IR contact + SLA</td>
@@ -451,21 +498,34 @@
         <div>
           <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">What stays free forever?</h3>
           <p class="text-sm leading-relaxed" style="color: var(--text-muted);">
-            The <code class="font-mono" style="color: var(--text-secondary);">air</code> CLI, the <code class="font-mono" style="color: var(--text-secondary);">airsdk</code> Python SDK, the signed Intent Capsule chain, and all 14 detectors: 10 OWASP Top 10 for Agentic Applications (ASI01 through ASI10), 3 OWASP Top 10 for LLM Applications categories (LLM01, LLM04, LLM06), and 1 AIR-native forensic-chain-integrity check. JSON, PDF, and CEF export formats included. EU AI Act Article 72 evidence template generator included. Zero-Trust agent registry enforcement included. All MIT-licensed, all self-hosted, no seat limits, no trace limits.
+            The <code class="font-mono" style="color: var(--text-secondary);">air</code> CLI, the <code class="font-mono" style="color: var(--text-secondary);">airsdk</code> Python SDK, the signed Intent Capsule chain, and all 16 detectors: 10 OWASP Top 10 for Agentic Applications (ASI01 through ASI10), 3 OWASP Top 10 for LLM Applications categories (LLM01, LLM04, LLM06), and 3 AIR-native detectors (chain integrity, NemoGuard safety classification, NemoGuard corroboration). JSON, PDF, and CEF export formats included. EU AI Act Article 72 evidence template generator included. Zero-Trust agent registry enforcement included. All MIT-licensed, all self-hosted, no seat limits, no trace limits.
           </p>
         </div>
 
         <div>
           <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">What does the $99 Pro tier add?</h3>
           <p class="text-sm leading-relaxed" style="color: var(--text-muted);">
-            The two headline features are <strong style="color: var(--text-secondary);">Structural Verification</strong> and <strong style="color: var(--text-secondary);">Premium ASI04 Supply Chain detectors</strong>. Structural Verification runs five deterministic checks (SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL, SV-ENTITY) over the causal graph to verify whether an agent session honored its declared intent. No LLM in the verification path. Premium ASI04 adds dependency-install surface detection, tool manifest drift, and untrusted source fetch on top of the OSS MCP-naming detector. Pro also unlocks AIR Cloud (push capsules to a hosted workspace), NIST AI RMF and SOC2-AI compliance reports, and future premium detectors as they ship. The licensed Pro features ship in a separate <code class="font-mono" style="color: var(--text-secondary);">projectair-pro</code> package; verification is a local Ed25519 signature check on the license token, with no phone-home, so it works air-gapped.
+            Pro turns AIR from a forensic library into your personal control plane. The headline feature is the <strong style="color: var(--text-secondary);">personal AIR Cloud workspace with a multi-agent dashboard</strong>: every agent you instrument writes signed evidence into one place you can actually look at on Tuesday morning.
+          </p>
+          <p class="text-sm leading-relaxed mt-3" style="color: var(--text-muted);">
+            On top of that, Pro adds <strong style="color: var(--text-secondary);">Structural Verification</strong> (SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL, SV-ENTITY): five deterministic checks over the causal graph that verify whether an agent session honored its declared intent. No LLM in the verification path. Pro also adds <strong style="color: var(--text-secondary);">Premium ASI04 supply-chain detectors</strong> (dependency install, manifest drift, untrusted fetch) on top of the OSS MCP-naming detector, and <strong style="color: var(--text-secondary);">premium compliance reports</strong> for NIST AI RMF and SOC2-AI.
+          </p>
+          <p class="text-sm leading-relaxed mt-3" style="color: var(--text-muted);">
+            The licensed Pro features ship in a separate <code class="font-mono" style="color: var(--text-secondary);">projectair-pro</code> package. License verification is a local Ed25519 signature check against the vendor public key: no phone-home, no usage tracking, works air-gapped. Pro is covered by a 14-day money-back guarantee.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">When should I move from Pro to Team?</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--text-muted);">
+            When you have more than one human looking at the evidence. Pro is built for a single operator running one or many agents: you get the multi-agent dashboard and Structural Verification, but the workspace is yours. Team is the same evidence pipeline shared with your security or compliance peers, with role-based access, SIEM export to your existing stack (Datadog, Splunk, Sumo, Sentinel), incident workflows, and Slack support. If your auditor or your SOC needs to see the chain too, that is the Team line.
           </p>
         </div>
 
         <div>
           <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Why is Team flat-priced but Enterprise is not?</h3>
           <p class="text-sm leading-relaxed" style="color: var(--text-muted);">
-            Team is a hosted AIR Cloud workspace with the same shape for every customer: shared workspace, multi-agent dashboards, SIEM export, incident workflows, alerting. That has a flat price ($599/mo). Enterprise pricing depends on agent volume, the compliance frameworks in scope, deployment model (hosted, VPC, on-prem), and whether you need insurance integrations, SSO, BAA, or an SLA. Quoting a single number on a marketing page misrepresents the work either way. Send us your shape and we will send you a quote and a deployment plan within one business day.
+            Team is a shared AIR Cloud workspace with the same shape for every customer: shared workspace with role-based access, multi-agent dashboards, SIEM export, incident workflows, alerting. That has a flat price ($599/mo). Enterprise pricing depends on agent volume, the compliance frameworks in scope, deployment model (hosted, VPC, on-prem), and whether you need insurance integrations, SSO, BAA, or an SLA. Quoting a single number on a marketing page misrepresents the work either way. Send us your shape and we will send you a quote and a deployment plan within one business day.
           </p>
         </div>
 
@@ -502,13 +562,14 @@
     <div class="relative max-w-screen-xl mx-auto px-6 text-center">
       <h2 class="text-3xl sm:text-4xl font-bold tracking-tight max-w-3xl mx-auto">
         Start the forensic record today.<br />
-        <span class="text-gradient-brand">Upgrade when the evidence becomes the product.</span>
+        <span class="text-gradient-brand">Upgrade when the evidence becomes the workflow.</span>
       </h2>
       <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
         <a href="https://github.com/vindicara-inc/projectair" class="btn-primary text-base px-8 py-4">
           <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
           View on GitHub
         </a>
+        <a href="https://buy.stripe.com/aFa14m438d2QgA88Hl1RC00" class="btn-primary text-base px-8 py-4" rel="noopener">Start with Pro</a>
         <a href="/contact?tier=team" class="btn-secondary text-base px-8 py-4">Talk to us</a>
       </div>
       <div class="mt-8">
