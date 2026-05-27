@@ -62,7 +62,7 @@ def register(app: typer.Typer) -> None:
     """Register the `air siem ...` subcommand group on the parent CLI app."""
     siem_app = typer.Typer(
         name="siem",
-        help="Push findings to a SIEM (Datadog, Splunk HEC, Sumo, Sentinel). Pro feature.",
+        help="Push findings to a SIEM or alerting destination (Datadog, Splunk HEC, Sumo, Sentinel, Slack). Pro feature.",
         no_args_is_help=True,
         add_completion=False,
     )
@@ -182,6 +182,36 @@ def register(app: typer.Typer) -> None:
             typer.secho(f"License check failed: {exc}", fg=typer.colors.RED)
             raise typer.Exit(code=2) from exc
         typer.secho(f"Sentinel: pushed {result.events_sent} events (HTTP {result.http_status}).", fg=typer.colors.GREEN, bold=True)
+
+    @siem_app.command("slack")
+    def slack(
+        log: Path = typer.Argument(..., exists=True, readable=True, help="Path to a JSON-lines AgDR log."),
+        webhook_url: str = typer.Option(..., "--webhook-url", help="Slack Incoming Webhook URL.", envvar="SLACK_WEBHOOK_URL"),
+        channel: str | None = typer.Option(None, "--channel", help="Override the webhook's default channel (e.g. #air-alerts)."),
+        username: str = typer.Option("Vindicara AIR", "--username", help="Bot username shown in Slack."),
+        min_severity: str | None = typer.Option(None, "--min-severity", help="Drop findings below this severity (low|medium|high|critical)."),
+    ) -> None:
+        """Push findings to a Slack channel via Incoming Webhook."""
+        try:
+            from airsdk_pro.license import LicenseError
+            from airsdk_pro.siem import push_to_slack
+        except ImportError:
+            typer.secho(PRO_INSTALL_MESSAGE, fg=typer.colors.YELLOW)
+            raise typer.Exit(code=2) from None
+        report = _build_report(log)
+        _print_chain_warning_or_ok(report)
+        try:
+            result = push_to_slack(
+                report,
+                webhook_url=webhook_url,
+                channel=channel,
+                username=username,
+                min_severity=min_severity,
+            )
+        except LicenseError as exc:
+            typer.secho(f"License check failed: {exc}", fg=typer.colors.RED)
+            raise typer.Exit(code=2) from exc
+        typer.secho(f"Slack: pushed {result.events_sent} events (HTTP {result.http_status}).", fg=typer.colors.GREEN, bold=True)
 
 
 __all__ = ["register"]

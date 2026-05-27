@@ -25,7 +25,7 @@ What you get on day 30
 - A hosted AIR Cloud workspace for {{ company }}, scoped to your team, with our managed ingestion endpoint accepting Signed Intent Capsules from every instrumented agent in your stack.
 - Every prompt, tool call, and inter-agent message captured as a BLAKE3-hashed, Ed25519-signed record, chained forward by UUIDv7 step ID. Tamper with any byte and verification breaks at the exact step.
 - A multi-agent dashboard showing live trace volume per agent, OWASP-aligned findings (10 ASIs + 3 LLM categories + 1 chain-integrity check), and historical replay of any session.
-- SIEM integrations live for whichever of Datadog, Splunk, Sumo Logic, or Microsoft Sentinel you use. Findings flow into your existing SOC, no new on-call.
+- SIEM integrations live for whichever of Datadog, Splunk, Sumo Logic, Microsoft Sentinel, or Slack you use. Findings flow into your existing SOC, no new on-call.
 - Incident workflows: when a finding clears severity threshold, AIR fires Slack, PagerDuty, or webhook, with the full signed evidence package attached.
 - Article 72 evidence templates pre-wired so your compliance lead can produce post-market monitoring reports without a copy-paste workflow.
 
@@ -87,7 +87,7 @@ What Enterprise unlocks that Team does not
 - 24/7 SLA, dedicated incident response contact, BAA, signed mutual NDA. Our standard MSA, BAA, and DPA are ready to send to your legal team today.
 
 What you get on day 30
-- AIR deployed in your VPC or on-prem environment, integrated with your IdP, talking to your SIEM (Datadog, Splunk, Sentinel, QRadar, Sumo, ArcSight).
+- AIR deployed in your VPC or on-prem environment, integrated with your IdP, talking to your SIEM (Datadog, Splunk, Sentinel, QRadar, Sumo, ArcSight, Slack).
 - Every agent in scope reporting Signed Intent Capsules through your private ingestion endpoint. BLAKE3 + Ed25519 + UUIDv7 chain, tamper-evident at the byte level.
 - Compliance evidence dashboard configured for {{ compliance_frameworks }}. Your compliance lead can pull a regulator-ready PDF in two clicks.
 - Insurance carrier export configured for {{ carrier_if_known }} (or a generic structured-incident export if no carrier is named yet).
