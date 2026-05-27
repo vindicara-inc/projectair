@@ -1,0 +1,22 @@
+{
+  "template_id": "ASI06-memory-poison",
+  "version": "1.0.0",
+  "detector_id": "ASI06",
+  "finding_type": "memory_poison",
+  "layer1": "Agent {agent_name}'s context was modified by untrusted input at {timestamp}.",
+  "layer2": [
+    { "framework": "OWASP", "reference": "ASI06", "description": "Memory and Context Poisoning: adversarial content alters the agent's working memory or context window." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Reset Context", "action": "reset_context" },
+      { "label": "Review Source", "action": "review_source" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}

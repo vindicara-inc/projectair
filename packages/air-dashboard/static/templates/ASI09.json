@@ -1,0 +1,22 @@
+{
+  "template_id": "ASI09-trust-exploit",
+  "version": "1.0.0",
+  "detector_id": "ASI09",
+  "finding_type": "trust_exploit",
+  "layer1": "Agent {agent_name} used manipulative language toward a human operator at {timestamp}.",
+  "layer2": [
+    { "framework": "OWASP", "reference": "ASI09", "description": "Human-Agent Trust Exploitation: agent uses persuasive or deceptive language to manipulate human decision-making." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Quarantine Agent", "action": "quarantine_agent" },
+      { "label": "Review Transcript", "action": "review_transcript" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}
