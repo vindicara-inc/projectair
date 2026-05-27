@@ -73,7 +73,7 @@ class APIStack(Stack):
         #           "pro_wheel_signed_url": "https://..."}
         # ------------------------------------------------------------------
         fulfillment_secret = secretsmanager.Secret.from_secret_name_v2(
-            self, "FulfillmentSecret", "vindicara/fulfillment"
+            self, "FulfillmentSecret", "Vindicara_dashboard"
         )
         fulfillment_secret.grant_read(self.api_function)
 

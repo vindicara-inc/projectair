@@ -34,9 +34,14 @@ class SiteStack(Stack):
         self,
         scope: Construct,
         construct_id: str,
+        *,
+        api_endpoint_id: str = "tbd",
+        api_region: str = "us-west-2",
         **kwargs: object,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
+        self._api_endpoint_id = api_endpoint_id
+        self._api_region = api_region
 
         site_bucket = s3.Bucket(
             self,
