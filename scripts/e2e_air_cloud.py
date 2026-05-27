@@ -67,7 +67,7 @@ def main() -> None:
     )
     app.state.cloud_api_keys.issue(api_key)
     print(f"  Workspace created: {WORKSPACE_ID}")
-    print(f"  API key issued: {api_key_str[:12]}...")
+    print(f"  API key issued (id={api_key.key_id})")
 
     # ── 2. Start server in background thread ──
     _section("2/6  Starting AIR Cloud server")

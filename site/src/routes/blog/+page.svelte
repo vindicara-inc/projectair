@@ -22,6 +22,18 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Post: Launch announcement -->
+      <a href="/blog/introducing-project-air" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block md:col-span-3">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20 rounded-full px-2.5 py-0.5">Launch</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/20 rounded-full px-2.5 py-0.5">Open Source</span>
+          <span class="text-[10px]" style="color: var(--text-faint);">12 min read</span>
+        </div>
+        <h2 class="text-2xl font-semibold mb-2 group-hover:text-brand-red transition-colors" style="color: var(--text-primary);">Introducing Project AIR: Evidence-Grade Infrastructure for Accountable AI Agents</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Signed forensic chains, 16 OWASP-mapped detectors, causal explanation, Auth0 containment, and cross-agent trust. Five layers, one pip install. MIT-licensed and on PyPI today.</p>
+        <p class="text-xs mt-4" style="color: var(--text-faint);">May 26, 2026</p>
+      </a>
+
       <!-- Post: NemoClaw Forensic Evidence (NVIDIA + Healthcare) -->
       <a href="/blog/nemoclaw-forensic-evidence" class="glass-panel rounded-xl p-6 hover:border-green-500/30 transition-colors group block">
         <div class="flex items-center gap-2 mb-4">
