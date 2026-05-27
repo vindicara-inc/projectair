@@ -15,7 +15,7 @@
   import { drawerStore } from '$lib/stores/drawer.svelte';
   import { runDetectors } from '$lib/detectors';
   import { SCENARIOS, loadScenario } from '$lib/capsules/loader';
-  import type { FindingTemplate } from '$lib/templates/types.ts';
+  import type { FindingTemplate } from '$lib/templates/types';
 
   let lastDetectorRunSize = 0;
   let loading = $state(false);

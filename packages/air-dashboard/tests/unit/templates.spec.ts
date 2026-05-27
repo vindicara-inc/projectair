@@ -56,7 +56,7 @@ describe('TemplateRegistry', () => {
     const registry = new TemplateRegistry();
     registry.register(MOCK_TEMPLATE);
     expect(registry.all()).toHaveLength(1);
-    expect(registry.all()[0].template_id).toBe('ASI03-scope-violation');
+    expect(registry.all()[0]!.template_id).toBe('ASI03-scope-violation');
   });
 
   it('supports multiple registrations', () => {

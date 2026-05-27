@@ -51,7 +51,7 @@
     <div class="w-7 h-7 flex items-center justify-center text-xs font-bold"
       style="background: rgba(255,179,71,0.1); border: 1px solid var(--color-amber-dim);
              color: var(--color-amber); font-family: var(--font-ui);">
-      {(roleStore.email ?? 'U')[0].toUpperCase()}
+      {(roleStore.email ?? 'U')[0]!.toUpperCase()}
     </div>
   </div>
 </header>
