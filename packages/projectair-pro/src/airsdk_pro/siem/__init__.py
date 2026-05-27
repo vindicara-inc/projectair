@@ -13,6 +13,7 @@ Vendors covered in this module:
 - **Sumo Logic** Hosted HTTP Source (``push_to_sumo``)
 - **Microsoft Sentinel** via Azure Log Analytics Data Collector API
   (``push_to_sentinel``)
+- **Slack** Incoming Webhooks (``push_to_slack``)
 
 Each function is gated behind the ``siem-integrations`` Pro feature
 flag. The helpers do not open inbound network listeners, do not store
@@ -23,6 +24,7 @@ from __future__ import annotations
 
 from airsdk_pro.siem.datadog import DEFAULT_DATADOG_SITE, push_to_datadog
 from airsdk_pro.siem.sentinel import push_to_sentinel
+from airsdk_pro.siem.slack import push_to_slack
 from airsdk_pro.siem.splunk import push_to_splunk_hec
 from airsdk_pro.siem.sumo import push_to_sumo
 from airsdk_pro.siem.types import (
@@ -40,6 +42,7 @@ __all__ = [
     "SiemPushResult",
     "push_to_datadog",
     "push_to_sentinel",
+    "push_to_slack",
     "push_to_splunk_hec",
     "push_to_sumo",
 ]
