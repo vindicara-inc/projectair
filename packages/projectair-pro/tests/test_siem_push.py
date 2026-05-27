@@ -1,4 +1,4 @@
-"""SIEM push helpers (Pro) — Datadog, Splunk HEC, Sumo, Sentinel."""
+"""SIEM push helpers (Pro) — Datadog, Splunk HEC, Sumo, Sentinel, Slack."""
 from __future__ import annotations
 
 import base64
@@ -35,6 +35,7 @@ from airsdk_pro.siem import (
     SiemPushError,
     push_to_datadog,
     push_to_sentinel,
+    push_to_slack,
     push_to_splunk_hec,
     push_to_sumo,
 )
@@ -331,6 +332,131 @@ def test_sentinel_missing_workspace_id_raises_config_error(licensed: Path) -> No
 def test_sentinel_invalid_base64_shared_key_raises_config_error(licensed: Path) -> None:
     with pytest.raises(SiemConfigError):
         push_to_sentinel(_report(), workspace_id="ws", shared_key="not-base64!@#$%")
+
+
+# -- Slack ---------------------------------------------------------------
+
+
+SLACK_WEBHOOK = "https://hooks.slack.com/services/T00/B00/xxxx"
+
+
+@requires_vendor_key
+def test_slack_push_succeeds_with_block_kit_payload(licensed: Path) -> None:
+    captured: dict[str, Any] = {}
+    with _capturing_client(captured, status_code=200, body="ok") as client:
+        result = push_to_slack(
+            _report(),
+            webhook_url=SLACK_WEBHOOK,
+            client=client,
+        )
+    assert result.vendor == "slack"
+    assert result.events_sent == 1
+    assert result.http_status == 200
+    assert captured["url"] == SLACK_WEBHOOK
+    parsed = json.loads(captured["body"])
+    assert "blocks" in parsed
+    assert parsed["username"] == "Vindicara AIR"
+    header_block = parsed["blocks"][0]
+    assert header_block["type"] == "header"
+    assert "1 finding" in header_block["text"]["text"]
+
+
+@requires_vendor_key
+def test_slack_push_includes_channel_when_specified(licensed: Path) -> None:
+    captured: dict[str, Any] = {}
+    with _capturing_client(captured, status_code=200, body="ok") as client:
+        push_to_slack(
+            _report(),
+            webhook_url=SLACK_WEBHOOK,
+            channel="#air-alerts",
+            client=client,
+        )
+    parsed = json.loads(captured["body"])
+    assert parsed["channel"] == "#air-alerts"
+
+
+@requires_vendor_key
+def test_slack_push_omits_channel_when_none(licensed: Path) -> None:
+    captured: dict[str, Any] = {}
+    with _capturing_client(captured, status_code=200, body="ok") as client:
+        push_to_slack(_report(), webhook_url=SLACK_WEBHOOK, client=client)
+    parsed = json.loads(captured["body"])
+    assert "channel" not in parsed
+
+
+@requires_vendor_key
+def test_slack_push_multiple_findings_renders_all(licensed: Path) -> None:
+    captured: dict[str, Any] = {}
+    findings = [
+        _finding(severity="critical", detector_id="ASI01"),
+        _finding(severity="high", detector_id="ASI02"),
+        _finding(severity="medium", detector_id="ASI03"),
+    ]
+    with _capturing_client(captured, status_code=200, body="ok") as client:
+        result = push_to_slack(
+            _report(findings=findings),
+            webhook_url=SLACK_WEBHOOK,
+            client=client,
+        )
+    assert result.events_sent == 3
+    parsed = json.loads(captured["body"])
+    assert "3 findings" in parsed["blocks"][0]["text"]["text"]
+    section_blocks = [b for b in parsed["blocks"] if b["type"] == "section"]
+    assert len(section_blocks) == 3
+
+
+@requires_vendor_key
+def test_slack_push_min_severity_filters(licensed: Path) -> None:
+    captured: dict[str, Any] = {}
+    findings = [_finding(severity="low"), _finding(severity="critical", detector_id="ASI03")]
+    with _capturing_client(captured, status_code=200, body="ok") as client:
+        result = push_to_slack(
+            _report(findings=findings),
+            webhook_url=SLACK_WEBHOOK,
+            min_severity="high",
+            client=client,
+        )
+    assert result.events_sent == 1
+    parsed = json.loads(captured["body"])
+    section_blocks = [b for b in parsed["blocks"] if b["type"] == "section"]
+    assert len(section_blocks) == 1
+    assert "ASI03" in section_blocks[0]["text"]["text"]
+
+
+@requires_vendor_key
+def test_slack_push_empty_findings_skips_request(licensed: Path) -> None:
+    captured: dict[str, Any] = {}
+    with _capturing_client(captured, status_code=200, body="ok") as client:
+        result = push_to_slack(
+            _report(findings=[]),
+            webhook_url=SLACK_WEBHOOK,
+            client=client,
+        )
+    assert result.events_sent == 0
+    assert "url" not in captured
+
+
+@requires_vendor_key
+def test_slack_push_missing_webhook_raises_config_error(licensed: Path) -> None:
+    with pytest.raises(SiemConfigError):
+        push_to_slack(_report(), webhook_url="")
+
+
+@requires_vendor_key
+def test_slack_push_invalid_webhook_url_raises_config_error(licensed: Path) -> None:
+    with pytest.raises(SiemConfigError):
+        push_to_slack(_report(), webhook_url="https://example.com/webhook")
+
+
+@requires_vendor_key
+def test_slack_push_non_2xx_raises_push_error(licensed: Path) -> None:
+    captured: dict[str, Any] = {}
+    with (
+        _capturing_client(captured, status_code=403, body="invalid_token") as client,
+        pytest.raises(SiemPushError) as exc_info,
+    ):
+        push_to_slack(_report(), webhook_url=SLACK_WEBHOOK, client=client)
+    assert exc_info.value.status_code == 403
 
 
 # -- Gate behaviour ------------------------------------------------------
