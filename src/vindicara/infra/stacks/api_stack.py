@@ -10,6 +10,7 @@ from aws_cdk import aws_events as events
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_s3 as s3
+from aws_cdk import aws_secretsmanager as secretsmanager
 from aws_cdk import aws_sns as sns
 from aws_cdk import aws_sns_subscriptions as sns_subscriptions
 from constructs import Construct
@@ -58,6 +59,36 @@ class APIStack(Stack):
         api_keys_table.grant_read_data(self.api_function)
         audit_bucket.grant_write(self.api_function)
         event_bus.grant_put_events_to(self.api_function)
+
+        # ------------------------------------------------------------------
+        # Stripe fulfillment secrets (operator-supplied, not CDK-managed).
+        #
+        # Create this secret out-of-band before the first deploy:
+        #   Name:  vindicara/fulfillment
+        #   Type:  Other type of secret / Plaintext JSON
+        #   Value: {"stripe_secret_key": "sk_live_...",
+        #           "stripe_webhook_secret": "whsec_...",
+        #           "license_signing_key_pem": "-----BEGIN PRIVATE KEY-----...",
+        #           "resend_api_key": "re_...",
+        #           "pro_wheel_signed_url": "https://..."}
+        # ------------------------------------------------------------------
+        fulfillment_secret = secretsmanager.Secret.from_secret_name_v2(
+            self, "FulfillmentSecret", "Vindicara_dashboard"
+        )
+        fulfillment_secret.grant_read(self.api_function)
+
+        fulfillment_fields: list[tuple[str, str]] = [
+            ("VINDICARA_STRIPE_SECRET_KEY", "stripe_secret_key"),
+            ("VINDICARA_STRIPE_WEBHOOK_SECRET", "stripe_webhook_secret"),
+            ("VINDICARA_LICENSE_SIGNING_KEY_PEM", "license_signing_key_pem"),
+            ("VINDICARA_RESEND_API_KEY", "resend_api_key"),
+            ("VINDICARA_PRO_WHEEL_SIGNED_URL", "pro_wheel_signed_url"),
+        ]
+        for env_name, json_field in fulfillment_fields:
+            self.api_function.add_environment(
+                env_name,
+                fulfillment_secret.secret_value_from_json(json_field).unsafe_unwrap(),
+            )
 
         self.http_api = apigw.HttpApi(
             self,
