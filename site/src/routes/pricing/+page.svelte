@@ -214,7 +214,7 @@
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Email support</span></li>
           </ul>
           <a
-            href="https://buy.stripe.com/aFa14m438d2QgA88Hl1RC00"
+            href="https://buy.stripe.com/fZu6oG1V01k82JibTx1RC04"
             class="btn-primary w-full mt-7 text-sm"
             rel="noopener"
           >Buy monthly · $99</a>
@@ -241,7 +241,11 @@
           <ul class="mt-7 space-y-3 text-sm" style="color: var(--text-muted);">
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Everything in Pro, organization-wide</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">Shared team workspace</strong> with multi-agent dashboards, activity feeds, and role-based access</span></li>
+<<<<<<< HEAD
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">SIEM integrations</strong>: Datadog, Splunk, Sumo Logic, Microsoft Sentinel, Slack</span></li>
+=======
+            <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">SIEM integrations</strong>: Datadog, Splunk, Sumo Logic, Microsoft Sentinel</span></li>
+>>>>>>> origin/main
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span><strong style="color: var(--text-primary);">Incident workflows</strong> with alerting and assignment</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Shared keys, workspace roles, audit log</span></li>
             <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5 font-mono">›</span><span>Email + Slack support</span></li>
@@ -418,7 +422,11 @@
               <td class="p-4 text-center text-green-400">&#10003;</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
+<<<<<<< HEAD
               <td class="p-4">SIEM integrations (Datadog / Splunk / Sumo / Sentinel / Slack)</td>
+=======
+              <td class="p-4">SIEM integrations (Datadog / Splunk / Sumo / Sentinel)</td>
+>>>>>>> origin/main
               <td class="p-4 text-center" style="color: var(--text-faint);">&mdash;</td>
               <td class="p-4 text-center" style="color: var(--text-faint); background-color: var(--glass);">&mdash;</td>
               <td class="p-4 text-center text-green-400">&#10003;</td>
@@ -518,7 +526,11 @@
         <div>
           <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">When should I move from Pro to Team?</h3>
           <p class="text-sm leading-relaxed" style="color: var(--text-muted);">
+<<<<<<< HEAD
             When you have more than one human looking at the evidence. Pro is built for a single operator running one or many agents: you get the multi-agent dashboard and Structural Verification, but the workspace is yours. Team is the same evidence pipeline shared with your security or compliance peers, with role-based access, SIEM export to your existing stack (Datadog, Splunk, Sumo, Sentinel, Slack), incident workflows, and Slack support. If your auditor or your SOC needs to see the chain too, that is the Team line.
+=======
+            When you have more than one human looking at the evidence. Pro is built for a single operator running one or many agents: you get the multi-agent dashboard and Structural Verification, but the workspace is yours. Team is the same evidence pipeline shared with your security or compliance peers, with role-based access, SIEM export to your existing stack (Datadog, Splunk, Sumo, Sentinel), incident workflows, and Slack support. If your auditor or your SOC needs to see the chain too, that is the Team line.
+>>>>>>> origin/main
           </p>
         </div>
 

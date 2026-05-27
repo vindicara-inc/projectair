@@ -18,7 +18,9 @@ from airsdk_pro.governance.registry import AssetDefinition, DataAssetRegistry
 
 
 def main() -> None:
-    log_path = Path(tempfile.mktemp(suffix=".jsonl"))
+    tmp = tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False)
+    log_path = Path(tmp.name)
+    tmp.close()
     rec = AIRRecorder(log_path=log_path)
 
     rec.llm_start(prompt="Look up patient 42's records and appointments.")
