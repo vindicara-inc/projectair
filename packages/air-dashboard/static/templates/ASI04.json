@@ -1,0 +1,22 @@
+{
+  "template_id": "ASI04-supply-chain",
+  "version": "1.0.0",
+  "detector_id": "ASI04",
+  "finding_type": "supply_chain",
+  "layer1": "Tool {tool_name} matches a known impersonation pattern at {timestamp}.",
+  "layer2": [
+    { "framework": "OWASP", "reference": "ASI04", "description": "Agentic Supply Chain Vulnerabilities: malicious or compromised tools injected into the agent's tool registry." },
+    { "framework": "NIST AI RMF", "reference": "GV-6.1", "description": "Governance mechanisms must address risks from third-party components in the AI supply chain." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Remove Tool", "action": "remove_tool" },
+      { "label": "Flag for Review", "action": "flag_for_review" }
+    ]
+  },
+  "slots": [
+    { "name": "tool_name", "source": "payload.tool_name" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}

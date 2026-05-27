@@ -1,0 +1,22 @@
+{
+  "template_id": "ASI10-rogue-scope",
+  "version": "1.0.0",
+  "detector_id": "ASI10",
+  "finding_type": "rogue_scope",
+  "layer1": "Agent {agent_name} acted outside its declared behavioral scope at {timestamp}.",
+  "layer2": [
+    { "framework": "OWASP", "reference": "ASI10", "description": "Rogue Agents: agent violated its declared behavioral scope via unexpected tool use, fan-out breach, off-hours activity, or session budget overrun." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Quarantine Agent", "action": "quarantine_agent" },
+      { "label": "Update Scope", "action": "update_scope" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}

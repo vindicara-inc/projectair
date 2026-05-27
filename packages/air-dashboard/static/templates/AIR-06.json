@@ -1,0 +1,23 @@
+{
+  "template_id": "AIR-06-corroboration",
+  "version": "1.0.0",
+  "detector_id": "AIR-06",
+  "finding_type": "corroboration",
+  "layer1": "Both AIR and NemoGuard independently flagged content from agent {agent_name} at {timestamp}.",
+  "layer2": [
+    { "framework": "Cross-Validation", "reference": "AIR-06", "description": "NemoGuard Corroboration: AIR heuristic detectors and NemoGuard NIM classifiers independently agree on a finding, raising confidence." },
+    { "framework": "AIR + NemoGuard", "reference": "AIR-06", "description": "Dual-signal corroboration increases finding priority; treat as high-confidence regardless of individual detector severity." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Prioritize Review", "action": "prioritize_review" },
+      { "label": "Quarantine Agent", "action": "quarantine_agent" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}
