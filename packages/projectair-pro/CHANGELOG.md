@@ -2,6 +2,13 @@
 
 All notable changes to `projectair-pro` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [0.8.1] - 2026-05-26
+
+### Added
+- `airsdk_pro.siem.slack`: Slack Incoming Webhook push helper (`push_to_slack`). Sends Block Kit messages with per-finding sections, severity emoji, and report context. Supports channel override, custom username, and `min_severity` filtering. Same `@requires_pro(feature="siem-integrations")` gate as the other four SIEM modules. Webhook URL validated against `https://hooks.slack.com/` prefix.
+- `air siem slack` CLI subcommand with `--webhook-url` (also reads `SLACK_WEBHOOK_URL` env), `--channel`, `--username`, and `--min-severity` options.
+- 9 new tests in `tests/test_siem_push.py`: Block Kit payload structure, channel routing (included when set, omitted when None), multiple findings rendering, severity filtering, empty findings skip, missing webhook rejection, invalid webhook URL rejection, and non-2xx error escalation.
+
 ## [0.8.0] - 2026-05-08
 
 Wave 3 starts. The hosted AIR Cloud ingest service that the W2.4 cloud client points at by default lands in `vindicara.cloud` (server side) and a new `push_chain_to_air_cloud` helper lands in `airsdk_pro.cloud` (client side). The hosted service is multi-tenant from day one: every API key is bound to one workspace, every record is stored under that workspace, and cross-workspace reads return 404.

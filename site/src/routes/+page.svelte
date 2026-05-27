@@ -624,7 +624,7 @@
         </p>
         <ul class="text-xs space-y-1.5 font-mono" style="color: var(--text-muted);">
           <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5">&#x203A;</span><span>Real-time agent dashboard + incident workflows</span></li>
-          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5">&#x203A;</span><span>Datadog, Splunk, Vanta integrations</span></li>
+          <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5">&#x203A;</span><span>Datadog, Splunk, Slack, Vanta integrations</span></li>
           <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5">&#x203A;</span><span>EU AI Act and California SB 53 exports</span></li>
           <li class="flex items-start gap-2"><span class="text-brand-red mt-0.5">&#x203A;</span><span>Insurance-ready forensic evidence packs</span></li>
         </ul>
