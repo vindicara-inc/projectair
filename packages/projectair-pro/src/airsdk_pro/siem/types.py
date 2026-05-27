@@ -34,7 +34,7 @@ class SiemPushResult:
     ----------
     vendor:
         Which integration produced this result (``"datadog"`` /
-        ``"splunk_hec"`` / ``"sumo"`` / ``"sentinel"``).
+        ``"splunk_hec"`` / ``"sumo"`` / ``"sentinel"`` / ``"slack"``).
     events_sent:
         Number of finding-level events delivered to the SIEM.
     http_status:
