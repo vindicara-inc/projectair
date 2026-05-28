@@ -26,6 +26,7 @@ class APIStack(Stack):
         policies_table: dynamodb.Table,
         evaluations_table: dynamodb.Table,
         api_keys_table: dynamodb.Table,
+        identity_registrations_table: dynamodb.Table,
         audit_bucket: s3.Bucket,
         event_bus: events.EventBus,
         **kwargs: object,
@@ -57,8 +58,14 @@ class APIStack(Stack):
         policies_table.grant_read_write_data(self.api_function)
         evaluations_table.grant_read_write_data(self.api_function)
         api_keys_table.grant_read_data(self.api_function)
+        identity_registrations_table.grant_read_write_data(self.api_function)
         audit_bucket.grant_write(self.api_function)
         event_bus.grant_put_events_to(self.api_function)
+
+        self.api_function.add_environment(
+            "VINDICARA_IDENTITY_TABLE",
+            identity_registrations_table.table_name,
+        )
 
         # ------------------------------------------------------------------
         # Stripe fulfillment secrets (operator-supplied, not CDK-managed).
