@@ -5,6 +5,8 @@
   import ChainHealth from '$lib/panels/ChainHealth.svelte';
   import DetailDrawer from '$lib/panels/DetailDrawer.svelte';
   import CloudConnect from '$lib/panels/CloudConnect.svelte';
+  import ApprovalQueue from '$lib/panels/ApprovalQueue.svelte';
+  import ReportExport from '$lib/panels/ReportExport.svelte';
 
   import { replayStore } from '$lib/stores/replay.svelte';
   import { verifierStore } from '$lib/stores/verifier.svelte';
@@ -13,6 +15,7 @@
   import { modeStore } from '$lib/stores/mode.svelte';
   import { cloudSession } from '$lib/stores/cloud_session.svelte';
   import { drawerStore } from '$lib/stores/drawer.svelte';
+  import { approvalStore } from '$lib/stores/approval.svelte';
   import { runDetectors } from '$lib/detectors';
   import type { FindingTemplate } from '$lib/templates/types';
 
@@ -63,6 +66,7 @@
       const records = await cloudSession.loadCurrentChain({ limit: 1000 });
       verifierStore.reset();
       findingsStore.reset();
+      approvalStore.reset();
       focusStore.clear();
       replayStore.load(records, 'cloud');
       replayStore.play();
@@ -87,10 +91,25 @@
     if (emitted.length !== lastDetectorRunSize) {
       lastDetectorRunSize = emitted.length;
       findingsStore.reset();
-      findingsStore.add(runDetectors(emitted, null));
-    }
-    if (emitted.length === 0 && lastDetectorRunSize > 0) {
-      lastDetectorRunSize = 0;
+      if (emitted.length === 0) {
+        // Chain cleared (disconnect / reload): reset approval queue to prevent
+        // stale entries from a previous chain leaking into the next one.
+        approvalStore.reset();
+      } else {
+        findingsStore.add(runDetectors(emitted, null));
+        // Feed tool_start records with critical/high findings into the approval queue.
+        // A tool_start with any critical or high severity finding is treated as a
+        // containment-relevant action requiring human review.
+        for (let i = 0; i < emitted.length; i++) {
+          const rec = emitted[i]!;
+          if (rec.kind !== 'tool_start') continue;
+          const stepFindings = findingsStore.forStep(i);
+          const hasSevere = stepFindings.some(f => f.severity === 'critical' || f.severity === 'high');
+          if (hasSevere) {
+            approvalStore.addPending(rec, i);
+          }
+        }
+      }
     }
     void records;
   });
@@ -109,6 +128,8 @@
     <FleetStatus onFilterAgent={(agent) => agentFilter = agent} />
     <ComplianceGauge />
     <ChainHealth />
+    <ApprovalQueue />
+    <ReportExport />
 
     <div>
       <span class="section-label">Data Source</span>
