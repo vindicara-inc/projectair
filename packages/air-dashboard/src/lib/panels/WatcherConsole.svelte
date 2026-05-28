@@ -45,7 +45,7 @@
 					style:color={line.severity === 'tamper'
 						? 'var(--color-alert)'
 						: line.severity === 'finding'
-							? 'var(--color-amber)'
+							? 'var(--color-red)'
 							: 'var(--color-bone-dim)'}
 				>
 					› {line.text}

@@ -25,7 +25,7 @@
 			style:color={integrity === 100
 				? 'var(--color-cyan)'
 				: integrity >= 75
-					? 'var(--color-amber)'
+					? 'var(--color-red)'
 					: 'var(--color-alert)'}
 		>
 			{integrity}%
