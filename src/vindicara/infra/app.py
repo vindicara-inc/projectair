@@ -39,6 +39,7 @@ api_stack = APIStack(
     policies_table=data.policies_table,
     evaluations_table=data.evaluations_table,
     api_keys_table=data.api_keys_table,
+    identity_registrations_table=data.identity_registrations_table,
     audit_bucket=data.audit_bucket,
     event_bus=events_stack.event_bus,
     env=env_workload,
