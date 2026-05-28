@@ -54,36 +54,53 @@
   }
 </script>
 
-<div class="stark-panel mb-3" style="animation: fade-up 0.3s ease-out;">
+<div class="stark-panel mb-3" style="animation: fade-up 0.3s ease-out;
+  {status === 'acknowledged' ? 'opacity: 0.65;' : ''}
+  {status === 'resolved' ? 'opacity: 0.45; pointer-events: none;' : ''}">
   <div class="p-4">
     <div class="flex items-start gap-3">
-      <span class="severity-dot {finding.severity} {status === 'new' ? 'new' : ''} mt-1.5"></span>
+      <span class="severity-dot {finding.severity} {status === 'new' ? 'new' : ''} mt-1.5"
+        style="{status !== 'new' ? 'opacity: 0.4;' : ''}"></span>
 
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 mb-1.5">
           <span class="badge-{finding.severity === 'critical' ? 'critical' : finding.severity === 'high' ? 'warning' : 'success'}">{finding.severity}</span>
-          {#if status !== 'new'}
-            <span class="badge-info">{status}</span>
+          {#if status === 'acknowledged'}
+            <span class="badge-info" style="text-transform: uppercase; letter-spacing: 0.12em;">ACKNOWLEDGED</span>
+          {:else if status === 'investigating'}
+            <span class="badge-info" style="text-transform: uppercase; letter-spacing: 0.12em;">INVESTIGATING</span>
+          {:else if status === 'resolved'}
+            <span class="badge-success" style="text-transform: uppercase; letter-spacing: 0.12em;">QUARANTINED</span>
           {/if}
         </div>
 
-        <p class="text-body mb-2">{displayText}</p>
+        {#if status === 'resolved'}
+          <p class="text-body mb-2" style="color: var(--color-success); text-shadow: 0 0 6px var(--color-success-glow);">
+            Agent quarantined. Incident resolved.
+          </p>
+        {:else}
+          <p class="text-body mb-2">{displayText}</p>
+        {/if}
 
         <div class="flex items-center gap-4 text-xs" style="color: var(--color-text-secondary); font-family: var(--font-ui);">
           <span>Agent: <strong style="color: var(--color-text);">{agentName}</strong></span>
           {#if toolName}
             <span>Tool: <strong style="color: var(--color-text);">{toolName}</strong></span>
           {/if}
-          <span class="text-data" style="font-size: 11px; color: var(--color-amber);">{formatTime(record.timestamp)}</span>
+          <span class="text-data" style="font-size: 11px; color: var(--color-red);">{formatTime(record.timestamp)}</span>
           <span class="text-micro" style="margin-left: auto;">{finding.detector_id}</span>
         </div>
       </div>
     </div>
 
-    <div class="flex items-center gap-2 mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.04);">
-      <button class="btn-primary text-xs" onclick={openDrawer}>Investigate</button>
-      <button class="btn-danger text-xs" onclick={() => triageStore.resolve(finding.step_id)}>Quarantine Agent</button>
-      <button class="btn-secondary text-xs ml-auto" onclick={() => triageStore.acknowledge(finding.step_id)}>Acknowledge</button>
-    </div>
+    {#if status !== 'resolved'}
+      <div class="flex items-center gap-2 mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.04);">
+        <button class="btn-primary text-xs" onclick={openDrawer}>Investigate</button>
+        <button class="btn-danger text-xs" onclick={() => triageStore.resolve(finding.step_id)}>Quarantine Agent</button>
+        {#if status !== 'acknowledged'}
+          <button class="btn-secondary text-xs ml-auto" onclick={() => triageStore.acknowledge(finding.step_id)}>Acknowledge</button>
+        {/if}
+      </div>
+    {/if}
   </div>
 </div>

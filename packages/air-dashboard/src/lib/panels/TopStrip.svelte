@@ -27,7 +27,7 @@
 	const integrityClass = $derived.by(() => {
 		const score = verifierStore.integrityScore;
 		if (score === 100) return 'text-[var(--color-cyan)]';
-		if (score >= 75) return 'text-[var(--color-amber)]';
+		if (score >= 75) return 'text-[var(--color-red)]';
 		return 'text-[var(--color-alert)]';
 	});
 </script>

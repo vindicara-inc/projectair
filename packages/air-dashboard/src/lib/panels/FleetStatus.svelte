@@ -58,8 +58,8 @@
         {#each agents as agent}
           <button
             class="flex items-center gap-3 px-3 py-2 w-full text-left cursor-pointer transition-all"
-            style="background: {selectedAgent === agent.name ? 'rgba(255,179,71,0.08)' : 'transparent'};
-                   border: 1px solid {selectedAgent === agent.name ? 'var(--color-amber-dim)' : 'transparent'};"
+            style="background: {selectedAgent === agent.name ? 'rgba(220,38,38,0.08)' : 'transparent'};
+                   border: 1px solid {selectedAgent === agent.name ? 'rgba(220,38,38,0.15)' : 'transparent'};"
             onclick={() => toggleAgent(agent.name)}
           >
             <span class="severity-dot {agent.health === 'clean' ? 'success' : agent.health === 'flagged' ? 'warning' : 'critical'}"></span>

@@ -16,8 +16,8 @@
          box-shadow: 0 2px 20px rgba(0,0,0,0.4);">
 
   <span class="text-xs font-bold tracking-[0.15em] uppercase"
-    style="font-family: var(--font-display); color: var(--color-amber);
-           text-shadow: 0 0 8px var(--color-amber-glow);">
+    style="font-family: var(--font-display); color: var(--color-red);
+           text-shadow: 0 0 8px var(--color-red-glow);">
     Project AIR
   </span>
 
@@ -49,8 +49,8 @@
       </span>
     {/if}
     <div class="w-7 h-7 flex items-center justify-center text-xs font-bold"
-      style="background: rgba(255,179,71,0.1); border: 1px solid var(--color-amber-dim);
-             color: var(--color-amber); font-family: var(--font-ui);">
+      style="background: rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.15);
+             color: var(--color-red); font-family: var(--font-ui);">
       {(roleStore.email ?? 'U')[0]!.toUpperCase()}
     </div>
   </div>
