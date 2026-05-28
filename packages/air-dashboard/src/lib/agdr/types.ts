@@ -19,7 +19,10 @@ export type StepKind =
 	| 'tool_start'
 	| 'tool_end'
 	| 'agent_finish'
-	| 'agent_message';
+	| 'agent_message'
+	| 'human_approval'
+	| 'intent_declaration'
+	| 'anchor';
 
 export interface AgDRPayload {
 	prompt?: string;
