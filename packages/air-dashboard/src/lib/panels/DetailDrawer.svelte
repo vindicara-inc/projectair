@@ -2,15 +2,43 @@
   import { drawerStore } from '$lib/stores/drawer.svelte';
   import { triageStore } from '$lib/stores/triage.svelte';
   import { assistantStore } from '$lib/stores/assistant.svelte';
+  import { replayStore } from '$lib/stores/replay.svelte';
+  import { verifierStore } from '$lib/stores/verifier.svelte';
+  import { findingsStore } from '$lib/stores/findings.svelte';
+  import SignatureViewer from './SignatureViewer.svelte';
+  import ApprovalDetails from './ApprovalDetails.svelte';
 
   let showProvenance = $state(false);
   let showRawEvidence = $state(false);
 
   const content = $derived(drawerStore.content);
 
+  const isApprovalRecord = $derived(
+    content?.record.kind === 'human_approval'
+  );
+
   function formatTime(iso: string): string {
     try { return new Date(iso).toLocaleString(); }
     catch { return '--'; }
+  }
+
+  function exportRecordJSON(): void {
+    if (!content) return;
+    const data = {
+      exported_at: new Date().toISOString(),
+      record: content.record,
+      finding: content.finding,
+      verification: verifierStore.entries.find(
+        e => e.step_id === content.record.step_id
+      )
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `air-record-${content.finding.step_index}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 </script>
 
@@ -73,24 +101,17 @@
         </div>
       </div>
 
+      {#if isApprovalRecord}
+        <ApprovalDetails record={content.record} />
+      {/if}
+
       <div>
         <button class="text-micro w-full text-left cursor-pointer" onclick={() => showRawEvidence = !showRawEvidence}>
-          {showRawEvidence ? '- Hide' : '+ View'} Raw Evidence
+          {showRawEvidence ? '- Hide' : '+ View'} Cryptographic Evidence
         </button>
         {#if showRawEvidence}
           <div class="mt-2 p-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.04);">
-            <div class="flex justify-between mb-2">
-              <span class="text-label">Record</span>
-              <span class="text-data text-xs" style="color: var(--color-red);">#{content.finding.step_index}</span>
-            </div>
-            <div class="flex justify-between mb-2">
-              <span class="text-label">Hash</span>
-              <span class="text-data text-xs" style="color: var(--color-red);">{content.record.content_hash.slice(0, 24)}...</span>
-            </div>
-            <div class="flex justify-between mb-2">
-              <span class="text-label">Signature</span>
-              <span class="text-data text-xs" style="color: var(--color-success);">Verified</span>
-            </div>
+            <SignatureViewer record={content.record} stepIndex={content.finding.step_index} />
             <details class="mt-3">
               <summary class="text-xs cursor-pointer" style="color: var(--color-text-dim); font-family: var(--font-ui);">Full payload</summary>
               <pre class="mt-2 text-xs p-2 overflow-x-auto" style="font-family: var(--font-data); color: var(--color-text-dim);
@@ -127,6 +148,10 @@
           </div>
         </div>
       {/if}
+
+      <button class="btn-secondary w-full text-xs" onclick={exportRecordJSON}>
+        Export Record JSON
+      </button>
 
       <button class="btn-secondary w-full flex items-center justify-center gap-2"
         onclick={() => assistantStore.open(content.finding.step_id)}>
