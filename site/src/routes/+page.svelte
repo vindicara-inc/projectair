@@ -280,8 +280,8 @@
     publisher: { '@id': 'https://vindicara.io/#organization' },
     offers: [
       { '@type': 'Offer', name: 'Open Source', price: '0', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Team', price: '1499', priceCurrency: 'USD', priceSpecification: { '@type': 'UnitPriceSpecification', price: '1499', priceCurrency: 'USD', billingIncrement: 1, unitText: 'MONTH' } },
-      { '@type': 'Offer', name: 'Enterprise', priceSpecification: { '@type': 'PriceSpecification', minPrice: '50000', maxPrice: '250000', priceCurrency: 'USD' } },
+      { '@type': 'Offer', name: 'Pro', price: '99', priceCurrency: 'USD', priceSpecification: { '@type': 'UnitPriceSpecification', price: '99', priceCurrency: 'USD', billingIncrement: 1, unitText: 'MONTH' } },
+      { '@type': 'Offer', name: 'Team', price: '599', priceCurrency: 'USD', priceSpecification: { '@type': 'UnitPriceSpecification', price: '599', priceCurrency: 'USD', billingIncrement: 1, unitText: 'MONTH' } },
     ],
   })}<\/script>`}
 </svelte:head>
@@ -295,21 +295,15 @@
     </a>
 
     <div class="hidden md:flex items-center gap-8 text-sm">
-      <button style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} onclick={() => scrollTo('why-now')} class="transition-colors cursor-pointer">Why Now</button>
-      <button style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} onclick={() => scrollTo('problem')} class="transition-colors cursor-pointer">Incidents</button>
-      <button style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} onclick={() => scrollTo('how-it-works')} class="transition-colors cursor-pointer">How It Works</button>
-      <button style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} onclick={() => scrollTo('standards')} class="transition-colors cursor-pointer">Standards</button>
       <a href="/solutions" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Solutions</a>
       <a href="/pricing" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Pricing</a>
-      <a href="/admissibility#certification" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">FRE 902(13)</a>
+      <a href="/admissibility" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Admissibility</a>
       <a href="/blog" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Blog</a>
-      <a href="/dashboard" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="transition-colors">Dashboard</a>
     </div>
 
     <div class="hidden md:flex items-center gap-3">
       <ThemeToggle />
-      <a href="/get-started" class="btn-secondary text-xs px-4 py-2">Get Started</a>
-      <a href="/dashboard" class="btn-primary text-xs px-4 py-2">Launch Dashboard</a>
+      <a href="/get-started" class="btn-primary text-xs px-4 py-2">Get Started</a>
     </div>
 
     <div class="md:hidden flex items-center gap-2">
@@ -333,15 +327,10 @@
 
   {#if mobileMenuOpen}
     <div class="md:hidden backdrop-blur-2xl px-6 py-4 space-y-3" style="border-top: 1px solid var(--border-subtle); background-color: color-mix(in srgb, var(--surface) 95%, transparent);">
-      <button onclick={() => scrollTo('why-now')} style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Why Now</button>
-      <button onclick={() => scrollTo('problem')} style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Incidents</button>
-      <button onclick={() => scrollTo('how-it-works')} style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">How It Works</button>
-      <button onclick={() => scrollTo('standards')} style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Standards</button>
       <a href="/solutions" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Solutions</a>
       <a href="/pricing" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Pricing</a>
-      <a href="/admissibility#certification" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">FRE 902(13)</a>
+      <a href="/admissibility" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Admissibility</a>
       <a href="/blog" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Blog</a>
-      <a href="/dashboard" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} class="block text-sm w-full text-left">Dashboard</a>
       <div class="flex gap-3 pt-2">
         <a href="/get-started" class="btn-secondary text-xs px-4 py-2">Get Started</a>
         <a href="/dashboard" class="btn-primary text-xs px-4 py-2">Launch Dashboard</a>
@@ -369,32 +358,31 @@
       </div>
 
       <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08] max-w-5xl mx-auto">
-        <span class="text-gradient-brand">Evidence-grade infrastructure</span><br />
-        <span style="color: var(--text-primary);">for accountable AI agents.</span>
+        <span class="text-gradient-brand">Signed receipts</span> <span style="color: var(--text-primary);">for every</span><br />
+        <span style="color: var(--text-primary);">action your AI agents take.</span>
       </h1>
 
       <p class="mt-6 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed" style="color: var(--text-muted);">
-        Cryptographic chain-of-custody. Court-supportable records. Rekor-anchored proof. Every action your agents take, bound to a workload identity, anchored on a public transparency log, independently verifiable by anyone.
+        When your AI agent accesses patient records, moves money, or executes code, AIR signs a tamper-proof receipt at the moment it happens. Your compliance team can answer "what did our agents do?" in one click.
       </p>
 
       <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="https://github.com/vindicara-inc/projectair" class="btn-primary text-base px-8 py-4">
+        <a href="/get-started" class="btn-primary text-base px-8 py-4">
+          See how it works
+        </a>
+        <a href="https://github.com/vindicara-inc/projectair" class="btn-secondary text-base px-8 py-4">
           <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
           View on GitHub
         </a>
-        <a href="https://github.com/vindicara-inc/projectair#readme" class="btn-secondary text-base px-8 py-4">
-          Read the docs
-          <svg class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-          </svg>
+        <a href="mailto:Kevin.Minn@vindicara.io" class="btn-secondary text-base px-8 py-4">
+          Talk to us
         </a>
       </div>
 
-      <div class="mt-6 flex items-center justify-center">
-        <a href="https://www.producthunt.com/posts/project-air-by-vindicara" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2.5 px-4 py-2.5 transition-colors group" style="border: 1px solid var(--border); background-color: var(--glass);">
-          <svg class="w-5 h-5 text-[#FF6154]" viewBox="0 0 40 40" fill="currentColor"><path d="M20 0C8.954 0 0 8.954 0 20s8.954 20 20 20 20-8.954 20-20S31.046 0 20 0zm0 36.8C10.728 36.8 3.2 29.272 3.2 20S10.728 3.2 20 3.2 36.8 10.728 36.8 20 29.272 36.8 20 36.8zm2.8-22.4h-7.2v11.2h4.4v-3.2h2.8c2.648 0 4.8-2.152 4.8-4.8V19.2c0-2.648-2.152-4.8-4.8-4.8zm1.6 4.8c0 .884-.716 1.6-1.6 1.6h-2.8v-3.2h2.8c.884 0 1.6.716 1.6 1.6z"/></svg>
-          <span class="text-xs font-mono uppercase tracking-wider transition-colors" style="color: var(--text-muted);">Find us on Product Hunt</span>
-        </a>
+      <div class="mt-8 flex items-center justify-center gap-6">
+        <img src="/nvidia-inception-program-badge.svg" alt="NVIDIA Inception" class="h-8 w-auto opacity-70" />
+        <span class="text-xs font-mono uppercase tracking-wider" style="color: var(--text-faint);">Open source, MIT licensed</span>
+        <span class="text-xs font-mono uppercase tracking-wider" style="color: var(--text-faint);">10/10 OWASP Agentic</span>
       </div>
     </div>
 
@@ -703,7 +691,7 @@
   <div class="absolute inset-0 bg-gradient-to-b from-transparent via-brand-red/[0.02] to-transparent"></div>
   <div class="relative max-w-screen-xl mx-auto px-6">
     <div class="text-center mb-14">
-      <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-3 font-mono">Dogfooded</p>
+      <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-3 font-mono">Self-Hosted</p>
       <h2 class="text-3xl sm:text-4xl font-bold tracking-tight max-w-3xl mx-auto">
         We run Project AIR on our own production infrastructure.
       </h2>
@@ -758,27 +746,27 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0" style="border: 1px solid var(--border);">
       <div class="p-6" style="border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);">
         <p class="font-mono text-[11px] tracking-wider uppercase mb-2" style="color: var(--text-muted);">Not a guardrail</p>
-        <p class="text-sm" style="color: var(--text-primary);">That is <span style="color: var(--text-secondary);">Lakera</span>.</p>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Guardrails filter inputs and outputs. AIR records what happened after the guardrail made its decision.</p>
       </div>
       <div class="p-6" style="border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);">
         <p class="font-mono text-[11px] tracking-wider uppercase mb-2" style="color: var(--text-muted);">Not a red-teaming tool</p>
-        <p class="text-sm" style="color: var(--text-primary);">That is <span style="color: var(--text-secondary);">Garak</span>.</p>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Red teams find vulnerabilities before production. AIR produces the evidence chain when something gets through.</p>
       </div>
       <div class="p-6" style="border-bottom: 1px solid var(--border);">
         <p class="font-mono text-[11px] tracking-wider uppercase mb-2" style="color: var(--text-muted);">Not a governance platform</p>
-        <p class="text-sm" style="color: var(--text-primary);">That is <span style="color: var(--text-secondary);">Credo AI</span>.</p>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Governance platforms manage policies and risk registers. AIR provides the runtime evidence those platforms need.</p>
       </div>
       <div class="p-6" style="border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);">
         <p class="font-mono text-[11px] tracking-wider uppercase mb-2" style="color: var(--text-muted);">Not compliance SaaS</p>
-        <p class="text-sm" style="color: var(--text-primary);">That is <span style="color: var(--text-secondary);">Vanta</span>.</p>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Compliance tools track control frameworks. AIR generates the signed evidence that maps to those controls.</p>
       </div>
       <div class="p-6" style="border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);">
         <p class="font-mono text-[11px] tracking-wider uppercase mb-2" style="color: var(--text-muted);">Not observability</p>
-        <p class="text-sm" style="color: var(--text-primary);">That is <span style="color: var(--text-secondary);">Arize</span>.</p>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Observability measures performance and cost. AIR signs a cryptographic receipt of what the agent actually did.</p>
       </div>
       <div class="p-6 bg-brand-red/[0.04]">
         <p class="font-mono text-[11px] tracking-wider uppercase text-brand-red mb-2">AIR is</p>
-        <p class="text-sm leading-relaxed" style="color: var(--text-primary);">The evidence-grade infrastructure layer that <span class="text-brand-red font-semibold">feeds all of the above</span>.</p>
+        <p class="text-sm leading-relaxed" style="color: var(--text-primary);">The signed evidence layer that <span class="text-brand-red font-semibold">feeds all of the above</span>.</p>
       </div>
     </div>
   </div>
