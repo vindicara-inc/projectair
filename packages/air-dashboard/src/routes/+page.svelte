@@ -66,6 +66,7 @@
       const records = await cloudSession.loadCurrentChain({ limit: 1000 });
       verifierStore.reset();
       findingsStore.reset();
+      approvalStore.reset();
       focusStore.clear();
       replayStore.load(records, 'cloud');
       replayStore.play();
@@ -90,23 +91,25 @@
     if (emitted.length !== lastDetectorRunSize) {
       lastDetectorRunSize = emitted.length;
       findingsStore.reset();
-      findingsStore.add(runDetectors(emitted, null));
-      // Feed tool_start records with critical/high findings into the approval queue.
-      // A tool_start with any critical or high severity finding is treated as a
-      // containment-relevant action requiring human review.
-      for (let i = 0; i < emitted.length; i++) {
-        const rec = emitted[i]!;
-        if (rec.kind !== 'tool_start') continue;
-        const stepFindings = findingsStore.forStep(i);
-        const hasSevere = stepFindings.some(f => f.severity === 'critical' || f.severity === 'high');
-        if (hasSevere) {
-          approvalStore.addPending(rec, i);
+      if (emitted.length === 0) {
+        // Chain cleared (disconnect / reload): reset approval queue to prevent
+        // stale entries from a previous chain leaking into the next one.
+        approvalStore.reset();
+      } else {
+        findingsStore.add(runDetectors(emitted, null));
+        // Feed tool_start records with critical/high findings into the approval queue.
+        // A tool_start with any critical or high severity finding is treated as a
+        // containment-relevant action requiring human review.
+        for (let i = 0; i < emitted.length; i++) {
+          const rec = emitted[i]!;
+          if (rec.kind !== 'tool_start') continue;
+          const stepFindings = findingsStore.forStep(i);
+          const hasSevere = stepFindings.some(f => f.severity === 'critical' || f.severity === 'high');
+          if (hasSevere) {
+            approvalStore.addPending(rec, i);
+          }
         }
       }
-    }
-    if (emitted.length === 0 && lastDetectorRunSize > 0) {
-      lastDetectorRunSize = 0;
-      approvalStore.reset();
     }
     void records;
   });
