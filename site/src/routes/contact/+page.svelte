@@ -165,9 +165,9 @@
           class="w-full border border-[var(--border)] px-4 py-3 focus:border-brand-red focus:outline-none"
           style="background-color: var(--surface-overlay); color: var(--text-primary);"
         >
-          <option value="team">Team: $599/mo, hosted AIR Cloud workspace</option>
-          <option value="enterprise">Enterprise: SSO/SAML, on-prem, SLA, BAA</option>
-          <option value="individual">Individual: $39/mo (just buy it on the pricing page)</option>
+          <option value="team">Team</option>
+          <option value="enterprise">Enterprise</option>
+          <option value="airgapped">Air-Gapped</option>
           <option value="other">Other / not sure</option>
         </select>
       </div>
