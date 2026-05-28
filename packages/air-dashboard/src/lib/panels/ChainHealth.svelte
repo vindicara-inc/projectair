@@ -35,7 +35,7 @@
       {#if lastEntry}
         <div class="flex justify-between">
           <span class="text-label">Last Hash</span>
-          <span class="text-data text-xs" style="color: var(--color-amber);">{lastEntry.contentHashShort}</span>
+          <span class="text-data text-xs" style="color: var(--color-red);">{lastEntry.contentHashShort}</span>
         </div>
       {/if}
     </div>

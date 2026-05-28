@@ -8,7 +8,7 @@
 		const entry = verifierStore.entries[index];
 		if (!entry) return 'var(--color-obsidian-edge)';
 		if (entry.status !== 'ok') return 'var(--color-alert)';
-		if (findingsStore.forStep(index).length > 0) return 'var(--color-amber)';
+		if (findingsStore.forStep(index).length > 0) return 'var(--color-red)';
 		return 'var(--color-cyan)';
 	}
 </script>

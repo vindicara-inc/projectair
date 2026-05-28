@@ -33,9 +33,9 @@
     <button
       class="text-xs px-2.5 py-1 cursor-pointer transition-all"
       style="font-family: var(--font-ui); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-             border: 1px solid {activeSeverity === sev ? 'var(--color-amber)' : 'rgba(255,255,255,0.08)'};
-             background: {activeSeverity === sev ? 'rgba(255,179,71,0.1)' : 'transparent'};
-             color: {activeSeverity === sev ? 'var(--color-amber)' : 'var(--color-text-dim)'};"
+             border: 1px solid {activeSeverity === sev ? 'var(--color-red)' : 'rgba(255,255,255,0.08)'};
+             background: {activeSeverity === sev ? 'rgba(220,38,38,0.1)' : 'transparent'};
+             color: {activeSeverity === sev ? 'var(--color-red)' : 'var(--color-text-dim)'};"
       onclick={() => toggleSeverity(sev)}
     >{sev}</button>
   {/each}
@@ -46,9 +46,9 @@
     <button
       class="text-xs px-2.5 py-1 cursor-pointer transition-all"
       style="font-family: var(--font-ui); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-             border: 1px solid {activeStatus === st ? 'var(--color-amber)' : 'rgba(255,255,255,0.08)'};
-             background: {activeStatus === st ? 'rgba(255,179,71,0.1)' : 'transparent'};
-             color: {activeStatus === st ? 'var(--color-amber)' : 'var(--color-text-dim)'};"
+             border: 1px solid {activeStatus === st ? 'var(--color-red)' : 'rgba(255,255,255,0.08)'};
+             background: {activeStatus === st ? 'rgba(220,38,38,0.1)' : 'transparent'};
+             color: {activeStatus === st ? 'var(--color-red)' : 'var(--color-text-dim)'};"
       onclick={() => toggleStatus(st)}
     >{st}</button>
   {/each}

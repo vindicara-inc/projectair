@@ -19,6 +19,8 @@
   let severityFilter = $state<Severity | null>(null);
   let statusFilter = $state<IncidentStatus | null>(null);
 
+  const STATUS_ORDER: Record<string, number> = { new: 0, investigating: 1, acknowledged: 2, resolved: 3 };
+
   const filtered = $derived.by(() => {
     let result = prioritizeFindings(findings);
 
@@ -34,6 +36,12 @@
         return (rec?.payload?.source_agent_id as string) === agentFilter;
       });
     }
+    // Sort: new/investigating first, acknowledged/resolved to bottom
+    result = [...result].sort((a, b) => {
+      const sa = STATUS_ORDER[triageStore.getStatus(a.step_id)] ?? 0;
+      const sb = STATUS_ORDER[triageStore.getStatus(b.step_id)] ?? 0;
+      return sa - sb;
+    });
     return result;
   });
 
