@@ -14,13 +14,14 @@
   import { cloudSession } from '$lib/stores/cloud_session.svelte';
   import { drawerStore } from '$lib/stores/drawer.svelte';
   import { runDetectors } from '$lib/detectors';
-  import { SCENARIOS, loadScenario } from '$lib/capsules/loader';
   import type { FindingTemplate } from '$lib/templates/types';
 
   let lastDetectorRunSize = 0;
   let loading = $state(false);
   let agentFilter = $state<string | null>(null);
   let templateMap = $state(new Map<string, FindingTemplate>());
+
+  const hasData = $derived(replayStore.emitted.length > 0);
 
   $effect(() => {
     const unsub = modeStore.bindMediaQueries();
@@ -93,22 +94,6 @@
     }
     void records;
   });
-
-  async function selectAndPlay(scenarioId: string): Promise<void> {
-    const scenario = SCENARIOS.find((s) => s.id === scenarioId);
-    if (!scenario) return;
-    loading = true;
-    try {
-      const records = await loadScenario(scenario);
-      verifierStore.reset();
-      findingsStore.reset();
-      focusStore.clear();
-      replayStore.load(records, scenario.id);
-      replayStore.play();
-    } finally {
-      loading = false;
-    }
-  }
 </script>
 
 <svelte:head>
@@ -127,40 +112,44 @@
 
     <div>
       <span class="section-label">Data Source</span>
-      <div class="stark-panel p-4 flex flex-col gap-3">
+      <div class="stark-panel p-4">
         <CloudConnect onChainLoaded={loadCloudChain} />
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-micro">Scenario</span>
-          {#each SCENARIOS as scenario (scenario.id)}
-            <button
-              class="text-xs px-2 py-1 cursor-pointer transition-all"
-              style="font-family: var(--font-ui); font-weight: 600;
-                     border: 1px solid {replayStore.scenarioId === scenario.id ? 'var(--color-amber)' : 'rgba(255,255,255,0.08)'};
-                     background: {replayStore.scenarioId === scenario.id ? 'rgba(255,179,71,0.1)' : 'transparent'};
-                     color: {replayStore.scenarioId === scenario.id ? 'var(--color-amber)' : 'var(--color-text-dim)'};"
-              onclick={() => selectAndPlay(scenario.id)}
-              disabled={loading}
-              title={scenario.description}
-            >{scenario.label}</button>
-          {/each}
-        </div>
-        <div class="flex items-center gap-2">
-          <button class="btn-secondary text-xs" onclick={() => replayStore.play()} disabled={replayStore.records.length === 0}>Play</button>
-          <button class="btn-secondary text-xs" onclick={() => replayStore.pause()}>Pause</button>
-          <button class="btn-secondary text-xs" onclick={() => { replayStore.reset(); verifierStore.reset(); findingsStore.reset(); focusStore.clear(); }}>Reset</button>
-        </div>
       </div>
     </div>
   </div>
 
   <!-- CENTER COLUMN -->
   <div class="pt-6">
-    <AlertFeed
-      findings={findingsStore.all}
-      records={replayStore.emitted}
-      templates={templateMap}
-      {agentFilter}
-    />
+    {#if !hasData && !cloudSession.isConnected}
+      <div class="stark-panel p-12 flex flex-col items-center gap-6 text-center" style="min-height: 300px;">
+        <div class="w-16 h-16 flex items-center justify-center"
+          style="border: 2px solid rgba(220,38,38,0.2); background: rgba(220,38,38,0.04);">
+          <span style="font-size: 28px; color: var(--color-red); text-shadow: 0 0 12px var(--color-red-glow);">&#9678;</span>
+        </div>
+        <div>
+          <h2 class="text-lg font-semibold mb-2" style="font-family: var(--font-ui); color: var(--color-text);">
+            No live data
+          </h2>
+          <p class="text-sm" style="color: var(--color-text-secondary); font-family: var(--font-ui); line-height: 1.6; max-width: 360px;">
+            Connect to AIR Cloud to see live agent activity. Incidents, chain integrity, and compliance scores will populate automatically.
+          </p>
+        </div>
+        <div class="mt-2">
+          <CloudConnect onChainLoaded={loadCloudChain} />
+        </div>
+      </div>
+    {:else if loading}
+      <div class="stark-panel p-12 flex items-center justify-center" style="min-height: 200px;">
+        <span class="text-sm" style="color: var(--color-text-dim); font-family: var(--font-ui);">Loading chain data...</span>
+      </div>
+    {:else}
+      <AlertFeed
+        findings={findingsStore.all}
+        records={replayStore.emitted}
+        templates={templateMap}
+        {agentFilter}
+      />
+    {/if}
   </div>
 </div>
 

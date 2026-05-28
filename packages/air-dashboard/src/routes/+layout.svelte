@@ -41,9 +41,16 @@
 {:else if authStore.phase === 'gate'}
   <WelcomeGate />
 {:else}
+  <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+    <div class="orb orb-red absolute w-[600px] h-[600px] -top-40 -left-36"></div>
+    <div class="orb orb-dim absolute w-[680px] h-[680px] -bottom-60 -right-56" style="animation-delay:-12s;"></div>
+    <div class="orb absolute w-[420px] h-[420px] top-[38%] left-[42%]" style="background:radial-gradient(circle, rgba(255,180,140,.4) 0%, transparent 70%); animation-delay:-6s;"></div>
+  </div>
+  <div class="ascii-grid fixed inset-0 z-0 pointer-events-none"></div>
+  <div class="hud-scanline fixed inset-0 z-0 pointer-events-none" aria-hidden="true"></div>
   <Sidebar />
   <TopBar />
-  <main class="ml-14 pt-10">
+  <main class="ml-14 pt-10 relative z-10">
     {@render children()}
   </main>
   <AssistantOrb />

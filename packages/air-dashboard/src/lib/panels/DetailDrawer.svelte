@@ -30,8 +30,8 @@
     <div class="p-5 flex flex-col gap-5">
       <div>
         <span class="text-micro mb-2 block">What Happened</span>
-        <p class="text-base font-medium leading-relaxed" style="font-family: var(--font-ui); color: var(--color-amber);
-          text-shadow: 0 0 8px var(--color-amber-glow);">
+        <p class="text-base font-medium leading-relaxed" style="font-family: var(--font-ui); color: var(--color-red);
+          text-shadow: 0 0 8px var(--color-red-glow);">
           {content.layer1Text}
         </p>
       </div>
@@ -43,7 +43,7 @@
             <div class="mb-2 p-3" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);">
               <div class="flex items-center gap-2 mb-1">
                 <span class="badge-info">{entry.framework}</span>
-                <span class="text-data text-xs" style="color: var(--color-amber);">{entry.reference}</span>
+                <span class="text-data text-xs" style="color: var(--color-red);">{entry.reference}</span>
               </div>
               <p class="text-sm" style="color: var(--color-text-secondary); font-family: var(--font-ui); line-height: 1.5;">{entry.description}</p>
             </div>
@@ -81,11 +81,11 @@
           <div class="mt-2 p-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.04);">
             <div class="flex justify-between mb-2">
               <span class="text-label">Record</span>
-              <span class="text-data text-xs" style="color: var(--color-amber);">#{content.finding.step_index}</span>
+              <span class="text-data text-xs" style="color: var(--color-red);">#{content.finding.step_index}</span>
             </div>
             <div class="flex justify-between mb-2">
               <span class="text-label">Hash</span>
-              <span class="text-data text-xs" style="color: var(--color-amber);">{content.record.content_hash.slice(0, 24)}...</span>
+              <span class="text-data text-xs" style="color: var(--color-red);">{content.record.content_hash.slice(0, 24)}...</span>
             </div>
             <div class="flex justify-between mb-2">
               <span class="text-label">Signature</span>
@@ -130,7 +130,7 @@
 
       <button class="btn-secondary w-full flex items-center justify-center gap-2"
         onclick={() => assistantStore.open(content.finding.step_id)}>
-        <span style="color: var(--color-amber);">&#9679;</span>
+        <span style="color: var(--color-red);">&#9679;</span>
         Ask AIR about this incident
       </button>
     </div>

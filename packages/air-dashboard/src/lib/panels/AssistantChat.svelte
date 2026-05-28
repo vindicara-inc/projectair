@@ -70,13 +70,13 @@
   <div class="fixed bottom-24 right-6 z-50 w-[380px]"
     style="background: linear-gradient(180deg, rgba(10,10,15,0.97) 0%, rgba(8,8,12,0.98) 100%);
            border: 1px solid var(--color-panel-edge);
-           box-shadow: 0 10px 50px rgba(0,0,0,0.6), 0 0 30px rgba(255,179,71,0.05);
+           box-shadow: 0 10px 50px rgba(0,0,0,0.6), 0 0 30px rgba(220,38,38,0.05);
            animation: fade-up 0.2s ease-out; max-height: 500px; display: flex; flex-direction: column;">
 
     <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
       <div class="flex items-center gap-2">
-        <div class="w-3 h-3" style="background: radial-gradient(circle, var(--color-amber) 0%, rgba(255,179,71,0.4) 100%);
-          border-radius: 50% !important; box-shadow: 0 0 8px var(--color-amber-glow);"></div>
+        <div class="w-3 h-3" style="background: radial-gradient(circle, var(--color-red) 0%, rgba(220,38,38,0.4) 100%);
+          border-radius: 50% !important; box-shadow: 0 0 8px var(--color-red-glow);"></div>
         <span class="text-sm font-semibold" style="font-family: var(--font-ui); color: var(--color-text);">AIR Assistant</span>
       </div>
       <button class="text-xs cursor-pointer" style="color: var(--color-text-dim);"
@@ -88,7 +88,7 @@
         <p class="text-xs text-center py-8" style="color: var(--color-text-dim); font-family: var(--font-ui);">
           Ask about agent activity, findings, or chain records.
           <br /><br />
-          <span style="color: var(--color-amber); text-shadow: 0 0 4px var(--color-amber-glow);">
+          <span style="color: var(--color-red); text-shadow: 0 0 4px var(--color-red-glow);">
             Every response cites signed chain evidence.
           </span>
         </p>
@@ -97,14 +97,14 @@
           <div class="flex flex-col gap-1 {msg.role === 'user' ? 'items-end' : 'items-start'}">
             <div class="max-w-[90%] px-3 py-2 text-sm"
               style="font-family: var(--font-ui); line-height: 1.5;
-                     background: {msg.role === 'user' ? 'rgba(255,179,71,0.1)' : 'rgba(255,255,255,0.03)'};
-                     border: 1px solid {msg.role === 'user' ? 'var(--color-amber-dim)' : 'rgba(255,255,255,0.06)'};
+                     background: {msg.role === 'user' ? 'rgba(220,38,38,0.1)' : 'rgba(255,255,255,0.03)'};
+                     border: 1px solid {msg.role === 'user' ? 'rgba(220,38,38,0.15)' : 'rgba(255,255,255,0.06)'};
                      color: var(--color-text);">
               {msg.content}
             </div>
             {#if msg.citations.length > 0}
-              <span class="text-xs" style="color: var(--color-amber); font-family: var(--font-data); font-size: 10px;
-                text-shadow: 0 0 4px var(--color-amber-glow);">
+              <span class="text-xs" style="color: var(--color-red); font-family: var(--font-data); font-size: 10px;
+                text-shadow: 0 0 4px var(--color-red-glow);">
                 Records: {msg.citations.map((c) => `#${c}`).join(', ')}
               </span>
             {/if}
