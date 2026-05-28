@@ -22,8 +22,21 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Post: AI Agent Accountability Crisis -->
+      <a href="/blog/ai-agent-accountability-crisis-2026" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block md:col-span-3">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20 rounded-full px-2.5 py-0.5">Security</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-500 border border-green-500/20 rounded-full px-2.5 py-0.5">Compliance</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/20 rounded-full px-2.5 py-0.5">Regulation</span>
+          <span class="text-[10px]" style="color: var(--text-faint);">10 min read</span>
+        </div>
+        <h2 class="text-2xl font-semibold mb-2 group-hover:text-brand-red transition-colors" style="color: var(--text-primary);">88% of AI Agent Deployments Had a Security Incident. 6% Have a Budget to Fix It.</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">AI agents are breaching government databases, leaking patient records, and executing unauthorized code in production. The EU AI Act enforcement deadline is 66 days away. Here is the state of AI agent accountability in 2026.</p>
+        <p class="text-xs mt-4" style="color: var(--text-faint);">May 27, 2026</p>
+      </a>
+
       <!-- Post: Launch announcement -->
-      <a href="/blog/introducing-project-air" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block md:col-span-3">
+      <a href="/blog/introducing-project-air" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block">
         <div class="flex items-center gap-2 mb-4">
           <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20 rounded-full px-2.5 py-0.5">Launch</span>
           <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/20 rounded-full px-2.5 py-0.5">Open Source</span>
