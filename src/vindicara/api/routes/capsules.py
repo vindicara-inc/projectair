@@ -22,6 +22,7 @@ Responses:
 - ``500 Internal Server Error`` if the server has no ``CapsuleStore``
   configured (deployment error, surfaces during startup smoke tests).
 """
+
 from __future__ import annotations
 
 from airsdk.agdr import verify_record

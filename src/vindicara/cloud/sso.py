@@ -12,6 +12,7 @@ SAML→OIDC translator and point the workspace at the OIDC issuer the
 bridge exposes. That is the same approach the existing Layer 3
 containment Auth0 integration uses.
 """
+
 from __future__ import annotations
 
 import threading
@@ -149,9 +150,7 @@ def verify_oidc_token(
             raise SsoVerificationError("token has no usable 'email' claim for domain check")
         domain = email.split("@", 1)[1].lower()
         if domain not in {d.lower() for d in config.allowed_email_domains}:
-            raise SsoVerificationError(
-                f"email domain {domain!r} is not in the workspace allowlist"
-            )
+            raise SsoVerificationError(f"email domain {domain!r} is not in the workspace allowlist")
     return claims
 
 

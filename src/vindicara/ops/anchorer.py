@@ -20,6 +20,7 @@ Anchoring policy:
   ``air verify-public`` walks Vindicara's published chain identically to
   any customer's.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -56,6 +57,7 @@ def _sha256(data: bytes) -> bytes:
 def _epoch_from_iso(timestamp: str) -> float:
     """Parse the ISO-8601 timestamp on each record into seconds since epoch."""
     from datetime import datetime
+
     return datetime.fromisoformat(timestamp.replace("Z", "+00:00")).timestamp()
 
 

@@ -37,16 +37,20 @@ class DashboardAuthMiddleware(BaseHTTPMiddleware):
                 return Response(status_code=401, content="Unauthorized")
             return RedirectResponse(url="/dashboard/login", status_code=302)
 
-        if request.method in ("POST", "PUT", "DELETE") and path.startswith("/dashboard/api/") and not path.startswith("/dashboard/api/auth/"):
-                csrf_cookie = request.cookies.get("vnd_csrf", "")
-                csrf_header = request.headers.get("X-CSRF-Token", "")
-                if not verify_csrf(csrf_cookie, csrf_header):
-                    csrf_form = ""
-                    if request.headers.get("content-type", "").startswith("application/x-www-form-urlencoded"):
-                        form = await request.form()
-                        csrf_form = str(form.get("_csrf", ""))
-                    if not verify_csrf(csrf_cookie, csrf_form):
-                        return Response(status_code=403, content="CSRF validation failed")
+        if (
+            request.method in ("POST", "PUT", "DELETE")
+            and path.startswith("/dashboard/api/")
+            and not path.startswith("/dashboard/api/auth/")
+        ):
+            csrf_cookie = request.cookies.get("vnd_csrf", "")
+            csrf_header = request.headers.get("X-CSRF-Token", "")
+            if not verify_csrf(csrf_cookie, csrf_header):
+                csrf_form = ""
+                if request.headers.get("content-type", "").startswith("application/x-www-form-urlencoded"):
+                    form = await request.form()
+                    csrf_form = str(form.get("_csrf", ""))
+                if not verify_csrf(csrf_cookie, csrf_form):
+                    return Response(status_code=403, content="CSRF validation failed")
 
         request.state.user_id = payload.get("sub", "")
         request.state.email = payload.get("email", "")

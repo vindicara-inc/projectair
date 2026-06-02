@@ -13,7 +13,7 @@ The CDK app wires the api stack against ``ops_chain_table`` so prod
 Lambda invocations can emit AgDR records into the chain.
 """
 
-from aws_cdk import Duration, RemovalPolicy, Stack
+from aws_cdk import Duration, Environment, RemovalPolicy, Stack
 from aws_cdk import aws_cloudwatch as cloudwatch
 from aws_cdk import aws_cloudwatch_actions as cloudwatch_actions
 from aws_cdk import aws_dynamodb as dynamodb
@@ -36,8 +36,8 @@ ALARM_EMAIL = "alerts@vindicara.io"
 
 
 class OpsChainStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, **kwargs: object) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+    def __init__(self, scope: Construct, construct_id: str, *, env: Environment | None = None) -> None:
+        super().__init__(scope, construct_id, env=env)
 
         self.ops_chain_table = dynamodb.Table(
             self,

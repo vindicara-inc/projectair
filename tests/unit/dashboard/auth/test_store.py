@@ -77,6 +77,7 @@ def test_verification_token_round_trip(store: UserStore) -> None:
 
 def test_verification_token_expires(store: UserStore) -> None:
     from vindicara.dashboard.auth.models import VerificationToken
+
     user = store.create_user("alice@example.com", "StrongPass123!!")
     expired = VerificationToken(
         token="expired-token-1234",

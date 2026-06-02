@@ -8,6 +8,7 @@ The login route is intentionally exempt from the API-key middleware:
 the dashboard cannot have a key yet at the moment of first SSO login.
 The middleware lists ``/v1/sso/login`` in ``UNAUTHED_PATHS``.
 """
+
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Request, status
@@ -150,7 +151,11 @@ async def sso_login(request: Request, payload: SsoLoginRequest) -> SsoLoginRespo
     sso_key_id = _sso_key_id(payload.workspace_id, config.issuer, sub)
 
     existing = next(
-        (k for k in api_key_store.for_workspace(payload.workspace_id) if k.key_id == sso_key_id and k.revoked_at is None),
+        (
+            k
+            for k in api_key_store.for_workspace(payload.workspace_id)
+            if k.key_id == sso_key_id and k.revoked_at is None
+        ),
         None,
     )
     if existing is not None:
@@ -199,5 +204,6 @@ def _sso_key_id(workspace_id: str, issuer: str, sub: str) -> str:
     list keys; the human-readable owner is in ``ApiKey.name``.
     """
     import hashlib
+
     digest = hashlib.sha256(f"{issuer}|{sub}".encode()).hexdigest()[:24]
     return f"key_{workspace_id}_sso_{digest}"

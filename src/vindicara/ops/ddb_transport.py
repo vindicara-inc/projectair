@@ -17,6 +17,7 @@ worker that reads from DDB and applies the redaction policy. This separation
 is what lets the on-disk chain stay full-fidelity for internal verification
 while the public chain stays redacted.
 """
+
 from __future__ import annotations
 
 import logging

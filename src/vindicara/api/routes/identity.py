@@ -4,14 +4,19 @@ Unauthenticated: listed in ``_PUBLIC_PATHS`` prefix bypass in auth middleware.
 Stores registrations in DynamoDB (``vindicara-identity-registrations``).
 Falls back to in-memory dedup when the table env var is unset (local dev).
 """
+
 from __future__ import annotations
 
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from fastapi import APIRouter
 from pydantic import BaseModel, field_validator
+
+if TYPE_CHECKING:
+    from mypy_boto3_dynamodb.service_resource import Table
 
 router = APIRouter(prefix="/api/v1/identity", tags=["identity"])
 log = logging.getLogger(__name__)
@@ -38,15 +43,16 @@ class RegisterRequest(BaseModel):
         return v
 
 
-def _get_table():  # type: ignore[no-untyped-def]
+def _get_table() -> Table:
     import boto3
+
     return boto3.resource("dynamodb").Table(_TABLE_NAME)
 
 
 @router.post("/register", status_code=201)
 async def register(body: RegisterRequest) -> dict[str, str]:
     """Register a CLI identity by email. Persists to DynamoDB."""
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     if _TABLE_NAME:
         try:

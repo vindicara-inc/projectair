@@ -5,6 +5,7 @@ base64url-encoded (no padding) Ed25519 signature over the canonical
 JSON form of all other fields (sorted keys, no whitespace).  This
 encoding survives JSON transport without escaping issues.
 """
+
 from __future__ import annotations
 
 import base64

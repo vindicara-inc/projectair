@@ -16,7 +16,7 @@ from vindicara.cloud.workspace import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def analytics_app():  # type: ignore[no-untyped-def]
     ws_store = InMemoryWorkspaceStore()
     key_store = InMemoryApiKeyStore()
@@ -27,7 +27,7 @@ def analytics_app():  # type: ignore[no-untyped-def]
     return create_air_cloud_app(workspace_store=ws_store, api_key_store=key_store)
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_analytics_summary_shape(analytics_app) -> None:  # type: ignore[no-untyped-def]
     async with AsyncClient(transport=ASGITransport(app=analytics_app), base_url="http://test") as c:
         resp = await c.get(
@@ -45,7 +45,7 @@ async def test_analytics_summary_shape(analytics_app) -> None:  # type: ignore[n
     assert "daily_ingestion" in body
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_member_forbidden(analytics_app) -> None:  # type: ignore[no-untyped-def]
     # Add a member key
     key_store: InMemoryApiKeyStore = analytics_app.state.cloud_api_keys

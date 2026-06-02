@@ -14,9 +14,7 @@ from vindicara.infra.stacks.site_stack import SiteStack
 app = cdk.App()
 
 account = os.environ.get("CDK_DEFAULT_ACCOUNT", os.environ.get("VINDICARA_AWS_ACCOUNT_ID", ""))
-workload_region = os.environ.get(
-    "CDK_DEFAULT_REGION", os.environ.get("VINDICARA_AWS_REGION", "us-west-2")
-)
+workload_region = os.environ.get("CDK_DEFAULT_REGION", os.environ.get("VINDICARA_AWS_REGION", "us-west-2"))
 site_region = "us-east-1"
 
 if not account:

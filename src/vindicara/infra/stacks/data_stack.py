@@ -1,14 +1,14 @@
 """DynamoDB tables and S3 buckets for Vindicara."""
 
-from aws_cdk import Duration, RemovalPolicy, Stack
+from aws_cdk import Duration, Environment, RemovalPolicy, Stack
 from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_s3 as s3
 from constructs import Construct
 
 
 class DataStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, **kwargs: object) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+    def __init__(self, scope: Construct, construct_id: str, *, env: Environment | None = None) -> None:
+        super().__init__(scope, construct_id, env=env)
 
         self.policies_table = dynamodb.Table(
             self,

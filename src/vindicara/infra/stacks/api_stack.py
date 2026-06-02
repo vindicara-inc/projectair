@@ -1,6 +1,6 @@
 """Lambda function and API Gateway for Vindicara API."""
 
-from aws_cdk import Duration, Stack
+from aws_cdk import Duration, Environment, Stack
 from aws_cdk import aws_apigatewayv2 as apigw
 from aws_cdk import aws_apigatewayv2_integrations as integrations
 from aws_cdk import aws_cloudwatch as cloudwatch
@@ -29,9 +29,9 @@ class APIStack(Stack):
         identity_registrations_table: dynamodb.Table,
         audit_bucket: s3.Bucket,
         event_bus: events.EventBus,
-        **kwargs: object,
+        env: Environment | None = None,
     ) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+        super().__init__(scope, construct_id, env=env)
 
         self.api_function = lambda_.Function(
             self,
@@ -79,9 +79,7 @@ class APIStack(Stack):
         #           "resend_api_key": "re_...",
         #           "pro_wheel_signed_url": "https://..."}
         # ------------------------------------------------------------------
-        fulfillment_secret = secretsmanager.Secret.from_secret_name_v2(
-            self, "FulfillmentSecret", "Vindicara_dashboard"
-        )
+        fulfillment_secret = secretsmanager.Secret.from_secret_name_v2(self, "FulfillmentSecret", "Vindicara_dashboard")
         fulfillment_secret.grant_read(self.api_function)
 
         fulfillment_fields: list[tuple[str, str]] = [

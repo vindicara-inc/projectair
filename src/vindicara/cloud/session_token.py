@@ -27,9 +27,7 @@ class SessionClaims:
 def _load_secret() -> str:
     secret = os.environ.get("VINDICARA_SESSION_SECRET")
     if not secret:
-        raise RuntimeError(
-            "VINDICARA_SESSION_SECRET environment variable is required but not set"
-        )
+        raise RuntimeError("VINDICARA_SESSION_SECRET environment variable is required but not set")
     return secret
 
 

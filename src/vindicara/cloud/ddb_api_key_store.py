@@ -12,12 +12,13 @@ raw key re-hashes and queries the GSI.
 
 Implements the ``ApiKeyStore`` protocol from ``workspace.py``.
 """
+
 from __future__ import annotations
 
 import hashlib
 import logging
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from vindicara.cloud.workspace import ApiKey
 
@@ -65,7 +66,7 @@ class DDBApiKeyStore:
             ExpressionAttributeValues={":kh": key_hash},
             Limit=1,
         )
-        items = resp.get("Items", [])
+        items = cast("list[dict[str, str]]", resp.get("Items", []))
         if not items:
             return None
         item = items[0]
@@ -84,17 +85,20 @@ class DDBApiKeyStore:
 
     def for_workspace(self, workspace_id: str) -> list[ApiKey]:
         items: list[dict[str, str]] = []
-        kwargs: dict[str, object] = {
-            "FilterExpression": "workspace_id = :ws",
-            "ExpressionAttributeValues": {":ws": workspace_id},
-        }
-        while True:
-            resp = self._table.scan(**kwargs)
-            items.extend(resp.get("Items", []))
+        resp = self._table.scan(
+            FilterExpression="workspace_id = :ws",
+            ExpressionAttributeValues={":ws": workspace_id},
+        )
+        items.extend(cast("list[dict[str, str]]", resp.get("Items", [])))
+        last_key = resp.get("LastEvaluatedKey")
+        while last_key:
+            resp = self._table.scan(
+                FilterExpression="workspace_id = :ws",
+                ExpressionAttributeValues={":ws": workspace_id},
+                ExclusiveStartKey=last_key,
+            )
+            items.extend(cast("list[dict[str, str]]", resp.get("Items", [])))
             last_key = resp.get("LastEvaluatedKey")
-            if not last_key:
-                break
-            kwargs["ExclusiveStartKey"] = last_key
 
         return [
             ApiKey(
@@ -114,13 +118,40 @@ class DDBApiKeyStore:
             self._table.update_item(
                 Key={"key_id": key_id},
                 UpdateExpression="SET revoked_at = :ra",
-                ExpressionAttributeValues={":ra": _now_iso()},
+                ExpressionAttributeValues={":ra": _now_iso(), ":empty": ""},
                 ConditionExpression=(
-                    "attribute_exists(key_id) AND "
-                    "(revoked_at = :empty OR attribute_not_exists(revoked_at))"
+                    "attribute_exists(key_id) AND (attribute_not_exists(revoked_at) OR revoked_at = :empty)"
                 ),
-                ExpressionAttributeNames={},
             )
         except self._table.meta.client.exceptions.ConditionalCheckFailedException:
             return False
         return True
+
+    def update_role(self, key_id: str, role: str) -> ApiKey | None:
+        # "role" is a DynamoDB reserved word, so it is aliased via
+        # ExpressionAttributeNames. A revoked or missing key is not updated.
+        try:
+            resp = self._table.update_item(
+                Key={"key_id": key_id},
+                UpdateExpression="SET #r = :role",
+                ExpressionAttributeNames={"#r": "role"},
+                ExpressionAttributeValues={":role": role, ":empty": ""},
+                ConditionExpression=(
+                    "attribute_exists(key_id) AND (attribute_not_exists(revoked_at) OR revoked_at = :empty)"
+                ),
+                ReturnValues="ALL_NEW",
+            )
+        except self._table.meta.client.exceptions.ConditionalCheckFailedException:
+            return None
+        attrs = cast("dict[str, str]", resp.get("Attributes", {}))
+        if not attrs:
+            return None
+        return ApiKey(
+            key_id=attrs["key_id"],
+            workspace_id=attrs["workspace_id"],
+            key="",
+            role=attrs["role"],
+            name=attrs.get("name") or None,
+            created_at=attrs["created_at"],
+            revoked_at=attrs.get("revoked_at") or None,
+        )

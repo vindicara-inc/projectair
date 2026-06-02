@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Project AIR · Vindicara · Investor Memo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream:    #FBF7EE;
+    --cream-2:  #F5EFE3;
+    --lilac-1:  #E8DEF8;
+    --lilac-2:  #D6C7F0;
+    --lav-1:    #C9B6E4;
+    --lav-2:    #A693CE;
+    --ink:      #1F1736;
+    --ink-2:    #3A2F5A;
+    --ink-3:    #6B5E8C;
+    --line:     rgba(31,23,54,0.10);
+    --glass:    rgba(255,255,255,0.55);
+    --glass-2:  rgba(255,255,255,0.35);
+    --glass-hi: rgba(255,255,255,0.85);
+    --shadow:   0 30px 80px -20px rgba(63,46,120,0.28), 0 8px 24px -8px rgba(63,46,120,0.18);
+    --shadow-2: 0 10px 30px -10px rgba(63,46,120,0.35);
+    --r-lg: 28px;
+    --r-md: 18px;
+    --r-sm: 12px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--cream);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01","cv11";
+    letter-spacing: -0.01em;
+  }
+
+  /* Animated mesh gradient backdrop */
+  .mesh {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(900px 700px at 12% 18%,  rgba(214,199,240,0.85), transparent 60%),
+      radial-gradient(800px 600px at 88% 22%,  rgba(255,228,210,0.70), transparent 62%),
+      radial-gradient(900px 800px at 78% 88%,  rgba(201,182,228,0.85), transparent 60%),
+      radial-gradient(800px 700px at 18% 92%,  rgba(232,222,248,0.85), transparent 60%),
+      linear-gradient(140deg, #FBF7EE 0%, #F2EAFB 100%);
+    filter: saturate(1.05);
+  }
+  .mesh::before, .mesh::after {
+    content: ""; position: absolute; border-radius: 50%;
+    filter: blur(80px); opacity: .55;
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+  .mesh::before {
+    width: 46vw; height: 46vw; left: -8vw; top: 8vh;
+    background: radial-gradient(circle, #C9B6E4 0%, transparent 70%);
+  }
+  .mesh::after {
+    width: 50vw; height: 50vw; right: -10vw; bottom: -8vh;
+    background: radial-gradient(circle, #FFD9C2 0%, transparent 70%);
+    animation-duration: 28s; animation-direction: alternate-reverse;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(0,0,0)         scale(1); }
+    50%  { transform: translate3d(6vw,4vh,0)     scale(1.08); }
+    100% { transform: translate3d(-3vw,-3vh,0)   scale(0.96); }
+  }
+  .grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    opacity: .055; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.7' numOctaves='2' stitchTiles='stitch'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='1'/></svg>");
+  }
+
+  /* Slide stage */
+  .stage { position: fixed; inset: 0; z-index: 2; display: grid; place-items: center; }
+  .slide {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    padding: 5vh 6vw; opacity: 0; pointer-events: none;
+    transition: opacity 380ms ease, transform 480ms cubic-bezier(.2,.8,.2,1);
+    transform: scale(.985) translateY(8px);
+  }
+  .slide.active { opacity: 1; pointer-events: auto; transform: none; }
+
+  /* Glass card */
+  .card {
+    width: min(1200px, 92vw);
+    background: var(--glass);
+    backdrop-filter: blur(30px) saturate(170%);
+    -webkit-backdrop-filter: blur(30px) saturate(170%);
+    border: 1px solid rgba(255,255,255,0.65);
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.9);
+    border-radius: var(--r-lg);
+    padding: clamp(36px, 4.6vw, 64px);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::after {
+    /* subtle inner highlight ring for the liquid-glass refractive look */
+    content: ""; position: absolute; inset: 1px; border-radius: calc(var(--r-lg) - 1px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0) 40%);
+    pointer-events: none;
+  }
+
+  /* Type system */
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 600;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--lav-2), var(--lilac-2));
+    box-shadow: 0 0 0 4px rgba(166,147,206,0.18);
+  }
+  h1 {
+    font-family: "Inter", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(52px, 7.2vw, 104px);
+    line-height: 1.0; margin: 18px 0 18px;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+  }
+  h1 em { font-style: normal; color: var(--lav-2); }
+  h2 {
+    font-size: clamp(30px, 3.6vw, 52px);
+    font-weight: 800; line-height: 1.05; letter-spacing: -0.03em;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  h2 .accent { color: var(--lav-2); padding-right: 4px; }
+  h3 { font-size: 18px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+  p  { font-size: 17px; line-height: 1.55; color: var(--ink-2); margin: 0 0 12px; }
+  small, .meta { color: var(--ink-3); font-size: 13px; }
+  .lede { font-size: clamp(18px, 1.9vw, 22px); line-height: 1.5; max-width: 78ch; color: var(--ink-2); }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13px; }
+
+  /* Layout helpers */
+  .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: stretch; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  @media (max-width: 900px) { .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; } }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 12px; border-radius: 999px;
+    background: var(--glass-hi);
+    border: 1px solid rgba(31,23,54,0.08);
+    font-size: 12px; font-weight: 600; color: var(--ink-2);
+    box-shadow: var(--shadow-2);
+  }
+  .pill .sw { width: 8px; height: 8px; border-radius: 999px; background: linear-gradient(135deg, var(--lav-2), var(--lilac-2)); }
+
+  .tile {
+    background: var(--glass-2);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: var(--r-md);
+    padding: 22px;
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    box-shadow: 0 8px 26px -10px rgba(63,46,120,0.18), inset 0 1px 0 rgba(255,255,255,0.85);
+  }
+  .tile.tight { padding: 16px 18px; }
+
+  .layer {
+    position: relative; padding-left: 64px; min-height: 64px;
+  }
+  .layer .num {
+    position: absolute; left: 0; top: 0;
+    width: 48px; height: 48px; border-radius: 14px;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--lilac-1), var(--lav-1));
+    color: var(--ink); font-weight: 800;
+    box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255,255,255,0.9);
+    font-family: "Inter", system-ui, sans-serif; font-size: 18px; letter-spacing: -0.02em;
+  }
+  .layer h3 { font-size: 16px; }
+  .layer p  { font-size: 14px; line-height: 1.5; margin: 4px 0 0; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean li {
+    padding: 10px 0; border-bottom: 1px dashed rgba(31,23,54,0.10);
+    color: var(--ink-2); font-size: 15.5px; line-height: 1.45;
+    display: flex; gap: 12px;
+  }
+  ul.clean li:last-child { border-bottom: 0; }
+  ul.clean li::before {
+    content: ""; flex: 0 0 8px; height: 8px; margin-top: 9px;
+    background: linear-gradient(135deg, var(--lav-2), var(--lilac-2));
+    border-radius: 999px;
+  }
+
+  /* Comparison row */
+  .matrix { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+  .matrix th, .matrix td { text-align: left; padding: 14px 16px; font-size: 14px; }
+  .matrix th { color: var(--ink-3); font-weight: 600; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .matrix td { background: var(--glass-2); border-top: 1px solid rgba(255,255,255,0.7); border-bottom: 1px solid rgba(255,255,255,0.7); }
+  .matrix tr td:first-child { border-left: 1px solid rgba(255,255,255,0.7); border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-weight: 600; color: var(--ink); }
+  .matrix tr td:last-child  { border-right:1px solid rgba(255,255,255,0.7); border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+  .yes { color: #5b3fa3; font-weight: 700; }
+  .no  { color: #a4a0b3; }
+
+  /* Title slide accents */
+  .title-card { text-align: left; }
+  .word-mark {
+    display: inline-flex; align-items: baseline; gap: 12px;
+    font-size: 14px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 700;
+  }
+  .word-mark .glyph {
+    width: 26px; height: 26px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--lav-2), var(--lilac-1));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 6px 18px -6px rgba(63,46,120,0.45);
+    display: grid; place-items: center; color: white; font-family: "Inter", system-ui, sans-serif; font-weight: 800; font-size: 14px; letter-spacing: -0.04em;
+  }
+
+  /* HUD */
+  .hud {
+    position: fixed; z-index: 5; bottom: 22px; left: 50%; transform: translateX(-50%);
+    display: inline-flex; align-items: center; gap: 14px;
+    padding: 10px 14px; border-radius: 999px;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.7);
+    backdrop-filter: blur(24px) saturate(170%);
+    -webkit-backdrop-filter: blur(24px) saturate(170%);
+    box-shadow: var(--shadow-2);
+    font-size: 12px; color: var(--ink-2);
+  }
+  .hud button {
+    appearance: none; border: 0; padding: 6px 10px; border-radius: 999px;
+    background: rgba(255,255,255,0.6); cursor: pointer; font-weight: 600; color: var(--ink);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 6px rgba(0,0,0,0.04);
+  }
+  .hud button:hover { background: rgba(255,255,255,0.9); }
+  .hud .count { font-family: "JetBrains Mono", monospace; font-weight: 600; color: var(--ink); min-width: 48px; text-align: center; }
+
+  .footer {
+    position: absolute; left: clamp(36px, 4.6vw, 64px); right: clamp(36px, 4.6vw, 64px); bottom: 22px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11.5px; color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  .kbd { font-family: "JetBrains Mono", monospace; font-size: 11px; padding: 3px 6px; border-radius: 6px; background: rgba(255,255,255,0.7); border: 1px solid rgba(31,23,54,0.10); color: var(--ink-2); }
+
+  .stat .n {
+    font-family: "Inter", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(44px, 5.4vw, 76px); line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+  }
+  .stat .l { font-size: 13px; color: var(--ink-3); margin-top: 10px; letter-spacing: 0.02em; }
+
+  /* PRINT: one slide per page */
+  @media print {
+    @page { size: 16in 9in; margin: 0; }
+    html, body { background: white; overflow: visible; }
+    .mesh, .grain, .hud { display: none !important; }
+    .stage { position: static; display: block; }
+    .slide {
+      position: relative; opacity: 1 !important; transform: none !important;
+      page-break-after: always; break-after: page;
+      width: 16in; height: 9in;
+      background:
+        radial-gradient(900px 700px at 12% 18%,  rgba(214,199,240,0.85), transparent 60%),
+        radial-gradient(800px 600px at 88% 22%,  rgba(255,228,210,0.70), transparent 62%),
+        radial-gradient(900px 800px at 78% 88%,  rgba(201,182,228,0.85), transparent 60%),
+        linear-gradient(140deg, #FBF7EE 0%, #F2EAFB 100%);
+    }
+    .card { background: rgba(255,255,255,0.78); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mesh"></div>
+<div class="grain"></div>
+
+<main class="stage" id="stage">
+
+  <!-- 1. Title -->
+  <section class="slide active">
+    <div class="card title-card">
+      <div class="word-mark"><span class="glyph">v</span> Vindicara · Project AIR</div>
+      <h1>Forensic reconstruction<br/>for AI agents.</h1>
+      <p class="lede">Signed evidence. Causal explanation. Verified containment. Cross-agent trust. The four-layer stack that turns an agent's behavior into an admissible record.</p>
+      <div class="row" style="margin-top: 26px; gap: 10px;">
+        <span class="pill"><span class="sw"></span> projectair 0.7.1 · MIT · live on PyPI</span>
+        <span class="pill"><span class="sw"></span> 10 OWASP Agentic + 3 LLM + 1 AIR-native</span>
+        <span class="pill"><span class="sw"></span> Verified on public Sigstore Rekor</span>
+      </div>
+      <div class="footer">
+        <span>Investor memo · May 2026</span>
+        <span>Kevin.Minn@vindicara.io</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Description -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Description</div>
+      <h2><span class="accent">What</span> we are.</h2>
+      <p class="lede">Project AIR is the open-source forensic stack for AI agents. Every agent action is written into a signed Intent Capsule chain. Anchored to public infrastructure, explained by a causal graph, gated by Auth0-verified human approval, and carried across agent handoffs by a cryptographic chain of custody.</p>
+      <div class="grid-3" style="margin-top: 28px;">
+        <div class="tile">
+          <h3>Open core</h3>
+          <p><span class="mono">projectair</span> is MIT, on PyPI, with the full <span class="mono">air</span> CLI and <span class="mono">airsdk</span> library shipped.</p>
+        </div>
+        <div class="tile">
+          <h3>Cloud + Pro</h3>
+          <p>Hosted ingestion, premium detectors, premium reports under <span class="mono">projectair-pro</span> (commercial license).</p>
+        </div>
+        <div class="tile">
+          <h3>Engine</h3>
+          <p><span class="mono">vindicara</span> is the Apache-2.0 engine substrate behind the cloud. Snyk-style split.</p>
+        </div>
+      </div>
+      <div class="footer"><span>02 · Description</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 3. Problem -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Problem</div>
+      <h2>Agents act <span class="accent">autonomously</span>. Nobody can prove what happened.</h2>
+      <div class="grid-2" style="margin-top: 28px;">
+        <div>
+          <ul class="clean">
+            <li>Prompt injection, tool misuse, exfiltration, and rogue behavior happen at runtime, not in code review.</li>
+            <li>Observability stacks (LangSmith, Langfuse, Datadog) capture traces, not signed admissible evidence.</li>
+            <li>When something goes wrong, "look at the logs" is not a court answer.</li>
+            <li>EU AI Act Article 72 requires post-market monitoring evidence by deadline.</li>
+            <li>SOC 2, GDPR Art. 22, HIPAA all expect proof of human oversight on consequential actions.</li>
+          </ul>
+        </div>
+        <div class="tile" style="display:flex; flex-direction:column; justify-content: space-between;">
+          <h3>The gap, in one sentence.</h3>
+          <p style="font-size: 19px; color: var(--ink); line-height: 1.4;">There is no industry-standard chain of custody for what an AI agent did, why, and who authorized it.</p>
+          <p class="meta">If you can't prove it cryptographically, you can't defend it legally. And agents are about to ship into regulated workflows whether the audit story is ready or not.</p>
+        </div>
+      </div>
+      <div class="footer"><span>03 · Problem</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 4. Solution -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Solution</div>
+      <h2>Four layers. <span class="accent">One</span> chain.</h2>
+      <p class="lede" style="margin-bottom: 24px;">Each layer is a separate <span class="mono">airsdk</span> subpackage with its own demo, CLI, and crypto trust contract. A customer can adopt one without the others.</p>
+      <div class="grid-2">
+        <div class="layer tile">
+          <div class="num">1</div>
+          <h3>External Trust Anchor</h3>
+          <p>RFC 3161 timestamps and Sigstore Rekor inclusion proofs over BLAKE3 chain roots. Verifiable from a clean machine with zero Vindicara API calls. Reference chain anchored on public Rekor at log index <span class="mono">1455601514</span>.</p>
+        </div>
+        <div class="layer tile">
+          <div class="num">2</div>
+          <h3>Causal Reasoning</h3>
+          <p>Walks any chain, infers step-to-step dependencies, and produces a narrowed evidence excerpt. Hard edges (CHAIN_LINK, LLM_PAIR, TOOL_PAIR) at confidence 1.0. Soft edges (OUTPUT_REUSE) at 0.5 to 1.0.</p>
+        </div>
+        <div class="layer tile">
+          <div class="num">3</div>
+          <h3>Auth0-verified Containment</h3>
+          <p>Declarative policy halts sensitive actions and demands a step-up. <span class="mono">HUMAN_APPROVAL</span> records bind the action to the authenticated human who authorized it. Forged tokens cannot drive the agent forward.</p>
+        </div>
+        <div class="layer tile">
+          <div class="num">4</div>
+          <h3>AgDR Handoff Protocol (A2A)</h3>
+          <p>Cross-agent chain of custody. Capability tokens carry a Parent Trace ID, Rekor counter-attestation proves Agent B validated it, public log carries hashed identifiers only. Wave 1 alpha shipped 2026-05-07; live demo against a real Auth0 tenant; Rekor anchor <span class="mono">1465403522</span>.</p>
+        </div>
+      </div>
+      <div class="footer"><span>04 · Solution</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 5. Team -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Team</div>
+      <h2><span class="accent">Founder</span>, building.</h2>
+      <div class="grid-2" style="margin-top: 24px;">
+        <div class="tile">
+          <h3>Kevin Minn · Founder &amp; CEO</h3>
+          <p>Cybersecurity student. Founder of SLTR Digital LLC; six AI products shipped including Luminetic. Previously applied to YC with 1099Pass. Full-time on Vindicara since March 2026. Vindicara, Inc. registered in Los Angeles, CA.</p>
+          <p class="meta">Kevin.Minn@vindicara.io</p>
+        </div>
+        <div class="tile">
+          <h3>Why now, why us</h3>
+          <ul class="clean">
+            <li>Shipped four cryptographic protocol layers in roughly thirty days, solo.</li>
+            <li>Live verifications on public Sigstore Rekor; nothing in the demo is mocked.</li>
+            <li>Direct discipline: every public claim cites a primary source. No "10 of 10" before it was true. No "anomaly detection" if the detector is enforcement.</li>
+            <li>Auth0 partnership in motion; Layer 3 + Layer 4 use Auth0 as the named integration target.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>05 · Team</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 6. Market -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Market size and opportunity</div>
+      <h2>A new <span class="accent">category</span> riding two large ones.</h2>
+      <div class="grid-3" style="margin-top: 26px;">
+        <div class="tile stat"><div class="n">[ TAM ]</div><div class="l">AI security and observability spend, 2026 forecast (placeholder)</div></div>
+        <div class="tile stat"><div class="n">[ SAM ]</div><div class="l">Regulated agent deployments needing admissible evidence (placeholder)</div></div>
+        <div class="tile stat"><div class="n">[ SOM ]</div><div class="l">Year-one OSS to paid conversion target (placeholder)</div></div>
+      </div>
+      <div class="grid-2" style="margin-top: 22px;">
+        <div class="tile">
+          <h3>Adjacent categories we draft on</h3>
+          <ul class="clean">
+            <li>SIEM + DFIR. Splunk, CrowdStrike Falcon, Elastic. Spend already exists; agents inherit the same incident lifecycle.</li>
+            <li>AI observability. LangSmith, Langfuse, AgentOps, Arize. Trace data is necessary but not sufficient.</li>
+            <li>Compliance + GRC. Vanta, Drata, Anecdotes. Article 72 evidence is a new line item.</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>The wedge</h3>
+          <p>Forensic admissibility is the part nobody else owns. Once a customer's agent is on a signed chain, every other compliance and IR story reads off the same artifact.</p>
+          <p class="meta">Replace [TAM/SAM/SOM] with sized estimates from Gartner / IDC / internal modeling before sending.</p>
+        </div>
+      </div>
+      <div class="footer"><span>06 · Market</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 7. Competition -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Competitive landscape</div>
+      <h2>Observability is <span class="accent">not</span> evidence.</h2>
+      <table class="matrix" style="margin-top: 22px;">
+        <thead>
+          <tr><th>Capability</th><th>LangSmith / Langfuse</th><th>Lakera / Protect AI</th><th>SIEM + traces</th><th>Project AIR</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Trace agent steps</td><td class="yes">Yes</td><td class="no">Partial</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+          <tr><td>Cryptographically signed chain</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="yes">Yes</td></tr>
+          <tr><td>Public-infrastructure verification</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="yes">Rekor + RFC 3161</td></tr>
+          <tr><td>Causal explanation across the chain</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="yes">Layer 2</td></tr>
+          <tr><td>Verified human-in-the-loop containment</td><td class="no">No</td><td class="yes">Guardrails</td><td class="no">No</td><td class="yes">Auth0-bound</td></tr>
+          <tr><td>Cross-agent handoff trust</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="yes">AgDR Handoff</td></tr>
+          <tr><td>Article 72 evidence pack out of the box</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="yes"><span class="mono">air report article72</span></td></tr>
+        </tbody>
+      </table>
+      <p class="meta" style="margin-top: 18px;">Comparison reflects publicly documented capabilities as of May 2026. We compete on admissibility, not on trace volume.</p>
+      <div class="footer"><span>07 · Competition</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 8. Business model -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Business model</div>
+      <h2>Open core. <span class="accent">Self-serve</span>. Enterprise.</h2>
+      <div class="grid-4" style="margin-top: 26px;">
+        <div class="tile">
+          <h3>Open source</h3>
+          <p><span class="mono">projectair</span>, MIT. Top of funnel. The four-layer stack is real, in OSS.</p>
+          <p class="mono" style="font-size: 12px;">$0 / forever</p>
+        </div>
+        <div class="tile">
+          <h3>Individual</h3>
+          <p>Hosted dashboard for one builder. Stripe-live.</p>
+          <p class="mono" style="font-size: 12px;">$39 / month</p>
+        </div>
+        <div class="tile">
+          <h3>Team</h3>
+          <p>Multi-seat ingestion and reports. AIR Cloud. Stripe-live.</p>
+          <p class="mono" style="font-size: 12px;">$599 / month, flat</p>
+        </div>
+        <div class="tile">
+          <h3>Enterprise</h3>
+          <p>SSO, SLA, BAA, on-prem option, premium detectors, NVIDIA NIM-packaged.</p>
+          <p class="mono" style="font-size: 12px;">Custom · talk to sales</p>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top: 22px;">
+        <div class="tile"><h3>Top-of-funnel logic</h3><p>OSS adoption signals technical fit. The chain on disk is the migration path; once a team is signing, paid is a swap of transport.</p></div>
+        <div class="tile"><h3>Expansion logic</h3><p>Enterprise lights up where compliance has a deadline: AI Act Article 72, SOC 2 AI, NIST AI RMF. Premium reports map directly to a regulator-facing artifact.</p></div>
+      </div>
+      <div class="footer"><span>08 · Business model</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 9. Traction -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Traction</div>
+      <h2>Code in production. <span class="accent">Proofs</span> in public.</h2>
+      <div class="grid-4" style="margin-top: 22px;">
+        <div class="tile stat"><div class="n">0.7.1</div><div class="l">live PyPI release of <span class="mono">projectair</span> as of 2026-05-07</div></div>
+        <div class="tile stat"><div class="n">14 / 14</div><div class="l">detectors shipped: 10 Agentic + 3 LLM + 1 AIR-native</div></div>
+        <div class="tile stat"><div class="n">4 / 4</div><div class="l">protocol layers shipped (Layer 4 Wave 1 alpha)</div></div>
+        <div class="tile stat"><div class="n">2</div><div class="l">live Sigstore Rekor anchors (<span class="mono">1455601514</span>, <span class="mono">1465403522</span>)</div></div>
+      </div>
+      <div class="grid-2" style="margin-top: 22px;">
+        <div class="tile">
+          <h3>Shipped infrastructure</h3>
+          <ul class="clean">
+            <li><span class="mono">air demo</span>, <span class="mono">air anchor</span>, <span class="mono">air verify-public</span>, <span class="mono">air explain</span>, <span class="mono">air approve</span>, <span class="mono">air handoff verify</span>, <span class="mono">air report article72</span>.</li>
+            <li>Integrations: LangChain, OpenAI, Anthropic, LlamaIndex, Google Gemini SDK, Google ADK. NVIDIA NIM verified via OpenAI-compat path.</li>
+            <li>Pricing live with Stripe Payment Links. Vindicara, Inc. (Delaware C-Corp) registered.</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Partnerships and inbound</h3>
+          <ul class="clean">
+            <li>Four-tier NVIDIA partnership roadmap, from NeMo Guardrails ingestion to GPU-accelerated forensic search.</li>
+            <li>OWASP Q3 Solutions Landscape submission cleared. Hacker News launch imminent.</li>
+            <li>Live Sigstore Rekor anchors as primary public proof.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>09 · Traction</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 10. GTM -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Go-to-market plan</div>
+      <h2>Three <span class="accent">phases</span>. One funnel.</h2>
+      <div class="grid-3" style="margin-top: 24px;">
+        <div class="tile">
+          <h3>Phase 1 · Awareness</h3>
+          <ul class="clean">
+            <li>Hacker News launch · ProductHunt · OWASP submission</li>
+            <li>Blog: live Rekor anchors as primary proof</li>
+            <li>Conference talks · podcasts</li>
+            <li>Auth0 marketplace listing</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Phase 2 · Self-serve</h3>
+          <ul class="clean">
+            <li>Individual ($39) and Team ($599) tiers, Stripe-live</li>
+            <li>OSS to Cloud upgrade in one CLI command</li>
+            <li>Article 72 report drives regulated buyers</li>
+            <li>Reference architectures: LangChain, OpenAI, Anthropic, Gemini, ADK</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Phase 3 · Enterprise</h3>
+          <ul class="clean">
+            <li>NVIDIA NIM-packaged air-gapped deploy</li>
+            <li>SOC 2 Type II, BAA, SSO</li>
+            <li>Channel through Auth0 marketplace and Sigstore community</li>
+            <li>Industry verticals: legal, finance, healthcare</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>10 · Go-to-market</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 11. Roadmap -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Product roadmap</div>
+      <h2>From the <span class="accent">chain</span> to the network.</h2>
+      <div class="grid-4" style="margin-top: 24px;">
+        <div class="tile">
+          <h3>Q3 2026</h3>
+          <ul class="clean">
+            <li>Layer 4 Wave 2: cross-tenant via Sigstore Fulcio + OIDC Discovery</li>
+            <li>Learned-baseline ASI10 variant</li>
+            <li>Anchoring key rotation + transparency log</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Q4 2026</h3>
+          <ul class="clean">
+            <li>Full ASI04 supply-chain detector</li>
+            <li>A2A protocol capture as new ingestion surface</li>
+            <li>CrewAI, AutoGen, AG2 integrations</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>2027</h3>
+          <ul class="clean">
+            <li>ML-DSA-65 post-quantum hybrid signatures (Layer 1 v2)</li>
+            <li>Layer 4 v1.5 enterprise federation: Okta, Entra, SPIFFE adapters live</li>
+            <li>Notary co-signing network (Layer 1 v3)</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>NVIDIA partnership</h3>
+          <ul class="clean">
+            <li>Tier 1: NeMo Guardrails ingestion (0 to 3 mo)</li>
+            <li>Tier 2: NemoGuard classification corroboration</li>
+            <li>Tier 3: NIM-packaged air-gapped deploy</li>
+            <li>Tier 4: GPU-accelerated forensic search</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>11 · Roadmap</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 12. Financial summary -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Financial summary</div>
+      <h2><span class="accent">Pricing</span> is live. Numbers are honest.</h2>
+      <div class="grid-3" style="margin-top: 24px;">
+        <div class="tile stat"><div class="n">$39</div><div class="l">Individual MRR per seat (Stripe-live)</div></div>
+        <div class="tile stat"><div class="n">$599</div><div class="l">Team MRR flat (Stripe-live)</div></div>
+        <div class="tile stat"><div class="n">[ ENT ]</div><div class="l">Enterprise ACV target band (placeholder)</div></div>
+      </div>
+      <div class="grid-2" style="margin-top: 22px;">
+        <div class="tile">
+          <h3>Year-one model (placeholder)</h3>
+          <ul class="clean">
+            <li>OSS installs to paid conversion: <span class="mono">[ % ]</span></li>
+            <li>Paid customers, end of year 1: <span class="mono">[ N ]</span></li>
+            <li>ARR exit Y1: <span class="mono">[ $ ]</span></li>
+            <li>Gross margin: <span class="mono">[ % ]</span> (cloud-hosted, post-AWS migration)</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Cost structure today</h3>
+          <ul class="clean">
+            <li>One full-time founder. No outside hires yet.</li>
+            <li>AWS spend: post-migration to Vindicara C-Corp account, region us-west-2.</li>
+            <li>OSS infrastructure (PyPI, GitHub, public Rekor) is free at current volume.</li>
+            <li>No paid acquisition. Distribution is content + OSS adoption.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="meta" style="margin-top: 18px;">Replace placeholders with the live Stripe pull and the modeled assumptions before sending. Do not soften them.</p>
+      <div class="footer"><span>12 · Financial summary</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 13. Uses of capital -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Uses of capital</div>
+      <h2>Buy <span class="accent">layers</span> faster. Buy <span class="accent">trust</span> sooner.</h2>
+      <div class="grid-2" style="margin-top: 24px;">
+        <div class="tile">
+          <h3>Engineering (≈ 55%)</h3>
+          <ul class="clean">
+            <li>Layer 4 Wave 2 cross-tenant federation; Okta + Entra + SPIFFE adapters live by v1.5.</li>
+            <li>Learned-baseline ASI10 detector + full ASI04 supply-chain detector.</li>
+            <li>CrewAI, AutoGen, AG2 integrations + A2A capture surface.</li>
+            <li>NVIDIA NIM-packaged air-gapped deploy.</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Compliance and trust (≈ 25%)</h3>
+          <ul class="clean">
+            <li>SOC 2 Type II, BAA, formal cryptographic audit of Layers 1 + 4.</li>
+            <li>EU AI Act + NIST AI RMF + SOC 2 AI evidence packs polished for regulator-grade output.</li>
+            <li>Cybersecurity insurance integrations as the renewal lever.</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Go-to-market (≈ 15%)</h3>
+          <ul class="clean">
+            <li>First sales hire focused on regulated verticals.</li>
+            <li>Auth0 marketplace presence; Sigstore + OWASP community presence.</li>
+            <li>Conference circuit: OWASP, RSA, AISA, Sigstore.</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Reserve (≈ 5%)</h3>
+          <ul class="clean">
+            <li>Legal counsel for the admissibility positioning.</li>
+            <li>Cushion for the EU AI Act enforcement timeline.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="meta" style="margin-top: 18px;">Allocations indicative; refine after pricing the round.</p>
+      <div class="footer"><span>13 · Uses of capital</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 14. Risks -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Risks</div>
+      <h2>What could <span class="accent">break</span> this. Honestly.</h2>
+      <div class="grid-2" style="margin-top: 24px;">
+        <div class="tile">
+          <h3>Big-vendor parity</h3>
+          <p>An incumbent could ship signed-chain features and slow us. Mitigation: depth on cryptography (Sigstore Rekor + RFC 3161 + ML-DSA roadmap), depth on causal layer, depth on cross-agent handoff. Each layer is independently dependable; the moat compounds.</p>
+        </div>
+        <div class="tile">
+          <h3>Regulatory pace</h3>
+          <p>If AI Act enforcement slips, demand for Article 72 evidence softens. Mitigation: the same artifact serves SOC 2, GDPR Art. 22, and HIPAA audits. Compliance pull is multi-vector.</p>
+        </div>
+        <div class="tile">
+          <h3>Open-core monetization</h3>
+          <p>OSS adoption may not convert to paid quickly. Mitigation: the upgrade path is a transport swap, not a rewrite. Pro-tier-only artifacts (premium reports, hosted dashboard, NIM-packaged deploy) are the carrots.</p>
+        </div>
+        <div class="tile">
+          <h3>Founder concentration</h3>
+          <p>One full-time builder today. Mitigation: capital lifts headcount immediately; the architecture is documented to a level a senior engineer can extend a layer in week one.</p>
+        </div>
+      </div>
+      <div class="footer"><span>14 · Risks</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 15. Capital efficiency -->
+  <section class="slide">
+    <div class="card">
+      <div class="eyebrow"><span class="dot"></span> Capital efficiency</div>
+      <h2>Four layers, <span class="accent">solo</span>, in roughly thirty days.</h2>
+      <div class="grid-3" style="margin-top: 24px;">
+        <div class="tile stat"><div class="n">~30d</div><div class="l">From Layer 1 (2026-05-06) to Layer 4 Wave 1 (2026-05-07), preceded by 14-detector buildout.</div></div>
+        <div class="tile stat"><div class="n">1</div><div class="l">Full-time engineer. No prior VC capital.</div></div>
+        <div class="tile stat"><div class="n">$0</div><div class="l">Customer acquisition cost on the OSS funnel.</div></div>
+      </div>
+      <div class="grid-2" style="margin-top: 22px;">
+        <div class="tile">
+          <h3>What capital unlocks</h3>
+          <ul class="clean">
+            <li>Compress the 12-month NVIDIA partnership roadmap into 6.</li>
+            <li>SOC 2 Type II shipped before the Article 72 enforcement window.</li>
+            <li>First sales hire turns inbound (HN, OWASP, NVIDIA, Auth0) into closed-won.</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Why the burn stays low</h3>
+          <ul class="clean">
+            <li>OSS top-of-funnel handles distribution.</li>
+            <li>Public infrastructure (Rekor, FreeTSA) handles trust.</li>
+            <li>Snyk-style split keeps the cloud surface small until enterprise pulls demand.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>15 · Capital efficiency</span><span>Vindicara · Project AIR</span></div>
+    </div>
+  </section>
+
+  <!-- 16. Closer -->
+  <section class="slide">
+    <div class="card title-card">
+      <div class="word-mark"><span class="glyph">v</span> Vindicara · Project AIR</div>
+      <h1>The chain<br/>survives everything.</h1>
+      <p class="lede">Tampering. Crashes. Delegation. Subpoena. We are building the standard for cryptographic chain of custody in the agent era. Talk to us.</p>
+      <div class="row" style="margin-top: 26px; gap: 10px;">
+        <span class="pill"><span class="sw"></span> Kevin.Minn@vindicara.io</span>
+        <span class="pill"><span class="sw"></span> vindicara.io</span>
+        <span class="pill"><span class="sw"></span> pypi.org/project/projectair</span>
+      </div>
+      <div class="footer"><span>16 · Thank you</span><span>Vindicara, Inc. · Los Angeles, CA</span></div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="hud">
+  <button id="prev" aria-label="Previous">← Prev</button>
+  <span class="count" id="count">01 / 16</span>
+  <button id="next" aria-label="Next">Next →</button>
+  <span style="opacity:.7">use <span class="kbd">←</span> <span class="kbd">→</span> · press <span class="kbd">P</span> to print</span>
+</nav>
+
+<script>
+  (function () {
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const count  = document.getElementById('count');
+    const prev   = document.getElementById('prev');
+    const next   = document.getElementById('next');
+    let i = 0;
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function render() {
+      slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+      count.textContent = `${pad(i + 1)} / ${pad(slides.length)}`;
+      const url = new URL(location.href);
+      url.hash = '#' + (i + 1);
+      history.replaceState(null, '', url);
+    }
+    function go(delta) { i = Math.max(0, Math.min(slides.length - 1, i + delta)); render(); }
+    function set(n)    { i = Math.max(0, Math.min(slides.length - 1, n)); render(); }
+
+    prev.addEventListener('click', () => go(-1));
+    next.addEventListener('click', () => go( 1));
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' '  || e.key === 'PageDown') { e.preventDefault(); go( 1); }
+      if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); go(-1); }
+      if (e.key === 'Home') { e.preventDefault(); set(0); }
+      if (e.key === 'End')  { e.preventDefault(); set(slides.length - 1); }
+      if (e.key.toLowerCase() === 'p') { window.print(); }
+    });
+
+    // touch / swipe
+    let x0 = null;
+    addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+    addEventListener('touchend',   e => {
+      if (x0 == null) return;
+      const dx = (e.changedTouches[0].clientX - x0);
+      if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+      x0 = null;
+    }, { passive: true });
+
+    // deep link
+    const init = parseInt((location.hash || '').replace('#', ''), 10);
+    if (!Number.isNaN(init) && init >= 1 && init <= slides.length) i = init - 1;
+    render();
+  })();
+</script>
+</body>
+</html>

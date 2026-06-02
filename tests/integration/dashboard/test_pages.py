@@ -111,17 +111,20 @@ async def test_register_agent_htmx(app, authed_cookies) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("path", [
-    "/dashboard/",
-    "/dashboard/guard",
-    "/dashboard/agents",
-    "/dashboard/mcp",
-    "/dashboard/monitor",
-    "/dashboard/compliance",
-    "/dashboard/settings",
-    "/dashboard/billing",
-    "/dashboard/docs",
-])
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/dashboard/",
+        "/dashboard/guard",
+        "/dashboard/agents",
+        "/dashboard/mcp",
+        "/dashboard/monitor",
+        "/dashboard/compliance",
+        "/dashboard/settings",
+        "/dashboard/billing",
+        "/dashboard/docs",
+    ],
+)
 async def test_all_pages_return_200(app, authed_cookies, path: str) -> None:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", cookies=authed_cookies) as client:
         response = await client.get(path)

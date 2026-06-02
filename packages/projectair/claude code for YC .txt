@@ -1,0 +1,558 @@
+▗ ▗   ▖ ▖  Claude Code v2.1.117
+           Opus 4.7 (1M context) · Claude Max
+  ▘▘ ▝▝    ~/Desktop/vindicara/packages/projectair
+
+❯ /clear                                                                        
+  ⎿  (no content)
+
+❯  Hi Claude. projectair ships integrations for LangChain, OpenAI SDK, and      
+  Anthropic SDK. LlamaIndex is on the roadmap.                                  
+    ▎  Let's ship it now. Please:                                               
+    ▎ 1. Review existing integrations in airsdk/integrations/                   
+                                                                                
+    ▎ 2. Implement airsdk/integrations/llamaindex.py with an                    
+  instrument_llamaindex(client) function matching our existing                  
+    ▎ patterns                                                                  
+                                                                                
+    ▎ 3. Write tests in tests/test_integrations_llamaindex.py                   
+    ▎ 4. Update README with the new integration snippet                         
+                                                                                
+    ▎ 5. Bump version to 0.3.1 and document in CHANGELOG                        
+                                                                                
+                                                                                
+
+  Read 5 files, listed 1 directory (ctrl+o to expand)
+
+⏺ Now let me look at the LangChain callback for comparison, since LlamaIndex
+  also uses a callback-based instrumentation pattern.
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Let me check the CHANGELOG and README to understand the update points.
+
+  Listed 1 directory (ctrl+o to expand)
+
+  Read 4 files, listed 1 directory (ctrl+o to expand)
+
+⏺ Now let me mark task 1 in progress and write the LlamaIndex integration.
+
+⏺ Write(src/airsdk/integrations/llamaindex.py)
+  ⎿  Wrote 282 lines to src/airsdk/integrations/llamaindex.py
+       2 """LlamaIndex LLM instrumentation.
+         LLM``) so thatndex LLM (any subclass of ``llama_index.core.llms.
+       4 every ``llm.complete(...)``, ``llm.chat(...)`` call, plus their 
+       5 streaming variants, writes a signed ``llm_start`` + ``llm_end`` 
+         AgDR pair
+       7 through the supplied :class:`airsdk.recorder.AIRRecorder`.
+         tream_complete``e`` / ``acomplete`` / ``stream_complete`` / ``as
+       9 and ``chat`` / ``achat`` / ``stream_chat`` / ``astream_chat``. T
+      10 emitted as part of a chat response is captured into the ``llm_en
+         d`` payload;
+     … +330 lines (ctrl+o to expand)
+
+⏺ Now update the integrations __init__.py and write the tests.
+
+⏺ Update(src/airsdk/integrations/__init__.py)
+  ⎿  Added 5 lines, removed 3 lines
+       4  to emit AgDR records through an :class:`airsdk.recorder.AIRReco
+          rder`.
+       5  
+       6  Available:
+       7 -    - openai  (instrument_openai)                              
+       7 +    - openai      (instrument_openai)                          
+       8 +    - anthropic   (instrument_anthropic)                       
+       9 +    - llamaindex  (instrument_llamaindex)                      
+      10  
+      11  Planned:
+      10 -    - anthropic                                                
+      11 -    - llamaindex                                               
+      12 +    - crewai                                                   
+      13 +    - autogen                                                  
+      14  """
+⏺ Write(tests/test_integrations_llamaindex.py)
+  ⎿  Wrote 261 lines to tests/test_integrations_llamaindex.py
+       2 """Tests for the LlamaIndex LLM instrumentation wrapper.
+       3 Mocks the LlamaIndex LLM entirely; these tests never hit a real 
+         provider or
+       4 require llama-index to be installed.
+       5 """
+       6 from __future__ import annotations
+       7 
+       8 import asyncio
+       9 from pathlib import Path
+      10 from types import SimpleNamespace
+     … +286 lines (ctrl+o to expand)
+
+⏺ Now let me run the tests first to verify they pass before moving on to README
+  and version bump.
+
+⏺ Bash(.venv-air/bin/python -m pytest
+      packages/projectair/tests/test_integrations_llamaindex.py -v 2>&1 | tail
+      -80)
+  ⎿  ============================= test session starts ====================
+     ==========
+     platform darwin -- Python 3.13.12, pytest-8.4.2, pluggy-1.6.0 -- /User
+     … +30 lines (ctrl+o to expand)
+
+⏺ All 15 tests pass. Now run the full projectair suite, update README, bump
+  version, and add CHANGELOG.
+
+⏺ Bash(.venv-air/bin/python -m pytest packages/projectair/tests -q 2>&1 | tail
+      -25)
+  ⎿  ......................................................................
+     .. [ 33%]
+     ......................................................................
+     … +4 lines (ctrl+o to expand)
+
+⏺ All 215 tests pass. Now update the README with the LlamaIndex snippet.
+
+⏺ Update(README.md)
+  ⎿  Added 19 lines
+       93  )
+       94  ```
+       95  
+       96 +### LlamaIndex                                                
+       97 +                                                              
+       98 +```python                                                     
+       99 +from llama_index.llms.openai import OpenAI as LlamaOpenAI     
+      100 +from airsdk import AIRRecorder                                
+      101 +from airsdk.integrations.llamaindex import instrument_llamaind
+          +ex                                                            
+      102 +                                                              
+      103 +recorder = AIRRecorder(log_path="my-agent.log", user_intent="D
+          +raft a Q3 sales report")                                      
+      104 +llm = instrument_llamaindex(LlamaOpenAI(model="gpt-4o"), recor
+          +der)                                                          
+      105 +                                                              
+      106 +# complete / chat / stream_complete / stream_chat and their as
+          +ync variants all emit                                         
+      107 +# llm_start + llm_end Signed Intent Capsules automatically.   
+      108 +response = llm.complete("Draft the opening paragraph.")       
+      109 +                                                              
+      110 +# The wrapped LLM passes through every other attribute, so it 
+          +drops into query engines                                      
+      111 +# and agents wherever a plain LlamaIndex LLM is expected.     
+      112 +# query_engine = index.as_query_engine(llm=llm)               
+      113 +```                                                           
+      114 +                                                              
+      115  For tool calls your code executes, wrap them with `recorder.to
+           ol_start(...)` / `recorder.tool_end(...)` so the forensic chai
+           n captures them too.
+      116  
+      117  ### Custom code (any framework)
+
+⏺ Update(README.md)
+  ⎿  Added 2 lines, removed 1 line
+      197  | LangChain callback integration             | implemented    
+                                              |
+      198  | OpenAI SDK integration                     | implemented    
+                                              |
+      199  | Anthropic SDK integration                  | implemented    
+                                              |
+      200 -| LlamaIndex / CrewAI / AutoGen              | not yet impleme
+          -nted                               |                          
+      200 +| LlamaIndex LLM integration                 | implemented    
+          +                                   |                          
+      201 +| CrewAI / AutoGen                           | not yet impleme
+          +nted                               |                          
+      202  
+      203  The detectors are honest first-pass heuristics. They will prod
+           uce false positives and false negatives. The signed chain itse
+           lf is production-grade cryptography.
+      204  
+
+⏺ Update(pyproject.toml)
+  ⎿  Added 1 line, removed 1 line
+       4  
+       5  [project]
+       6  name = "projectair"
+       7 -version = "0.3.0"                                              
+       7 +version = "0.3.1"                                              
+       8  description = "Project AIR: forensic reconstruction and inciden
+          t response for AI agents. Turn agent traces into signed forensi
+          c records with BLAKE3 + Ed25519."
+       9  readme = "README.md"
+      10  license = "MIT"
+
+⏺ Update(src/airsdk/__init__.py)
+  ⎿  Added 1 line, removed 1 line
+      44      VerificationStatus,
+      45  )
+      46  
+      47 -__version__ = "0.3.0"                                          
+      47 +__version__ = "0.3.1"                                          
+      48  
+      49  __all__ = [
+      50      "AGDR_VERSION",
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+⏺ Now create the CHANGELOG.
+
+⏺ Write(CHANGELOG.md)
+  ⎿  Wrote 41 lines to CHANGELOG.md
+      2 # Changelog
+        [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
+      4 ing: [SemVer](https://semver.org/).
+      5 ## [0.3.1] - 2026-04-23
+      7 ### Added
+        trument_llamaindex(llm, recorder)`. Wraps any `llama_index.core.l
+        lms.LLM` subclass as a transparent proxy that emits signed `llm_s
+        te` / `stream_complete` / `astream_complete` / `chat` / `achat` /
+        esponses is captured in the `llm_end` payload. Every other attrib
+        ute passes through u
+     … +65 lines (ctrl+o to expand)
+
+⏺ Bash(cd /Users/KMiI/Desktop/vindicara/packages/projectair &&
+      /Users/KMiI/Desktop/vindicara/.venv-air/bin/python -m ruff check
+      src/airsdk/integrations/llamaindex.py t…)
+  ⎿  All checks passed!
+
+⏺ Bash(cd /Users/KMiI/Desktop/vindicara/packages/projectair &&
+      /Users/KMiI/Desktop/vindicara/.venv-air/bin/python -m mypy
+      src/airsdk/integrations/llamaindex.py 2>&1 |…)  ⎿  Success: no issues found in 1 source file
+
+⏺ Bash(.venv-air/bin/python -m pytest packages/projectair/tests -q 2>&1 | tail
+      -15)
+  ⎿  (eval):1: no such file or directory: .venv-air/bin/python
+
+⏺ Bash(/Users/KMiI/Desktop/vindicara/.venv-air/bin/python -m pytest
+      /Users/KMiI/Desktop/vindicara/packages/projectair/tests -q 2>&1 | tail
+      -15)
+  ⎿  ......................................................................
+     .. [ 33%]
+     ......................................................................
+     … +4 lines (ctrl+o to expand)
+
+⏺ Ruff clean, mypy --strict clean, all 215 tests pass. Let me call advisor to
+  gut-check before declaring done.
+
+⏺ Advising using Opus 4.7
+  ⎿  ✔ Advisor has reviewed the conversation and will apply the feedback
+
+⏺ Advisor flagged a real behavioral bug in the stream-chat content fallback
+  (could double-count cumulative message.content), a README overclaim about
+  drop-in replacement, and a compatibility gap with LlamaIndex astream_*
+  variants. Fixing all three.
+
+⏺ Update(src/airsdk/integrations/llamaindex.py)
+  ⎿  Added 4 lines, removed 12 lines
+      129          return chunk
+      130  
+      131      def _accumulate(self, chunk: Any) -> None:
+      132 +        # LlamaIndex stream chunks always carry the token delt
+          +a on `.delta`; the                                            
+      133 +        # `message.content` field is cumulative and must not b
+          +e summed across chunks.                                       
+      134          delta = getattr(chunk, "delta", None)
+      135          if delta:
+      136              self._chunks.append(str(delta))
+      135 -            return                                            
+      136 -        if self._is_chat:                                     
+      137 -            message = getattr(chunk, "message", None)         
+      138 -            content = getattr(message, "content", None) if mes
+          -sage is not None else None                                    
+      139 -            if content:                                       
+      140 -                self._chunks.append(str(content))             
+      137  
+      138      def _flush(self) -> None:
+      139          if self._emitted:
+     ...
+      172          return chunk
+      173  
+      174      def _accumulate(self, chunk: Any) -> None:
+      175 +        # LlamaIndex stream chunks always carry the token delt
+          +a on `.delta`; the                                            
+      176 +        # `message.content` field is cumulative and must not b
+          +e summed across chunks.                                       
+      177          delta = getattr(chunk, "delta", None)
+      178          if delta:
+      179              self._chunks.append(str(delta))
+      182 -            return                                            
+      183 -        if self._is_chat:                                     
+      184 -            message = getattr(chunk, "message", None)         
+      185 -            content = getattr(message, "content", None) if mes
+          -sage is not None else None                                    
+      186 -            if content:                                       
+      187 -                self._chunks.append(str(content))             
+      180  
+      181      def _flush(self) -> None:
+      182          if self._emitted:
+
+⏺ Now clean up the now-unused is_chat parameter and fix the astream_*
+  compatibility + README claim.
+
+⏺ Update(src/airsdk/integrations/llamaindex.py)
+  ⎿  Added 1 line, removed 2 lines
+      109  class _SyncStreamProxy:
+      110      """Wrap a LlamaIndex sync stream, accumulate ``delta`` tex
+           t, emit ``llm_end`` on exhaust."""
+      111  
+      112 -    def __init__(self, stream: Iterator[Any], recorder: AIRRec
+          -order, *, is_chat: bool) -> None:                             
+      112 +    def __init__(self, stream: Iterator[Any], recorder: AIRRec
+          +order) -> None:                                               
+      113          self._stream = stream
+      114          self._recorder = recorder
+      115 -        self._is_chat = is_chat                               
+      115          self._chunks: list[str] = []
+      116          self._emitted = False
+      117  
+
+⏺ Update(src/airsdk/integrations/llamaindex.py)
+  ⎿  Added 1 line, removed 2 lines
+      151  class _AsyncStreamProxy:
+      152      """Wrap a LlamaIndex async stream, accumulate ``delta`` te
+           xt, emit ``llm_end`` on exhaust."""
+      153  
+      154 -    def __init__(self, stream: AsyncIterator[Any], recorder: A
+          -IRRecorder, *, is_chat: bool) -> None:                        
+      154 +    def __init__(self, stream: AsyncIterator[Any], recorder: A
+          +IRRecorder) -> None:                                          
+      155          self._stream = stream
+      156          self._recorder = recorder
+      157 -        self._is_chat = is_chat                               
+      157          self._chunks: list[str] = []
+      158          self._emitted = False
+      159  
+
+⏺ Update(src/airsdk/integrations/llamaindex.py)
+  ⎿  Added 3 lines, removed 3 lines
+      220      def stream_complete(self, prompt: str, **kwargs: Any) -> _
+           SyncStreamProxy:
+      221          self._recorder.llm_start(prompt=str(prompt))
+      222          stream = self._llm.stream_complete(prompt, **kwargs)
+      223 -        return _SyncStreamProxy(iter(stream), self._recorder, 
+          -is_chat=False)                                                
+      223 +        return _SyncStreamProxy(iter(stream), self._recorder) 
+      224  
+      225      async def astream_complete(self, prompt: str, **kwargs: An
+           y) -> _AsyncStreamProxy:
+      226          self._recorder.llm_start(prompt=str(prompt))
+      227 -        stream = await self._llm.astream_complete(prompt, **kw
+          -args)                                                         
+      228 -        return _AsyncStreamProxy(stream, self._recorder, is_ch
+          -at=False)                                                     
+      227 +        stream = await _resolve_async_stream(self._llm.astream
+          +_complete(prompt, **kwargs))                                  
+      228 +        return _AsyncStreamProxy(stream, self._recorder)      
+      229  
+      230      # -- Chat surface ----------------------------------------
+           --------------
+      231  
+
+⏺ Update(src/airsdk/integrations/llamaindex.py)
+  ⎿  Added 3 lines, removed 3 lines
+      244      def stream_chat(self, messages: Any, **kwargs: Any) -> _Sy
+           ncStreamProxy:
+      245          self._recorder.llm_start(prompt=_format_chat_messages(
+           messages))
+      246          stream = self._llm.stream_chat(messages, **kwargs)
+      247 -        return _SyncStreamProxy(iter(stream), self._recorder, 
+          -is_chat=True)                                                 
+      247 +        return _SyncStreamProxy(iter(stream), self._recorder) 
+      248  
+      249      async def astream_chat(self, messages: Any, **kwargs: Any)
+            -> _AsyncStreamProxy:
+      250          self._recorder.llm_start(prompt=_format_chat_messages(
+           messages))
+      251 -        stream = await self._llm.astream_chat(messages, **kwar
+          -gs)                                                           
+      252 -        return _AsyncStreamProxy(stream, self._recorder, is_ch
+          -at=True)                                                      
+      251 +        stream = await _resolve_async_stream(self._llm.astream
+          +_chat(messages, **kwargs))                                    
+      252 +        return _AsyncStreamProxy(stream, self._recorder)      
+      253  
+      254      # -- Passthrough -----------------------------------------
+           --------------
+      255  
+
+⏺ Now add the _resolve_async_stream helper near the top of the file.
+
+⏺ Update(src/airsdk/integrations/llamaindex.py)
+  ⎿  Added 13 lines
+      33  from airsdk.recorder import AIRRecorder
+      34  
+      35  
+      36 +async def _resolve_async_stream(maybe_coro: Any) -> AsyncIterat
+         +or[Any]:                                                       
+      37 +    """Resolve the two LlamaIndex ``astream_*`` call styles int
+         +o an async iterator.                                           
+      38 +                                                               
+      39 +    llama-index >= 0.10 returns a coroutine that resolves to an
+         + async generator                                               
+      40 +    (so callers must ``await``). Older releases had methods tha
+         +t were themselves                                              
+      41 +    async generators, which do not need awaiting. Handle both b
+         +y awaiting only                                                
+      42 +    when the underlying call returned a coroutine.             
+      43 +    """                                                        
+      44 +    if inspect.iscoroutine(maybe_coro):                        
+      45 +        return await maybe_coro  # type: ignore[no-any-return] 
+      46 +    return maybe_coro  # type: ignore[no-any-return]           
+      47 +                                                               
+      48 +                                                               
+      49  def _format_chat_messages(messages: Any) -> str:
+      50      """Flatten LlamaIndex ``ChatMessage`` objects (or dicts) in
+          to a prompt string."""
+      51      parts: list[str] = []
+
+⏺ Now soften the README claim about drop-in use.
+
+⏺ Update(README.md)
+  ⎿  Added 2 lines, removed 4 lines
+      106  # complete / chat / stream_complete / stream_chat and their as
+           ync variants all emit
+      107  # llm_start + llm_end Signed Intent Capsules automatically.
+      108  response = llm.complete("Draft the opening paragraph.")
+      109 -                                                              
+      110 -# The wrapped LLM passes through every other attribute, so it 
+          -drops into query engines                                      
+      111 -# and agents wherever a plain LlamaIndex LLM is expected.     
+      112 -# query_engine = index.as_query_engine(llm=llm)               
+      109  ```
+      110  
+      111 +The wrapped LLM is a duck-typed proxy, not an `llama_index.cor
+          +e.llms.LLM` subclass. It works wherever LlamaIndex calls the L
+          +LM directly. Components that run Pydantic validation against t
+          +he `LLM` type (for example, some query engines and `Settings.l
+          +lm`) will reject the proxy; in those flows, instrument the cal
+          +l sites in your own code or attach the recorder to a callback 
+          +instead. Requires llama-index >= 0.10.                        
+      112 +                                                              
+      113  For tool calls your code executes, wrap them with `recorder.to
+           ol_start(...)` / `recorder.tool_end(...)` so the forensic chai
+           n captures them too.
+      114  
+      115  ### Custom code (any framework)
+
+⏺ Now update tests: remove the fallback-content test (no longer valid) and add
+  coverage for the old-style astream_* path that returns an async generator
+  directly.
+
+⏺ Update(tests/test_integrations_llamaindex.py)
+  ⎿  Added 6 lines, removed 6 lines
+      143      assert records[1].payload.response == "Hello!"
+      144  
+      145  
+      146 -def test_instrument_stream_chat_accumulates_message_content(tm
+          -p_path: Path) -> None:                                        
+      147 -    # Some providers populate only message.content on each chu
+          -nk, not delta.                                                
+      146 +def test_instrument_stream_chat_accumulates_deltas(tmp_path: P
+          +ath) -> None:                                                 
+      147 +    # LlamaIndex chat streams carry the token delta on `.delta
+          +`; `message.content`                                          
+      148 +    # is cumulative on every chunk and MUST NOT be summed acro
+          +ss chunks.                                                    
+      149      chunks = [
+      149 -        _chat_response(_chat_message("assistant", "Hel")),    
+      150 -        _chat_response(_chat_message("assistant", "lo")),     
+      151 -        _chat_response(_chat_message("assistant", " world")), 
+      150 +        SimpleNamespace(message=_chat_message("assistant", "He
+          +l"), delta="Hel"),                                            
+      151 +        SimpleNamespace(message=_chat_message("assistant", "He
+          +llo"), delta="lo"),                                           
+      152 +        SimpleNamespace(message=_chat_message("assistant", "He
+          +llo world"), delta=" world"),                                 
+      153      ]
+      153 -    # Default delta=None on SimpleNamespace above.            
+      154      recorder = AIRRecorder(log_path=tmp_path / "r.log")
+      155      fake = _fake_llm()
+      156      fake.stream_chat = MagicMock(return_value=iter(chunks))
+
+⏺ Update(tests/test_integrations_llamaindex.py)
+  ⎿  Added 27 lines
+      250      assert llm.recorder is recorder
+      251  
+      252  
+      253 +def test_instrument_astream_complete_handles_direct_async_gene
+          +rator(tmp_path: Path) -> None:                                
+      254 +    # llama-index < 0.10 style: astream_* returns an async gen
+          +erator directly,                                              
+      255 +    # so the caller does not `await` it. Our wrapper must stil
+          +l work.                                                       
+      256 +    async def _gen() -> Any:                                  
+      257 +        for piece in ["A", "B", "C"]:                         
+      258 +            yield SimpleNamespace(text=piece, delta=piece)    
+      259 +                                                              
+      260 +    recorder = AIRRecorder(log_path=tmp_path / "r.log")       
+      261 +    fake = _fake_llm()                                        
+      262 +    # Non-async callable that returns the async generator dire
+          +ctly.                                                         
+      263 +    fake.astream_complete = MagicMock(return_value=_gen())    
+      264 +    llm = instrument_llamaindex(fake, recorder)               
+      265 +                                                              
+      266 +    async def _drive() -> list[Any]:                          
+      267 +        stream = await llm.astream_complete("ping")           
+      268 +        collected: list[Any] = []                             
+      269 +        async for chunk in stream:                            
+      270 +            collected.append(chunk)                           
+      271 +        return collected                                      
+      272 +                                                              
+      273 +    chunks = asyncio.run(_drive())                            
+      274 +    assert len(chunks) == 3                                   
+      275 +                                                              
+      276 +    records = load_chain(tmp_path / "r.log")                  
+      277 +    assert records[1].payload.response == "ABC"               
+      278 +                                                              
+      279 +                                                              
+      280  @pytest.mark.parametrize("prompt_value", ["plain string", "wit
+           h\nnewlines", ""])
+      281  def test_complete_accepts_various_prompt_strings(tmp_path: Pat
+           h, prompt_value: str) -> None:
+      282      recorder = AIRRecorder(log_path=tmp_path / "r.log")
+
+⏺ Now re-run lint, mypy, and the full suite.
+
+⏺ Bash(/Users/KMiI/Desktop/vindicara/.venv-air/bin/python -m ruff check
+      src/airsdk/integrations/llamaindex.py
+      tests/test_integrations_llamaindex.py 2>&1 | tail -10)
+  ⎿  All checks passed!
+
+⏺ Bash(/Users/KMiI/Desktop/vindicara/.venv-air/bin/python -m mypy
+      src/airsdk/integrations/llamaindex.py 2>&1 | tail -10)
+  ⎿  Success: no issues found in 1 source file
+
+⏺ Bash(/Users/KMiI/Desktop/vindicara/.venv-air/bin/python -m pytest
+      /Users/KMiI/Desktop/vindicara/packages/projectair/tests -q 2>&1 | tail
+      -10)  ⎿  ......................................................................
+     .. [ 33%]
+     ......................................................................
+     … +4 lines (ctrl+o to expand)
+
+⏺ Bash(/Users/KMiI/Desktop/vindicara/.venv-air/bin/python -c "from airsdk import
+       __version__; from airsdk.integrations.llamaindex import
+      instrument_llamaindex, Instrum…)
+  ⎿  version: 0.3.1
+     exports OK
+
+⏺ Done.
+
+  Shipped in this session:
+  - packages/projectair/src/airsdk/integrations/llamaindex.py — proxy-style
+  instrument_llamaindex(llm, recorder) covering sync + async complete / chat /
+  stream_complete / stream_chat. Trusts .delta on chunks only (advisor caught a
+  double-count bug where message.content is cumulative in LlamaIndex and would
+  have been summed incorrectly). Handles both llama-index >= 0.10 await-style
+  and legacy direct-generator-style astream_* methods via _resolve_async_stream.
+  - packages/projectair/tests/test_integrations_llamaindex.py — 16 tests
+  covering the happy path, multimodal blocks, tool-call capture, role enums,
+  streaming (sync + async, both LlamaIndex API generations), passthrough
+  attribute forwarding, and early-close flush.
+  - README.md — added LlamaIndex section; softened the drop-in claim to
+  acknowledge that Pydantic-validated LLM fields (query engines, Settings.llm)
+  will reject the duck-typed proxy.
+  - pyproject.toml + airsdk/__init__.py — 0.3.0 → 0.3.1.
+  - CHANGELOG.md (new file) — Keep-a-Changelog format, 0.3.1 entry plus
+  backfilled history grounded in CLAUDE.md's PyPI release log.
+
+  Verification: ruff clean, mypy --strict clean, pytest 
+  packages/projectair/tests → 216 passed.
+
+  Not done (not asked for): actual PyPI publish. When you're ready: cd 
+  packages/projectair && rm -f dist/*.whl dist/*.tar.gz && python -m build && 
+  python -m twine check dist/* && python -m twine upload dist/projectair-0.3.1*.
+
+✻ Worked for 9m 6s

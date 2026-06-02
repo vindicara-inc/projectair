@@ -5,6 +5,7 @@ substrate); this is the multi-tenant hosted variant. Every route here
 relies on ``AirCloudAuthMiddleware`` having already populated
 ``request.state.workspace_id``.
 """
+
 from __future__ import annotations
 
 from airsdk.agdr import verify_record

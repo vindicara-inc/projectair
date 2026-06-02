@@ -15,7 +15,8 @@ logger = structlog.get_logger()
 
 _PUBLIC_PATHS = {"/health", "/ready", "/docs", "/openapi.json", "/redoc"}
 _API_KEY_HMAC_SECRET = os.environ.get(
-    "VINDICARA_API_KEY_HMAC_SECRET", "vindicara-dev-hmac-secret-change-in-prod",
+    "VINDICARA_API_KEY_HMAC_SECRET",
+    "vindicara-dev-hmac-secret-change-in-prod",
 ).encode("utf-8")
 
 
@@ -49,7 +50,9 @@ class APIKeyStore:
     @staticmethod
     def _hash_key(raw_key: str) -> str:
         return hmac.new(
-            _API_KEY_HMAC_SECRET, raw_key.encode("utf-8"), hashlib.sha256,
+            _API_KEY_HMAC_SECRET,
+            raw_key.encode("utf-8"),
+            hashlib.sha256,
         ).hexdigest()
 
 
@@ -57,10 +60,7 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
     _PUBLIC_PREFIXES = ("/dashboard", "/api/v1/identity", "/api/v1/telemetry", "/webhooks")
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        if (
-            request.url.path in _PUBLIC_PATHS
-            or any(request.url.path.startswith(p) for p in self._PUBLIC_PREFIXES)
-        ):
+        if request.url.path in _PUBLIC_PATHS or any(request.url.path.startswith(p) for p in self._PUBLIC_PREFIXES):
             return await call_next(request)
 
         api_key = request.headers.get(API_KEY_HEADER, "")

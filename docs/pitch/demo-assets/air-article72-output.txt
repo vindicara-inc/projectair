@@ -1,0 +1,4 @@
+[Article 72] Loading /tmp/air-demo/air-demo.log...
+[Chain verified] 47 signatures valid.
+[Article 72] Wrote report to /private/tmp/air-demo/article72-report.md (33 findings across 47 records).
+[Reminder] This is an informational template. Have a qualified person sign the attestation and consult counsel before filing.

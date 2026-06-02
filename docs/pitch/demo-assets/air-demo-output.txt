@@ -1,0 +1,95 @@
+[demo] Generating a fresh signed Intent Capsule chain (baked-in ASI01/02/03/04/05/06/07/08/09/10 + AIR-01/02/03/04 violations)...
+[demo] Wrote sample to /private/tmp/air-demo/air-demo.log (signer pubkey: 4843c9f0d47e82da...)
+[demo] Wrote sample registry to /private/tmp/air-demo/air-demo-registry.yaml (ASI03 Zero-Trust enforcement active).
+
+[AIR v0.3.0] Analyzing air-demo.log...
+[AIR v0.3.0] Loaded 47 agent steps across 1 conversations.
+[Registry] 1 agents declared; Zero-Trust enforcement enabled for ASI03.
+[Chain verified] 47 signatures valid.
+
+  ASI01 Agent Goal Hijack detected at step 8
+    Tool `admin_delete_records` called with token overlap 0.00 against the user's stated intent. Threshold 0.15. Tool is in the sensitive-actions list.
+  ASI01 Agent Goal Hijack detected at step 17
+    Tool `wire_transfer` called with token overlap 0.09 against the user's stated intent. Threshold 0.15. Tool is in the sensitive-actions list.
+  ASI01 Agent Goal Hijack detected at step 39
+    Tool `shell_exec` called with token overlap 0.05 against the user's stated intent. Threshold 0.15. Tool is in the sensitive-actions list.
+  ASI02 Tool Misuse & Exploitation detected at step 39
+    Tool `shell_exec` invoked with arguments matching pattern: shell metacharacters.
+  ASI03 Identity & Privilege Abuse detected at step 8
+    Agent `sales-agent-v1` invoked tool `admin_delete_records`, which is not in its declared permitted_tools list. Scope creep beyond declared authorisation (OWASP ASI03 example #4).
+  ASI03 Identity & Privilege Abuse detected at step 8
+    Agent `sales-agent-v1` (tier 1) invoked tool `admin_delete_records`, which requires tier 3. Privilege escalation via delegated task (OWASP ASI03 example #3).
+  ASI03 Identity & Privilege Abuse detected at step 17
+    Agent `sales-agent-v1` invoked tool `wire_transfer`, which is not in its declared permitted_tools list. Scope creep beyond declared authorisation (OWASP ASI03 example #4).
+  ASI03 Identity & Privilege Abuse detected at step 17
+    Agent `sales-agent-v1` (tier 1) invoked tool `wire_transfer`, which requires tier 3. Privilege escalation via delegated task (OWASP ASI03 example #3).
+  ASI03 Identity & Privilege Abuse detected at step 39
+    Agent `sales-agent-v1` invoked tool `shell_exec`, which is not in its declared permitted_tools list. Scope creep beyond declared authorisation (OWASP ASI03 example #4).
+  ASI03 Identity & Privilege Abuse detected at step 39
+    Agent `sales-agent-v1` (tier 1) invoked tool `shell_exec`, which requires tier 3. Privilege escalation via delegated task (OWASP ASI03 example #3).
+  ASI03 Identity & Privilege Abuse detected at step 41
+    Record claims source_agent_id `alpha` but no agent with that id is declared in the registry. Unregistered agent activity in a policed environment (OWASP ASI03).
+  AIR-01 Prompt Injection detected at step 4
+    Prompt at step 4 matches the `ignore-previous-instructions` pattern (matched: 'Ignore all previous instructions').
+  AIR-02 Sensitive Data Exposure detected at step 11
+    Sensitive pattern `AWS access key` detected in tool_end.tool_output. Review for unintended credential or PII leakage.
+  ASI04 Agentic Supply Chain Vulnerabilities detected at step 6
+    Tool `mcp_analytics.run_query` matches an MCP server invocation naming pattern. Cross-reference against your MCP inventory and verify server identity, version, and scope.
+  AIR-03 Unrestricted Resource Consumption detected at step 37
+    Tool `retry_api` invoked 10 times in a single session (threshold 10). Possible loop or runaway retry.
+  AIR-04 Untraceable Action detected at step 39
+    tool_start for `shell_exec` at step 39 is not followed by a matching tool_end. Tool outcome is not in the forensic chain.
+  ASI05 Unexpected Code Execution (RCE) detected at step 14
+    Tool `python_eval` matches the `python/code eval` execution-semantics pattern. Verify the tool runs in a sandboxed, least-privilege environment and that its inputs are validated (OWASP ASI05 mitigation #3/#4/#5).
+  ASI05 Unexpected Code Execution (RCE) detected at step 39
+    Tool `shell_exec` matches the `shell execution` execution-semantics pattern. Verify the tool runs in a sandboxed, least-privilege environment and that its inputs are validated (OWASP ASI05 mitigation #3/#4/#5).
+  ASI06 Memory & Context Poisoning detected at step 13
+    Retrieval tool `rag_retrieve` returned content matching injection pattern `ignore-previous-instructions` (matched: 'Ignore all previous instructions'). The memory or retrieval store may be poisoned (OWASP ASI06 example #1/#3).
+  ASI09 Human-Agent Trust Exploitation detected at step 17
+    Sensitive tool `wire_transfer` was invoked immediately after an agent response (step 16) containing `fabricated authority` language (matched: "I've verified"). Review whether the rationale is grounded in verifiable evidence before the human approves (OWASP ASI09 examples #1/#4/#5/#7).
+  ASI07 Insecure Inter-Agent Communication detected at step 42
+    Agent `alpha` previously signed with key 4843c9f0d47e82da..., but this message is signed with 7ea9ab2f2307a6d2... Possible A2A descriptor forgery or agent impersonation (OWASP ASI07 example #5).
+  ASI07 Insecure Inter-Agent Communication detected at step 43
+    Agent `alpha` previously signed with key 4843c9f0d47e82da..., but this message is signed with 7ea9ab2f2307a6d2... Possible A2A descriptor forgery or agent impersonation (OWASP ASI07 example #5).
+  ASI07 Insecure Inter-Agent Communication detected at step 44
+    Agent `alpha` previously signed with key 4843c9f0d47e82da..., but this message is signed with 7ea9ab2f2307a6d2... Possible A2A descriptor forgery or agent impersonation (OWASP ASI07 example #5).
+  ASI07 Insecure Inter-Agent Communication detected at step 45
+    Agent `alpha` previously signed with key 4843c9f0d47e82da..., but this message is signed with 7ea9ab2f2307a6d2... Possible A2A descriptor forgery or agent impersonation (OWASP ASI07 example #5).
+  ASI07 Insecure Inter-Agent Communication detected at step 46
+    Agent `alpha` previously signed with key 4843c9f0d47e82da..., but this message is signed with 7ea9ab2f2307a6d2... Possible A2A descriptor forgery or agent impersonation (OWASP ASI07 example #5).
+  ASI08 Cascading Failures detected at step 46
+    Agent `alpha` sent messages to 5 distinct agents within 10 records (threshold 5). High-fan-out hub; compromise multiplies blast radius (OWASP ASI08 example #1/#3).
+  ASI10 Rogue Agents detected at step 6
+    Agent `sales-agent-v1` invoked tool `mcp_analytics.run_query`, which is outside its declared expected_tools operational scope. The tool may be permitted by authorisation (ASI03), but it is not what this agent normally does. Zero-Trust behavioral-scope breach (OWASP ASI10 Rogue Agents).
+  ASI10 Rogue Agents detected at step 8
+    Agent `sales-agent-v1` invoked tool `admin_delete_records`, which is outside its declared expected_tools operational scope. The tool may be permitted by authorisation (ASI03), but it is not what this agent normally does. Zero-Trust behavioral-scope breach (OWASP ASI10 Rogue Agents).
+  ASI10 Rogue Agents detected at step 14
+    Agent `sales-agent-v1` invoked tool `python_eval`, which is outside its declared expected_tools operational scope. The tool may be permitted by authorisation (ASI03), but it is not what this agent normally does. Zero-Trust behavioral-scope breach (OWASP ASI10 Rogue Agents).
+  ASI10 Rogue Agents detected at step 17
+    Agent `sales-agent-v1` invoked tool `wire_transfer`, which is outside its declared expected_tools operational scope. The tool may be permitted by authorisation (ASI03), but it is not what this agent normally does. Zero-Trust behavioral-scope breach (OWASP ASI10 Rogue Agents).
+  ASI10 Rogue Agents detected at step 19
+    Agent `sales-agent-v1` invoked tool `retry_api`, which is outside its declared expected_tools operational scope. The tool may be permitted by authorisation (ASI03), but it is not what this agent normally does. Zero-Trust behavioral-scope breach (OWASP ASI10 Rogue Agents).
+  ASI10 Rogue Agents detected at step 33
+    Agent `sales-agent-v1` issued 15 tool invocations, exceeding its declared max_session_tool_calls of 14. Zero-Trust session budget breached (OWASP ASI10 Rogue Agents).
+  ASI10 Rogue Agents detected at step 39
+    Agent `sales-agent-v1` invoked tool `shell_exec`, which is outside its declared expected_tools operational scope. The tool may be permitted by authorisation (ASI03), but it is not what this agent normally does. Zero-Trust behavioral-scope breach (OWASP ASI10 Rogue Agents).
+
+OWASP Top 10 for Agentic Applications coverage (10 implemented, 0 on roadmap):
+  ASI01 Agent Goal Hijack                          implemented
+  ASI02 Tool Misuse & Exploitation                 implemented
+  ASI03 Identity & Privilege Abuse                 implemented (Zero-Trust-for-agents: requires operator-declared AgentRegistry)
+  ASI04 Agentic Supply Chain Vulnerabilities       partial: MCP supply-chain risk only
+  ASI05 Unexpected Code Execution (RCE)            implemented (execution-semantics tool-name patterns)
+  ASI06 Memory & Context Poisoning                 implemented (heuristic: retrieval-output + memory-write scans)
+  ASI07 Insecure Inter-Agent Communication         implemented
+  ASI08 Cascading Failures                         implemented (feedback-loop + fan-out checks over inter-agent messages)
+  ASI09 Human-Agent Trust Exploitation             implemented (fabricated-rationale + manipulation-language scan preceding sensitive actions)
+  ASI10 Rogue Agents                               implemented (Zero-Trust behavioral-scope enforcement: requires declared BehavioralScope in AgentRegistry)
+
+Additional detectors (OWASP LLM Top 10 + AIR-native):
+  AIR-01 Prompt Injection                 OWASP LLM01 Prompt Injection
+  AIR-02 Sensitive Data Exposure          OWASP LLM06 Sensitive Information Disclosure
+  AIR-03 Unrestricted Resource Consumption OWASP LLM04 Model Denial of Service
+  AIR-04 Untraceable Action               AIR-native (no direct OWASP equivalent)
+
+[Export] /private/tmp/air-demo/forensic-report.json

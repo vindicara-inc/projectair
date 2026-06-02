@@ -4,7 +4,7 @@ Deployed independently from the Vindicara engine API. Serves the
 hosted capsule ingest surface that the AIR dashboard connects to.
 """
 
-from aws_cdk import Duration, RemovalPolicy, Stack
+from aws_cdk import Duration, Environment, RemovalPolicy, Stack
 from aws_cdk import aws_apigatewayv2 as apigw
 from aws_cdk import aws_apigatewayv2_integrations as integrations
 from aws_cdk import aws_cloudwatch as cloudwatch
@@ -12,6 +12,7 @@ from aws_cdk import aws_cloudwatch_actions as cloudwatch_actions
 from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
+from aws_cdk import aws_secretsmanager as secretsmanager
 from aws_cdk import aws_sns as sns
 from aws_cdk import aws_sns_subscriptions as sns_subscriptions
 from constructs import Construct
@@ -24,9 +25,10 @@ class AirCloudStack(Stack):
         self,
         scope: Construct,
         construct_id: str,
-        **kwargs: object,
+        *,
+        env: Environment | None = None,
     ) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+        super().__init__(scope, construct_id, env=env)
 
         self.capsules_table = dynamodb.Table(
             self,
@@ -79,6 +81,20 @@ class AirCloudStack(Stack):
             projection_type=dynamodb.ProjectionType.ALL,
         )
 
+        # Operator admin token gating POST /v1/workspaces (W3.10). Auto-generated
+        # so the secret never lives in source or the CloudFormation template;
+        # the Lambda reads it at cold start via the secret ARN below.
+        self.admin_token_secret = secretsmanager.Secret(
+            self,
+            "AdminTokenSecret",
+            secret_name="air-cloud-admin-token",  # noqa: S106 - resource name, not a secret value
+            description="Operator admin token gating POST /v1/workspaces (W3.10).",
+            generate_secret_string=secretsmanager.SecretStringGenerator(
+                password_length=48,
+                exclude_punctuation=True,
+            ),
+        )
+
         self.api_function = lambda_.Function(
             self,
             "CloudFunction",
@@ -92,6 +108,7 @@ class AirCloudStack(Stack):
                 "AIR_CLOUD_CAPSULES_TABLE": self.capsules_table.table_name,
                 "AIR_CLOUD_WORKSPACES_TABLE": self.workspaces_table.table_name,
                 "AIR_CLOUD_API_KEYS_TABLE": self.api_keys_table.table_name,
+                "AIR_CLOUD_ADMIN_TOKEN_SECRET_ARN": self.admin_token_secret.secret_arn,
                 "AIR_CLOUD_SSO_WORKSPACE": "ws_vindicara",
                 "AIR_CLOUD_SSO_ISSUER": "https://dev-kilt2vkudvbu75ny.us.auth0.com/",
                 "AIR_CLOUD_SSO_AUDIENCE": "GszbWqSkD65eUjv7FrRWYO4IkmGWdd4y",
@@ -104,6 +121,7 @@ class AirCloudStack(Stack):
         self.capsules_table.grant_read_write_data(self.api_function)
         self.workspaces_table.grant_read_write_data(self.api_function)
         self.api_keys_table.grant_read_write_data(self.api_function)
+        self.admin_token_secret.grant_read(self.api_function)
 
         self.http_api = apigw.HttpApi(
             self,

@@ -1,4 +1,5 @@
 """Analytics summary route for AIR Cloud."""
+
 from __future__ import annotations
 
 from collections import Counter
@@ -103,9 +104,7 @@ async def analytics_summary(request: Request) -> AnalyticsSummary:
     total = len(capsules)
 
     week_cutoff = _week_cutoff()
-    this_week = sum(
-        1 for cap in capsules if cap.record.timestamp >= week_cutoff
-    )
+    this_week = sum(1 for cap in capsules if cap.record.timestamp >= week_cutoff)
 
     unique_agents = len({cap.record.signer_key for cap in capsules})
 

@@ -2,6 +2,11 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Layer 4 Wave 2 (piece 1 of 4): Fulcio issuer extraction.** `airsdk.handoff.identity.parse_fulcio_san_issuer` now reads the OIDC issuer that Sigstore Fulcio embeds in a leaf certificate (V2 extension `1.3.6.1.4.1.57264.1.8` as a DER UTF8String; V1 `1.3.6.1.4.1.57264.1.1` as raw UTF-8), replacing the Wave 1 stub that raised. This is the input to cross-tenant verification; parsing is not trust (the cert must still be validated against the Fulcio root before the issuer is resolved). Not yet wired into `CrossAgentVerifier`; the verifier remains single-tenant until pieces 2-4 land. 6 tests in `tests/handoff/test_fulcio_san_issuer.py`.
+
 ## [1.0.1] - 2026-05-25
 
 ### Changed

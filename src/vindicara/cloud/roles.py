@@ -14,6 +14,7 @@ Routes call ``require(role, capability)`` to enforce the policy. The
 table below is the single source of truth; routes never inspect role
 strings directly.
 """
+
 from __future__ import annotations
 
 from enum import StrEnum

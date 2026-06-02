@@ -1,4 +1,5 @@
 """Workspace role + capability policy tests (pure unit; no FastAPI)."""
+
 from __future__ import annotations
 
 import pytest
