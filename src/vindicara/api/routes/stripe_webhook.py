@@ -6,6 +6,7 @@ workspace provisioned -> API key generated -> activation email sent.
 Authentication is via Stripe-Signature header verification (not the
 standard X-Vindicara-Key middleware, which skips /webhooks/* paths).
 """
+
 from __future__ import annotations
 
 import secrets
@@ -240,15 +241,18 @@ async def stripe_webhook(request: Request) -> Response:
     if not settings.stripe_webhook_secret:
         logger.error("stripe.webhook_secret_missing")
         return JSONResponse(
-            {"error": "Webhook secret not configured"}, status_code=503,
+            {"error": "Webhook secret not configured"},
+            status_code=503,
         )
 
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature", "")
 
     try:
-        event: dict[str, object] = stripe.Webhook.construct_event(
-            payload, sig_header, settings.stripe_webhook_secret,
+        event: dict[str, object] = stripe.Webhook.construct_event(  # type: ignore[no-untyped-call]
+            payload,
+            sig_header,
+            settings.stripe_webhook_secret,
         )
     except stripe.SignatureVerificationError:
         logger.warning("stripe.bad_signature")

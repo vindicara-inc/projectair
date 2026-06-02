@@ -5,6 +5,7 @@ Build a local RSA keypair + JWKS, mint test tokens with PyJWT, monkey-patch
 the network. The route handler under test uses ``jwks_client_factory`` only
 through ``verify_oidc_token``; we patch the factory the route imports.
 """
+
 from __future__ import annotations
 
 import time
@@ -28,6 +29,7 @@ from cryptography.hazmat.primitives.serialization import (
 )
 
 from vindicara.cloud.factory import create_air_cloud_app
+from vindicara.cloud.session_token import verify_session_token
 from vindicara.cloud.workspace import (
     ApiKey,
     InMemoryApiKeyStore,
@@ -117,12 +119,15 @@ async def cloud_with_sso(
     )
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
-        yield client, {
-            "private_key": rsa_keypair[0],
-            "owner_key": owner_key.key,
-            "workspace_store": workspace_store,
-            "api_key_store": api_key_store,
-        }
+        yield (
+            client,
+            {
+                "private_key": rsa_keypair[0],
+                "owner_key": owner_key.key,
+                "workspace_store": workspace_store,
+                "api_key_store": api_key_store,
+            },
+        )
 
 
 # -- Config management --------------------------------------------------
@@ -213,12 +218,13 @@ async def test_sso_login_jit_provisions_a_member_key(cloud_with_sso: tuple[httpx
     assert body["workspace_id"] == "acme"
     assert body["sub"] == "user-1"
     assert body["email"] == "alice@acme.io"
-    assert body["api_key"]["role"] == "member"
-    assert body["api_key"]["key"].startswith("air_")
-    # The new key should immediately authenticate.
+    assert body["role"] == "member"
+    session_token = body["session_token"]
+    assert session_token
+    # The session token should immediately authenticate via Bearer auth.
     whoami = await client.get(
         "/v1/workspaces/me",
-        headers={"X-API-Key": body["api_key"]["key"]},
+        headers={"Authorization": f"Bearer {session_token}"},
     )
     assert whoami.status_code == 200
 
@@ -236,20 +242,35 @@ async def test_sso_login_returns_existing_key_on_repeat(cloud_with_sso: tuple[ht
     )
     first = await client.post("/v1/sso/login", json={"workspace_id": "acme", "token": token})
     second = await client.post("/v1/sso/login", json={"workspace_id": "acme", "token": token})
-    assert first.json()["api_key"]["key"] == second.json()["api_key"]["key"]
-    assert first.json()["api_key"]["key_id"] == second.json()["api_key"]["key_id"]
+    first_claims = verify_session_token(first.json()["session_token"])
+    second_claims = verify_session_token(second.json()["session_token"])
+    # Repeat logins reuse the same underlying key (stable session, not a fresh key each time).
+    assert first_claims.key_id == second_claims.key_id
 
 
 @pytest.mark.asyncio
 async def test_sso_login_distinct_subs_get_distinct_keys(cloud_with_sso: tuple[httpx.AsyncClient, dict]) -> None:
     client, ctx = cloud_with_sso
     await _set_sso_config(client, ctx["owner_key"])
-    a_token = _mint_token(ctx["private_key"], issuer="https://login.example.com/", audience="air-cloud:acme", sub="user-a", email="a@acme.io")
-    b_token = _mint_token(ctx["private_key"], issuer="https://login.example.com/", audience="air-cloud:acme", sub="user-b", email="b@acme.io")
+    a_token = _mint_token(
+        ctx["private_key"],
+        issuer="https://login.example.com/",
+        audience="air-cloud:acme",
+        sub="user-a",
+        email="a@acme.io",
+    )
+    b_token = _mint_token(
+        ctx["private_key"],
+        issuer="https://login.example.com/",
+        audience="air-cloud:acme",
+        sub="user-b",
+        email="b@acme.io",
+    )
     a = await client.post("/v1/sso/login", json={"workspace_id": "acme", "token": a_token})
     b = await client.post("/v1/sso/login", json={"workspace_id": "acme", "token": b_token})
-    assert a.json()["api_key"]["key"] != b.json()["api_key"]["key"]
-    assert a.json()["api_key"]["key_id"] != b.json()["api_key"]["key_id"]
+    a_claims = verify_session_token(a.json()["session_token"])
+    b_claims = verify_session_token(b.json()["session_token"])
+    assert a_claims.key_id != b_claims.key_id
 
 
 @pytest.mark.asyncio
@@ -359,9 +380,7 @@ async def test_sso_login_400_when_workspace_has_no_config(cloud_with_sso: tuple[
 async def test_sso_config_403_for_member_role(cloud_with_sso: tuple[httpx.AsyncClient, dict]) -> None:
     """Setting / reading SSO config requires owner+ / admin+; member is denied."""
     client, ctx = cloud_with_sso
-    member_key = ApiKey(
-        key_id="key_acme_member", workspace_id="acme", key="air_member_key", role="member"
-    )
+    member_key = ApiKey(key_id="key_acme_member", workspace_id="acme", key="air_member_key", role="member")
     ctx["api_key_store"].issue(member_key)
     put = await client.put(
         "/v1/sso/config",

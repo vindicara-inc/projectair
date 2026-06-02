@@ -1,0 +1,26 @@
+agents:
+- id: sales-agent-v1
+  signer_key: 501afac8b3374f8b8ee4ed10dde7083fd1e8821cb017a8d72fa6e17ad76f729a
+  permitted_tools:
+  - crm_read
+  - rag_retrieve
+  - read_file
+  - email_draft
+  - mcp_analytics.run_query
+  - python_eval
+  - retry_api
+  - draft_report
+  privilege_tier: 1
+  behavioral_scope:
+    expected_tools:
+    - crm_read
+    - rag_retrieve
+    - email_draft
+    - read_file
+    - draft_report
+    max_fan_out_targets: 3
+    max_session_tool_calls: 14
+tool_privilege_tiers:
+  admin_delete_records: 3
+  wire_transfer: 3
+  shell_exec: 3

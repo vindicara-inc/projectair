@@ -105,6 +105,14 @@ ignore = [
     "E501",   # line length handled by ruff format; long strings in security descriptions are intentional
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# Tests legitimately use hardcoded secret-like literals as fixtures.
+"tests/**" = ["S105", "S106"]
+# Deliberate outbound calls to the configured Auth0 https endpoints.
+"src/vindicara/webhooks/handler.py" = ["S310"]
+# "0.0.0.0" here is an entry in a host *blocklist*, not a server bind.
+"src/vindicara/mcp/transport.py" = ["S104"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["vindicara"]
 
@@ -114,6 +122,10 @@ strict = true
 warn_return_any = true
 warn_unused_configs = true
 plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "qrcode.*"
+ignore_missing_imports = true
 
 [tool.coverage.run]
 source = ["vindicara"]

@@ -9,7 +9,7 @@ The dashboard is the air-dashboard SvelteKit static build, deployed to
 /dashboard/ in S3 by deploy-site.sh. No API Gateway proxy needed.
 """
 
-from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
+from aws_cdk import CfnOutput, Duration, Environment, RemovalPolicy, Stack
 from aws_cdk import aws_certificatemanager as acm
 from aws_cdk import aws_cloudfront as cloudfront
 from aws_cdk import aws_cloudfront_origins as origins
@@ -37,9 +37,9 @@ class SiteStack(Stack):
         *,
         api_endpoint_id: str = "tbd",
         api_region: str = "us-west-2",
-        **kwargs: object,
+        env: Environment | None = None,
     ) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+        super().__init__(scope, construct_id, env=env)
         self._api_endpoint_id = api_endpoint_id
         self._api_region = api_region
 
@@ -210,9 +210,7 @@ class SiteStack(Stack):
         deploy_role.add_to_policy(
             iam.PolicyStatement(
                 actions=["cloudfront:CreateInvalidation"],
-                resources=[
-                    f"arn:aws:cloudfront::{self.account}:distribution/{distribution.distribution_id}"
-                ],
+                resources=[f"arn:aws:cloudfront::{self.account}:distribution/{distribution.distribution_id}"],
             )
         )
 

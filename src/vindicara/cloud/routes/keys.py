@@ -1,4 +1,5 @@
 """Workspace-scoped API-key management routes."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Request, status
@@ -94,9 +95,7 @@ class UpdateKeyRequest(BaseModel):
     "/v1/keys/{key_id}",
     summary="Update the role on an existing API key.",
 )
-async def update_key_role(
-    key_id: str, body: UpdateKeyRequest, request: Request
-) -> dict[str, str]:
+async def update_key_role(key_id: str, body: UpdateKeyRequest, request: Request) -> dict[str, str]:
     require(request, Capability.ISSUE_KEY)
 
     if not is_valid_role(body.role):

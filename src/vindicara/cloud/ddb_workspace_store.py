@@ -6,10 +6,11 @@ Table schema:
 
 Implements the ``WorkspaceStore`` protocol from ``workspace.py``.
 """
+
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from vindicara.cloud.workspace import Workspace
 
@@ -41,23 +42,28 @@ class DDBWorkspaceStore:
         item = resp.get("Item")
         if item is None:
             return None
+        # This table stores only String attributes; narrow the boto3
+        # attribute-value union at the boundary.
+        row = cast("dict[str, str]", item)
         return Workspace(
-            workspace_id=item["workspace_id"],
-            name=item["name"],
-            owner_email=item["owner_email"],
-            created_at=item["created_at"],
+            workspace_id=row["workspace_id"],
+            name=row["name"],
+            owner_email=row["owner_email"],
+            created_at=row["created_at"],
         )
 
     def list(self) -> list[Workspace]:
+        # DynamoDB resource items are typed as a broad attribute-value union;
+        # this table stores only String attributes (see module docstring), so
+        # we narrow at the boundary with an explicit cast.
         items: list[dict[str, str]] = []
-        kwargs: dict[str, object] = {}
-        while True:
-            resp = self._table.scan(**kwargs)
-            items.extend(resp.get("Items", []))
+        resp = self._table.scan()
+        items.extend(cast("list[dict[str, str]]", resp.get("Items", [])))
+        last_key = resp.get("LastEvaluatedKey")
+        while last_key:
+            resp = self._table.scan(ExclusiveStartKey=last_key)
+            items.extend(cast("list[dict[str, str]]", resp.get("Items", [])))
             last_key = resp.get("LastEvaluatedKey")
-            if not last_key:
-                break
-            kwargs["ExclusiveStartKey"] = last_key
 
         workspaces = [
             Workspace(

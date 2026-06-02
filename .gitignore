@@ -38,3 +38,18 @@ cdk.context.json
 .env.*
 lambda_package/
 .superpowers/
+
+# Node / frontend deps + build output (packages/air-dashboard, site)
+node_modules/
+.svelte-kit/
+.vite/
+*.tsbuildinfo
+
+# Tool caches / local agent state
+.hypothesis/
+.playwright-mcp/
+.claire/
+.claude/
+
+# Local backups
+*.backup

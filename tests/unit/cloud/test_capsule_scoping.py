@@ -16,7 +16,7 @@ from vindicara.cloud.workspace import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def scoped_app():  # type: ignore[no-untyped-def]
     ws_store = InMemoryWorkspaceStore()
     key_store = InMemoryApiKeyStore()
@@ -44,7 +44,7 @@ def scoped_app():  # type: ignore[no-untyped-def]
     )
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_member_sees_only_own_capsules(scoped_app) -> None:  # type: ignore[no-untyped-def]
     from airsdk.agdr import Signer
     from airsdk.types import AgDRPayload, StepKind
@@ -56,9 +56,7 @@ async def test_member_sees_only_own_capsules(scoped_app) -> None:  # type: ignor
         record = signer.sign(StepKind.LLM_START, payload)
         return record.model_dump_json()
 
-    async with AsyncClient(
-        transport=ASGITransport(app=scoped_app), base_url="http://test"
-    ) as client:
+    async with AsyncClient(transport=ASGITransport(app=scoped_app), base_url="http://test") as client:
         # Ingest as member
         resp = await client.post(
             "/v1/capsules",

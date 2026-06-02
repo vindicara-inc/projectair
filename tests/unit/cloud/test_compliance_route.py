@@ -16,7 +16,7 @@ from vindicara.cloud.workspace import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def compliance_app():  # type: ignore[no-untyped-def]
     ws_store = InMemoryWorkspaceStore()
     key_store = InMemoryApiKeyStore()
@@ -29,7 +29,7 @@ def compliance_app():  # type: ignore[no-untyped-def]
     return create_air_cloud_app(workspace_store=ws_store, api_key_store=key_store)
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_owner_gets_compliance_summary(compliance_app) -> None:  # type: ignore[no-untyped-def]
     async with AsyncClient(transport=ASGITransport(app=compliance_app), base_url="http://test") as c:
         resp = await c.get(
@@ -51,7 +51,7 @@ async def test_owner_gets_compliance_summary(compliance_app) -> None:  # type: i
     assert "controls" in fw
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_member_forbidden(compliance_app) -> None:  # type: ignore[no-untyped-def]
     async with AsyncClient(transport=ASGITransport(app=compliance_app), base_url="http://test") as c:
         resp = await c.get(

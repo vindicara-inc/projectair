@@ -15,6 +15,7 @@ When ``AIR_CLOUD_CAPSULES_TABLE``, ``AIR_CLOUD_WORKSPACES_TABLE``, and
 DynamoDB-backed stores. Otherwise it falls back to in-memory stores
 for tests and local development.
 """
+
 from __future__ import annotations
 
 import logging
@@ -47,24 +48,25 @@ def _seed_sso_from_env(store: SsoConfigStore) -> None:
     if not all([workspace_id, issuer, audience]):
         return
     from vindicara.cloud.sso import SsoConfig
-    store.put(SsoConfig(
-        workspace_id=workspace_id or "",
-        issuer=issuer or "",
-        audience=audience or "",
-        default_role=os.environ.get("AIR_CLOUD_SSO_DEFAULT_ROLE", "admin"),
-    ))
+
+    store.put(
+        SsoConfig(
+            workspace_id=workspace_id or "",
+            issuer=issuer or "",
+            audience=audience or "",
+            default_role=os.environ.get("AIR_CLOUD_SSO_DEFAULT_ROLE", "admin"),
+        )
+    )
     _log.info("air_cloud.sso.seeded_from_env", extra={"workspace_id": workspace_id})
 
 
-def _build_ddb_stores() -> (
-    tuple[CapsuleStore, WorkspaceStore, ApiKeyStore] | None
-):
+def _build_ddb_stores() -> tuple[CapsuleStore, WorkspaceStore, ApiKeyStore] | None:
     """Build DDB stores if all three table env vars are set."""
     capsules_table = os.environ.get("AIR_CLOUD_CAPSULES_TABLE")
     workspaces_table = os.environ.get("AIR_CLOUD_WORKSPACES_TABLE")
     api_keys_table = os.environ.get("AIR_CLOUD_API_KEYS_TABLE")
 
-    if not all([capsules_table, workspaces_table, api_keys_table]):
+    if capsules_table is None or workspaces_table is None or api_keys_table is None:
         return None
 
     import boto3
@@ -82,12 +84,50 @@ def _build_ddb_stores() -> (
     )
 
 
+def _resolve_admin_token(explicit: str | None) -> str | None:
+    """Resolve the operator admin token for workspace creation (W3.10).
+
+    Precedence: explicit kwarg, then ``AIR_CLOUD_ADMIN_TOKEN`` env, then the
+    Secrets Manager secret named by ``AIR_CLOUD_ADMIN_TOKEN_SECRET_ARN``.
+    When none resolve, returns ``None`` and workspace creation stays
+    disabled (fail-closed).
+
+    A secret-fetch failure disables only workspace creation; it must not
+    take down ingestion, so the error is caught and downgraded to None
+    rather than propagated out of app construction.
+    """
+    if explicit is not None:
+        return explicit
+    env_token = os.environ.get("AIR_CLOUD_ADMIN_TOKEN")
+    if env_token:
+        return env_token
+    secret_arn = os.environ.get("AIR_CLOUD_ADMIN_TOKEN_SECRET_ARN")
+    if not secret_arn:
+        return None
+
+    import boto3
+    from botocore.exceptions import BotoCoreError, ClientError
+
+    client = boto3.client("secretsmanager")
+    try:
+        response = client.get_secret_value(SecretId=secret_arn)
+    except (BotoCoreError, ClientError):
+        _log.warning("air_cloud.admin_token.fetch_failed")
+        return None
+    secret = response.get("SecretString")
+    if not secret:
+        _log.warning("air_cloud.admin_token.secret_empty")
+        return None
+    return str(secret)
+
+
 def create_air_cloud_app(
     *,
     capsule_store: CapsuleStore | None = None,
     workspace_store: WorkspaceStore | None = None,
     api_key_store: ApiKeyStore | None = None,
     sso_config_store: SsoConfigStore | None = None,
+    admin_token: str | None = None,
     title: str = "AIR Cloud",
     version: str = "0.1.0",
 ) -> FastAPI:
@@ -96,6 +136,11 @@ def create_air_cloud_app(
     Defaults to in-memory stores for tests / local runs. When DDB table
     env vars are set, auto-wires DynamoDB-backed stores. Explicit kwargs
     always win (for tests).
+
+    ``admin_token`` gates ``POST /v1/workspaces`` (W3.10). Explicit kwarg
+    wins; otherwise the ``AIR_CLOUD_ADMIN_TOKEN`` env var is used. When
+    neither is set, workspace creation is disabled (fail-closed) rather
+    than left open.
     """
     ddb_stores = None
     if capsule_store is None and workspace_store is None and api_key_store is None:
@@ -124,6 +169,7 @@ def create_air_cloud_app(
     _seed_sso_from_env(sso_store)
     app.state.cloud_sso_configs = sso_store
     app.state.capsule_event_bus = CapsuleEventBus()
+    app.state.cloud_admin_token = admin_token if admin_token is not None else os.environ.get("AIR_CLOUD_ADMIN_TOKEN")
 
     app.add_middleware(AirCloudAuthMiddleware, prefix="/v1")
     app.add_middleware(

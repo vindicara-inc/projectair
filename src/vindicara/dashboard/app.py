@@ -1,8 +1,8 @@
 """Dashboard sub-application factory with HTMX API endpoints."""
 
-import structlog
 from pathlib import Path
 
+import structlog
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -63,9 +63,9 @@ def create_dashboard_app() -> FastAPI:
                 f'<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">'
                 f'{pill}<span class="mono" style="font-size:12px;color:#9090A8;">{result.latency_ms}ms</span>'
                 f'<span class="mono" style="font-size:12px;color:#444458;">policy: {result.policy_id}</span></div>'
-                f'{rules_html}</div>'
+                f"{rules_html}</div>"
             )
-        except Exception as exc:
+        except Exception:
             logger.exception("dashboard.guard.error")
             return HTMLResponse('<div style="color:#E63946;padding:8px;">An error occurred. Please try again.</div>')
 
@@ -106,14 +106,26 @@ def create_dashboard_app() -> FastAPI:
                 report = await scanner.scan(server_url=server_url, mode=ScanMode.LIVE, timeout=15.0)
             else:
                 report = await scanner.scan(
-                    config={"tools": [{"name": "shell_exec", "description": "Execute shell commands on host system", "inputSchema": {"type": "object", "properties": {"command": {"type": "string"}}}}]},
+                    config={
+                        "tools": [
+                            {
+                                "name": "shell_exec",
+                                "description": "Execute shell commands on host system",
+                                "inputSchema": {"type": "object", "properties": {"command": {"type": "string"}}},
+                            }
+                        ]
+                    },
                     mode=ScanMode.STATIC,
                 )
             score_color = "#E63946" if report.risk_score > 0.7 else "#EF9F27" if report.risk_score > 0.3 else "#4ADE80"
             findings_html = ""
             for f in report.findings:
                 sev = f.severity.value
-                pill = f'<span class="pill-block">{sev}</span>' if sev in ("critical", "high") else f'<span class="pill-warn">{sev}</span>'
+                pill = (
+                    f'<span class="pill-block">{sev}</span>'
+                    if sev in ("critical", "high")
+                    else f'<span class="pill-warn">{sev}</span>'
+                )
                 findings_html += (
                     f'<div style="padding:12px;border-bottom:1px solid #151520;">'
                     f'<div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;">{pill}'
@@ -129,31 +141,41 @@ def create_dashboard_app() -> FastAPI:
                 f'<span style="font-size:13px;font-weight:600;color:#EFEFEF;">Scan Results</span>'
                 f'<div><span style="font-size:11px;color:#444458;">Risk Score: </span>'
                 f'<span class="mono" style="font-size:20px;color:{score_color};">{report.risk_score:.2f}</span></div></div>'
-                f'{findings_html}</div>'
+                f"{findings_html}</div>"
             )
-        except Exception as exc:
+        except Exception:
             logger.exception("dashboard.mcp_scan.error")
-            return HTMLResponse('<div class="card" style="padding:16px;color:#E63946;">Scan failed. Please try again.</div>')
+            return HTMLResponse(
+                '<div class="card" style="padding:16px;color:#E63946;">Scan failed. Please try again.</div>'
+            )
 
     @app.get("/api/compliance/report/{framework_id}", response_class=HTMLResponse)
     async def generate_report_htmx(framework_id: str) -> HTMLResponse:
         reporter = get_reporter()
         try:
-            report = reporter.generate(framework=ComplianceFramework(framework_id), system_id="vindicara-demo", period="2026-Q2")
+            report = reporter.generate(
+                framework=ComplianceFramework(framework_id), system_id="vindicara-demo", period="2026-Q2"
+            )
             controls_html = ""
             for ctrl in report.controls:
-                status_pill = '<span class="pill-pass">Documented</span>' if ctrl.evidence else '<span class="pill-warn">Pending</span>'
-                controls_html += f'<tr><td class="mono" style="font-size:11px;color:#9090A8;">{ctrl.control_id}</td><td style="color:#EFEFEF;">{ctrl.name}</td><td>{status_pill}</td></tr>'
+                status_pill = (
+                    '<span class="pill-pass">Documented</span>'
+                    if ctrl.evidence_count
+                    else '<span class="pill-warn">Pending</span>'
+                )
+                controls_html += f'<tr><td class="mono" style="font-size:11px;color:#9090A8;">{ctrl.control_id}</td><td style="color:#EFEFEF;">{ctrl.control_name}</td><td>{status_pill}</td></tr>'
             return HTMLResponse(
                 f'<div class="card"><div style="padding:12px 16px;border-bottom:1px solid #1A1A28;">'
-                f'<span style="font-size:13px;font-weight:600;color:#EFEFEF;">{report.framework_name}</span>'
+                f'<span style="font-size:13px;font-weight:600;color:#EFEFEF;">{report.framework.value}</span>'
                 f'<span class="mono" style="font-size:11px;color:#444458;margin-left:12px;">{report.report_id}</span></div>'
-                f'<table><thead><tr><th>Control</th><th>Name</th><th>Status</th></tr></thead>'
-                f'<tbody>{controls_html}</tbody></table></div>'
+                f"<table><thead><tr><th>Control</th><th>Name</th><th>Status</th></tr></thead>"
+                f"<tbody>{controls_html}</tbody></table></div>"
             )
-        except Exception as exc:
+        except Exception:
             logger.exception("dashboard.compliance_report.error")
-            return HTMLResponse('<div style="color:#E63946;padding:16px;">Report generation failed. Please try again.</div>')
+            return HTMLResponse(
+                '<div style="color:#E63946;padding:16px;">Report generation failed. Please try again.</div>'
+            )
 
     @app.post("/api/demo/start", response_class=HTMLResponse)
     async def start_demo_htmx(request: Request) -> HTMLResponse:

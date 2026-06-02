@@ -8,6 +8,7 @@ The protocols here are the persistence boundary; ``InMemory*`` impls
 ship for tests and local dev. A DynamoDB-backed pair lands when the
 hosted service deploys to AWS.
 """
+
 from __future__ import annotations
 
 import secrets
@@ -125,10 +126,7 @@ class InMemoryApiKeyStore:
 
     def for_workspace(self, workspace_id: str) -> list[ApiKey]:
         with self._lock:
-            return [
-                k for k in self._by_id.values()
-                if k.workspace_id == workspace_id
-            ]
+            return [k for k in self._by_id.values() if k.workspace_id == workspace_id]
 
     def revoke(self, key_id: str) -> bool:
         with self._lock:

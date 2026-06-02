@@ -1,4 +1,5 @@
 """Tests for POST /webhooks/stripe (Stripe auto-fulfillment)."""
+
 from __future__ import annotations
 
 import json
@@ -104,7 +105,8 @@ async def test_bad_signature_returns_400(app_with_cloud: object) -> None:
     with patch(
         "stripe.Webhook.construct_event",
         side_effect=__import__("stripe").SignatureVerificationError(
-            "bad sig", "sig_header",
+            "bad sig",
+            "sig_header",
         ),
     ):
         async with AsyncClient(

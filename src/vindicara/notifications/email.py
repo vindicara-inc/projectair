@@ -1,4 +1,5 @@
 """Activation email delivery via Resend for Stripe fulfillment."""
+
 from __future__ import annotations
 
 import json
@@ -82,10 +83,7 @@ def _render_html(email: LicenseEmail) -> str:
         f"overflow-x:auto'>{token_json}</pre>"
     )
     if email.wheel_download_url:
-        sections.append(
-            "<h3>Pro Wheel</h3>"
-            f"<p><a href='{email.wheel_download_url}'>Download</a></p>"
-        )
+        sections.append(f"<h3>Pro Wheel</h3><p><a href='{email.wheel_download_url}'>Download</a></p>")
     if email.api_key:
         sections.append(
             "<h3>AIR Cloud API Key</h3>"
@@ -103,9 +101,7 @@ def _render_html(email: LicenseEmail) -> str:
         "<li><code>air login --license '&lt;paste token JSON&gt;'</code></li>"
     )
     if email.api_key:
-        sections.append(
-            f"<li><code>air cloud login --api-key {email.api_key}</code></li>"
-        )
+        sections.append(f"<li><code>air cloud login --api-key {email.api_key}</code></li>")
     sections.append("</ol>")
     return "\n".join(sections)
 

@@ -1,4 +1,5 @@
 """Transactional email delivery for Stripe fulfillment."""
+
 from __future__ import annotations
 
 from vindicara.notifications.email import (

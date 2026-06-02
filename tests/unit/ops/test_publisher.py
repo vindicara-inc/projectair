@@ -1,4 +1,5 @@
 """Tests for ``vindicara.ops.publisher``."""
+
 from __future__ import annotations
 
 import json
@@ -52,9 +53,7 @@ class FakeTable:
         target_anchored = values.get(":true", True)
         target_published = values.get(":false", False)
         matches = [
-            item
-            for item in self.items
-            if item["anchored"] == target_anchored and item["published"] == target_published
+            item for item in self.items if item["anchored"] == target_anchored and item["published"] == target_published
         ]
         return {"Items": matches}
 
@@ -87,17 +86,19 @@ class FakeBucket:
 
 
 def _make_record_json(content_hash: str, prev_hash: str = "0" * 64, kind: str = "tool_start") -> str:
-    return json.dumps({
-        "version": "0.4",
-        "step_id": f"step-{content_hash[:6]}",
-        "timestamp": "2026-05-08T15:00:00Z",
-        "kind": kind,
-        "payload": {"tool_name": "vindicara.api.request"},
-        "prev_hash": prev_hash,
-        "content_hash": content_hash,
-        "signature": "sig",
-        "signer_key": "pk",
-    })
+    return json.dumps(
+        {
+            "version": "0.4",
+            "step_id": f"step-{content_hash[:6]}",
+            "timestamp": "2026-05-08T15:00:00Z",
+            "kind": kind,
+            "payload": {"tool_name": "vindicara.api.request"},
+            "prev_hash": prev_hash,
+            "content_hash": content_hash,
+            "signature": "sig",
+            "signer_key": "pk",
+        }
+    )
 
 
 def _add_chain(
@@ -112,17 +113,19 @@ def _add_chain(
     last_hash = "0" * 64
     for ord_idx in range(count):
         new_hash = f"{ord_idx + 1:02x}" + "00" * 31
-        table.items.append({
-            "chain_id": chain_id,
-            "ord": f"{ord_idx:06d}",
-            "step_id": f"step-{ord_idx}",
-            "kind": "tool_start" if ord_idx % 2 == 0 else "tool_end",
-            "timestamp": "2026-05-08T15:00:00Z",
-            "record_json": _make_record_json(new_hash, last_hash),
-            "anchored": anchored,
-            "published": published,
-            "rekor_log_index": rekor_log_index,
-        })
+        table.items.append(
+            {
+                "chain_id": chain_id,
+                "ord": f"{ord_idx:06d}",
+                "step_id": f"step-{ord_idx}",
+                "kind": "tool_start" if ord_idx % 2 == 0 else "tool_end",
+                "timestamp": "2026-05-08T15:00:00Z",
+                "record_json": _make_record_json(new_hash, last_hash),
+                "anchored": anchored,
+                "published": published,
+                "rekor_log_index": rekor_log_index,
+            }
+        )
         last_hash = new_hash
 
 

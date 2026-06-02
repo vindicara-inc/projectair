@@ -17,7 +17,7 @@ from vindicara.cloud.workspace import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def stores() -> tuple[InMemoryWorkspaceStore, InMemoryApiKeyStore]:
     ws_store = InMemoryWorkspaceStore()
     key_store = InMemoryApiKeyStore()
@@ -34,7 +34,7 @@ def stores() -> tuple[InMemoryWorkspaceStore, InMemoryApiKeyStore]:
     return ws_store, key_store
 
 
-@pytest.fixture()
+@pytest.fixture
 def app(stores: tuple[InMemoryWorkspaceStore, InMemoryApiKeyStore]):  # type: ignore[type-arg]
     ws_store, key_store = stores
     return create_air_cloud_app(
@@ -43,15 +43,11 @@ def app(stores: tuple[InMemoryWorkspaceStore, InMemoryApiKeyStore]):  # type: ig
     )
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_bearer_token_auth(app) -> None:  # type: ignore[no-untyped-def]
-    claims = SessionClaims(
-        workspace_id="ws_test", role="owner", sub="auth0|x", key_id="key_test"
-    )
+    claims = SessionClaims(workspace_id="ws_test", role="owner", sub="auth0|x", key_id="key_test")
     token = create_session_token(claims)
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get(
             "/v1/workspaces/me",
             headers={"Authorization": f"Bearer {token}"},
@@ -60,15 +56,11 @@ async def test_bearer_token_auth(app) -> None:  # type: ignore[no-untyped-def]
     assert resp.json()["workspace_id"] == "ws_test"
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_expired_bearer_returns_401(app) -> None:  # type: ignore[no-untyped-def]
-    claims = SessionClaims(
-        workspace_id="ws_test", role="owner", sub="auth0|x", key_id="key_test"
-    )
+    claims = SessionClaims(workspace_id="ws_test", role="owner", sub="auth0|x", key_id="key_test")
     token = create_session_token(claims, ttl_seconds=-1)
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get(
             "/v1/workspaces/me",
             headers={"Authorization": f"Bearer {token}"},
@@ -76,11 +68,9 @@ async def test_expired_bearer_returns_401(app) -> None:  # type: ignore[no-untyp
     assert resp.status_code == 401
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_api_key_still_works(app, stores) -> None:  # type: ignore[no-untyped-def]
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get(
             "/v1/workspaces/me",
             headers={"X-API-Key": "air_deadbeef1234567890abcdef12345678"},
@@ -88,10 +78,8 @@ async def test_api_key_still_works(app, stores) -> None:  # type: ignore[no-unty
     assert resp.status_code == 200
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_no_auth_returns_401(app) -> None:  # type: ignore[no-untyped-def]
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get("/v1/workspaces/me")
     assert resp.status_code == 401

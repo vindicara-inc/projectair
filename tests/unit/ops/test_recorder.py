@@ -1,4 +1,5 @@
 """Tests for ``vindicara.ops.recorder``."""
+
 from __future__ import annotations
 
 import json

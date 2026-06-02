@@ -1,9 +1,11 @@
 """Workspace introspection + creation + member invite routes for AIR Cloud."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, ConfigDict
 
+from vindicara.cloud.admin import require_admin
 from vindicara.cloud.roles import Capability, is_valid_role, require
 from vindicara.cloud.workspace import (
     ApiKey,
@@ -59,12 +61,14 @@ async def create_workspace(request: Request, payload: WorkspaceCreate) -> Worksp
     """Bootstrap a new tenant. Returns the first API key inline; the caller
     is responsible for storing it (it cannot be retrieved later).
 
-    NOTE: this route is part of the public API surface but real
-    deployments should gate it behind an admin-only path or an OIDC
-    login (W3.10) before exposing it. The default deployment binds it
-    to ``/v1`` like every other route, so the bootstrap key created at
-    deploy time is the only credential that can call it for now.
+    Provisioning a tenant is an operator action, not a tenant action, so
+    this route is gated by the deploy-time operator admin token rather
+    than by a workspace role (W3.10). ``require_admin`` fails closed: if
+    no admin token is configured the route is disabled (503), and a
+    missing or wrong ``X-Admin-Token`` is rejected (401). A tenant's own
+    API key can no longer mint additional workspaces.
     """
+    require_admin(request)
     workspace_store: WorkspaceStore = request.app.state.cloud_workspaces
     api_key_store: ApiKeyStore = request.app.state.cloud_api_keys
 

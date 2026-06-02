@@ -1,4 +1,5 @@
 """tests/unit/cloud/test_patch_key.py"""
+
 from __future__ import annotations
 
 import os
@@ -17,7 +18,7 @@ from vindicara.cloud.workspace import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def patch_app():  # type: ignore[no-untyped-def]
     ws_store = InMemoryWorkspaceStore()
     key_store = InMemoryApiKeyStore()
@@ -30,7 +31,7 @@ def patch_app():  # type: ignore[no-untyped-def]
     return create_air_cloud_app(workspace_store=ws_store, api_key_store=key_store)
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_owner_promotes_member_to_admin(patch_app) -> None:  # type: ignore[no-untyped-def]
     async with AsyncClient(transport=ASGITransport(app=patch_app), base_url="http://test") as c:
         resp = await c.patch(
@@ -42,7 +43,7 @@ async def test_owner_promotes_member_to_admin(patch_app) -> None:  # type: ignor
     assert resp.json()["role"] == "admin"
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_admin_cannot_promote_to_owner(patch_app) -> None:  # type: ignore[no-untyped-def]
     async with AsyncClient(transport=ASGITransport(app=patch_app), base_url="http://test") as c:
         # First promote member to admin via owner
@@ -60,7 +61,7 @@ async def test_admin_cannot_promote_to_owner(patch_app) -> None:  # type: ignore
     assert resp.status_code == 403
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_member_cannot_patch(patch_app) -> None:  # type: ignore[no-untyped-def]
     async with AsyncClient(transport=ASGITransport(app=patch_app), base_url="http://test") as c:
         resp = await c.patch(

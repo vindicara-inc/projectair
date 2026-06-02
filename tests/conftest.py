@@ -14,7 +14,7 @@ from httpx import ASGITransport, AsyncClient
 from vindicara.api.app import create_app
 
 TEST_API_KEY = "vnd_test"
-TEST_PASSWORD = "TestPassword123"  # noqa: S105
+TEST_PASSWORD = "TestPassword123"
 
 
 @pytest.fixture

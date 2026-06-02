@@ -3,7 +3,7 @@
 import asyncio
 import functools
 from collections.abc import Callable
-from typing import ParamSpec, TypeVar
+from typing import ParamSpec, TypeVar, cast
 
 from vindicara.sdk.exceptions import VindicaraPolicyViolation
 
@@ -36,7 +36,7 @@ def guard(
                 from vindicara.sdk.client import VindicaraClient
 
                 client = VindicaraClient(api_key=api_key, offline=offline)
-                result = await func(*args, **kwargs)  # type: ignore[misc]
+                result = await func(*args, **kwargs)
                 output_text = str(result)
                 input_text = str(args[0]) if args else ""
                 guard_result = await client.async_guard(
@@ -49,7 +49,7 @@ def guard(
                         message=f"Output blocked by policy '{policy}'",
                         policy_id=policy,
                     )
-                return result
+                return cast("R", result)
 
             return async_wrapper  # type: ignore[return-value]
 
@@ -73,6 +73,6 @@ def guard(
                 )
             return result
 
-        return sync_wrapper  # type: ignore[return-value]
+        return sync_wrapper
 
     return decorator

@@ -20,6 +20,7 @@ properties matter:
    ``timestamp``, ``kind``, ``ord``, redacted payload, and the Rekor log
    index that anchors the chain it belongs to.
 """
+
 from __future__ import annotations
 
 import json

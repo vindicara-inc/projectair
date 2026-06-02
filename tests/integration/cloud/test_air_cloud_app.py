@@ -4,6 +4,7 @@ Drive the app through the real ASGI stack (`httpx.AsyncClient` +
 `ASGITransport`) so middleware, routing, and serialization all run
 end-to-end.
 """
+
 from __future__ import annotations
 
 import json
@@ -57,15 +58,20 @@ async def cloud_client() -> AsyncIterator[tuple[httpx.AsyncClient, dict]]:
         capsule_store=capsule_store,
         workspace_store=workspace_store,
         api_key_store=api_key_store,
+        admin_token="admin_test_secret",
     )
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
-        yield client, {
-            "capsule_store": capsule_store,
-            "workspace_store": workspace_store,
-            "api_key_store": api_key_store,
-            "api_key": api_key.key,
-        }
+        yield (
+            client,
+            {
+                "capsule_store": capsule_store,
+                "workspace_store": workspace_store,
+                "api_key_store": api_key_store,
+                "api_key": api_key.key,
+                "admin_token": "admin_test_secret",
+            },
+        )
 
 
 @pytest.fixture
@@ -227,7 +233,7 @@ async def test_create_workspace_returns_bootstrap_key(
     client, ctx = cloud_client
     response = await client.post(
         "/v1/workspaces",
-        headers={"X-API-Key": ctx["api_key"]},
+        headers={"X-Admin-Token": ctx["admin_token"]},
         json={"workspace_id": "newco", "name": "NewCo", "owner_email": "x@newco.io"},
     )
     assert response.status_code == 201
@@ -244,10 +250,71 @@ async def test_create_workspace_conflicts_on_duplicate(
     client, ctx = cloud_client
     response = await client.post(
         "/v1/workspaces",
-        headers={"X-API-Key": ctx["api_key"]},
+        headers={"X-Admin-Token": ctx["admin_token"]},
         json={"workspace_id": "acme", "name": "x", "owner_email": "y@y.io"},
     )
     assert response.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_create_workspace_rejects_missing_admin_token(
+    cloud_client: tuple[httpx.AsyncClient, dict],
+) -> None:
+    client, _ = cloud_client
+    response = await client.post(
+        "/v1/workspaces",
+        json={"workspace_id": "nope", "name": "Nope", "owner_email": "x@nope.io"},
+    )
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_create_workspace_rejects_wrong_admin_token(
+    cloud_client: tuple[httpx.AsyncClient, dict],
+) -> None:
+    client, _ = cloud_client
+    response = await client.post(
+        "/v1/workspaces",
+        headers={"X-Admin-Token": "wrong"},
+        json={"workspace_id": "nope", "name": "Nope", "owner_email": "x@nope.io"},
+    )
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_create_workspace_rejects_tenant_api_key(
+    cloud_client: tuple[httpx.AsyncClient, dict],
+) -> None:
+    """A tenant's own API key can no longer mint additional workspaces."""
+    client, ctx = cloud_client
+    response = await client.post(
+        "/v1/workspaces",
+        headers={"X-API-Key": ctx["api_key"]},
+        json={"workspace_id": "sneaky", "name": "Sneaky", "owner_email": "x@sneaky.io"},
+    )
+    assert response.status_code == 401
+    assert ctx["workspace_store"].get("sneaky") is None
+
+
+@pytest.mark.asyncio
+async def test_create_workspace_disabled_when_no_admin_token_configured(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """With no admin token configured the route fails closed with 503."""
+    monkeypatch.delenv("AIR_CLOUD_ADMIN_TOKEN", raising=False)
+    app = create_air_cloud_app(
+        capsule_store=InMemoryCapsuleStore(),
+        workspace_store=InMemoryWorkspaceStore(),
+        api_key_store=InMemoryApiKeyStore(),
+    )
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post(
+            "/v1/workspaces",
+            headers={"X-Admin-Token": "anything"},
+            json={"workspace_id": "x", "name": "X", "owner_email": "x@x.io"},
+        )
+    assert response.status_code == 503
 
 
 @pytest.mark.asyncio

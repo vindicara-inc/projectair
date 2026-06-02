@@ -6,6 +6,7 @@ well-tested pieces: ``RekorClient.anchor`` and ``Table.batch_writer``.
 The interesting branches to cover are completion-detection, the
 unanchored filter, and the anchored-flag write-back.
 """
+
 from __future__ import annotations
 
 import json
@@ -97,33 +98,37 @@ def _stale_iso() -> str:
 
 
 def _make_record_json(content_hash: str = "ab" * 32, prev_hash: str = "0" * 64) -> str:
-    return json.dumps({
-        "version": "0.4",
-        "step_id": str(uuid.uuid4()),
-        "timestamp": _now_iso(),
-        "kind": "tool_start",
-        "payload": {},
-        "prev_hash": prev_hash,
-        "content_hash": content_hash,
-        "signature": "sig",
-        "signer_key": "pk",
-    })
+    return json.dumps(
+        {
+            "version": "0.4",
+            "step_id": str(uuid.uuid4()),
+            "timestamp": _now_iso(),
+            "kind": "tool_start",
+            "payload": {},
+            "prev_hash": prev_hash,
+            "content_hash": content_hash,
+            "signature": "sig",
+            "signer_key": "pk",
+        }
+    )
 
 
 def _add_chain(table: FakeTable, chain_id: str, count: int = 2, *, anchored: bool = False, stale: bool = True) -> None:
     last_hash = "0" * 64
     for ord_idx in range(count):
         new_hash = f"{ord_idx + 1:02x}" + "00" * 31
-        table.items.append({
-            "chain_id": chain_id,
-            "ord": f"{ord_idx:06d}",
-            "step_id": f"step-{ord_idx}",
-            "kind": "tool_start" if ord_idx % 2 == 0 else "tool_end",
-            "timestamp": _stale_iso() if stale else _now_iso(),
-            "record_json": _make_record_json(content_hash=new_hash, prev_hash=last_hash),
-            "anchored": anchored,
-            "published": False,
-        })
+        table.items.append(
+            {
+                "chain_id": chain_id,
+                "ord": f"{ord_idx:06d}",
+                "step_id": f"step-{ord_idx}",
+                "kind": "tool_start" if ord_idx % 2 == 0 else "tool_end",
+                "timestamp": _stale_iso() if stale else _now_iso(),
+                "record_json": _make_record_json(content_hash=new_hash, prev_hash=last_hash),
+                "anchored": anchored,
+                "published": False,
+            }
+        )
         last_hash = new_hash
 
 

@@ -16,6 +16,7 @@ before it touches a route.
 Routes that are public (health, OpenAPI docs) are listed in
 ``UNAUTHED_PATHS``.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -33,19 +34,28 @@ if TYPE_CHECKING:
 
     from vindicara.cloud.workspace import ApiKeyStore
 
-UNAUTHED_PATHS: frozenset[str] = frozenset({
-    "/health",
-    "/ready",
-    "/openapi.json",
-    "/docs",
-    "/redoc",
-    "/docs/oauth2-redirect",
-    # /v1/sso/login is the authentication step itself; it cannot require
-    # an API key because the caller does not have one yet.
-    "/v1/sso/login",
-})
+UNAUTHED_PATHS: frozenset[str] = frozenset(
+    {
+        "/health",
+        "/ready",
+        "/openapi.json",
+        "/docs",
+        "/redoc",
+        "/docs/oauth2-redirect",
+        # /v1/sso/login is the authentication step itself; it cannot require
+        # an API key because the caller does not have one yet.
+        "/v1/sso/login",
+    }
+)
 
 API_KEY_HEADER = "X-API-Key"
+
+# Routes that carry their own operator admin-token gate
+# (vindicara.cloud.admin.require_admin) instead of API-key / session auth.
+# They must bypass the middleware's API-key check because a first-time
+# workspace bootstrap has no tenant key yet. The route itself fails closed
+# when no admin token is configured.
+ADMIN_GATED_ROUTES: frozenset[tuple[str, str]] = frozenset({("POST", "/v1/workspaces")})
 
 
 class AirCloudAuthMiddleware(BaseHTTPMiddleware):
@@ -76,6 +86,9 @@ class AirCloudAuthMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         if not path.startswith(self._prefix):
             return await call_next(request)
+        if (request.method, path) in ADMIN_GATED_ROUTES:
+            # Operator admin-token routes enforce their own gate downstream.
+            return await call_next(request)
 
         store: ApiKeyStore | None = getattr(request.app.state, "cloud_api_keys", None)
         if store is None:
@@ -90,9 +103,7 @@ class AirCloudAuthMiddleware(BaseHTTPMiddleware):
         if api_key_header:
             api_key = store.lookup(api_key_header)
             if api_key is None:
-                return JSONResponse(
-                    {"detail": "invalid or revoked api key"}, status_code=401
-                )
+                return JSONResponse({"detail": "invalid or revoked api key"}, status_code=401)
             request.state.workspace_id = api_key.workspace_id
             request.state.api_key_id = api_key.key_id
             request.state.role = api_key.role
@@ -101,9 +112,7 @@ class AirCloudAuthMiddleware(BaseHTTPMiddleware):
             try:
                 claims = verify_session_token(raw_token)
             except SessionTokenError:
-                return JSONResponse(
-                    {"detail": "invalid or expired session token"}, status_code=401
-                )
+                return JSONResponse({"detail": "invalid or expired session token"}, status_code=401)
             request.state.workspace_id = claims.workspace_id
             request.state.api_key_id = claims.key_id
             request.state.role = claims.role
@@ -116,4 +125,9 @@ class AirCloudAuthMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-__all__ = ["API_KEY_HEADER", "UNAUTHED_PATHS", "AirCloudAuthMiddleware"]
+__all__ = [
+    "ADMIN_GATED_ROUTES",
+    "API_KEY_HEADER",
+    "UNAUTHED_PATHS",
+    "AirCloudAuthMiddleware",
+]

@@ -7,6 +7,7 @@ is pushed as an SSE ``data:`` frame containing the AgDRRecord JSON.
 A keepalive comment is sent every 15 seconds to prevent proxy
 timeouts. The connection closes when the client disconnects.
 """
+
 from __future__ import annotations
 
 import asyncio

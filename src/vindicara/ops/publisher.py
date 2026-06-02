@@ -11,12 +11,13 @@ The published JSONL never carries the original Ed25519 signature on each
 record; the redacted payload is no longer the bytes the signature covered.
 The Sigstore Rekor anchor over the chain root is what verifiers check.
 """
+
 from __future__ import annotations
 
 import json
 import logging
 import os
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, SupportsInt, cast
 
 from vindicara.ops.redaction import redact_record
 
@@ -139,8 +140,11 @@ def run_once(table: Table, bucket: Bucket) -> int:
             published_count += 1
             for item in items:
                 idx = item.get("rekor_log_index")
-                if idx is not None and (latest_log_index is None or int(idx) > latest_log_index):
-                    latest_log_index = int(idx)
+                if idx is None:
+                    continue
+                idx_val = int(cast("SupportsInt", idx))
+                if latest_log_index is None or idx_val > latest_log_index:
+                    latest_log_index = idx_val
         except Exception as exc:
             _log.warning(
                 "vindicara.ops.publisher.publish_failed chain_id=%s error=%s",

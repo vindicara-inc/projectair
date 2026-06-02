@@ -1,4 +1,5 @@
 """End-to-end tests for the workspace role policy + member invite flow."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -58,12 +59,15 @@ async def cloud_with_roles() -> AsyncIterator[tuple[httpx.AsyncClient, dict]]:
     )
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
-        yield client, {
-            "capsule_store": capsule_store,
-            "workspace_store": workspace_store,
-            "api_key_store": api_key_store,
-            "keys": keys,
-        }
+        yield (
+            client,
+            {
+                "capsule_store": capsule_store,
+                "workspace_store": workspace_store,
+                "api_key_store": api_key_store,
+                "keys": keys,
+            },
+        )
 
 
 @pytest.fixture

@@ -16,14 +16,21 @@ class MCPTransportError(Exception):
         super().__init__(message)
 
 
-_BLOCKED_HOSTS = frozenset({
-    "localhost", "127.0.0.1", "0.0.0.0", "[::1]",
-    "169.254.169.254", "metadata.google.internal",
-})
+_BLOCKED_HOSTS = frozenset(
+    {
+        "localhost",
+        "127.0.0.1",
+        "0.0.0.0",
+        "[::1]",
+        "169.254.169.254",
+        "metadata.google.internal",
+    }
+)
 
 
 def _validate_url(url: str) -> str:
     from urllib.parse import urlparse
+
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         raise ValueError(f"MCP server URL must use http(s), got {parsed.scheme!r}")

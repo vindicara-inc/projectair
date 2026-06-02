@@ -5,6 +5,7 @@ here. SSE subscribers for the matching workspace receive the event in
 real time. Each subscriber gets its own asyncio.Queue so slow readers
 do not block ingest.
 """
+
 from __future__ import annotations
 
 import asyncio

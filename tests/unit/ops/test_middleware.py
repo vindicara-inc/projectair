@@ -1,4 +1,5 @@
 """Tests for ``vindicara.api.middleware.ops_chain.OpsChainMiddleware``."""
+
 from __future__ import annotations
 
 import json

@@ -1,4 +1,5 @@
 """Compliance summary route for AIR Cloud."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -89,10 +90,7 @@ def _score_framework(
         # min_evidence_count. If multiple types are required the
         # minimum across them must satisfy the threshold.
         if ctrl.required_evidence_types:
-            min_count = min(
-                evidence_counts.get(et, 0)
-                for et in ctrl.required_evidence_types
-            )
+            min_count = min(evidence_counts.get(et, 0) for et in ctrl.required_evidence_types)
         else:
             min_count = 0
 
@@ -142,10 +140,7 @@ async def get_compliance_summary(request: Request) -> ComplianceSummary:
 
     evidence_counts = _tally_evidence(capsules)
 
-    framework_scores = [
-        _score_framework(fw_id, evidence_counts)
-        for fw_id in FRAMEWORKS
-    ]
+    framework_scores = [_score_framework(fw_id, evidence_counts) for fw_id in FRAMEWORKS]
 
     return ComplianceSummary(frameworks=framework_scores)
 

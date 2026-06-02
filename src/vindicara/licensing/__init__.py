@@ -1,4 +1,5 @@
 """License token issuance for Stripe auto-fulfillment."""
+
 from __future__ import annotations
 
 from vindicara.licensing.issuer import (

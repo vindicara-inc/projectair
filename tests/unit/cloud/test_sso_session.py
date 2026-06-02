@@ -18,7 +18,7 @@ from vindicara.cloud.workspace import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def app_with_sso():  # type: ignore[no-untyped-def]
     ws_store = InMemoryWorkspaceStore()
     key_store = InMemoryApiKeyStore()
@@ -45,9 +45,9 @@ def app_with_sso():  # type: ignore[no-untyped-def]
     return app, key_store
 
 
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_sso_login_returns_session_token(app_with_sso) -> None:  # type: ignore[no-untyped-def]
-    app, key_store = app_with_sso
+    app, _key_store = app_with_sso
 
     fake_claims = {
         "sub": "auth0|user1",
@@ -56,12 +56,8 @@ async def test_sso_login_returns_session_token(app_with_sso) -> None:  # type: i
         "email": "user@b.com",
     }
 
-    with patch(
-        "vindicara.cloud.routes.sso.verify_oidc_token", return_value=fake_claims
-    ):
-        async with AsyncClient(
-            transport=ASGITransport(app=app), base_url="http://test"
-        ) as client:
+    with patch("vindicara.cloud.routes.sso.verify_oidc_token", return_value=fake_claims):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             resp = await client.post(
                 "/v1/sso/login",
                 json={"workspace_id": "ws_sso", "token": "fake.jwt.here"},
