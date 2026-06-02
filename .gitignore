@@ -53,3 +53,16 @@ node_modules/
 
 # Local backups
 *.backup
+
+# Loose decks, screenshots, and binary mockups (kept on disk, not tracked)
+/*.png
+/*.avif
+/*.mov
+/*.pdf
+docs/pitch/*.pdf
+docs/pitch/*.pptx
+
+# Generated reports, legal docs, and session dumps (kept on disk, not tracked)
+*.docx
+*YC*.txt
+/PROJECT_AIR_ROADMAP_CONSOLIDATED.md
