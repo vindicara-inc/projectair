@@ -33,6 +33,7 @@ from .exceptions import (
     ValidationProofInvalidError,
     W3CTraceContextError,
 )
+from .fulcio import FulcioTrustBundle, verify_fulcio_leaf
 
 __all__ = [
     "CanonicalizationError",
@@ -41,6 +42,7 @@ __all__ = [
     "CrossAgentVerificationError",
     "CrossTenantTrustError",
     "CustomClaimMissingError",
+    "FulcioTrustBundle",
     "HandoffAcceptanceMissingError",
     "HandoffError",
     "HandoffPairingError",
@@ -58,4 +60,5 @@ __all__ = [
     "canonicalize_and_hash",
     "canonicalize_bytes",
     "hash_bytes",
+    "verify_fulcio_leaf",
 ]
