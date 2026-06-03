@@ -7,6 +7,7 @@
  */
 
 import type { AgDRRecord } from '../agdr/types.ts';
+import { base } from '$app/paths';
 
 export interface Scenario {
 	id: string;
@@ -80,7 +81,7 @@ export const DETECTOR_SCENARIOS: Record<string, DetectorScenario> = {
 } as const;
 
 export async function loadScenario(scenario: Scenario, fetchImpl: typeof fetch = fetch): Promise<AgDRRecord[]> {
-	const response = await fetchImpl(scenario.path);
+	const response = await fetchImpl(`${base}${scenario.path}`);
 	if (!response.ok) {
 		throw new Error(`failed to fetch scenario ${scenario.id}: HTTP ${response.status}`);
 	}
