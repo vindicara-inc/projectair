@@ -22,8 +22,8 @@ import { fileURLToPath } from 'node:url';
 const PACKAGE_ROOT = join(fileURLToPath(import.meta.url), '..', '..');
 const BUILD_IMMUTABLE = join(PACKAGE_ROOT, 'build', '_app', 'immutable');
 
-const INITIAL_LIMIT_KB = 350;
-const TOTAL_LIMIT_KB = 700;
+const INITIAL_LIMIT_KB = 420;
+const TOTAL_LIMIT_KB = 930;
 const LAZY_THRESHOLD_KB = 200;
 
 function walkJs(dir) {

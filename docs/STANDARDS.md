@@ -172,6 +172,18 @@ Vindicara is a security product. Its own security posture must be beyond reproac
 
 ---
 
+## Quality Gates (apply to every roadmap item)
+
+Every shipped feature, OSS or Cloud, must address all four:
+1. **End-to-End Proof** -- runnable demo a customer can execute in under 60 seconds (`air demo` is the exemplar).
+2. **Test Coverage Proof** -- measured numbers in release notes, coverage badge or report committed; 80% floor enforced by `./scripts/test.sh`.
+3. **Deployment / Readiness Boundary** -- explicit `experimental` / `beta` / `production` label on docs, pricing page, and CLI surface. Pricing-page features must be at minimum `beta`. `production` requires SLO + monitoring + runbook.
+4. **Customer-Facing Value** -- one-sentence customer-language description before engineering starts. If you can't write it, the feature isn't ready to scope.
+
+See `feedback_four_quality_gates.md` in memory for the full discipline.
+
+---
+
 ## Hard Rules (Apply to ALL Code and Content)
 
 1. Never use em dashes in any output. Use commas, semicolons, colons, or separate sentences.
