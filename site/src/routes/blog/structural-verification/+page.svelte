@@ -221,7 +221,7 @@ recorder = AIRRecorder(
   <h2 class="text-2xl font-bold mt-12 mb-4" style="color: var(--text-primary);">HIPAA: "prove it works"</h2>
 
   <p class="leading-relaxed mt-4" style="color: var(--text-secondary);">
-    The 2026 HIPAA Security Rule NPRM requires covered entities to <strong style="color: var(--text-primary);">prove every control exists, has a designated owner, and actually works</strong>. Structural Verification is the "actually works" part. The audit trail (Layer 1) proves the agent was monitored. The containment policy (Layer 3) proves the agent was constrained. Structural Verification proves the agent <em>honored</em> its constraints.
+    The 2025 HIPAA Security Rule NPRM (proposed) would require covered entities to <strong style="color: var(--text-primary);">prove every control exists, has a designated owner, and actually works</strong>. Structural Verification is the "actually works" part. The audit trail (Layer 1) proves the agent was monitored. The containment policy (Layer 3) proves the agent was constrained. Structural Verification proves the agent <em>honored</em> its constraints.
   </p>
 
   <p class="leading-relaxed mt-4" style="color: var(--text-secondary);">

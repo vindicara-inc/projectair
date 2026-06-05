@@ -218,7 +218,7 @@
       name: 'Drift (Salesloft breach)',
       year: '2025',
       broke: 'Third-party OAuth tokens harvested from a connected integration, used to pivot into downstream SaaS systems.',
-      asi: 'ASI04',
+      asi: 'ASI03',
       caught: 'Credential misuse signature on tool invocations that used a session outside the agent\'s baseline identity.',
     },
     {
@@ -232,15 +232,15 @@
       name: 'ServiceNow Now Assist',
       year: '2025',
       broke: 'Prompt injection via user-supplied ticket fields escalated read scope and leaked records.',
-      asi: 'ASI05',
+      asi: 'ASI03',
       caught: 'Privilege escalation as a data-scope violation at the step that accessed out-of-scope records.',
     },
     {
       name: 'litellm proxy auth bypass',
       year: '2024',
       broke: 'Auth bypass let unauthorized callers issue LLM requests that silently skipped policy and audit layers.',
-      asi: 'ASI09',
-      caught: 'Audit-trail tampering: replayed events fail signature checks, isolating the unsigned and missing hops.',
+      asi: 'AIR-04',
+      caught: 'Untraceable Action: replayed and unsigned events fail signature verification on the chain, isolating the missing and tampered hops.',
     },
     {
       name: 'Claude Mythos jailbreak',
@@ -253,7 +253,7 @@
 </script>
 
 <svelte:head>
-  <title>Vindicara Project AIR | Evidence-Grade Infrastructure for AI Agents</title>
+  <title>Project AIR by Vindicara | Evidence-Grade Infrastructure for AI Agents</title>
   <meta name="description" content="Evidence-grade infrastructure for accountable AI agents. Cryptographic chain-of-custody, court-supportable records, and Rekor-anchored proof. Open source, MIT-licensed. Full 10/10 OWASP Top 10 for Agentic Applications coverage." />
   <meta name="keywords" content="AI agent chain of custody, Sigstore for AI agents, Rekor AI agents, Fulcio AI agents, court-supportable AI evidence, AI agent accountability, AgDR, AI Decision Records, OWASP Top 10 Agentic, EU AI Act Article 72, EU AI Act Article 12, California SB 53, NIST AI RMF, LLM forensics, agent trace, AI audit trail, AI incident response" />
 
@@ -261,11 +261,11 @@
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://vindicara.io/" />
-  <meta property="og:title" content="Vindicara Project AIR | Evidence-Grade Infrastructure for AI Agents" />
+  <meta property="og:title" content="Project AIR by Vindicara | Evidence-Grade Infrastructure for AI Agents" />
   <meta property="og:description" content="Evidence-grade infrastructure for accountable AI agents. Cryptographic chain-of-custody, court-supportable records, Rekor-anchored proof. Open source, MIT-licensed. Full 10/10 OWASP Top 10 for Agentic coverage." />
   <meta property="og:image:alt" content="Vindicara AIR: When your agent goes off-script, AIR has the receipts." />
 
-  <meta name="twitter:title" content="Vindicara Project AIR | Evidence-Grade Infrastructure for AI Agents" />
+  <meta name="twitter:title" content="Project AIR by Vindicara | Evidence-Grade Infrastructure for AI Agents" />
   <meta name="twitter:description" content="Evidence-grade infrastructure for accountable AI agents. Cryptographic chain-of-custody. Court-supportable records. Rekor-anchored proof." />
 
   {@html `<script type="application/ld+json">${JSON.stringify({
@@ -280,8 +280,7 @@
     publisher: { '@id': 'https://vindicara.io/#organization' },
     offers: [
       { '@type': 'Offer', name: 'Open Source', price: '0', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Pro', price: '99', priceCurrency: 'USD', priceSpecification: { '@type': 'UnitPriceSpecification', price: '99', priceCurrency: 'USD', billingIncrement: 1, unitText: 'MONTH' } },
-      { '@type': 'Offer', name: 'Team', price: '599', priceCurrency: 'USD', priceSpecification: { '@type': 'UnitPriceSpecification', price: '599', priceCurrency: 'USD', billingIncrement: 1, unitText: 'MONTH' } },
+      { '@type': 'Offer', name: 'Commercial', description: 'Team and Enterprise tiers in private beta. Contact for access.', availability: 'https://schema.org/PreOrder' },
     ],
   })}<\/script>`}
 </svelte:head>
@@ -363,7 +362,11 @@
       </h1>
 
       <p class="mt-6 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed" style="color: var(--text-muted);">
-        When your AI agent accesses patient records, moves money, or executes code, AIR signs a tamper-proof receipt at the moment it happens. Your compliance team can answer "what did our agents do?" in one click.
+        When an AI agent reads a patient record, moves money, or runs code, Project AIR signs a tamper-proof receipt at that moment. When something goes wrong, you can prove exactly what happened, to your security team, your auditor, your insurer, and a court.
+      </p>
+
+      <p class="mt-5 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--text-secondary);">
+        <span class="font-semibold" style="color: var(--text-primary);">For the team that has to answer "what did the agent do?"</span> Security, compliance, and legal get court-supportable evidence. Engineers get a five-minute install.
       </p>
 
       <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -384,6 +387,10 @@
         <span class="text-xs font-mono uppercase tracking-wider" style="color: var(--text-faint);">Open source, MIT licensed</span>
         <span class="text-xs font-mono uppercase tracking-wider" style="color: var(--text-faint);">10/10 OWASP Agentic</span>
       </div>
+
+      <p class="mt-4 text-xs max-w-xl mx-auto" style="color: var(--text-faint);">
+        Running in production on our own signed, Rekor-anchored infrastructure, which you can verify yourself.
+      </p>
     </div>
 
     <!-- Animated air trace terminal -->
@@ -406,6 +413,44 @@
             {/if}
           {/each}
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IS THIS FOR -->
+<section class="py-24 relative" style="border-top: 1px solid var(--border-subtle);">
+  <div class="max-w-screen-xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-3 font-mono">Who It's For</p>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight max-w-3xl mx-auto">
+        Built for the three teams on the hook when an agent goes off-script.
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="p-7 flex flex-col" style="border: 1px solid var(--border); background-color: color-mix(in srgb, var(--surface-overlay) 40%, transparent);">
+        <p class="font-mono text-[11px] tracking-wider uppercase mb-3 text-brand-red">For Security &amp; DevSecOps</p>
+        <p class="text-sm leading-relaxed flex-1" style="color: var(--text-muted);">
+          You ship the agents. AIR instruments them in five minutes (LangChain, OpenAI, Anthropic, LlamaIndex, Gemini, Google ADK) and gives you a signed, replayable forensic chain for every session. 16 detectors across the OWASP Top 10 for Agentic Applications, OWASP LLM, and AIR-native checks.
+        </p>
+        <a href="/get-started" class="btn-secondary text-sm px-5 py-2.5 mt-5 self-start">Get started</a>
+      </div>
+
+      <div class="p-7 flex flex-col" style="border: 1px solid var(--border); background-color: color-mix(in srgb, var(--surface-overlay) 40%, transparent);">
+        <p class="font-mono text-[11px] tracking-wider uppercase mb-3 text-brand-red">For Compliance &amp; Risk</p>
+        <p class="text-sm leading-relaxed flex-1" style="color: var(--text-muted);">
+          EU AI Act Article 12 and Article 72, the HIPAA Security Rule, California SB 53, NIST AI RMF. AIR produces the runtime evidence those frameworks require, exportable as conformity artifacts. Not policy PDFs. Signed records of what actually happened.
+        </p>
+        <a href="/blog/eu-ai-act-article-72-guide" class="btn-secondary text-sm px-5 py-2.5 mt-5 self-start">EU AI Act readiness</a>
+      </div>
+
+      <div class="border border-brand-red/30 bg-brand-red/[0.03] p-7 flex flex-col">
+        <p class="font-mono text-[11px] tracking-wider uppercase mb-3 text-brand-red">For Legal &amp; Insurance</p>
+        <p class="text-sm leading-relaxed flex-1" style="color: var(--text-muted);">
+          Cryptographic chain-of-custody designed for admissibility: FRE 902(13) self-authentication templates, eIDAS mapping, and an honest disclosures section. When a claim or a dispute lands, you have evidence a court can use.
+        </p>
+        <a href="/admissibility" class="btn-secondary text-sm px-5 py-2.5 mt-5 self-start">Admissibility architecture</a>
       </div>
     </div>
   </div>
@@ -478,7 +523,7 @@
       <div class="border border-brand-red/30 p-6 bg-brand-red/5 flex flex-col">
         <p class="text-3xl sm:text-4xl font-black text-brand-red font-mono">Aug 2</p>
         <p class="text-xs mt-2 leading-relaxed flex-1" style="color: var(--text-muted);">2026: EU AI Act enforcement. Article 12 and Article 72 require audit trails and post-market monitoring.</p>
-        <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689" target="_blank" rel="noopener noreferrer" class="text-[10px] mt-3 font-mono uppercase tracking-wider transition-colors" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-secondary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>EU AI Act · Article 113</a>
+        <a href="/eu-ai-act" class="text-[10px] mt-3 font-mono uppercase tracking-wider transition-colors" style="color: var(--text-muted);" onmouseenter={(e) => e.currentTarget.style.color = 'var(--text-secondary)'} onmouseleave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>EU AI Act readiness &#8594;</a>
       </div>
     </div>
 
@@ -503,7 +548,7 @@
         Real breaches. Real patterns. What AIR would have caught.
       </h2>
       <p class="mt-4 text-base max-w-2xl mx-auto" style="color: var(--text-muted);">
-        Every incident below has a public post-mortem. Every one maps to an OWASP Top 10 for Agentic Applications signature. Project AIR ships all 10 OWASP Top 10 for Agentic Applications detectors (ASI01 through ASI10), plus 3 OWASP LLM Top 10 categories (LLM01, LLM04, LLM06) and 1 AIR-native forensic-chain-integrity check.
+        Every incident below has a public post-mortem. Every one maps to an OWASP Top 10 for Agentic Applications signature. Project AIR ships 16 detectors: all 10 OWASP Top 10 for Agentic Applications (ASI01 through ASI10), 3 OWASP LLM Top 10 categories (LLM01, LLM04, LLM06), and 3 AIR-native detectors (forensic chain integrity, plus NemoGuard safety and corroboration).
       </p>
     </div>
 
@@ -549,7 +594,7 @@
       {/each}
     </div>
 
-    <p class="text-xs mt-6 text-center italic" style="color: var(--text-faint);">Incident analysis based on public reporting. ASI mappings reflect AIR's detection signatures against the OWASP Top 10 for Agentic Applications 2026.</p>
+    <p class="text-xs mt-6 text-center italic" style="color: var(--text-faint);">Incident analysis based on public reporting. ASI mappings reflect AIR's detection signatures against the OWASP Top 10 for Agentic Applications 2026. Identity and scope detectors (ASI03, ASI10) require an operator-declared agent registry.</p>
   </div>
 </section>
 
@@ -575,7 +620,7 @@
         </div>
         <h3 class="text-xl font-bold mb-2 font-mono">air</h3>
         <p class="text-sm mb-5 leading-relaxed flex-1" style="color: var(--text-muted);">
-          The CLI. Ingest any agent trace. Detects all 10 OWASP Top 10 for Agentic Applications categories, plus 3 OWASP LLM Top 10 categories and 1 AIR-native chain-integrity check. Outputs forensic timelines with signed evidence hashes.
+          The CLI. Ingest any agent trace. 16 detectors: all 10 OWASP Top 10 for Agentic Applications categories, 3 OWASP LLM Top 10 categories, and 3 AIR-native. 14 run offline with zero config; the 2 NemoGuard detectors activate with an NVIDIA NemoGuard NIM. Outputs forensic timelines with signed evidence hashes.
         </p>
         <div class="dark-embed p-4 font-mono text-xs">
           <div class="text-zinc-600 mb-1">$ pip install projectair</div>
@@ -1006,7 +1051,7 @@
       <div class="p-6" style="border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">OWASP</p>
         <p class="text-sm font-semibold" style="color: var(--text-primary);">Top 10 for Agentic Applications 2026</p>
-        <p class="text-xs mt-2 leading-relaxed" style="color: var(--text-muted);">All 10 Agentic ASIs (ASI01 through ASI10) shipped in projectair 0.3.0. Additional detectors cover OWASP LLM01, LLM04, LLM06, and an AIR-native chain-integrity check.</p>
+        <p class="text-xs mt-2 leading-relaxed" style="color: var(--text-muted);">All 10 Agentic ASIs (ASI01 through ASI10) shipped in projectair 0.3.0. Plus 3 OWASP LLM categories (LLM01, LLM04, LLM06) and 3 AIR-native detectors, for 16 total.</p>
       </div>
       <div class="p-6" style="border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">AgDR</p>
@@ -1020,7 +1065,7 @@
       </div>
       <div class="p-6" style="border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);">
         <p class="font-mono text-xs text-brand-red tracking-wider uppercase mb-2">HIPAA</p>
-        <p class="text-sm font-semibold" style="color: var(--text-primary);">Security Rule (2026 NPRM)</p>
+        <p class="text-sm font-semibold" style="color: var(--text-primary);">Security Rule (2025 NPRM, proposed)</p>
         <p class="text-xs mt-2 leading-relaxed" style="color: var(--text-muted);">Cryptographic evidence for 45 CFR 164.312 audit controls, integrity controls, and person authentication. Auth0-verified clinician identity in the chain.</p>
       </div>
       <div class="p-6" style="border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);">
@@ -1038,7 +1083,7 @@
 </section>
 
 <!--
-  HOMEPAGE PRICING SECTION — hidden until paid-tier features actually ship.
+  HOMEPAGE PRICING SECTION: hidden until paid-tier features actually ship.
   Restore the cards once Wave 1+ features land. /pricing route still exists
   for direct visitors and for the navbar "Pricing" link.
 -->
@@ -1127,7 +1172,7 @@
           <span class="font-mono text-[10px] tracking-[0.18em] uppercase px-1.5 py-0.5" style="color: var(--text-primary); border: 1px solid var(--border); box-shadow: 0 0 10px var(--badge-shadow);">Project AIR&#8482;</span>
         </div>
         <p class="text-sm leading-relaxed" style="color: var(--text-muted);">
-          AI Incident Response. Forensic reconstruction, signed evidence, and containment for autonomous agents.
+          Project AIR by Vindicara. Evidence-grade infrastructure for AI agents: forensic reconstruction, signed evidence, and containment for autonomous agents.
         </p>
       </div>
 

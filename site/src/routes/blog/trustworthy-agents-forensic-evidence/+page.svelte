@@ -111,7 +111,7 @@
   </p>
 
   <p class="leading-relaxed mt-4" style="color: var(--text-secondary);">
-    <strong style="color: var(--text-primary);"><code class="text-brand-red bg-brand-red/10 px-1.5 py-0.5 rounded text-sm">air</code></strong>: the CLI. MIT-licensed. Ingests any agent trace, runs all 10 OWASP ASI detectors plus 3 OWASP LLM categories plus an AIR-native chain-integrity check, and produces a signed forensic timeline. <code class="text-brand-red bg-brand-red/10 px-1.5 py-0.5 rounded text-sm">pip install projectair</code>, then <code class="text-brand-red bg-brand-red/10 px-1.5 py-0.5 rounded text-sm">air trace my-app.log</code>.
+    <strong style="color: var(--text-primary);"><code class="text-brand-red bg-brand-red/10 px-1.5 py-0.5 rounded text-sm">air</code></strong>: the CLI. MIT-licensed. Ingests any agent trace, runs all 16 detectors (10 OWASP ASI, 3 OWASP LLM categories, and 3 AIR-native), and produces a signed forensic timeline. <code class="text-brand-red bg-brand-red/10 px-1.5 py-0.5 rounded text-sm">pip install projectair</code>, then <code class="text-brand-red bg-brand-red/10 px-1.5 py-0.5 rounded text-sm">air trace my-app.log</code>.
   </p>
 
   <p class="leading-relaxed mt-4" style="color: var(--text-secondary);">
@@ -169,7 +169,7 @@ agent = AgentExecutor(callbacks=[handler])`}</code></pre></div>
   </p>
 
   <p class="leading-relaxed mt-4" style="color: var(--text-secondary);">
-    AIR classifies every recorded event against the <strong style="color: var(--text-primary);">OWASP Top 10 for Agentic Applications 2026</strong> (ASI01 through ASI10), plus three OWASP LLM categories (LLM01, LLM04, LLM06) and one AIR-native chain-integrity check.
+    AIR classifies every recorded event against the <strong style="color: var(--text-primary);">OWASP Top 10 for Agentic Applications 2026</strong> (ASI01 through ASI10), plus three OWASP LLM categories (LLM01, LLM04, LLM06) and three AIR-native detectors, 16 in total.
   </p>
 
   <p class="leading-relaxed mt-4" style="color: var(--text-secondary);">
