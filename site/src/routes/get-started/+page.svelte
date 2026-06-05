@@ -262,7 +262,7 @@
         <div class="text-emerald-400">[AIR] Chain verified. Report saved to forensic-report.json</div>
       </div>
     </div>
-    <p class="text-sm mt-3" style="color: var(--text-muted);"><code class="font-mono text-brand-cyan">air demo</code> generates a real signed chain, runs all 14 detectors, and exports a forensic report. No API key, no cloud, no config. Under 30 seconds.</p>
+    <p class="text-sm mt-3" style="color: var(--text-muted);"><code class="font-mono text-brand-cyan">air demo</code> generates a real signed chain, runs the 14 offline detectors (16 in the full taxonomy; the 2 NemoGuard detectors activate with an NVIDIA NemoGuard NIM), and exports a forensic report. No API key, no cloud, no config. Under 30 seconds.</p>
   </div>
 </section>
 
@@ -328,7 +328,7 @@ recorder.agent_finish(final_output=<span class="text-green-400">"Task complete"<
         <span class="ml-3 tracking-wider uppercase">{platform === 'windows' ? 'powershell' : 'terminal'}</span>
       </div>
       <div class="p-4 leading-relaxed text-zinc-300">
-        <div class="text-zinc-500"># Verify signatures + run all 14 detectors</div>
+        <div class="text-zinc-500"># Verify signatures + run the offline detectors (14 of 16)</div>
         <div>{platform === 'windows' ? '<span class="text-zinc-500">PS&gt;</span>' : '<span class="text-brand-red">$</span>'} air trace chain.jsonl</div>
         <div class="mt-3 text-zinc-500"># Verify using only public infrastructure (no Vindicara dependency)</div>
         <div>{platform === 'windows' ? '<span class="text-zinc-500">PS&gt;</span>' : '<span class="text-brand-red">$</span>'} air verify-public chain.jsonl</div>
