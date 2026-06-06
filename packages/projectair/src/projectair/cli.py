@@ -79,6 +79,11 @@ from projectair.verify_intent_cli import register as _register_verify_intent_cli
 
 _register_verify_intent_cli(app)
 
+# Delegated Authority: `air authorize`, `air verify-delegation` (beta).
+from projectair.delegation_cli import register as _register_delegation_cli  # noqa: E402
+
+_register_delegation_cli(app)
+
 # AIR Cloud push: `air push`.
 from projectair.push_cli import register as _register_push_cli  # noqa: E402
 

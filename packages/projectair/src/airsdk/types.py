@@ -61,6 +61,7 @@ class StepKind(StrEnum):
     ANCHOR = "anchor"
     HUMAN_APPROVAL = "human_approval"
     INTENT_DECLARATION = "intent_declaration"
+    DELEGATION = "delegation"  # session-genesis human authorization
 
 
 class RFC3161Anchor(BaseModel):
@@ -182,6 +183,52 @@ class IntentSpec(BaseModel):
         return self
 
 
+class AuthMethod(StrEnum):
+    AUTH0 = "auth0"  # OIDC token, passkey-as-authenticator inside Auth0
+    WEBAUTHN = "webauthn"  # native WebAuthn, biometric stays on the device
+
+
+class DelegationGrant(BaseModel):
+    """A human authorizing an agent deployment, recorded as the chain genesis.
+
+    ``HumanApproval`` binds one action to a human. ``DelegationGrant`` binds the
+    whole session: who authorized this agent to run, under which policy, within
+    which scope, until when. Because every later record hash-chains from this
+    genesis, binding the genesis to an authenticated human binds the entire
+    session.
+
+    ``proof`` carries what an offline verifier needs to re-check the human
+    authentication with no live IdP call: the Auth0 JWT, or the WebAuthn
+    assertion bundle (clientDataJSON, authenticatorData, signature, and the
+    credential public key).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    delegation_id: str
+    agent_id: str
+    decision: str = "authorize"  # "authorize" | "deny"
+
+    # Who authorized.
+    auth_method: AuthMethod
+    authorizer_sub: str  # IdP subject claim, or WebAuthn user handle
+    authorizer_email: str | None = None
+    issuer: str | None = None  # IdP issuer URL (auth0 path)
+    credential_id: str | None = None  # WebAuthn credential id, b64url (webauthn path)
+
+    # What was authorized.
+    policy_id: str
+    policy_hash: str  # BLAKE3 hex of the ruleset document
+    scope: IntentSpec  # the authorized scope; SV enforces this exact spec
+
+    # When.
+    granted_at: int  # unix seconds
+    expires_at: int  # unix seconds
+
+    # Offline re-verification material.
+    proof: dict[str, Any] = Field(default_factory=dict)
+
+
 class DataAssetRef(BaseModel):
     """Reference to a data asset touched by an agent action."""
 
@@ -238,6 +285,9 @@ class AgDRPayload(BaseModel):
     challenge_id: str | None = None
     # Human approval (Layer 3). Used when kind == HUMAN_APPROVAL.
     human_approval: HumanApproval | None = None
+    # Delegation (session genesis). Used when kind == DELEGATION. Binds the
+    # whole chain to the human who authorized the agent to run.
+    delegation: DelegationGrant | None = None
     # Data governance (v0.6). Optional tagging for data-asset lineage
     # and data-subject tracking across agent actions.
     data_assets: list[DataAssetRef] | None = None

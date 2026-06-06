@@ -32,12 +32,25 @@ from airsdk.containment import (
     ChallengeNotFoundError,
     ContainmentPolicy,
     Decision,
+    DelegationPolicy,
     StepUpRequiredError,
+    evaluate_require_delegation,
 )
 from airsdk.transport import FileTransport, Transport
-from airsdk.types import AgDRPayload, AgDRRecord, DataAssetRef, DataSubjectRef, HumanApproval, IntentSpec, SigningAlgorithm, StepKind
-from airsdk.verification.verifier import verify_intent as _verify_intent
+from airsdk.types import (
+    GENESIS_PREV_HASH,
+    AgDRPayload,
+    AgDRRecord,
+    DataAssetRef,
+    DataSubjectRef,
+    DelegationGrant,
+    HumanApproval,
+    IntentSpec,
+    SigningAlgorithm,
+    StepKind,
+)
 from airsdk.verification.types import IntentVerdict
+from airsdk.verification.verifier import verify_intent as _verify_intent
 
 if TYPE_CHECKING:
     from airsdk.anchoring import AnchoringOrchestrator
@@ -115,8 +128,10 @@ class AIRRecorder:
         *,
         user_intent: str | None = None,
         intent_spec: IntentSpec | None = None,
+        delegation: DelegationGrant | None = None,
         transports: list[Transport] | None = None,
         containment: ContainmentPolicy | None = None,
+        delegation_policy: DelegationPolicy | None = None,
         auth0_verifier: Auth0Verifier | None = None,
         signing_algorithm: SigningAlgorithm = SigningAlgorithm.ED25519,
         verify_on_step: bool = False,
@@ -125,18 +140,26 @@ class AIRRecorder:
         self._signer = Signer(priv) if priv is not None else Signer.generate(signing_algorithm)
         self._log_path = Path(log_path).expanduser()
         self._log_path.parent.mkdir(parents=True, exist_ok=True)
+        if delegation is not None and intent_spec is not None:
+            raise ValueError(
+                "pass either delegation= or intent_spec=, not both; the "
+                "delegation already carries the authorized scope as its IntentSpec"
+            )
         self._user_intent = user_intent
-        self._intent_spec = intent_spec
+        self._intent_spec = delegation.scope if delegation is not None else intent_spec
         self._transports: list[Transport] = transports if transports is not None else [FileTransport(self._log_path)]
         self._orchestrator: AnchoringOrchestrator | None = None
         self._containment = containment
+        self._delegation_policy = delegation_policy
         self._auth0 = auth0_verifier
         self._pending: dict[str, dict[str, Any]] = {}
         self._prior_findings: list[Finding] = []
         self._verify_on_step = verify_on_step
         self._chain_records: list[AgDRRecord] = []
 
-        if intent_spec is not None:
+        if delegation is not None:
+            self.open_delegation(delegation)
+        elif intent_spec is not None:
             self._emit(StepKind.INTENT_DECLARATION, {
                 "user_intent": intent_spec.goal,
                 "intent_spec": intent_spec,
@@ -225,6 +248,17 @@ class AIRRecorder:
             fields["data_assets"] = data_assets
         if data_subjects is not None:
             fields["data_subjects"] = data_subjects
+
+        delegation_result = evaluate_require_delegation(
+            self._chain_records,
+            policy=self._delegation_policy,
+        )
+        if delegation_result.blocked:
+            fields["blocked"] = True
+            fields["blocked_reason"] = delegation_result.reason
+            self._emit(StepKind.TOOL_START, fields)
+            raise BlockedActionError(delegation_result.reason, tool_name=tool_name)
+
         if self._containment is None:
             return self._emit(StepKind.TOOL_START, fields)
 
@@ -232,6 +266,7 @@ class AIRRecorder:
             tool_name=tool_name,
             tool_args=tool_args,
             prior_findings=prior_findings if prior_findings is not None else self._prior_findings,
+            records=self._chain_records,
         )
         if verdict.decision == Decision.ALLOW:
             return self._emit(StepKind.TOOL_START, fields)
@@ -298,6 +333,36 @@ class AIRRecorder:
                 **extra,
             },
         )
+
+    def open_delegation(self, grant: DelegationGrant) -> AgDRRecord:
+        """Emit the session-genesis DELEGATION record, then declare its scope.
+
+        Binds the entire chain to the human who authorized this agent: who,
+        under which policy, within which scope, until when. Because every later
+        record hash-chains from this genesis, binding the genesis to an
+        authenticated human binds the whole session.
+
+        Must be the chain root. The authorized scope is also emitted as an
+        ``INTENT_DECLARATION`` so Structural Verification enforces exactly what
+        the human authorized. Raises ``RuntimeError`` if the recorder has
+        already emitted records (so a caller cannot slip records in ahead of
+        the delegation).
+        """
+        if self._signer.head_hash != GENESIS_PREV_HASH:
+            raise RuntimeError(
+                "open_delegation must be the first record on the chain; the "
+                "recorder has already emitted records. Construct the recorder "
+                "without intent_spec= and call open_delegation before any step."
+            )
+        record = self._emit(
+            StepKind.DELEGATION,
+            {"delegation": grant, "user_intent": grant.scope.goal},
+        )
+        self._emit(
+            StepKind.INTENT_DECLARATION,
+            {"user_intent": grant.scope.goal, "intent_spec": grant.scope},
+        )
+        return record
 
     # -- Internal ---------------------------------------------------------
 
