@@ -40,7 +40,6 @@ def check_entities(
 
     allowed = set(intent_spec.allowed_entities)
     allowed_lower = {e.lower() for e in allowed}
-    allowed_patterns = _build_patterns(list(allowed))
 
     violations: list[Violation] = []
 
@@ -51,9 +50,6 @@ def check_entities(
         text = _text_from_record(record)
         if not text:
             continue
-
-        found = _extract_identifiers(text, allowed_patterns)
-        found_lower = {f.lower() for f in found}
 
         all_candidate_ids = _scan_for_entity_patterns(text)
         unauthorized = set()

@@ -21,7 +21,7 @@ from cryptography.x509.oid import NameOID
 from airsdk.handoff.exceptions import IdentityCertificateError
 from airsdk.handoff.fulcio import FulcioTrustBundle, verify_fulcio_leaf
 
-_NOW = dt.datetime(2026, 6, 1, 12, 0, 0, tzinfo=dt.timezone.utc)
+_NOW = dt.datetime(2026, 6, 1, 12, 0, 0, tzinfo=dt.UTC)
 _NB = _NOW - dt.timedelta(hours=1)
 _NA = _NOW + dt.timedelta(hours=1)
 
@@ -180,4 +180,4 @@ def test_empty_root_bundle_rejected() -> None:
 def test_naive_at_time_rejected() -> None:
     bundle, leaf_der, _ = _full_chain()
     with pytest.raises(IdentityCertificateError, match="timezone-aware"):
-        verify_fulcio_leaf(leaf_der, bundle, at_time=dt.datetime(2026, 6, 1, 12, 0, 0))  # noqa: DTZ001
+        verify_fulcio_leaf(leaf_der, bundle, at_time=dt.datetime(2026, 6, 1, 12, 0, 0))

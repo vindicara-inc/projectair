@@ -173,7 +173,7 @@ class IntentSpec(BaseModel):
     non_goals: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _validate_scope_exclusivity(self) -> "IntentSpec":
+    def _validate_scope_exclusivity(self) -> IntentSpec:
         if self.allowed_entities and self.entity_scope:
             raise ValueError(
                 "allowed_entities and entity_scope are mutually exclusive. "

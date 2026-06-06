@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from airsdk.agdr import Signer, _HAS_MLDSA, export_private_key_pem, load_chain, verify_chain, verify_record
+from airsdk.agdr import _HAS_MLDSA, Signer, export_private_key_pem, load_chain, verify_chain, verify_record
 from airsdk.types import AgDRPayload, SigningAlgorithm, StepKind, VerificationStatus
 
 _skip_no_mldsa = pytest.mark.skipif(
