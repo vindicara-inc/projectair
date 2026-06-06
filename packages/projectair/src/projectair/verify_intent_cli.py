@@ -13,6 +13,7 @@ import typer
 
 from airsdk import __version__ as airsdk_version
 from airsdk.agdr import load_chain
+from airsdk.containment import DelegationPolicy, EnforcementMode
 from airsdk.verification import (
     IntentVerdict,
     IntentVerificationResult,
@@ -27,6 +28,12 @@ def register(app: typer.Typer) -> None:
 
 def verify_intent_cmd(
     chain: Path = typer.Argument(..., exists=True, dir_okay=False, help="Chain JSONL file."),
+    require_delegation: EnforcementMode | None = typer.Option(
+        None,
+        "--require-delegation",
+        help="SV-AUTH enforcement: always, auto, or never (omit for auto default).",
+        case_sensitive=False,
+    ),
 ) -> None:
     """Verify that agent behavior served its declared intent (experimental).
 
@@ -42,7 +49,10 @@ def verify_intent_cmd(
     typer.secho(f"  Chain: {chain}", fg=typer.colors.BRIGHT_BLACK)
 
     records = load_chain(chain)
-    result = verify_intent(records)
+    delegation_policy = (
+        DelegationPolicy(mode=require_delegation) if require_delegation is not None else None
+    )
+    result = verify_intent(records, delegation_policy=delegation_policy)
 
     typer.echo()
     _render_result(result)

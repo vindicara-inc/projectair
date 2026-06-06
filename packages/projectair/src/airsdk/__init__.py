@@ -45,8 +45,10 @@ from airsdk.types import (
     AGDR_VERSION,
     AgDRPayload,
     AgDRRecord,
+    AuthMethod,
     DataAssetRef,
     DataSubjectRef,
+    DelegationGrant,
     EntityScope,
     Finding,
     ForensicReport,
@@ -56,6 +58,7 @@ from airsdk.types import (
     VerificationResult,
     VerificationStatus,
 )
+from airsdk.delegation import mint_grant_from_auth0, open_delegation
 from airsdk.verification import (
     IntentSource,
     IntentVerdict,
@@ -63,6 +66,7 @@ from airsdk.verification import (
     Violation,
     verify_intent,
 )
+from airsdk.verification.checks.delegation import check_delegation
 
 __version__ = "1.0.1"
 
@@ -74,8 +78,10 @@ __all__ = [
     "AgDRPayload",
     "AgDRRecord",
     "AgentDescriptor",
+    "AuthMethod",
     "DataAssetRef",
     "DataSubjectRef",
+    "DelegationGrant",
     "EntityScope",
     "AgentRegistry",
     "BehavioralScope",
@@ -96,6 +102,7 @@ __all__ = [
     "VerificationStatus",
     "Violation",
     "__version__",
+    "check_delegation",
     "detect_cascading_failures",
     "detect_goal_hijack",
     "detect_human_agent_trust_exploitation",
@@ -123,6 +130,8 @@ __all__ = [
     "load_chain",
     "load_registry",
     "make_air_callbacks",
+    "mint_grant_from_auth0",
+    "open_delegation",
     "resolve_signing_key",
     "run_detectors",
     "verify_chain",
