@@ -27,7 +27,7 @@ from airsdk.handoff.idp.base import AdapterRouter, CapabilityToken, IdPAdapter
 from airsdk.handoff.verifier import CrossAgentVerifier
 
 _TS = "2026-06-01T12:00:00Z"
-_NOW = dt.datetime(2026, 6, 1, 12, 0, 0, tzinfo=dt.timezone.utc)
+_NOW = dt.datetime(2026, 6, 1, 12, 0, 0, tzinfo=dt.UTC)
 _NB = _NOW - dt.timedelta(hours=1)
 _NA = _NOW + dt.timedelta(hours=1)
 _OID_V2 = "1.3.6.1.4.1.57264.1.8"
@@ -160,8 +160,8 @@ def test_wave1_fulcio_without_bundle_rejected() -> None:
 
 def test_route_capability_issuer_strict_when_no_bundle() -> None:
     router = AdapterRouter()
+    verifier = CrossAgentVerifier(adapter_router=router)
     with pytest.raises(UnregisteredIssuerError):
-        verifier = CrossAgentVerifier(adapter_router=router)
         verifier._route_capability_issuer("https://issuer.example/", _rec(_LOCAL, "x"))
 
 

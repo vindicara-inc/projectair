@@ -7,6 +7,7 @@
 from airsdk.agdr import Signer, load_chain, verify_chain, verify_record
 from airsdk.article72 import generate_article72_report
 from airsdk.callback import AIRCallbackHandler
+from airsdk.delegation import mint_grant_from_auth0, open_delegation
 from airsdk.detections import (
     UNIMPLEMENTED_DETECTORS,
     detect_cascading_failures,
@@ -58,7 +59,6 @@ from airsdk.types import (
     VerificationResult,
     VerificationStatus,
 )
-from airsdk.delegation import mint_grant_from_auth0, open_delegation
 from airsdk.verification import (
     IntentSource,
     IntentVerdict,
@@ -78,13 +78,13 @@ __all__ = [
     "AgDRPayload",
     "AgDRRecord",
     "AgentDescriptor",
+    "AgentRegistry",
     "AuthMethod",
+    "BehavioralScope",
     "DataAssetRef",
     "DataSubjectRef",
     "DelegationGrant",
     "EntityScope",
-    "AgentRegistry",
-    "BehavioralScope",
     "FileTransport",
     "Finding",
     "ForensicReport",

@@ -6,12 +6,10 @@ temporary directory and never touches the real ~/.config/projectair/.
 from __future__ import annotations
 
 import importlib
-import sys
 from typing import Any
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -50,9 +48,11 @@ def test_prompt_collects_email(
     def fake_post(email: str) -> None:
         posted.append(email)
 
-    with patch("builtins.input", side_effect=["user@example.com", "Y"]):
-        with patch.object(fr, "_post_registration", side_effect=fake_post):
-            fr.maybe_prompt_first_run()
+    with (
+        patch("builtins.input", side_effect=["user@example.com", "Y"]),
+        patch.object(fr, "_post_registration", side_effect=fake_post),
+    ):
+        fr.maybe_prompt_first_run()
 
     import projectair.config as cfg
     importlib.reload(cfg)
@@ -80,9 +80,11 @@ def test_prompt_skip_creates_marker(
         nonlocal post_called
         post_called = True
 
-    with patch("builtins.input", side_effect=["", "n"]):
-        with patch.object(fr, "_post_registration", side_effect=fake_post):
-            fr.maybe_prompt_first_run()
+    with (
+        patch("builtins.input", side_effect=["", "n"]),
+        patch.object(fr, "_post_registration", side_effect=fake_post),
+    ):
+        fr.maybe_prompt_first_run()
 
     import projectair.config as cfg
     importlib.reload(cfg)
@@ -193,9 +195,8 @@ def test_update_check_opt_in(
 
     monkeypatch.setattr("sys.stdin.isatty", lambda: True)
 
-    with patch("builtins.input", side_effect=["", "Y"]):
-        with patch.object(fr, "_post_registration"):
-            fr.maybe_prompt_first_run()
+    with patch("builtins.input", side_effect=["", "Y"]), patch.object(fr, "_post_registration"):
+        fr.maybe_prompt_first_run()
 
     import projectair.config as cfg
     importlib.reload(cfg)
@@ -215,9 +216,8 @@ def test_update_check_opt_out(
 
     monkeypatch.setattr("sys.stdin.isatty", lambda: True)
 
-    with patch("builtins.input", side_effect=["", "n"]):
-        with patch.object(fr, "_post_registration"):
-            fr.maybe_prompt_first_run()
+    with patch("builtins.input", side_effect=["", "n"]), patch.object(fr, "_post_registration"):
+        fr.maybe_prompt_first_run()
 
     import projectair.config as cfg
     importlib.reload(cfg)

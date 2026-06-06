@@ -5,13 +5,11 @@ temporary directory and never touches the real ~/.config/projectair/.
 """
 from __future__ import annotations
 
-import json
 import os
 import stat
 from pathlib import Path
 
 import pytest
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -27,6 +25,7 @@ def _import_config(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     monkeypatch.delenv("APPDATA", raising=False)
     # Force reimport so module-level state picks up the env override.
     import importlib
+
     import projectair.config as cfg_mod
     importlib.reload(cfg_mod)
     return cfg_mod

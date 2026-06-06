@@ -34,7 +34,7 @@ def _cert_with_extension(oid: str, value: bytes) -> bytes:
     """Build a self-signed DER cert carrying one opaque extension."""
     key = ec.generate_private_key(ec.SECP256R1())
     name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "sigstore")])
-    now = _dt.datetime(2026, 1, 1, tzinfo=_dt.timezone.utc)
+    now = _dt.datetime(2026, 1, 1, tzinfo=_dt.UTC)
     builder = (
         x509.CertificateBuilder()
         .subject_name(name)
@@ -70,7 +70,7 @@ def test_v2_wins_when_both_present() -> None:
     # Build a cert with both extensions; V2 must take precedence.
     key = ec.generate_private_key(ec.SECP256R1())
     name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "sigstore")])
-    now = _dt.datetime(2026, 1, 1, tzinfo=_dt.timezone.utc)
+    now = _dt.datetime(2026, 1, 1, tzinfo=_dt.UTC)
     cert = (
         x509.CertificateBuilder()
         .subject_name(name)

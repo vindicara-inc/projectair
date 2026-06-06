@@ -19,6 +19,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
+
 try:
     from cryptography.hazmat.primitives.asymmetric.mldsa import (
         MLDSA65PrivateKey,
@@ -48,10 +49,9 @@ from airsdk.types import (
     VerificationStatus,
 )
 
-if _HAS_MLDSA:
-    SigningKey = Ed25519PrivateKey | MLDSA65PrivateKey  # type: ignore[misc]
-else:
-    SigningKey = Ed25519PrivateKey  # type: ignore[misc]
+SigningKey = (
+    Ed25519PrivateKey | MLDSA65PrivateKey if _HAS_MLDSA else Ed25519PrivateKey
+)  # type: ignore[misc]
 
 
 def _canonical_json(obj: Any) -> bytes:

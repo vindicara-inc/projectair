@@ -193,26 +193,6 @@ def test_recorder_allows_legacy_under_auto(tmp_path: Path) -> None:
     assert evaluate_require_delegation(load_chain(chain)).decision == Decision.ALLOW
 
 
-def test_recorder_blocks_declared_uncovered_under_auto(tmp_path: Path) -> None:
-    chain = tmp_path / "chain.jsonl"
-    grant = _grant(decision="deny")
-    recorder = AIRRecorder(chain, delegation=grant)
-    with pytest.raises(BlockedActionError, match="delegation"):
-        recorder.tool_start(tool_name="claims.read")
-
-    loaded = load_chain(chain)
-    assert loaded[-1].payload.blocked is True
-
-
-def test_recorder_allows_legacy_under_auto(tmp_path: Path) -> None:
-    chain = tmp_path / "chain.jsonl"
-    recorder = AIRRecorder(chain, intent_spec=_scope())
-    recorder.tool_start(tool_name="claims.read")
-    recorder.tool_end(tool_output="ok")
-
-    assert evaluate_require_delegation(load_chain(chain)).decision == Decision.ALLOW
-
-
 def test_recorder_blocks_uncovered_when_delegation_policy_always(tmp_path: Path) -> None:
     chain = tmp_path / "chain.jsonl"
     recorder = AIRRecorder(

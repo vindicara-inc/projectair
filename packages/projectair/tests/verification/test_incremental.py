@@ -1,7 +1,6 @@
 """Tests for incremental verification in AIRRecorder."""
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
 
 import pytest

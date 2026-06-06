@@ -30,7 +30,7 @@ def register(app: typer.Typer) -> None:
             from airsdk_pro.hl7 import parse_hl7v2
         except ImportError:
             typer.echo("Error: HL7v2 support requires projectair-pro.")
-            raise typer.Exit(1)
+            raise typer.Exit(1) from None
         content = file.read_text()
         for chunk in content.split("MSH|"):
             if not chunk.strip():
@@ -55,7 +55,7 @@ def register(app: typer.Typer) -> None:
             from airsdk_pro.hl7 import RedactionPolicy, instrument_hl7
         except ImportError:
             typer.echo("Error: HL7v2 support requires projectair-pro.")
-            raise typer.Exit(1)
+            raise typer.Exit(1) from None
         from airsdk.recorder import AIRRecorder
         rec = AIRRecorder(chain)
         policy = RedactionPolicy()
