@@ -474,12 +474,15 @@ class AIRRecorder:
         self._chain_records.append(record)
         if self._orchestrator is not None:
             self._orchestrator.observe_step(record)
-        if self._verify_on_step and self._intent_spec is not None:
-            if kind == StepKind.TOOL_END:
-                result = _verify_intent(self._chain_records, self._intent_spec)
-                if result.verdict == IntentVerdict.FAILED:
-                    raise BlockedActionError(
-                        f"Structural verification failed: {result.summary}",
-                        tool_name=fields.get("tool_name", ""),
-                    )
+        if (
+            self._verify_on_step
+            and self._intent_spec is not None
+            and kind == StepKind.TOOL_END
+        ):
+            result = _verify_intent(self._chain_records, self._intent_spec)
+            if result.verdict == IntentVerdict.FAILED:
+                raise BlockedActionError(
+                    f"Structural verification failed: {result.summary}",
+                    tool_name=fields.get("tool_name", ""),
+                )
         return record

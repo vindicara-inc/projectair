@@ -15,7 +15,6 @@ from __future__ import annotations
 import sys
 
 from projectair.config import (
-    get_config,
     has_been_prompted,
     load_session,
     mark_prompted,
@@ -91,5 +90,9 @@ def _post_registration(email: str) -> None:
             },
             timeout=5.0,
         )
-    except Exception:  # noqa: BLE001
-        pass
+    except ImportError:
+        # Optional httpx dependency path; skip registration when unavailable.
+        return
+    except (httpx.HTTPError, OSError):
+        # Best-effort registration; never block the CLI on network failures.
+        return
