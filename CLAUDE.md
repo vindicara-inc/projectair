@@ -31,11 +31,11 @@ Use "Project AIR" on hero pages, pitch decks, whitepapers, legal, press, investo
 - `packages/projectair/` -- public MIT package (`air` CLI + `airsdk` library). The product.
 - `packages/projectair-pro/` -- commercial tier (`airsdk_pro`). SIEM, governance, premium detectors/reports. Not on PyPI.
 - `packages/air-dashboard/` -- AIR Cloud dashboard (SvelteKit 2, Svelte 5, Tailwind 4, Three.js, Vitest).
-- `site/` -- marketing site (SvelteKit 2, Svelte 5, Tailwind 4). Day/night theme; day palette is peachy lilac (`#f0e6ef`).
+- `site/` -- marketing site plus Flightdeck product console at `/dashboard` (`site/src/lib/console/`, Auth0 PKCE, live `/v1/*` API). SvelteKit 2, Svelte 5, Tailwind 4. Day/night theme; day palette is peachy lilac (`#f0e6ef`).
 - `src/vindicara/` -- Apache-2.0 engine substrate.
 - `tests/` -- pytest for `src/vindicara/`. Separate from `packages/projectair/tests/`.
 - Pitch the split as **Snyk-style: MIT CLI + SDK top-of-funnel, commercial pro tier + engine behind the cloud**.
-- When the user says "the dashboard," confirm which one (air-dashboard vs site vs legacy `src/vindicara/dashboard/`).
+- When the user says "the dashboard," confirm which one (air-dashboard vs site Flightdeck (`/dashboard`) vs legacy `src/vindicara/dashboard/`).
 
 ## Commands
 
@@ -75,6 +75,8 @@ cd site && npm run build
 # AIR Cloud dashboard
 cd packages/air-dashboard && npm install
 cd packages/air-dashboard && npm run ci   # check + test + build + bundle:check
+
+# Flightdeck console routes live under site/ (see Marketing site commands); open /dashboard after `npm run dev`.
 
 # Publish (always cd packages/projectair first)
 rm -f dist/*.whl dist/*.tar.gz && python -m build && python -m twine check dist/* && python -m twine upload dist/projectair-<ver>*
