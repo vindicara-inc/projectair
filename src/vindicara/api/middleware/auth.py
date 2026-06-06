@@ -57,7 +57,19 @@ class APIKeyStore:
 
 
 class APIKeyAuthMiddleware(BaseHTTPMiddleware):
-    _PUBLIC_PREFIXES = ("/dashboard", "/api/v1/identity", "/api/v1/telemetry", "/webhooks")
+    _PUBLIC_PREFIXES = (
+        "/dashboard",
+        "/api/v1/identity",
+        "/api/v1/telemetry",
+        "/webhooks",
+        "/v1/console",
+        "/v1/rules",
+        "/v1/plugins",
+        "/v1/insurance",
+        "/v1/settings",
+        "/v1/delegations",
+        "/v1/findings",
+    )
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         if request.url.path in _PUBLIC_PATHS or any(request.url.path.startswith(p) for p in self._PUBLIC_PREFIXES):

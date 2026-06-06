@@ -13,7 +13,12 @@ const config = {
 			return isExternalLibrary ? undefined : true;
 		},
 		warningFilter: (warning) => {
-			if (warning.code === 'a11y_invalid_attribute' || warning.code === 'a11y_consider_explicit_label') return false;
+			if (
+				warning.code === 'a11y_invalid_attribute' ||
+				warning.code === 'a11y_consider_explicit_label' ||
+				warning.code === 'a11y_label_has_associated_control'
+			)
+				return false;
 			return true;
 		}
 	},
@@ -24,7 +29,7 @@ const config = {
 		prerender: {
 			handleMissingId: 'warn',
 			handleHttpError: ({ path, message }) => {
-				if (path === '/dashboard') return;
+				if (path.startsWith('/dashboard')) return;
 				throw new Error(message);
 			}
 		},

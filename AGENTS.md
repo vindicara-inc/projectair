@@ -101,7 +101,7 @@ LangChain (`AIRCallbackHandler`), OpenAI (`instrument_openai`), Anthropic (`inst
 
 - `packages/projectair/` is the public MIT package (the OSS top-of-funnel, the `air` CLI + `airsdk` library)
 - `packages/projectair-pro/` is the licensed commercial tier (`projectair-pro`, `airsdk_pro` namespace). Holds AIR Cloud client (`cloud/`), premium detectors (`detectors/asi04_premium.py`), premium reports (`report_nist_rmf.py`, `report_soc2_ai.py`), data governance (`governance/`: classifier, dsar, indexer, openlineage, query, registry), SIEM push (`siem/`: `splunk.py` Splunk HEC, `datadog.py`, `sentinel.py` Microsoft Sentinel, `sumo.py` Sumo Logic; gated by `siem-integrations` license flag; raw CEF export lives in OSS `airsdk/exports.py`), gating (`gate.py`), licensing (`license.py`). Not on PyPI; distributed under a commercial license to paying tiers
-- `packages/air-dashboard/` is the **dedicated AIR Cloud dashboard** (SvelteKit 2 + Svelte 5 + Tailwind 4, static adapter, Three.js rendering deps). Separate from `site/` (the marketing site) and from `src/vindicara/dashboard/` (the legacy SSR dashboard mounted under `/dashboard` of the FastAPI app). When the user says "the dashboard," confirm which one
+- `packages/air-dashboard/` is the **dedicated AIR Cloud dashboard** (SvelteKit 2 + Svelte 5 + Tailwind 4, static adapter, Three.js rendering deps). Separate from `site/` (marketing site plus Flightdeck at `/dashboard`), and `src/vindicara/dashboard/` (the legacy SSR dashboard mounted under `/dashboard` of the FastAPI app). When the user says "the dashboard," confirm which one
 - `site/` is the marketing + pricing site (also SvelteKit 2 + Svelte 5 + Tailwind 4); homepage, blog, pricing, contact, privacy/terms/security/acceptable-use pages. Has a day/night theme system: CSS custom properties on `:root` with `data-theme="light"` override, theme store at `site/src/lib/theme.svelte.ts`, flash-prevention inline script in `+layout.svelte`, `ThemeToggle.svelte` component (sun/moon icon). Day palette is peachy lilac (`#f0e6ef`), not white. Terminal/code blocks stay dark in both modes via `.dark-embed` class. Logos swap via `.logo-day`/`.logo-night` CSS classes
 - `src/vindicara/` is Apache-2.0 engine substrate, not directly pip-installable anymore
 - All four live in this monorepo
@@ -218,6 +218,7 @@ cd packages/air-dashboard && npm run bundle:check      # bundle-size budget guar
 cd packages/air-dashboard && npm run ci                # check + test + build + bundle:check
 ```
 
+
 ## Repo Layout (actual, current)
 
 `docs/SPEC.md` contains an aspirational project-structure diagram inherited from early planning. Ignore it when writing code. The ground truth is below.
@@ -261,8 +262,8 @@ cd packages/air-dashboard && npm run ci                # check + test + build + 
 - `src/vindicara/config/settings.py` — `VindicaraSettings` via pydantic-settings, `VINDICARA_` env prefix. Constants live alongside their module (e.g. `config.constants` is referenced by `engine/evaluator.py`).
 - `src/vindicara/infra/` — CDK app. `infra/app.py` is the CDK entry point (wired via `cdk.json`). Stacks: `DataStack` (DynamoDB tables + S3 audit bucket), `EventsStack` (EventBridge bus), `APIStack` (Lambda + API Gateway, wired to the other stacks' outputs). No separate `monitoring_stack.py`.
 - `src/vindicara/lambda_handler.py` — Mangum entry point (`handler = Mangum(create_app(), lifespan="off")`). This is what API Gateway calls in production.
-- `site/` — SvelteKit 2 + Svelte 5 + Tailwind 4 marketing site and blog (static adapter). Separate from both `src/vindicara/dashboard/` (legacy SSR dashboard mounted under `/dashboard`) and `packages/air-dashboard/` (the dedicated AIR Cloud dashboard).
-- `packages/air-dashboard/` — SvelteKit 2 + Svelte 5 + Tailwind 4 + Three.js, static adapter, Vitest. The dashboard customers will see (separate from `site/` and from the legacy `src/vindicara/dashboard/`). Has its own `npm run ci` (check + test + build + bundle:check) and a bundle-size budget enforced by `scripts/check-bundle.mjs`.
+- `site/` — SvelteKit 2 + Svelte 5 + Tailwind 4 marketing site and blog (static adapter), plus Flightdeck logged-in console at `/dashboard` (`site/src/lib/console/`, Auth0 PKCE). Separate from `src/vindicara/dashboard/` (legacy SSR dashboard on the FastAPI app) and `packages/air-dashboard/` (AIR Cloud dashboard).
+- `packages/air-dashboard/` — SvelteKit 2 + Svelte 5 + Tailwind 4 + Three.js, static adapter, Vitest. The dashboard customers will see (separate from `site/` (including Flightdeck `/dashboard`) and the legacy `src/vindicara/dashboard/`). Has its own `npm run ci` (check + test + build + bundle:check) and a bundle-size budget enforced by `scripts/check-bundle.mjs`.
 - `tests/` — pytest. Mirrors `src/` for units (`tests/unit/{engine,mcp,identity,monitor,compliance,sdk,dashboard}`). Integration tests live under `tests/integration/{api,mcp,dashboard}` and hit the real ASGI app via `httpx.AsyncClient` + `ASGITransport` (see `tests/conftest.py`). `TEST_API_KEY = "vnd_test"` is the shared dev key; the `app` fixture registers it via `create_app(dev_api_keys=[...])`.
 
 There is no `tests/e2e/` directory, no `scripts/deploy.sh`, and no `src/vindicara/engine/cache.py`.
