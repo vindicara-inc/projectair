@@ -5,8 +5,9 @@ certificate to live in us-east-1, regardless of where the rest of the workload
 runs. The S3 site bucket and the CloudFront distribution are co-located in
 us-east-1 for simplicity.
 
-The dashboard is the air-dashboard SvelteKit static build, deployed to
-/dashboard/ in S3 by deploy-site.sh. No API Gateway proxy needed.
+Flightdeck (site/src/routes/dashboard/) ships inside the site SvelteKit build at
+/dashboard/ in S3 via deploy-site.sh. packages/air-dashboard is legacy and is
+not merged into vindicara.io.
 """
 
 from aws_cdk import CfnOutput, Duration, Environment, RemovalPolicy, Stack
