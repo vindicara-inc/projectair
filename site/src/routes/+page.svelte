@@ -402,15 +402,15 @@
           <span class="w-3 h-3 rounded-full bg-green-500/60"></span>
           <span class="ml-3 tracking-wider uppercase">air trace</span>
         </div>
-        <div class="p-3 sm:p-5 leading-relaxed min-h-[300px] sm:min-h-[360px] overflow-x-auto">
+        <div class="p-3 sm:p-5 leading-relaxed overflow-x-auto">
           {#each TERM_LINES as line, i (i)}
-            {#if i < termLineIndex}
-              <div class={line.color + ' whitespace-pre'}>{line.text || '\u00A0'}</div>
-            {:else if i === termLineIndex}
-              <div class={line.color + ' whitespace-pre'}>
-                {line.text || '\u00A0'}<span class="inline-block w-2 h-4 bg-brand-red animate-pulse ml-0.5 align-middle"></span>
-              </div>
-            {/if}
+            <div
+              class="{line.color} whitespace-pre"
+              class:invisible={i > termLineIndex}
+              aria-hidden={i > termLineIndex}
+            >
+              {line.text || '\u00A0'}{#if i === termLineIndex}<span class="inline-block w-2 h-4 bg-brand-red animate-pulse ml-0.5 align-middle"></span>{/if}
+            </div>
           {/each}
         </div>
       </div>
