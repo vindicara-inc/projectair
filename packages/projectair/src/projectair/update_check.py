@@ -31,14 +31,11 @@ def maybe_check_update() -> None:
 
     last_check_raw = get_config("telemetry", "last_check")
     if last_check_raw is not None:
-        try:
-            last_check = datetime.fromisoformat(last_check_raw)
-            if last_check.tzinfo is None:
-                last_check = last_check.replace(tzinfo=UTC)
-            if datetime.now(UTC) - last_check < timedelta(hours=_CACHE_HOURS):
-                return
-        except ValueError:
-            pass
+        last_check = _parse_last_check(last_check_raw)
+        if last_check is not None and datetime.now(UTC) - last_check < timedelta(
+            hours=_CACHE_HOURS
+        ):
+            return
 
     _fetch_and_print()
 
@@ -79,8 +76,23 @@ def _fetch_and_print() -> None:
                 f"A newer version of AIR is available ({latest})."
                 " Run: pip install --upgrade projectair"
             )
-    except Exception:  # noqa: BLE001
-        pass
+    except ImportError:
+        # Optional dependencies; skip update hint when unavailable.
+        return
+    except (httpx.HTTPError, OSError, ValueError):
+        # Best-effort update hint; never block the CLI on network or parse failures.
+        return
+
+
+def _parse_last_check(raw: str) -> datetime | None:
+    """Parse a stored ``last_check`` timestamp, returning None when corrupt."""
+    try:
+        last_check = datetime.fromisoformat(raw)
+        if last_check.tzinfo is None:
+            last_check = last_check.replace(tzinfo=UTC)
+        return last_check
+    except ValueError:
+        return None
 
 
 def _is_newer(latest: str, installed: str) -> bool:
