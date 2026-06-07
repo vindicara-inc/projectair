@@ -1,0 +1,5 @@
+Contact: mailto:security@vindicara.io
+Expires: 2027-06-06T00:00:00.000Z
+Policy: https://vindicara.io/security
+Preferred-Languages: en
+Canonical: https://vindicara.io/.well-known/security.txt
