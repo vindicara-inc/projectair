@@ -27,6 +27,34 @@ GITHUB_REPO = "projectair"
 
 ALARM_EMAIL = "kev.minn9@gmail.com"
 
+# Cross-origin hosts the built vindicara-site bundle calls at runtime. Keep in
+# sync with vindicara-site/.env (PUBLIC_AIR_API_BASE, PUBLIC_AUTH0_DOMAIN): the
+# console fetches the API gateway and POSTs to Auth0 /oauth/token. A host that is
+# absent here is silently blocked by connect-src once the CSP is enforced.
+API_ORIGIN = "https://qk0ymrk5be.execute-api.us-west-2.amazonaws.com"
+AUTH0_ORIGIN = "https://dev-kilt2vkudvbu75ny.us.auth0.com"
+
+# script-src/style-src carry 'unsafe-inline' for SvelteKit's inline hydration
+# bootstrap and Svelte's scoped inline styles; the site loads no third-party
+# script. Fonts come from Google Fonts; the contact form falls back to mailto:
+# (navigation, not fetch) so it needs no connect-src entry.
+CONTENT_SECURITY_POLICY = "; ".join(
+    [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "object-src 'none'",
+        "frame-ancestors 'none'",
+        "frame-src 'none'",
+        "img-src 'self' data: blob:",
+        "font-src 'self' https://fonts.gstatic.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "script-src 'self' 'unsafe-inline'",
+        f"connect-src 'self' {API_ORIGIN} {AUTH0_ORIGIN}",
+        "form-action 'self'",
+        "upgrade-insecure-requests",
+    ]
+)
+
 
 class SiteStack(Stack):
     """vindicara.io static site via CloudFront + S3."""
@@ -100,6 +128,39 @@ class SiteStack(Stack):
             comment="Trailing-slash redirect for directory paths; index.html rewrite for directories; SPA fallback for client-only routes.",
         )
 
+        # Single response-headers policy at the edge clears the Aikido findings:
+        # CSP not set, HSTS missing, anti-clickjacking, nosniff, referrer policy,
+        # and the Server version leak (remove_headers). HSTS omits `preload`
+        # deliberately: preload is a one-way commitment for every subdomain and
+        # adds nothing until submitted to the preload list.
+        security_headers = cloudfront.ResponseHeadersPolicy(
+            self,
+            "SiteSecurityHeaders",
+            response_headers_policy_name=f"vindicara-site-security-{self.account}",
+            comment="CSP, HSTS, anti-clickjacking, nosniff, referrer policy for vindicara.io.",
+            security_headers_behavior=cloudfront.ResponseSecurityHeadersBehavior(
+                content_security_policy=cloudfront.ResponseHeadersContentSecurityPolicy(
+                    content_security_policy=CONTENT_SECURITY_POLICY,
+                    override=True,
+                ),
+                content_type_options=cloudfront.ResponseHeadersContentTypeOptions(override=True),
+                frame_options=cloudfront.ResponseHeadersFrameOptions(
+                    frame_option=cloudfront.HeadersFrameOption.DENY,
+                    override=True,
+                ),
+                referrer_policy=cloudfront.ResponseHeadersReferrerPolicy(
+                    referrer_policy=cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN,
+                    override=True,
+                ),
+                strict_transport_security=cloudfront.ResponseHeadersStrictTransportSecurity(
+                    access_control_max_age=Duration.days(730),
+                    include_subdomains=True,
+                    override=True,
+                ),
+            ),
+            remove_headers=["Server"],
+        )
+
         distribution = cloudfront.Distribution(
             self,
             "SiteDistribution",
@@ -111,6 +172,7 @@ class SiteStack(Stack):
                 allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
                 cached_methods=cloudfront.CachedMethods.CACHE_GET_HEAD,
                 compress=True,
+                response_headers_policy=security_headers,
                 function_associations=[
                     cloudfront.FunctionAssociation(
                         function=url_rewrite_function,
@@ -118,6 +180,26 @@ class SiteStack(Stack):
                     )
                 ],
             ),
+            # SvelteKit (adapter-static, fallback: index.html) emits flat
+            # `foo.html` files, not `foo/index.html`, so the viewer-request
+            # rewrite misses on most routes and S3 (under OAC) returns 403 for
+            # the unmatched key. These map that to the SPA shell so the
+            # client-side router renders the route. Without this, every route
+            # except `/` 403s. ttl=0 keeps error pages out of the edge cache.
+            error_responses=[
+                cloudfront.ErrorResponse(
+                    http_status=403,
+                    response_http_status=200,
+                    response_page_path="/index.html",
+                    ttl=Duration.seconds(0),
+                ),
+                cloudfront.ErrorResponse(
+                    http_status=404,
+                    response_http_status=200,
+                    response_page_path="/index.html",
+                    ttl=Duration.seconds(0),
+                ),
+            ],
             default_root_object="index.html",
             price_class=cloudfront.PriceClass.PRICE_CLASS_100,
             http_version=cloudfront.HttpVersion.HTTP2_AND_3,
@@ -181,11 +263,14 @@ class SiteStack(Stack):
         )
         cf_5xx_alarm.add_alarm_action(cloudwatch_actions.SnsAction(alarm_topic))
 
-        oidc_provider = iam.OpenIdConnectProvider(
+        # The GitHub Actions OIDC provider is account-global and already exists
+        # in this account (one provider per URL is allowed). Reference it instead
+        # of creating a duplicate, which would fail the deploy with an
+        # "EntityAlreadyExists" error.
+        oidc_provider = iam.OpenIdConnectProvider.from_open_id_connect_provider_arn(
             self,
             "GitHubOIDC",
-            url="https://token.actions.githubusercontent.com",
-            client_ids=["sts.amazonaws.com"],
+            f"arn:aws:iam::{self.account}:oidc-provider/token.actions.githubusercontent.com",
         )
 
         deploy_role = iam.Role(
