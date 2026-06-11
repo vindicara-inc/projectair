@@ -9,6 +9,7 @@ class ComplianceFramework(StrEnum):
     EU_AI_ACT_ARTICLE_72 = "eu-ai-act-article-72"
     NIST_AI_RMF = "nist-ai-rmf"
     SOC2_AI = "soc2-ai"
+    HIPAA_SECURITY = "hipaa-security"
 
 
 class EvidenceType(StrEnum):
