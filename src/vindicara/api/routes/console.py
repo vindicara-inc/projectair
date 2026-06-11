@@ -9,7 +9,8 @@ from pydantic import BaseModel, Field
 
 from vindicara.api.console.auth import OperatorContext, require_operator
 from vindicara.api.console.store import FlightdeckStore
-from vindicara.api.deps import get_agent_registry
+from vindicara.api.deps import get_agent_registry, get_registry
+from vindicara.engine.policy import PolicyRegistry
 from vindicara.identity.registry import AgentRegistry
 
 router = APIRouter(tags=["console"])
@@ -41,14 +42,27 @@ def console_overview(
     return _store(request).overview(registry, operator)
 
 
+@router.get("/v1/console/agents")
+def console_agents(
+    _op: Annotated[OperatorContext, Depends(require_operator)],
+    registry: Annotated[AgentRegistry, Depends(get_agent_registry)],
+) -> list[dict[str, object]]:
+    """Identity registry for the console (operator-authed, no API key needed)."""
+    return [agent.model_dump() for agent in registry.list_agents()]
+
+
 @router.get("/v1/console/readiness")
 def console_readiness(request: Request, _op: Annotated[OperatorContext, Depends(require_operator)]) -> dict[str, object]:
     return _store(request).readiness()
 
 
 @router.get("/v1/rules")
-def list_rules(request: Request, _op: Annotated[OperatorContext, Depends(require_operator)]) -> dict[str, object]:
-    return _store(request).rules()
+def list_rules(
+    request: Request,
+    _op: Annotated[OperatorContext, Depends(require_operator)],
+    registry: Annotated[PolicyRegistry, Depends(get_registry)],
+) -> dict[str, object]:
+    return _store(request).rules(registry)
 
 
 @router.get("/v1/rules/{rule_id}")
@@ -56,8 +70,9 @@ def get_rule(
     rule_id: str,
     request: Request,
     _op: Annotated[OperatorContext, Depends(require_operator)],
+    registry: Annotated[PolicyRegistry, Depends(get_registry)],
 ) -> dict[str, str]:
-    return _store(request).rule_doc(rule_id)
+    return _store(request).rule_doc(registry, rule_id)
 
 
 @router.get("/v1/plugins")

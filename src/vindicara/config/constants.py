@@ -22,6 +22,7 @@ RISK_CRITICAL = 0.9
 TABLE_NAME_POLICIES = "vindicara-policies"
 TABLE_NAME_EVALUATIONS = "vindicara-evaluations"
 TABLE_NAME_API_KEYS = "vindicara-api-keys"
+TABLE_NAME_FLIGHTDECK = "vindicara-flightdeck"
 
 # S3
 BUCKET_NAME_AUDIT = "vindicara-audit"

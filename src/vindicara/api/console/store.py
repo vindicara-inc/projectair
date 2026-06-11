@@ -4,13 +4,18 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
-from vindicara.api.console.auth import OperatorContext
-from vindicara.api.console.fixtures import READINESS_QUESTIONS, RULE_DOCS, plugin_catalog
+from vindicara.api.console.fixtures import READINESS_QUESTIONS, plugin_catalog
 from vindicara.api.console.ops_proof import fetch_ops_manifest, proof_payload
 from vindicara.compliance.frameworks import list_frameworks
-from vindicara.identity.models import AgentIdentity
-from vindicara.identity.registry import AgentRegistry
+from vindicara.sdk.exceptions import PolicyNotFoundError
+
+if TYPE_CHECKING:
+    from vindicara.api.console.auth import OperatorContext
+    from vindicara.engine.policy import PolicyRegistry
+    from vindicara.identity.models import AgentIdentity
+    from vindicara.identity.registry import AgentRegistry
 
 
 @dataclass
@@ -25,25 +30,8 @@ class FlightdeckStore:
             "Raw PHI / payloads": False,
         }
     )
-    consents: list[dict[str, str]] = field(
-        default_factory=lambda: [
-            {
-                "carrier": "coalition",
-                "authorizer": "dr.okafor authorized Coalition",
-                "detail": "Scope: posture feed + evidence on incident. Passkey-signed.",
-                "status": "active",
-            },
-            {
-                "carrier": "vouch",
-                "authorizer": "Pending: Vouch (broker request)",
-                "detail": "Carrier requested read access. Waiting on buyer approval.",
-                "status": "pending",
-            },
-        ]
-    )
-    plugin_connected: set[str] = field(
-        default_factory=lambda: {"datadog", "splunk", "slack", "auth0", "rekor", "stripe"}
-    )
+    consents: list[dict[str, str]] = field(default_factory=list)
+    plugin_connected: set[str] = field(default_factory=set)
 
     def revoke_delegation(self, agent: str) -> None:
         self.revoked_agents.add(agent)
@@ -107,35 +95,59 @@ class FlightdeckStore:
         }
 
     def readiness(self) -> dict[str, object]:
+        questions = READINESS_QUESTIONS
+        score_yes = sum(1 for q in questions if q.get("status") == "yes")
+        score_total = len(questions)
+        pct = round(100 * score_yes / score_total) if score_total else 0
         frameworks = list_frameworks()
         rings = [
             {
                 "framework": fw.name,
-                "detail": fw.framework.value.replace("_", " "),
-                "pct": 85 if "NIST" in fw.name else 92,
-                "state": "progress" if "NIST" in fw.name else "good",
+                "detail": f"{fw.control_count} controls mapped",
+                "pct": pct,
+                "state": "good" if pct >= 90 else "progress",
             }
             for fw in frameworks[:4]
         ]
-        return {"scoreYes": 4, "scoreTotal": 4, "questions": READINESS_QUESTIONS, "compliance": rings}
+        return {"scoreYes": score_yes, "scoreTotal": score_total, "questions": questions, "compliance": rings}
 
-    def rules(self) -> dict[str, object]:
-        rulesets = [
-            {"id": "company-floor", "name": "company-floor.md", "layer": "floor"},
-            {"id": "hipaa-claims-v3", "name": "hipaa-claims-v3.md", "layer": "dept"},
-        ]
-        return {"rulesets": rulesets, "selected": RULE_DOCS["hipaa-claims-v3"]}
+    def rules(self, registry: PolicyRegistry) -> dict[str, object]:
+        infos = registry.list_policies()
+        rulesets = [{"id": info.policy_id, "name": f"{info.policy_id}.md", "layer": "policy"} for info in infos]
+        if infos:
+            selected = self.rule_doc(registry, infos[0].policy_id)
+        else:
+            selected = {
+                "id": "none",
+                "name": "no-policies.md",
+                "layerNote": "no policies registered",
+                "content": "# No policies registered\n# Register a policy through the engine to see it here.",
+            }
+        return {"rulesets": rulesets, "selected": selected}
 
-    def rule_doc(self, rule_id: str) -> dict[str, str]:
-        return RULE_DOCS.get(
-            rule_id,
-            {
+    def rule_doc(self, registry: PolicyRegistry, rule_id: str) -> dict[str, str]:
+        try:
+            policy = registry.get(rule_id)
+        except PolicyNotFoundError:
+            return {
                 "id": rule_id,
                 "name": f"{rule_id}.md",
-                "layerNote": "inherits company-floor",
-                "content": f"# {rule_id}\n# policy document not found in workspace seed",
-            },
+                "layerNote": "not found",
+                "content": f"# {rule_id}\n# policy not found in the engine registry",
+            }
+        rule_lines = "\n".join(f"  - {rule.rule_id}" for rule in policy.rules)
+        content = (
+            f"# {policy.name}   id: {policy.policy_id}   v{policy.version}\n"
+            f"# {policy.description}\n"
+            f"enabled: {str(policy.enabled).lower()}\n"
+            f"rules:\n{rule_lines}"
         )
+        return {
+            "id": policy.policy_id,
+            "name": f"{policy.policy_id}.md",
+            "layerNote": f"{len(policy.rules)} rules, {'enabled' if policy.enabled else 'disabled'}",
+            "content": content,
+        }
 
     def plugins(self) -> dict[str, list[dict[str, object]]]:
         catalog = plugin_catalog()
