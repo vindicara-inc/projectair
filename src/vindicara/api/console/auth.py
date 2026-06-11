@@ -23,7 +23,7 @@ class OperatorContext:
 
 
 def _resolve_verifier() -> Auth0Verifier | None:
-    global _VERIFIER  # noqa: PLW0603
+    global _VERIFIER
     if _VERIFIER is not False:
         return _VERIFIER
 
