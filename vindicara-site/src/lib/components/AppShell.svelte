@@ -15,6 +15,9 @@
     { id: 'admissibility', label: 'Admissibility', to: '/admissibility', num: '06' },
     { id: 'pricing',       label: 'Pricing',       to: '/pricing',       num: '07' }
   ];
+  const start = [
+    { id: 'get-started', label: 'Get started', to: '/get-started', num: '08' }
+  ];
   const company = [
     { id: 'about', label: 'About', to: '/about' },
     { id: 'blog',  label: 'Blog',  to: '/blog' },
@@ -43,6 +46,10 @@
       {#each proof as n}
         <a class="nv {active===n.id?'on':''}" href={n.to}><span class="num">{n.num}</span>{n.label}</a>
       {/each}
+      <div class="lbl">Get started</div>
+      {#each start as n}
+        <a class="nv {active===n.id?'on':''}" href={n.to}><span class="num">{n.num}</span>{n.label}</a>
+      {/each}
     </nav>
     <div class="railcta">
       <button class="fd" onclick={() => goto('/flightdeck')}>F L I G H T D E C K</button>
@@ -67,6 +74,8 @@
         {#each product as n}<a class="ml {active===n.id?'on':''}" href={n.to} onclick={() => (menuOpen = false)}>{n.label}</a>{/each}
         <div class="mlbl">Proof &amp; trust</div>
         {#each proof as n}<a class="ml {active===n.id?'on':''}" href={n.to} onclick={() => (menuOpen = false)}>{n.label}</a>{/each}
+        <div class="mlbl">Get started</div>
+        {#each start as n}<a class="ml {active===n.id?'on':''}" href={n.to} onclick={() => (menuOpen = false)}>{n.label}</a>{/each}
         <div class="mlbl">Company</div>
         {#each company as c}<a class="ml" href={c.to} onclick={() => (menuOpen = false)}>{c.label}</a>{/each}
         <a class="ml" href="/contact" onclick={() => (menuOpen = false)}>Contact</a>
