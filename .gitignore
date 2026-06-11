@@ -74,3 +74,6 @@ docs/pitch/*.pptx
 *.docx
 *YC*.txt
 /PROJECT_AIR_ROADMAP_CONSOLIDATED.md
+
+# Legal docs served by the site must be tracked
+!vindicara-site/static/legal/*.docx
