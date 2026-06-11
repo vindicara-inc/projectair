@@ -11,6 +11,9 @@ Project AIR by Vindicara: forensic accountability SDK for AI agents. MIT CLI (`a
 
 Use "Project AIR" on hero pages, pitch decks, whitepapers, legal, press, investor materials. Use "AIR" in code, docs, CLI, and technical copy.
 
+- "Project AIR" or "project AIR" are both allowed; "AIR" is ALWAYS fully capitalized, never "Air" or "air" in prose.
+- Brand color is RED: render "AIR" in brand red wherever styling is possible (web, decks, badges, social). Plain-text contexts use "AIR" as-is.
+
 ## Current state
 
 - `projectair` **1.0.0** on PyPI (2026-05-18). **1.0.1 in-flight** (relaxed `cryptography` dep, conditional ML-DSA imports, `betterproto`).
@@ -31,7 +34,8 @@ Use "Project AIR" on hero pages, pitch decks, whitepapers, legal, press, investo
 - `packages/projectair/` -- public MIT package (`air` CLI + `airsdk` library). The product.
 - `packages/projectair-pro/` -- commercial tier (`airsdk_pro`). SIEM, governance, premium detectors/reports. Not on PyPI.
 - `packages/air-dashboard/` -- AIR Cloud dashboard (SvelteKit 2, Svelte 5, Tailwind 4, Three.js, Vitest).
-- `site/` -- marketing site plus Flightdeck product console at `/dashboard` (`site/src/lib/console/`, Auth0 PKCE, live `/v1/*` API). SvelteKit 2, Svelte 5, Tailwind 4. Day/night theme; day palette is peachy lilac (`#f0e6ef`).
+- `vindicara-site/` -- **the LIVE vindicara.io site** (deployed by `.github/workflows/deploy-site.yml` on push to main; also `scripts/deploy-site.sh`). SvelteKit + adapter-static, prerendered (do NOT set `ssr = false` in the root layout; that shipped empty HTML shells and broke Google site verification in June 2026). Hand-rolled CSS (no Tailwind), dark navy theme, brand red `--air: #E63946`. Blog posts live here as routes; GA tag `G-FXDPWWZ8F1` in `src/app.html`.
+- `site/` -- PREVIOUS marketing site (Tailwind 4, Flightdeck console at `/dashboard`). No longer deployed as of 2026-06-07. Blog content originated here and was ported to `vindicara-site` on 2026-06-10.
 - `src/vindicara/` -- Apache-2.0 engine substrate.
 - `tests/` -- pytest for `src/vindicara/`. Separate from `packages/projectair/tests/`.
 - Pitch the split as **Snyk-style: MIT CLI + SDK top-of-funnel, commercial pro tier + engine behind the cloud**.
