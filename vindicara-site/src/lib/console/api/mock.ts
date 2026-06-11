@@ -2,6 +2,7 @@
 // so the app runs end-to-end with no backend. Swap to LiveClient by setting
 // PUBLIC_AIR_API_MODE=live. Small artificial latency exercises loading states.
 import type {
+  AgentSummary,
   ApiClient,
   FindingAction,
   InsuranceData,
@@ -93,6 +94,16 @@ export class MockClient implements ApiClient {
       proof: { chainIntact: true, records: 2041118, tampered: 0, signature: 'ml-dsa-65', lastAnchor: '41s ago', rekorIndex: '1466351923' },
       operator: { name: 'Kevin Minn', role: 'Founder · root authority', authMethod: 'passkey', sessionExpires: '42m', grantsAuthorized: 3 }
     };
+  }
+
+  async getAgents(): Promise<AgentSummary[]> {
+    await delay();
+    return [
+      { agentId: 'claims-bot', name: 'claims-bot', permittedTools: ['claims.read', 'claims.adjudicate', 'ehr.read'], dataScope: ['/phi/claims/**'], status: 'active', suspendedReason: '', createdAt: '2026-05-02' },
+      { agentId: 'intake-agent', name: 'intake-agent', permittedTools: ['intake.read', 'intake.triage'], dataScope: ['/intake/**'], status: 'active', suspendedReason: '', createdAt: '2026-05-11' },
+      { agentId: 'scheduler-3', name: 'scheduler-3', permittedTools: ['calendar.read', 'calendar.write'], dataScope: ['/sched/**'], status: 'active', suspendedReason: '', createdAt: '2026-04-28' },
+      { agentId: 'billing-bot', name: 'billing-bot', permittedTools: ['billing.read'], dataScope: ['/billing/**'], status: 'suspended', suspendedReason: 'Ran with no authorizer (SV-AUTH-01)', createdAt: '2026-03-19' }
+    ];
   }
 
   async getReadiness(): Promise<ReadinessData> {

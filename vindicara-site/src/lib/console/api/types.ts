@@ -160,9 +160,21 @@ export interface SettingsData {
   sections: SettingsSection[];
 }
 
+// --- agents (identity registry, GET /v1/agents) ---------------------------- //
+export interface AgentSummary {
+  agentId: string;
+  name: string;
+  permittedTools: string[];
+  dataScope: string[];
+  status: 'active' | 'suspended';
+  suspendedReason: string;
+  createdAt: string;         // ISO string or "" when unknown
+}
+
 // --- the client contract --------------------------------------------------- //
 export interface ApiClient {
   getOverview(): Promise<OverviewData>;
+  getAgents(): Promise<AgentSummary[]>;
   getReadiness(): Promise<ReadinessData>;
   getRules(): Promise<{ rulesets: Ruleset[]; selected: RuleDoc }>;
   getRuleDoc(id: string): Promise<RuleDoc>;
