@@ -45,11 +45,19 @@ node_modules/
 .vite/
 *.tsbuildinfo
 
+# Vite temp config files
+vite.config.*.timestamp-*.mjs
+
 # Tool caches / local agent state
 .hypothesis/
 .playwright-mcp/
 .claire/
 .claude/
+.cursor/
+
+# Local AWS CLI dumps (CloudFront distribution config, etc.)
+/config.json
+/dist.json
 
 # Local backups
 *.backup
