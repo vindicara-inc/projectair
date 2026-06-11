@@ -3,6 +3,7 @@
 // error state instead of fake data. Fill the response mappers as the backend
 // endpoints land; until then PUBLIC_AIR_API_MODE=mock keeps the UI fully usable.
 import type {
+  AgentSummary,
   ApiClient,
   FindingAction,
   InsuranceData,
@@ -36,6 +37,21 @@ export class LiveClient implements ApiClient {
   // GET /v1/console/overview   (aggregates: delegations, enforcement feed,
   //   findings from the SV checks, proof status, the operator session)
   getOverview() { return this.get<OverviewData>('/v1/console/overview'); }
+
+  // GET /v1/console/agents  (identity registry via the operator-authed console
+  // route; /v1/agents itself is behind the API-key middleware, not the Auth0 token)
+  async getAgents(): Promise<AgentSummary[]> {
+    const raw = await this.get<Array<Record<string, unknown>>>('/v1/console/agents');
+    return (raw ?? []).map((a) => ({
+      agentId: String(a.agent_id ?? ''),
+      name: String(a.name ?? ''),
+      permittedTools: (a.permitted_tools as string[]) ?? [],
+      dataScope: (a.data_scope as string[]) ?? [],
+      status: a.status === 'suspended' ? 'suspended' : 'active',
+      suspendedReason: String(a.suspended_reason ?? ''),
+      createdAt: String(a.created_at ?? '')
+    }));
+  }
 
   // GET /v1/console/readiness  (the four-question assessment + compliance rings)
   getReadiness() { return this.get<ReadinessData>('/v1/console/readiness'); }
