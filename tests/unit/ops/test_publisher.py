@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from decimal import Decimal
 from typing import Any
 
@@ -11,6 +12,7 @@ import pytest
 from vindicara.ops.publisher import (
     CHAIN_PREFIX,
     MANIFEST_KEY,
+    _hydrate_redaction_key_from_secret,
     publish_chain,
     render_chain_jsonl,
     run_once,
@@ -239,3 +241,52 @@ def test_render_jsonl_survives_decimal_from_dynamodb() -> None:
     assert len(lines) == 2
     parsed = json.loads(lines[0])
     assert "rekor_log_index" in parsed
+
+
+class TestHydrateRedactionKey:
+    """The publisher resolves the redaction MAC key from Secrets Manager at runtime."""
+
+    _ARN = "arn:aws:secretsmanager:us-west-2:399827112476:secret:vindicara/ops-chain/redaction-key"
+
+    def test_noop_when_arn_unset(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv("VINDICARA_REDACTION_KEY_SECRET_ARN", raising=False)
+        monkeypatch.delenv("VINDICARA_REDACTION_KEY", raising=False)
+        _hydrate_redaction_key_from_secret("us-west-2")
+        assert "VINDICARA_REDACTION_KEY" not in os.environ
+
+    def test_skips_secrets_manager_when_key_already_present(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("VINDICARA_REDACTION_KEY_SECRET_ARN", self._ARN)
+        monkeypatch.setenv("VINDICARA_REDACTION_KEY", "already-staged")
+
+        def _boom(*args: Any, **kwargs: Any) -> Any:
+            raise AssertionError("boto3 must not be called when the key is already staged")
+
+        monkeypatch.setattr("boto3.client", _boom)
+        _hydrate_redaction_key_from_secret("us-west-2")
+        assert os.environ["VINDICARA_REDACTION_KEY"] == "already-staged"
+
+    def test_fetches_and_stages_secret_when_missing(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("VINDICARA_REDACTION_KEY_SECRET_ARN", self._ARN)
+        monkeypatch.delenv("VINDICARA_REDACTION_KEY", raising=False)
+
+        class _FakeSecretsClient:
+            def get_secret_value(self, *, SecretId: str) -> dict[str, str]:  # noqa: N803 - boto3 API parity
+                assert SecretId == TestHydrateRedactionKey._ARN
+                return {"SecretString": "resolved-deployment-secret"}
+
+        monkeypatch.setattr("boto3.client", lambda *args, **kwargs: _FakeSecretsClient())
+        _hydrate_redaction_key_from_secret("us-west-2")
+        assert os.environ["VINDICARA_REDACTION_KEY"] == "resolved-deployment-secret"
+
+    def test_raises_when_secret_has_no_string(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("VINDICARA_REDACTION_KEY_SECRET_ARN", self._ARN)
+        monkeypatch.delenv("VINDICARA_REDACTION_KEY", raising=False)
+
+        class _EmptySecretsClient:
+            def get_secret_value(self, *, SecretId: str) -> dict[str, str]:  # noqa: N803 - boto3 API parity
+                del SecretId
+                return {"SecretString": ""}
+
+        monkeypatch.setattr("boto3.client", lambda *args, **kwargs: _EmptySecretsClient())
+        with pytest.raises(RuntimeError, match="no SecretString"):
+            _hydrate_redaction_key_from_secret("us-west-2")

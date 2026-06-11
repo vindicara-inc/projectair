@@ -93,10 +93,28 @@ class OpsChainStack(Stack):
             removal_policy=RemovalPolicy.RETAIN,
         )
 
+        # The redaction MAC key keys the keyed-BLAKE3 digests in the public
+        # chain so short PII (SSN, MRN) cannot be brute-forced out of the
+        # published hashes. AWS generates the value at deploy time so no human
+        # ever handles it; the publisher reads it at runtime. RETAIN and do not
+        # rotate: a new key breaks cross-record correlation for old records.
+        self.redaction_key_secret = secretsmanager.Secret(
+            self,
+            "RedactionKeySecret",
+            secret_name="vindicara/ops-chain/redaction-key",  # noqa: S106 - secret resource name, not a value
+            description="Keyed-BLAKE3 MAC secret for public ops-chain PII redaction. Auto-generated; do not rotate.",
+            generate_secret_string=secretsmanager.SecretStringGenerator(
+                password_length=64,
+                exclude_punctuation=True,
+            ),
+            removal_policy=RemovalPolicy.RETAIN,
+        )
+
         common_env = {
             "VINDICARA_OPS_CHAIN_TABLE": self.ops_chain_table.table_name,
             "VINDICARA_OPS_CHAIN_BUCKET": self.ops_chain_bucket.bucket_name,
             "VINDICARA_ANCHORING_KEY_SECRET_ARN": self.anchoring_key_secret.secret_arn,
+            "VINDICARA_REDACTION_KEY_SECRET_ARN": self.redaction_key_secret.secret_arn,
         }
 
         self.anchorer_function = lambda_.Function(
@@ -130,6 +148,7 @@ class OpsChainStack(Stack):
         )
         self.ops_chain_table.grant_read_write_data(self.publisher_function)
         self.ops_chain_bucket.grant_put(self.publisher_function)
+        self.redaction_key_secret.grant_read(self.publisher_function)
 
         events.Rule(
             self,

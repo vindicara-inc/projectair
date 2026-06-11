@@ -160,6 +160,28 @@ def run_once(table: Table, bucket: Bucket) -> int:
     return published_count
 
 
+def _hydrate_redaction_key_from_secret(region: str) -> None:
+    """If VINDICARA_REDACTION_KEY_SECRET_ARN is set, fetch the secret value and
+    stage it as VINDICARA_REDACTION_KEY so redact_record can key its MACs.
+
+    No-op when the ARN is unset (keeps local dev working with a directly
+    exported VINDICARA_REDACTION_KEY) or when the key is already present.
+    """
+    secret_arn = os.environ.get("VINDICARA_REDACTION_KEY_SECRET_ARN")
+    if not secret_arn:
+        return
+    if os.environ.get("VINDICARA_REDACTION_KEY"):
+        return
+    import boto3
+
+    client = boto3.client("secretsmanager", region_name=region)
+    response = client.get_secret_value(SecretId=secret_arn)
+    secret_string = response.get("SecretString", "")
+    if not secret_string:
+        raise RuntimeError(f"secret {secret_arn} has no SecretString")
+    os.environ["VINDICARA_REDACTION_KEY"] = secret_string
+
+
 def lambda_handler(event: dict[str, object], context: object) -> dict[str, int]:
     """Cron-Lambda entry point. Reads table + bucket from environment."""
     del event, context
@@ -168,6 +190,8 @@ def lambda_handler(event: dict[str, object], context: object) -> dict[str, int]:
     table_name = os.environ["VINDICARA_OPS_CHAIN_TABLE"]
     bucket_name = os.environ["VINDICARA_OPS_CHAIN_BUCKET"]
     region = os.environ.get("AWS_REGION", "us-west-2")
+
+    _hydrate_redaction_key_from_secret(region)
 
     dynamodb = boto3.resource("dynamodb", region_name=region)
     s3 = boto3.resource("s3", region_name=region)
