@@ -41,6 +41,17 @@ class DataStack(Stack):
             removal_policy=RemovalPolicy.RETAIN,
         )
 
+        self.flightdeck_table = dynamodb.Table(
+            self,
+            "FlightdeckTable",
+            table_name="vindicara-flightdeck",
+            partition_key=dynamodb.Attribute(name="pk", type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(name="sk", type=dynamodb.AttributeType.STRING),
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
+            removal_policy=RemovalPolicy.RETAIN,
+            point_in_time_recovery=True,
+        )
+
         self.audit_bucket = s3.Bucket(
             self,
             "AuditBucket",

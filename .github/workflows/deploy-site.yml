@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'site/**'
+      - 'vindicara-site/**'
       - 'scripts/deploy-site.sh'
       - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
@@ -32,22 +32,22 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: site/package-lock.json
+          cache-dependency-path: vindicara-site/package-lock.json
 
       - name: Install dependencies
-        working-directory: site
+        working-directory: vindicara-site
         run: npm ci
 
       - name: Type check
-        working-directory: site
+        working-directory: vindicara-site
         run: npm run check
 
       - name: Build site
-        working-directory: site
+        working-directory: vindicara-site
         run: npm run build
 
-      - name: Verify Flightdeck build
-        run: test -f site/build/dashboard/index.html
+      - name: Verify FlightDeck build
+        run: test -f vindicara-site/build/flightdeck.html
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -55,8 +55,18 @@ jobs:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Sync to S3
-        run: aws s3 sync site/build/ s3://${{ env.VINDICARA_SITE_BUCKET }}/ --delete
+      # Immutable, content-hashed assets: cache forever. No --delete so a visitor
+      # mid-session on the old HTML can still fetch its (old-hash) chunks.
+      - name: Sync immutable assets
+        run: |
+          aws s3 sync vindicara-site/build/_app/ s3://${{ env.VINDICARA_SITE_BUCKET }}/_app/ \
+            --cache-control "public,max-age=31536000,immutable"
+
+      # HTML and everything else: never hard-cache; clean cutover with --delete.
+      - name: Sync HTML and assets
+        run: |
+          aws s3 sync vindicara-site/build/ s3://${{ env.VINDICARA_SITE_BUCKET }}/ \
+            --exclude "_app/*" --cache-control "no-cache" --delete
 
       - name: Invalidate CloudFront
         run: |
