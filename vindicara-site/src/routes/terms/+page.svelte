@@ -82,7 +82,7 @@
       <a class="doc" href="/legal/ProjectAIR-BAA-v1.1.docx" download><span class="dn">Business Associate Agreement (BAA) v1.1</span><span class="dm">HIPAA · .docx download</span></a>
       <a class="doc" href="/dpa"><span class="dn">Data Processing Addendum (DPA)</span><span class="dm">GDPR / CCPA · read or execute</span></a>
       <a class="doc" href="/security"><span class="dn">Security &amp; responsible disclosure</span><span class="dm">practices and how to report</span></a>
-      <a class="doc" href="/admissibility#certification"><span class="dn">FRE 902(13) certification generator</span><span class="dm">self-authenticating evidence records</span></a>
+      <a class="doc" href="/admissibility"><span class="dn">FRE 902(13) certification generator</span><span class="dm">self-authenticating evidence records</span></a>
       <a class="doc" href="https://github.com/vindicara-inc/projectair" target="_blank" rel="noopener"><span class="dn">MIT License</span><span class="dm">air CLI and airsdk · source repository</span></a>
     </div>
 

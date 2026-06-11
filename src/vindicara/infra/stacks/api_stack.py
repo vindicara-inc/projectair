@@ -67,6 +67,11 @@ class APIStack(Stack):
             identity_registrations_table.table_name,
         )
 
+        # FlightDeck console Auth0 verification. Without these, require_operator
+        # runs open (no token enforcement). Public tenant + API identifier.
+        self.api_function.add_environment("AIR_AUTH0_DOMAIN", "dev-kilt2vkudvbu75ny.us.auth0.com")
+        self.api_function.add_environment("AIR_AUTH0_AUDIENCE", "cabinet-coach.v2")
+
         # ------------------------------------------------------------------
         # Stripe fulfillment secrets (operator-supplied, not CDK-managed).
         #

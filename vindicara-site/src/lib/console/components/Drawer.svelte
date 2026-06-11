@@ -9,14 +9,14 @@
     { title: 'Department', items: [
       { label: 'Overview', to: '/flightdeck', tag: '' },
       { label: 'Active delegations', to: '/flightdeck', tag: 'dept' },
-      { label: 'Agent fleet', to: '/agents', tag: '312' },
-      { label: 'Step-up queue', to: '/stepup', tag: '2' },
-      { label: 'Handoff lineage', to: '/handoff', tag: '' }
+      { label: 'Agent fleet', to: '/flightdeck/agents', tag: '' },
+      { label: 'Step-up queue', to: '/flightdeck/stepup', tag: '' },
+      { label: 'Handoff lineage', to: '/flightdeck/handoff', tag: '' }
     ]},
     { title: 'Policy & proof', items: [
       { label: 'Rules', to: '/flightdeck/rules', tag: '.md' },
       { label: 'Buyer readiness', to: '/flightdeck/readiness', tag: '4/4' },
-      { label: 'Evidence packs', to: '/evidence', tag: '12' },
+      { label: 'Evidence packs', to: '/flightdeck/evidence', tag: '' },
       { label: 'Compliance', to: '/flightdeck/readiness', tag: '' }
     ]},
     { title: 'Plugins', items: [
