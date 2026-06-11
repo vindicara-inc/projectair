@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Build and deploy the marketing site (site/) to S3 + CloudFront.
+# Build and deploy the marketing site (vindicara-site/, includes FlightDeck at
+# /flightdeck) to S3 + CloudFront.
 # Requires: aws CLI authenticated with permissions for the bucket and distribution.
 #
 # Required env vars (no defaults; fails loud if missing):
@@ -14,10 +15,10 @@ set -euo pipefail
 : "${AWS_PROFILE:?AWS_PROFILE must be set (e.g. vindicara)}"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SITE_DIR="$REPO_ROOT/site"
+SITE_DIR="$REPO_ROOT/vindicara-site"
 BUILD_DIR="$SITE_DIR/build"
 
-echo "==> Building site (includes Flightdeck at /dashboard/)"
+echo "==> Building site (includes FlightDeck at /flightdeck)"
 (cd "$SITE_DIR" && npm run build)
 
 if [[ ! -d "$BUILD_DIR" ]]; then
@@ -25,13 +26,18 @@ if [[ ! -d "$BUILD_DIR" ]]; then
   exit 1
 fi
 
-if [[ ! -f "$BUILD_DIR/dashboard/index.html" ]]; then
-  echo "Flightdeck build missing: $BUILD_DIR/dashboard/index.html" >&2
+if [[ ! -f "$BUILD_DIR/flightdeck.html" ]]; then
+  echo "FlightDeck build missing: $BUILD_DIR/flightdeck.html" >&2
   exit 1
 fi
 
 echo "==> Syncing to s3://$VINDICARA_SITE_BUCKET (profile=$AWS_PROFILE)"
-aws s3 sync "$BUILD_DIR/" "s3://$VINDICARA_SITE_BUCKET/" --delete --profile "$AWS_PROFILE"
+# Immutable hashed assets: cache a year, keep old hashes (no --delete here).
+aws s3 sync "$BUILD_DIR/_app/" "s3://$VINDICARA_SITE_BUCKET/_app/" \
+  --cache-control "public,max-age=31536000,immutable" --profile "$AWS_PROFILE"
+# HTML + the rest: no-cache, clean cutover.
+aws s3 sync "$BUILD_DIR/" "s3://$VINDICARA_SITE_BUCKET/" \
+  --exclude "_app/*" --cache-control "no-cache" --delete --profile "$AWS_PROFILE"
 
 echo "==> Invalidating CloudFront $VINDICARA_CF_DIST_ID"
 INVALIDATION_ID=$(
