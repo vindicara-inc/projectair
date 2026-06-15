@@ -43,7 +43,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 # 64 hex chars = 256 bits. BLAKE3 default output size and Ed25519 public key size.
 GENESIS_PREV_HASH = "0" * 64
 
-AGDR_VERSION = "0.6"
+AGDR_VERSION = "0.7"
 
 
 class SigningAlgorithm(StrEnum):
@@ -62,6 +62,8 @@ class StepKind(StrEnum):
     HUMAN_APPROVAL = "human_approval"
     INTENT_DECLARATION = "intent_declaration"
     DELEGATION = "delegation"  # session-genesis human authorization
+    GPU_ATTESTATION = "gpu_attestation"  # hardware root of trust, session genesis (v0.7)
+    KEY_TRANSITION = "key_transition"  # signed key handoff: outgoing key authorizes incoming (key custody)
 
 
 class RFC3161Anchor(BaseModel):
@@ -96,6 +98,53 @@ class RekorAnchor(BaseModel):
     log_id: str
     inclusion_proof: dict[str, Any]
     rekor_url: str
+
+
+class GPUAttestation(BaseModel):
+    """NVIDIA NRAS attestation evidence recorded into the chain (v0.7, experimental).
+
+    AIR records NVIDIA's signed EAT verbatim. AIR does not re-sign it. The
+    record's content hash covers the token, and the record falls under the
+    first anchored BLAKE3 root, so tampering with the recorded attestation
+    breaks chain verification. The nonce is derived from the DELEGATION
+    genesis record (see ``airsdk.attestation.evidence.derive_nonce``), which
+    binds "a GPU was attested" to "this exact authorized session ran on
+    attested hardware."
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    nonce: str  # freshness nonce, derived from chain genesis
+    nras_url: str  # NRAS endpoint that issued the token
+    detached_eat: str  # overall attestation JWT (EAT), as returned by NRAS
+    device_eats: list[str]  # per-GPU/per-nvSwitch detached EAT bundles, evidence order
+    gpu_arch: str  # "hopper" | "blackwell" | "vera_rubin"
+    claims_version: str  # NRAS EAT claims schema version, recorded verbatim
+    rim_matched: bool  # NRAS verdict: evidence matched the Reference Integrity Manifest
+    measured_at: str  # ISO 8601, when AIR collected and recorded the token
+    verification_hint: str  # "nras_jwks" | "cached_rim_ocsp", how offline verify should proceed
+
+
+class KeyTransition(BaseModel):
+    """A signed handoff authorizing a new signing key to continue the chain.
+
+    Emitted as a ``KEY_TRANSITION`` record signed by the OUTGOING key, whose
+    payload names the INCOMING public key. The outgoing key's signature over
+    the record content (which includes ``new_signer_key``) is the authorization:
+    it proves the prior, already-trusted key endorsed its successor. This lets a
+    chain survive key rotation or node cycling without breaking custody, and lets
+    a verifier tell an authorized rotation apart from a forged takeover.
+
+    Chain integrity (hash links, per-record signatures) is unchanged and still
+    checked by ``verify_chain``. Custody (was each key change authorized by the
+    prior key) is the separate concern checked by ``verify_key_custody``.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    new_signer_key: str  # incoming public key, hex (raw encoding, matches AgDRRecord.signer_key)
+    new_signature_algorithm: SigningAlgorithm = SigningAlgorithm.ED25519
+    reason: str = "rotation"  # operator-supplied label: "rotation" | "node_cycle" | ...
 
 
 class HumanApproval(BaseModel):
@@ -288,6 +337,12 @@ class AgDRPayload(BaseModel):
     # Delegation (session genesis). Used when kind == DELEGATION. Binds the
     # whole chain to the human who authorized the agent to run.
     delegation: DelegationGrant | None = None
+    # Hardware root of trust (v0.7). Set when kind == GPU_ATTESTATION.
+    attestation: GPUAttestation | None = None
+    # Key custody. Set when kind == KEY_TRANSITION. The outgoing key signs a
+    # record naming the incoming key, authorizing it to continue the chain.
+    # ``verify_key_custody`` validates the handoff; ``verify_chain`` is unchanged.
+    key_transition: KeyTransition | None = None
     # Data governance (v0.6). Optional tagging for data-asset lineage
     # and data-subject tracking across agent actions.
     data_assets: list[DataAssetRef] | None = None

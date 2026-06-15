@@ -34,6 +34,12 @@ from airsdk.integrations.gemini import instrument_gemini
 from airsdk.integrations.nemo_guardrails import instrument_nemo_guardrails
 from airsdk.integrations.nemoclaw import instrument_nemoclaw
 from airsdk.integrations.nemoguard import NemoGuardClient
+from airsdk.key_custody import (
+    KeyCustodyResult,
+    KeyCustodyStatus,
+    rotate_signer,
+    verify_key_custody,
+)
 from airsdk.recorder import AIRRecorder, resolve_signing_key
 from airsdk.registry import (
     AgentDescriptor,
@@ -53,7 +59,9 @@ from airsdk.types import (
     EntityScope,
     Finding,
     ForensicReport,
+    GPUAttestation,
     IntentSpec,
+    KeyTransition,
     SigningAlgorithm,
     StepKind,
     VerificationResult,
@@ -88,11 +96,15 @@ __all__ = [
     "FileTransport",
     "Finding",
     "ForensicReport",
+    "GPUAttestation",
     "HTTPTransport",
     "IntentSource",
     "IntentSpec",
     "IntentVerdict",
     "IntentVerificationResult",
+    "KeyCustodyResult",
+    "KeyCustodyStatus",
+    "KeyTransition",
     "NemoGuardClient",
     "Signer",
     "SigningAlgorithm",
@@ -133,8 +145,10 @@ __all__ = [
     "mint_grant_from_auth0",
     "open_delegation",
     "resolve_signing_key",
+    "rotate_signer",
     "run_detectors",
     "verify_chain",
     "verify_intent",
+    "verify_key_custody",
     "verify_record",
 ]
