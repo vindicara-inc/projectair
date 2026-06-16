@@ -31,6 +31,10 @@ GSI_NAME = "by_key_hash"
 
 
 def _hash_key(raw: str) -> str:
+    # High-entropy random API token (192-256 bits), not a password: a fast
+    # deterministic hash is the correct storage method and is required for the
+    # by_key_hash GSI O(1) lookup. A salted KDF would break the lookup and add no
+    # security for tokens of this entropy. See CodeQL #17 disposition.
     return hashlib.sha256(raw.encode()).hexdigest()
 
 

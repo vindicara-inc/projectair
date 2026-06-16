@@ -194,6 +194,12 @@ def _update_existing_user(
 
 
 def _store_api_key(raw_key: str, owner_id: str, email: str) -> None:
+    # raw_key is a high-entropy random token (vnd_ + secrets.token_hex(24) = 192 bits),
+    # not a password. SHA-256 is the standard, OWASP-endorsed storage hash for such
+    # tokens, enabling O(1) lookup via the DynamoDB by_key_hash GSI. A password KDF
+    # (bcrypt/argon2) adds no security for 192-bit secrets and would break that lookup.
+    # (Webhook *signature* verification — the integrity-critical path — uses HMAC-SHA256
+    # + hmac.compare_digest above.) See CodeQL #17 disposition.
     key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
     table = dynamodb.Table(API_KEYS_TABLE)
     table.put_item(
