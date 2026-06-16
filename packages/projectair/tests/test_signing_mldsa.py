@@ -5,13 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from airsdk.agdr import _HAS_MLDSA, Signer, export_private_key_pem, load_chain, verify_chain, verify_record
+from airsdk.agdr import Signer, export_private_key_pem, load_chain, verify_chain, verify_record
 from airsdk.types import AgDRPayload, SigningAlgorithm, StepKind, VerificationStatus
-
-_skip_no_mldsa = pytest.mark.skipif(
-    not _HAS_MLDSA,
-    reason="ML-DSA-65 requires cryptography>=48.0.0",
-)
 
 
 @pytest.fixture
@@ -24,7 +19,6 @@ def ed25519_signer() -> Signer:
     return Signer.generate(SigningAlgorithm.ED25519)
 
 
-@_skip_no_mldsa
 class TestMLDSA65Signing:
     def test_generate_mldsa_signer(self, mldsa_signer: Signer) -> None:
         assert mldsa_signer.algorithm == SigningAlgorithm.ML_DSA_65
@@ -78,7 +72,6 @@ class TestMLDSA65Signing:
         assert verify_chain(loaded).status == VerificationStatus.OK
 
 
-@_skip_no_mldsa
 class TestMixedAlgorithmChain:
     def test_ed25519_then_mldsa_verifies(self) -> None:
         """Two independent signers, different algorithms, valid chain linking."""
@@ -120,14 +113,12 @@ class TestBackwardCompatibility:
         ok, reason = verify_record(loaded)
         assert ok, reason
 
-    @_skip_no_mldsa
     def test_algorithm_property_on_signer(self) -> None:
         ed = Signer.generate(SigningAlgorithm.ED25519)
         ml = Signer.generate(SigningAlgorithm.ML_DSA_65)
         assert ed.algorithm == SigningAlgorithm.ED25519
         assert ml.algorithm == SigningAlgorithm.ML_DSA_65
 
-    @_skip_no_mldsa
     def test_from_env_with_mldsa_algorithm(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Hex seed + algorithm=ML_DSA_65 loads the right key type."""
         seed_hex = "a" * 64
@@ -135,7 +126,6 @@ class TestBackwardCompatibility:
         signer = Signer.from_env("TEST_KEY", algorithm=SigningAlgorithm.ML_DSA_65)
         assert signer.algorithm == SigningAlgorithm.ML_DSA_65
 
-    @_skip_no_mldsa
     def test_from_env_pem_autodetects_mldsa(self) -> None:
         """PEM-encoded ML-DSA-65 key auto-detects without algorithm hint."""
         from cryptography.hazmat.primitives.asymmetric.mldsa import MLDSA65PrivateKey
@@ -152,7 +142,6 @@ class TestBackwardCompatibility:
             del os.environ["_TEST_MLDSA_PEM"]
 
 
-@_skip_no_mldsa
 class TestRecorderIntegration:
     def test_recorder_with_mldsa(self, tmp_path: Path) -> None:
         from airsdk.recorder import AIRRecorder

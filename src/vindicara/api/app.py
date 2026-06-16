@@ -11,10 +11,8 @@ from vindicara.api.middleware.security_headers import SecurityHeadersMiddleware
 from vindicara.api.routes import (
     agents,
     capsules,
-    console,
     guard,
     health,
-    identity,
     monitor,
     policies,
     reports,
@@ -80,9 +78,7 @@ def create_app(
     app.include_router(reports.router)
     app.include_router(monitor.router)
     app.include_router(capsules.router)
-    app.include_router(identity.router)
     app.include_router(stripe_webhook.router)
-    app.include_router(console.router)
 
     from vindicara.dashboard.app import create_dashboard_app
     from vindicara.dashboard.auth.middleware import DashboardAuthMiddleware
