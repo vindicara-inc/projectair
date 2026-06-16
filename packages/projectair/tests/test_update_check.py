@@ -7,11 +7,12 @@ from __future__ import annotations
 
 import importlib
 from datetime import datetime, timedelta
-from airsdk._compat import UTC
 from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
+
+from airsdk._compat import UTC
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -19,7 +19,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.asymmetric.mldsa import MLDSA65PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
-from airsdk.agdr import SigningKey, Signer, _uuid7
+from airsdk.agdr import Signer, SigningKey, _uuid7
 from airsdk.containment import (
     Auth0Verifier,
     BlockedActionError,
@@ -31,7 +31,20 @@ from airsdk.containment import (
     evaluate_require_delegation,
 )
 from airsdk.transport import FileTransport, Transport
-from airsdk.types import AgDRPayload, AgDRRecord, HumanApproval, SigningAlgorithm, StepKind
+from airsdk.types import (
+    GENESIS_PREV_HASH,
+    AgDRPayload,
+    AgDRRecord,
+    DataAssetRef,
+    DataSubjectRef,
+    DelegationGrant,
+    HumanApproval,
+    IntentSpec,
+    SigningAlgorithm,
+    StepKind,
+)
+from airsdk.verification.types import IntentVerdict
+from airsdk.verification.verifier import verify_intent as _verify_intent
 
 if TYPE_CHECKING:
     from airsdk.anchoring import AnchoringOrchestrator
@@ -112,6 +125,7 @@ class AIRRecorder:
         delegation_policy: DelegationPolicy | None = None,
         auth0_verifier: Auth0Verifier | None = None,
         signing_algorithm: SigningAlgorithm = SigningAlgorithm.ED25519,
+        verify_on_step: bool = False,
     ) -> None:
         priv = resolve_signing_key(key, algorithm=signing_algorithm)
         self._signer = Signer(priv) if priv is not None else Signer.generate(signing_algorithm)
