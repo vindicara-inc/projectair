@@ -14,12 +14,7 @@ from airsdk._concrete_demo import (
     build_concrete_demo_log,
     tamper_one_byte,
 )
-from airsdk._healthcare_demo import (
-    HEALTHCARE_DEMO_TAMPER_INDEX,
-    HEALTHCARE_DEMO_USER_INTENT,
-    build_healthcare_demo_log,
-)
-from airsdk.agdr import Signer, filter_records_by_date_range, load_chain, verify_chain
+from airsdk.agdr import Signer, load_chain, verify_chain
 from airsdk.article72 import generate_article72_report
 from airsdk.detections import (
     IMPLEMENTED_AIR_DETECTORS,
@@ -397,11 +392,6 @@ def demo(
         "--signing-algorithm",
         help="Signing algorithm: ed25519 (default) or ml-dsa-65 (FIPS 204, experimental).",
     ),
-    healthcare: bool = typer.Option(
-        False,
-        "--healthcare",
-        help="Run the HIPAA-aligned clinical decision support demo instead of the default.",
-    ),
 ) -> None:
     """Run the brutal end-to-end demo. Zero setup; under 30 seconds.
 
@@ -447,7 +437,7 @@ def demo(
         algo = SigningAlgorithm(signing_algorithm)
     except ValueError:
         typer.secho(f"Unknown signing algorithm '{signing_algorithm}'. Use: ed25519, ml-dsa-65", fg=typer.colors.RED, err=True)
-        raise typer.Exit(code=2) from None
+        raise typer.Exit(code=2)
     demo_signer = Signer.generate(algo)
     signer = build_concrete_demo_log(log_path, signer=demo_signer)
     records = load_chain(log_path)

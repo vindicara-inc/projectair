@@ -19,18 +19,10 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
-
-try:
-    from cryptography.hazmat.primitives.asymmetric.mldsa import (
-        MLDSA65PrivateKey,
-        MLDSA65PublicKey,
-    )
-    _HAS_MLDSA = True
-except ImportError:
-    _HAS_MLDSA = False
-    MLDSA65PrivateKey = None  # type: ignore[assignment,misc]
-    MLDSA65PublicKey = None  # type: ignore[assignment,misc]
-
+from cryptography.hazmat.primitives.asymmetric.mldsa import (
+    MLDSA65PrivateKey,
+    MLDSA65PublicKey,
+)
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
     NoEncryption,
@@ -49,9 +41,7 @@ from airsdk.types import (
     VerificationStatus,
 )
 
-SigningKey = (
-    Ed25519PrivateKey | MLDSA65PrivateKey if _HAS_MLDSA else Ed25519PrivateKey
-)  # type: ignore[misc]
+SigningKey = Ed25519PrivateKey | MLDSA65PrivateKey
 
 
 def _canonical_json(obj: Any) -> bytes:
@@ -98,7 +88,7 @@ class Signer:
         self._pub = private_key.public_key()
         self._prev_hash = prev_hash
         self._signer_key_hex = self._pub.public_bytes(Encoding.Raw, PublicFormat.Raw).hex()
-        if _HAS_MLDSA and isinstance(private_key, MLDSA65PrivateKey):
+        if isinstance(private_key, MLDSA65PrivateKey):
             self._algorithm = SigningAlgorithm.ML_DSA_65
         else:
             self._algorithm = SigningAlgorithm.ED25519
@@ -106,12 +96,7 @@ class Signer:
     @classmethod
     def generate(cls, algorithm: SigningAlgorithm = SigningAlgorithm.ED25519) -> Signer:
         if algorithm == SigningAlgorithm.ML_DSA_65:
-            if not _HAS_MLDSA:
-                raise RuntimeError(
-                    "ML-DSA-65 requires cryptography>=48.0.0. "
-                    "Upgrade with: pip install 'cryptography>=48.0.0'"
-                )
-            return cls(MLDSA65PrivateKey.generate())  # type: ignore[misc]
+            return cls(MLDSA65PrivateKey.generate())
         return cls(Ed25519PrivateKey.generate())
 
     @classmethod
@@ -133,10 +118,9 @@ class Signer:
         data = raw.strip()
         if data.startswith("-----BEGIN"):
             priv = load_pem_private_key(data.encode(), password=None)
-            accepted = (Ed25519PrivateKey, MLDSA65PrivateKey) if _HAS_MLDSA else (Ed25519PrivateKey,)
-            if isinstance(priv, accepted):
+            if isinstance(priv, (Ed25519PrivateKey, MLDSA65PrivateKey)):
                 return cls(priv)
-            raise ValueError(f"{env_var} must hold an Ed25519 key, got {type(priv).__name__}")
+            raise ValueError(f"{env_var} must hold an Ed25519 or ML-DSA-65 key, got {type(priv).__name__}")
         try:
             key_bytes = bytes.fromhex(data)
         except ValueError as exc:
@@ -144,12 +128,7 @@ class Signer:
         if len(key_bytes) != 32:
             raise ValueError(f"{env_var} hex seed must decode to 32 bytes, got {len(key_bytes)}")
         if algorithm == SigningAlgorithm.ML_DSA_65:
-            if not _HAS_MLDSA:
-                raise RuntimeError(
-                    "ML-DSA-65 requires cryptography>=48.0.0. "
-                    "Upgrade with: pip install 'cryptography>=48.0.0'"
-                )
-            return cls(MLDSA65PrivateKey.from_seed_bytes(key_bytes))  # type: ignore[misc]
+            return cls(MLDSA65PrivateKey.from_seed_bytes(key_bytes))
         return cls(Ed25519PrivateKey.from_private_bytes(key_bytes))
 
     @property
@@ -207,9 +186,7 @@ def verify_record(record: AgDRRecord) -> tuple[bool, str | None]:
         sig_material = bytes.fromhex(record.prev_hash) + bytes.fromhex(record.content_hash)
         sig_bytes = bytes.fromhex(record.signature)
         if algo == SigningAlgorithm.ML_DSA_65:
-            if not _HAS_MLDSA:
-                return False, "ML-DSA-65 verification requires cryptography>=48.0.0"
-            MLDSA65PublicKey.from_public_bytes(key_bytes).verify(sig_bytes, sig_material)  # type: ignore[union-attr]
+            MLDSA65PublicKey.from_public_bytes(key_bytes).verify(sig_bytes, sig_material)
         else:
             Ed25519PublicKey.from_public_bytes(key_bytes).verify(sig_bytes, sig_material)
     except InvalidSignature:

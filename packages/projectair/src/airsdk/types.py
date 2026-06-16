@@ -43,7 +43,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 # 64 hex chars = 256 bits. BLAKE3 default output size and Ed25519 public key size.
 GENESIS_PREV_HASH = "0" * 64
 
-AGDR_VERSION = "0.6"
+AGDR_VERSION = "0.5"
 
 
 class SigningAlgorithm(StrEnum):

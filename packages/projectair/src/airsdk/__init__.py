@@ -53,7 +53,6 @@ from airsdk.types import (
     EntityScope,
     Finding,
     ForensicReport,
-    IntentSpec,
     SigningAlgorithm,
     StepKind,
     VerificationResult,
