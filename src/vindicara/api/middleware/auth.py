@@ -49,6 +49,12 @@ class APIKeyStore:
 
     @staticmethod
     def _hash_key(raw_key: str) -> str:
+        # API keys are high-entropy random tokens (vnd_/air_ + secrets.token_hex(16-32)
+        # = 128-256 bits), not human passwords. Per OWASP, high-entropy secrets are
+        # correctly stored with a fast KEYED hash for constant-time O(1) lookup; a
+        # password KDF (bcrypt/argon2) adds no brute-force resistance here and would
+        # break the deterministic dict/GSI lookup. HMAC keys the digest so a leaked
+        # store can't be verified offline without the server secret.
         return hmac.new(
             _API_KEY_HMAC_SECRET,
             raw_key.encode("utf-8"),
