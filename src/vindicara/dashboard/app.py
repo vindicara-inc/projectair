@@ -1,6 +1,7 @@
 """Dashboard sub-application factory with HTMX API endpoints."""
 
 from pathlib import Path
+from urllib.parse import urlparse
 
 import structlog
 from fastapi import FastAPI, Form, Request
@@ -21,6 +22,20 @@ logger = structlog.get_logger()
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
+
+_ALLOWED_MCP_HOSTS = frozenset({"mcp.example.com"})
+
+
+def _validate_allowed_server_url(server_url: str) -> str:
+    parsed = urlparse(server_url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError("Server URL must use http or https.")
+    host = (parsed.hostname or "").lower()
+    if not host:
+        raise ValueError("Server URL must include a host.")
+    if host not in _ALLOWED_MCP_HOSTS:
+        raise ValueError("Server URL host is not allowed.")
+    return server_url
 
 
 def create_dashboard_app() -> FastAPI:
@@ -103,7 +118,8 @@ def create_dashboard_app() -> FastAPI:
         scanner = get_scanner()
         try:
             if server_url:
-                report = await scanner.scan(server_url=server_url, mode=ScanMode.LIVE, timeout=15.0)
+                validated_server_url = _validate_allowed_server_url(server_url)
+                report = await scanner.scan(server_url=validated_server_url, mode=ScanMode.LIVE, timeout=15.0)
             else:
                 report = await scanner.scan(
                     config={
