@@ -13,6 +13,15 @@ from vindicara.config.constants import API_KEY_HEADER, API_KEY_PREFIX
 
 logger = structlog.get_logger()
 
+# Server-side secret for keyed API-key hashing, so a leaked hash store can't be
+# brute-forced offline; overridable per environment. (Restored after a refactor
+# dropped the definition while _hash_key still referenced it — NameError on every
+# key validation.)
+_API_KEY_HMAC_SECRET = os.environ.get(
+    "VINDICARA_API_KEY_HMAC_SECRET",
+    "vindicara-dev-hmac-secret-change-in-prod",
+).encode("utf-8")
+
 _PUBLIC_PATHS = {
     "/health",
     "/ready",
