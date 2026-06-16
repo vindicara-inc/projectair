@@ -2,8 +2,16 @@
   import { api } from '$lib/console/api/client';
   import Panel from '$lib/console/components/Panel.svelte';
   import StateBlock from '$lib/console/components/StateBlock.svelte';
+  import ComplianceRing from '$lib/console/components/ComplianceRing.svelte';
   let load = $state(api.getReadiness());
-  const ring = (pct: number) => 100 - pct; // dashoffset over dasharray 100
+
+  // Demo flourish: in-progress frameworks "graduate" — after a beat the ring fills
+  // to complete and shifts amber -> green. Illustrative (Demo Mode badge applies).
+  let graduated = $state(false);
+  $effect(() => {
+    const t = setTimeout(() => (graduated = true), 1500);
+    return () => clearTimeout(t);
+  });
 </script>
 
 {#await load}
@@ -41,10 +49,7 @@
       </div>
       <div class="rings">
         {#each d.compliance as c}
-          <div class="rg">
-            <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="4"/><circle cx="20" cy="20" r="16" fill="none" stroke={c.state === 'good' ? '#48e6a4' : '#ffb454'} stroke-width="4" stroke-linecap="round" stroke-dasharray="100" stroke-dashoffset={ring(c.pct)} transform="rotate(-90 20 20)"/></svg>
-            <div><div class="t">{c.framework}</div><div class="d">{c.detail}</div></div>
-          </div>
+          <ComplianceRing {c} {graduated} />
         {/each}
       </div>
     </div>
@@ -77,8 +82,6 @@
   .wx { font-size: 12.5px; color: var(--muted); line-height: 1.65; }
   .wx :global(b) { color: #cfe9ff; font-weight: 600; }
   .rings { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-  .rg { display: flex; align-items: center; gap: 11px; }
-  .rg .t { font-size: 12px; font-weight: 600; } .rg .d { font-family: var(--mono); font-size: 9.5px; color: var(--faint); margin-top: 2px; }
 
   @media (max-width: 980px) { .yes4 { grid-template-columns: 1fr; } .whygrid { grid-template-columns: 1fr; } }
 </style>
