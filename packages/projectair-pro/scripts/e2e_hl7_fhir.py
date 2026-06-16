@@ -10,6 +10,7 @@ Usage:
 """
 from __future__ import annotations
 
+import os
 import sys
 import tempfile
 from decimal import Decimal
@@ -115,7 +116,12 @@ def main() -> None:
     print(f"  PHI mode:          {policy.phi_mode.value}")
     print(f"  BAA acknowledged:  {policy.baa_acknowledged}")
 
-    log_path = Path(tempfile.mktemp(suffix=".jsonl"))
+    # mkstemp creates the file atomically (O_EXCL, mode 0600), avoiding the
+    # predictable-name race of tempfile.mktemp (CWE-377). Close our handle; the
+    # recorder reopens the path to append records.
+    _fd, _log_name = tempfile.mkstemp(suffix=".jsonl", prefix="air-e2e-")
+    os.close(_fd)
+    log_path = Path(_log_name)
     rec = AIRRecorder(log_path=log_path, intent_spec=intent)
 
     # 3. Parse authorized ORU^R01 (MRN-0042)
