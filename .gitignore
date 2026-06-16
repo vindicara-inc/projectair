@@ -38,3 +38,42 @@ cdk.context.json
 .env.*
 lambda_package/
 .superpowers/
+
+# Node / frontend deps + build output (packages/air-dashboard, site)
+node_modules/
+.svelte-kit/
+.vite/
+*.tsbuildinfo
+
+# Vite temp config files
+vite.config.*.timestamp-*.mjs
+
+# Tool caches / local agent state
+.hypothesis/
+.playwright-mcp/
+.claire/
+.claude/
+.cursor/
+
+# Local AWS CLI dumps (CloudFront distribution config, etc.)
+/config.json
+/dist.json
+
+# Local backups
+*.backup
+
+# Loose decks, screenshots, and binary mockups (kept on disk, not tracked)
+/*.png
+/*.avif
+/*.mov
+/*.pdf
+docs/pitch/*.pdf
+docs/pitch/*.pptx
+
+# Generated reports, legal docs, and session dumps (kept on disk, not tracked)
+*.docx
+*YC*.txt
+/PROJECT_AIR_ROADMAP_CONSOLIDATED.md
+
+# Legal docs served by the site must be tracked
+!vindicara-site/static/legal/*.docx

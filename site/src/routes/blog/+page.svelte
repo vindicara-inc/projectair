@@ -15,66 +15,115 @@
   <div class="max-w-screen-xl mx-auto px-6">
     <div class="text-center mb-16">
       <p class="text-brand-red text-sm font-semibold uppercase tracking-wider mb-3">Blog</p>
-      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight">Vindicara Blog</h1>
-      <p class="mt-4 text-zinc-400 text-lg max-w-2xl mx-auto">
+      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight" style="color: var(--text-primary);">Vindicara Blog</h1>
+      <p class="mt-4 text-lg max-w-2xl mx-auto" style="color: var(--text-muted);">
         Security research, compliance guides, and engineering deep-dives for the agentic AI era.
       </p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Post: AI Agent Accountability Crisis -->
+      <a href="/blog/ai-agent-accountability-crisis-2026" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block md:col-span-3">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20 rounded-full px-2.5 py-0.5">Security</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-500 border border-green-500/20 rounded-full px-2.5 py-0.5">Compliance</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/20 rounded-full px-2.5 py-0.5">Regulation</span>
+          <span class="text-[10px]" style="color: var(--text-faint);">10 min read</span>
+        </div>
+        <h2 class="text-2xl font-semibold mb-2 group-hover:text-brand-red transition-colors" style="color: var(--text-primary);">88% of AI Agent Deployments Had a Security Incident. 6% Have a Budget to Fix It.</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">AI agents are breaching government databases, leaking patient records, and executing unauthorized code in production. The EU AI Act enforcement deadline is 66 days away. Here is the state of AI agent accountability in 2026.</p>
+        <p class="text-xs mt-4" style="color: var(--text-faint);">May 27, 2026</p>
+      </a>
+
+      <!-- Post: Launch announcement -->
+      <a href="/blog/introducing-project-air" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20 rounded-full px-2.5 py-0.5">Launch</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/20 rounded-full px-2.5 py-0.5">Open Source</span>
+          <span class="text-[10px]" style="color: var(--text-faint);">12 min read</span>
+        </div>
+        <h2 class="text-2xl font-semibold mb-2 group-hover:text-brand-red transition-colors" style="color: var(--text-primary);">Introducing Project AIR: Evidence-Grade Infrastructure for Accountable AI Agents</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Signed forensic chains, 16 OWASP-mapped detectors, causal explanation, Auth0 containment, and cross-agent trust. Five layers, one pip install. MIT-licensed and on PyPI today.</p>
+        <p class="text-xs mt-4" style="color: var(--text-faint);">May 26, 2026</p>
+      </a>
+
+      <!-- Post: NemoClaw Forensic Evidence (NVIDIA + Healthcare) -->
+      <a href="/blog/nemoclaw-forensic-evidence" class="glass-panel rounded-xl p-6 hover:border-green-500/30 transition-colors group block">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-500 border border-green-500/20 rounded-full px-2.5 py-0.5">NVIDIA</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20 rounded-full px-2.5 py-0.5">Healthcare</span>
+          <span class="text-[10px]" style="color: var(--text-faint);">10 min read</span>
+        </div>
+        <h2 class="text-lg font-semibold mb-2 group-hover:text-green-400 transition-colors" style="color: var(--text-primary);">Forensic Evidence for NemoClaw: HIPAA Audit Trails for Sandboxed Clinical AI</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">NemoClaw controls what the agent can do. AIR proves what it did. Together: the first HIPAA-grade deployment model for autonomous healthcare agents.</p>
+        <p class="text-xs mt-4" style="color: var(--text-faint);">May 12, 2026</p>
+      </a>
+
+      <!-- Post: HIPAA AI Audit Problem (Healthcare) -->
+      <a href="/blog/hipaa-ai-audit-problem" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20 rounded-full px-2.5 py-0.5">Healthcare</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-500 border border-green-500/20 rounded-full px-2.5 py-0.5">Compliance</span>
+          <span class="text-[10px]" style="color: var(--text-faint);">8 min read</span>
+        </div>
+        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-red transition-colors" style="color: var(--text-primary);">The New HIPAA AI Audit Problem (and How to Solve It)</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">The January 2025 HIPAA Security Rule NPRM eliminates addressable safeguards. AI agents accessing PHI now need cryptographic audit trails. Here is what changed.</p>
+        <p class="text-xs mt-4" style="color: var(--text-faint);">May 12, 2026</p>
+      </a>
+
       <!-- Post: Forensic layer market map (Perspective) -->
       <a href="/blog/forensic-layer-market-map" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block">
         <div class="flex items-center gap-2 mb-4">
           <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20 rounded-full px-2.5 py-0.5">Perspective</span>
-          <span class="text-[10px] text-zinc-600">10 min read</span>
+          <span class="text-[10px]" style="color: var(--text-faint);">10 min read</span>
         </div>
-        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-red transition-colors">What happens after an AI agent does something it shouldn't?</h2>
-        <p class="text-sm text-zinc-400 leading-relaxed">A map of AI agent security tooling, and the layer most teams don't realize they're missing. Pre-incident, during-incident, post-incident: who builds what, and where the gaps are.</p>
-        <p class="text-xs text-zinc-600 mt-4">May 2, 2026</p>
+        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-red transition-colors" style="color: var(--text-primary);">What happens after an AI agent does something it shouldn't?</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">A map of AI agent security tooling, and the layer most teams don't realize they're missing. Pre-incident, during-incident, post-incident: who builds what, and where the gaps are.</p>
+        <p class="text-xs mt-4" style="color: var(--text-faint);">May 2, 2026</p>
       </a>
 
       <!-- Post 0: Trustworthy Agents (Perspective, founder essay) -->
       <a href="/blog/trustworthy-agents-forensic-evidence" class="glass-panel rounded-xl p-6 hover:border-brand-red/30 transition-colors group block">
         <div class="flex items-center gap-2 mb-4">
           <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-red/10 text-brand-red border border-brand-red/20 rounded-full px-2.5 py-0.5">Perspective</span>
-          <span class="text-[10px] text-zinc-600">6 min read</span>
+          <span class="text-[10px]" style="color: var(--text-faint);">6 min read</span>
         </div>
-        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-red transition-colors">Implementing Trustworthy Agents: A Forensic Evidence Layer for Production</h2>
-        <p class="text-sm text-zinc-400 leading-relaxed">Anthropic's April 9 paper names three ecosystem gaps. Project AIR is our answer to evidence sharing and open standards.</p>
-        <p class="text-xs text-zinc-600 mt-4">April 24, 2026</p>
+        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-red transition-colors" style="color: var(--text-primary);">Implementing Trustworthy Agents: A Forensic Evidence Layer for Production</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">Anthropic's April 9 paper names three ecosystem gaps. Project AIR is our answer to evidence sharing and open standards.</p>
+        <p class="text-xs mt-4" style="color: var(--text-faint);">April 24, 2026</p>
       </a>
 
       <!-- Post 1: MCP Security -->
       <a href="/blog/mcp-security-2026" class="glass-panel rounded-xl p-6 hover:border-brand-cyan/30 transition-colors group block">
         <div class="flex items-center gap-2 mb-4">
           <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/20 rounded-full px-2.5 py-0.5">Research</span>
-          <span class="text-[10px] text-zinc-600">6 min read</span>
+          <span class="text-[10px]" style="color: var(--text-faint);">6 min read</span>
         </div>
-        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-cyan transition-colors">The State of MCP Security in 2026</h2>
-        <p class="text-sm text-zinc-400 leading-relaxed">92% of MCP servers lack proper OAuth. We scanned real configurations and found critical vulnerabilities. Here is what we found.</p>
-        <p class="text-xs text-zinc-600 mt-4">April 2, 2026</p>
+        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-cyan transition-colors" style="color: var(--text-primary);">The State of MCP Security in 2026</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">92% of MCP servers lack proper OAuth. We scanned real configurations and found critical vulnerabilities. Here is what we found.</p>
+        <p class="text-xs mt-4" style="color: var(--text-faint);">April 2, 2026</p>
       </a>
 
       <!-- Post 2: EU AI Act -->
       <a href="/blog/eu-ai-act-article-72-guide" class="glass-panel rounded-xl p-6 hover:border-green-500/30 transition-colors group block">
         <div class="flex items-center gap-2 mb-4">
           <span class="text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-500 border border-green-500/20 rounded-full px-2.5 py-0.5">Compliance</span>
-          <span class="text-[10px] text-zinc-600">5 min read</span>
+          <span class="text-[10px]" style="color: var(--text-faint);">5 min read</span>
         </div>
-        <h2 class="text-lg font-semibold mb-2 group-hover:text-green-400 transition-colors">EU AI Act Article 72: A Developer's Guide</h2>
-        <p class="text-sm text-zinc-400 leading-relaxed">The enforcement deadline is August 2, 2026. Article 72 requires post-market monitoring for high-risk AI systems. Here is what developers need to know.</p>
-        <p class="text-xs text-zinc-600 mt-4">April 2, 2026</p>
+        <h2 class="text-lg font-semibold mb-2 group-hover:text-green-400 transition-colors" style="color: var(--text-primary);">EU AI Act Article 72: A Developer's Guide</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">The enforcement deadline is August 2, 2026. Article 72 requires post-market monitoring for high-risk AI systems. Here is what developers need to know.</p>
+        <p class="text-xs mt-4" style="color: var(--text-faint);">April 2, 2026</p>
       </a>
 
       <!-- Post 3: Quickstart -->
       <a href="/blog/secure-ai-agents-5-minutes" class="glass-panel rounded-xl p-6 hover:border-brand-purple/30 transition-colors group block">
         <div class="flex items-center gap-2 mb-4">
           <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-purple/10 text-brand-purple border border-brand-purple/20 rounded-full px-2.5 py-0.5">Quickstart</span>
-          <span class="text-[10px] text-zinc-600">5 min read</span>
+          <span class="text-[10px]" style="color: var(--text-faint);">5 min read</span>
         </div>
-        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-purple transition-colors">Run your first <code class="font-mono">air trace</code> in 5 minutes</h2>
-        <p class="text-sm text-zinc-400 leading-relaxed">From <code class="font-mono text-brand-purple">pip install projectair</code> to a signed forensic timeline of your LangChain agent. The <code class="font-mono text-brand-purple">air</code> CLI and <code class="font-mono text-brand-purple">airsdk</code> are open source today.</p>
-        <p class="text-xs text-zinc-600 mt-4">April 18, 2026</p>
+        <h2 class="text-lg font-semibold mb-2 group-hover:text-brand-purple transition-colors" style="color: var(--text-primary);">Run your first <code class="font-mono">air trace</code> in 5 minutes</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--text-muted);">From <code class="font-mono text-brand-purple">pip install projectair</code> to a signed forensic timeline of your LangChain agent. The <code class="font-mono text-brand-purple">air</code> CLI and <code class="font-mono text-brand-purple">airsdk</code> are open source today.</p>
+        <p class="text-xs mt-4" style="color: var(--text-faint);">April 18, 2026</p>
       </a>
     </div>
   </div>

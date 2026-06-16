@@ -16,6 +16,32 @@ class MCPTransportError(Exception):
         super().__init__(message)
 
 
+_BLOCKED_HOSTS = frozenset(
+    {
+        "localhost",
+        "127.0.0.1",
+        "0.0.0.0",
+        "[::1]",
+        "169.254.169.254",
+        "metadata.google.internal",
+    }
+)
+
+
+def _validate_url(url: str) -> str:
+    from urllib.parse import urlparse
+
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError(f"MCP server URL must use http(s), got {parsed.scheme!r}")
+    hostname = (parsed.hostname or "").lower()
+    if hostname in _BLOCKED_HOSTS:
+        raise ValueError(f"MCP server URL points to blocked host: {hostname}")
+    if hostname.startswith("10.") or hostname.startswith("172.") or hostname.startswith("192.168."):
+        raise ValueError(f"MCP server URL points to RFC-1918 private address: {hostname}")
+    return url.rstrip("/")
+
+
 class MCPClient:
     def __init__(
         self,
@@ -23,7 +49,7 @@ class MCPClient:
         timeout: float = 10.0,
         auth_header: str = "",
     ) -> None:
-        self._server_url = server_url.rstrip("/")
+        self._server_url = _validate_url(server_url)
         self._timeout = timeout
         self._auth_header = auth_header
         self._request_id = 0

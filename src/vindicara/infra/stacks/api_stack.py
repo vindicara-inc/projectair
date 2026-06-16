@@ -1,6 +1,6 @@
 """Lambda function and API Gateway for Vindicara API."""
 
-from aws_cdk import Duration, Stack
+from aws_cdk import Duration, Environment, Stack
 from aws_cdk import aws_apigatewayv2 as apigw
 from aws_cdk import aws_apigatewayv2_integrations as integrations
 from aws_cdk import aws_cloudwatch as cloudwatch
@@ -10,6 +10,7 @@ from aws_cdk import aws_events as events
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_s3 as s3
+from aws_cdk import aws_secretsmanager as secretsmanager
 from aws_cdk import aws_sns as sns
 from aws_cdk import aws_sns_subscriptions as sns_subscriptions
 from constructs import Construct
@@ -25,11 +26,12 @@ class APIStack(Stack):
         policies_table: dynamodb.Table,
         evaluations_table: dynamodb.Table,
         api_keys_table: dynamodb.Table,
+        identity_registrations_table: dynamodb.Table,
         audit_bucket: s3.Bucket,
         event_bus: events.EventBus,
-        **kwargs: object,
+        env: Environment | None = None,
     ) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+        super().__init__(scope, construct_id, env=env)
 
         self.api_function = lambda_.Function(
             self,
@@ -56,8 +58,47 @@ class APIStack(Stack):
         policies_table.grant_read_write_data(self.api_function)
         evaluations_table.grant_read_write_data(self.api_function)
         api_keys_table.grant_read_data(self.api_function)
+        identity_registrations_table.grant_read_write_data(self.api_function)
         audit_bucket.grant_write(self.api_function)
         event_bus.grant_put_events_to(self.api_function)
+
+        self.api_function.add_environment(
+            "VINDICARA_IDENTITY_TABLE",
+            identity_registrations_table.table_name,
+        )
+
+        # FlightDeck console Auth0 verification. Without these, require_operator
+        # runs open (no token enforcement). Public tenant + API identifier.
+        self.api_function.add_environment("AIR_AUTH0_DOMAIN", "dev-kilt2vkudvbu75ny.us.auth0.com")
+        self.api_function.add_environment("AIR_AUTH0_AUDIENCE", "cabinet-coach.v2")
+
+        # ------------------------------------------------------------------
+        # Stripe fulfillment secrets (operator-supplied, not CDK-managed).
+        #
+        # Create this secret out-of-band before the first deploy:
+        #   Name:  vindicara/fulfillment
+        #   Type:  Other type of secret / Plaintext JSON
+        #   Value: {"stripe_secret_key": "sk_live_...",
+        #           "stripe_webhook_secret": "whsec_...",
+        #           "license_signing_key_pem": "-----BEGIN PRIVATE KEY-----...",
+        #           "resend_api_key": "re_...",
+        #           "pro_wheel_signed_url": "https://..."}
+        # ------------------------------------------------------------------
+        fulfillment_secret = secretsmanager.Secret.from_secret_name_v2(self, "FulfillmentSecret", "Vindicara_dashboard")
+        fulfillment_secret.grant_read(self.api_function)
+
+        fulfillment_fields: list[tuple[str, str]] = [
+            ("VINDICARA_STRIPE_SECRET_KEY", "stripe_secret_key"),
+            ("VINDICARA_STRIPE_WEBHOOK_SECRET", "stripe_webhook_secret"),
+            ("VINDICARA_LICENSE_SIGNING_KEY_PEM", "license_signing_key_pem"),
+            ("VINDICARA_RESEND_API_KEY", "resend_api_key"),
+            ("VINDICARA_PRO_WHEEL_SIGNED_URL", "pro_wheel_signed_url"),
+        ]
+        for env_name, json_field in fulfillment_fields:
+            self.api_function.add_environment(
+                env_name,
+                fulfillment_secret.secret_value_from_json(json_field).unsafe_unwrap(),
+            )
 
         self.http_api = apigw.HttpApi(
             self,

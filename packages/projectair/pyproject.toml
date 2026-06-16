@@ -4,15 +4,15 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projectair"
-version = "0.7.1"
+version = "1.0.1"
 description = "Project AIR: forensic reconstruction and incident response for AI agents. Signed AgDR chains, RFC 3161 + Sigstore Rekor anchoring, causal explanation, and Auth0-verified human-in-the-loop containment."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
-authors = [{ name = "Vindicara", email = "eng@vindicara.io" }]
+authors = [{ name = "Kevin Minn", email = "support@vindicara.io" }]
 keywords = ["ai", "security", "incident-response", "forensics", "langchain", "agent", "agdr", "owasp"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
@@ -24,9 +24,9 @@ classifiers = [
 ]
 dependencies = [
     "blake3>=1.0.0,<2.0",
-    # cryptography: floor 46.0.6 patches CVE-2026-26007 (subgroup attack on SECT curves, HIGH)
-    # and CVE-2026-34073 (incomplete DNS name constraint, LOW).
-    "cryptography>=46.0.6,<47.0",
+    # cryptography >=48: ML-DSA-65 (FIPS 204) post-quantum signatures via
+    # OpenSSL 3.5 bundled in shipped wheels. Also includes prior CVE patches.
+    "cryptography>=48.0.0,<49.0",
     "pydantic>=2.7.0,<3.0",
     "typer>=0.12.0,<1.0",
     # langchain-core: floor 1.2.22 patches CVE-2026-34070 (load_prompt path traversal, HIGH)
@@ -46,7 +46,8 @@ dependencies = [
     # entry submission, response parsing, and Merkle inclusion-proof
     # verification. The anchoring path does not call Fulcio; Rekor accepts
     # raw Ed25519 public keys directly.
-    "sigstore>=3.0,<5.0",
+    "sigstore>=3.0,<4.0",
+    "betterproto>=2.0.0b6",
     # PyJWT[crypto]: Layer 3 step-up approval verification. Validates Auth0
     # (or any OIDC + JWKS) tokens against the tenant's published public keys.
     # The [crypto] extra pulls in cryptography for RS256/RS384/RS512 support.
@@ -58,6 +59,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Native WebAuthn delegation (phase 2): the "biometric never leaves the device"
+# authorization path. Only needed for airsdk.delegation.webauthn and the
+# reference ceremony server; the Auth0 passkey fast path needs nothing new.
+webauthn = [
+    "webauthn>=2.0.0,<3.0",
+]
 dev = [
     "pytest>=8.3.0,<9.0",
     "pytest-cov>=5.0.0,<6.0",

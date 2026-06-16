@@ -1,38 +1,76 @@
-"""S3 + CloudFront + ACM for vindicara.io marketing site and dashboard proxy.
+"""S3 + CloudFront + ACM for vindicara.io marketing site.
 
 This stack must deploy to us-east-1 because CloudFront requires its viewer ACM
 certificate to live in us-east-1, regardless of where the rest of the workload
 runs. The S3 site bucket and the CloudFront distribution are co-located in
-us-east-1 for simplicity. The dashboard origin is the API Gateway in the
-workload region (us-west-2); CloudFront makes the cross-region hop transparent.
+us-east-1 for simplicity.
+
+Flightdeck (site/src/routes/dashboard/) ships inside the site SvelteKit build at
+/dashboard/ in S3 via deploy-site.sh. packages/air-dashboard is legacy and is
+not merged into vindicara.io.
 """
 
-from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
+from aws_cdk import CfnOutput, Duration, Environment, RemovalPolicy, Stack
 from aws_cdk import aws_certificatemanager as acm
 from aws_cdk import aws_cloudfront as cloudfront
 from aws_cdk import aws_cloudfront_origins as origins
 from aws_cdk import aws_cloudwatch as cloudwatch
 from aws_cdk import aws_cloudwatch_actions as cloudwatch_actions
+from aws_cdk import aws_iam as iam
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_sns as sns
 from aws_cdk import aws_sns_subscriptions as sns_subscriptions
 from constructs import Construct
 
+GITHUB_ORG = "vindicara-inc"
+GITHUB_REPO = "projectair"
+
 ALARM_EMAIL = "kev.minn9@gmail.com"
+
+# Cross-origin hosts the built vindicara-site bundle calls at runtime. Keep in
+# sync with vindicara-site/.env (PUBLIC_AIR_API_BASE, PUBLIC_AUTH0_DOMAIN): the
+# console fetches the API gateway and POSTs to Auth0 /oauth/token. A host that is
+# absent here is silently blocked by connect-src once the CSP is enforced.
+API_ORIGIN = "https://qk0ymrk5be.execute-api.us-west-2.amazonaws.com"
+AUTH0_ORIGIN = "https://dev-kilt2vkudvbu75ny.us.auth0.com"
+
+# script-src/style-src carry 'unsafe-inline' for SvelteKit's inline hydration
+# bootstrap and Svelte's scoped inline styles; the site loads no third-party
+# script. Fonts come from Google Fonts; the contact form falls back to mailto:
+# (navigation, not fetch) so it needs no connect-src entry.
+CONTENT_SECURITY_POLICY = "; ".join(
+    [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "object-src 'none'",
+        "frame-ancestors 'none'",
+        "frame-src 'none'",
+        "img-src 'self' data: blob:",
+        "font-src 'self' https://fonts.gstatic.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "script-src 'self' 'unsafe-inline'",
+        f"connect-src 'self' {API_ORIGIN} {AUTH0_ORIGIN}",
+        "form-action 'self'",
+        "upgrade-insecure-requests",
+    ]
+)
 
 
 class SiteStack(Stack):
-    """vindicara.io static site + /dashboard* proxy via CloudFront."""
+    """vindicara.io static site via CloudFront + S3."""
 
     def __init__(
         self,
         scope: Construct,
         construct_id: str,
-        api_endpoint_id: str,
-        api_region: str,
-        **kwargs: object,
+        *,
+        api_endpoint_id: str = "tbd",
+        api_region: str = "us-west-2",
+        env: Environment | None = None,
     ) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+        super().__init__(scope, construct_id, env=env)
+        self._api_endpoint_id = api_endpoint_id
+        self._api_region = api_region
 
         site_bucket = s3.Bucket(
             self,
@@ -53,13 +91,7 @@ class SiteStack(Stack):
             validation=acm.CertificateValidation.from_dns(),
         )
 
-        api_origin_domain = f"{api_endpoint_id}.execute-api.{api_region}.amazonaws.com"
-
         s3_origin = origins.S3BucketOrigin.with_origin_access_control(site_bucket)
-        api_origin = origins.HttpOrigin(
-            api_origin_domain,
-            protocol_policy=cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
-        )
 
         # SvelteKit static export emits `/foo/index.html` for prerendered route
         # `/foo`. Routes marked `prerender = false` (e.g. /contact, which reads
@@ -81,13 +113,52 @@ class SiteStack(Stack):
                 "  }\n"
                 "  if (uri.endsWith('/')) {\n"
                 "    request.uri = uri + 'index.html';\n"
-                "  } else if (!uri.includes('.')) {\n"
-                "    request.uri = uri + '/index.html';\n"
+                "    return request;\n"
+                "  }\n"
+                "  if (!uri.includes('.')) {\n"
+                "    return {\n"
+                "      statusCode: 301,\n"
+                "      statusDescription: 'Moved Permanently',\n"
+                "      headers: { location: { value: uri + '/' } }\n"
+                "    };\n"
                 "  }\n"
                 "  return request;\n"
                 "}\n"
             ),
-            comment="Rewrite extension-less paths to /index.html. Route SPA-only paths to /404.html (SvelteKit fallback shell).",
+            comment="Trailing-slash redirect for directory paths; index.html rewrite for directories; SPA fallback for client-only routes.",
+        )
+
+        # Single response-headers policy at the edge clears the Aikido findings:
+        # CSP not set, HSTS missing, anti-clickjacking, nosniff, referrer policy,
+        # and the Server version leak (remove_headers). HSTS omits `preload`
+        # deliberately: preload is a one-way commitment for every subdomain and
+        # adds nothing until submitted to the preload list.
+        security_headers = cloudfront.ResponseHeadersPolicy(
+            self,
+            "SiteSecurityHeaders",
+            response_headers_policy_name=f"vindicara-site-security-{self.account}",
+            comment="CSP, HSTS, anti-clickjacking, nosniff, referrer policy for vindicara.io.",
+            security_headers_behavior=cloudfront.ResponseSecurityHeadersBehavior(
+                content_security_policy=cloudfront.ResponseHeadersContentSecurityPolicy(
+                    content_security_policy=CONTENT_SECURITY_POLICY,
+                    override=True,
+                ),
+                content_type_options=cloudfront.ResponseHeadersContentTypeOptions(override=True),
+                frame_options=cloudfront.ResponseHeadersFrameOptions(
+                    frame_option=cloudfront.HeadersFrameOption.DENY,
+                    override=True,
+                ),
+                referrer_policy=cloudfront.ResponseHeadersReferrerPolicy(
+                    referrer_policy=cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN,
+                    override=True,
+                ),
+                strict_transport_security=cloudfront.ResponseHeadersStrictTransportSecurity(
+                    access_control_max_age=Duration.days(730),
+                    include_subdomains=True,
+                    override=True,
+                ),
+            ),
+            remove_headers=["Server"],
         )
 
         distribution = cloudfront.Distribution(
@@ -101,6 +172,7 @@ class SiteStack(Stack):
                 allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
                 cached_methods=cloudfront.CachedMethods.CACHE_GET_HEAD,
                 compress=True,
+                response_headers_policy=security_headers,
                 function_associations=[
                     cloudfront.FunctionAssociation(
                         function=url_rewrite_function,
@@ -108,15 +180,26 @@ class SiteStack(Stack):
                     )
                 ],
             ),
-            additional_behaviors={
-                "/dashboard*": cloudfront.BehaviorOptions(
-                    origin=api_origin,
-                    viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-                    allowed_methods=cloudfront.AllowedMethods.ALLOW_ALL,
-                    cache_policy=cloudfront.CachePolicy.CACHING_DISABLED,
-                    origin_request_policy=cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+            # SvelteKit (adapter-static, fallback: index.html) emits flat
+            # `foo.html` files, not `foo/index.html`, so the viewer-request
+            # rewrite misses on most routes and S3 (under OAC) returns 403 for
+            # the unmatched key. These map that to the SPA shell so the
+            # client-side router renders the route. Without this, every route
+            # except `/` 403s. ttl=0 keeps error pages out of the edge cache.
+            error_responses=[
+                cloudfront.ErrorResponse(
+                    http_status=403,
+                    response_http_status=200,
+                    response_page_path="/index.html",
+                    ttl=Duration.seconds(0),
                 ),
-            },
+                cloudfront.ErrorResponse(
+                    http_status=404,
+                    response_http_status=200,
+                    response_page_path="/index.html",
+                    ttl=Duration.seconds(0),
+                ),
+            ],
             default_root_object="index.html",
             price_class=cloudfront.PriceClass.PRICE_CLASS_100,
             http_version=cloudfront.HttpVersion.HTTP2_AND_3,
@@ -179,6 +262,50 @@ class SiteStack(Stack):
             treat_missing_data=cloudwatch.TreatMissingData.NOT_BREACHING,
         )
         cf_5xx_alarm.add_alarm_action(cloudwatch_actions.SnsAction(alarm_topic))
+
+        # The GitHub Actions OIDC provider is account-global and already exists
+        # in this account (one provider per URL is allowed). Reference it instead
+        # of creating a duplicate, which would fail the deploy with an
+        # "EntityAlreadyExists" error.
+        oidc_provider = iam.OpenIdConnectProvider.from_open_id_connect_provider_arn(
+            self,
+            "GitHubOIDC",
+            f"arn:aws:iam::{self.account}:oidc-provider/token.actions.githubusercontent.com",
+        )
+
+        deploy_role = iam.Role(
+            self,
+            "GitHubDeployRole",
+            role_name="vindicara-github-deploy",
+            assumed_by=iam.WebIdentityPrincipal(
+                oidc_provider.open_id_connect_provider_arn,
+                conditions={
+                    "StringEquals": {
+                        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+                    },
+                    "StringLike": {
+                        "token.actions.githubusercontent.com:sub": f"repo:{GITHUB_ORG}/{GITHUB_REPO}:*",
+                    },
+                },
+            ),
+            max_session_duration=Duration.hours(1),
+        )
+
+        site_bucket.grant_read_write(deploy_role)
+        site_bucket.grant_delete(deploy_role)
+        deploy_role.add_to_policy(
+            iam.PolicyStatement(
+                actions=["cloudfront:CreateInvalidation"],
+                resources=[f"arn:aws:cloudfront::{self.account}:distribution/{distribution.distribution_id}"],
+            )
+        )
+
+        CfnOutput(
+            self,
+            "DeployRoleArn",
+            value=deploy_role.role_arn,
+            description="GitHub Actions OIDC deploy role ARN. Set as AWS_DEPLOY_ROLE_ARN in GitHub environment vars.",
+        )
 
         self.site_bucket = site_bucket
         self.distribution = distribution

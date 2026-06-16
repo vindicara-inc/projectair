@@ -38,12 +38,17 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # 64 hex chars = 256 bits. BLAKE3 default output size and Ed25519 public key size.
 GENESIS_PREV_HASH = "0" * 64
 
-AGDR_VERSION = "0.4"
+AGDR_VERSION = "0.5"
+
+
+class SigningAlgorithm(StrEnum):
+    ED25519 = "ed25519"
+    ML_DSA_65 = "ml-dsa-65"
 
 
 class StepKind(StrEnum):
@@ -55,6 +60,8 @@ class StepKind(StrEnum):
     AGENT_MESSAGE = "agent_message"
     ANCHOR = "anchor"
     HUMAN_APPROVAL = "human_approval"
+    INTENT_DECLARATION = "intent_declaration"
+    DELEGATION = "delegation"  # session-genesis human authorization
 
 
 class RFC3161Anchor(BaseModel):
@@ -121,6 +128,128 @@ class HumanApproval(BaseModel):
     signed_token: str  # the original JWT, for offline re-verification
 
 
+class EntityScope(BaseModel):
+    """Dynamic scope mechanism for entity access control.
+
+    Supports four scope types beyond static allowed_entities lists:
+    facility scope (all patients at a facility/unit), roster scope
+    (subscription to a FHIR patient list), and predicate scope
+    (expression-based filtering on message attributes).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    scope_type: str  # "static" | "facility" | "roster" | "predicate"
+    facility: str | None = None
+    unit: str | None = None
+    time_window_hours: int | None = None
+    roster_source: str | None = None
+    refresh_interval_seconds: int = 300
+    predicate: str | None = None
+
+    def matches_facility(self, facility: str) -> bool:
+        if self.scope_type != "facility":
+            return True
+        return self.facility is not None and self.facility == facility
+
+
+class IntentSpec(BaseModel):
+    """Structured intent declaration for structural verification.
+
+    When attached to an INTENT_DECLARATION record, defines the scope the
+    agent is authorized to operate within. The symbolic verification floor
+    checks actual behavior against these constraints deterministically.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    goal: str
+    allowed_tools: list[str] = Field(default_factory=list)
+    allowed_paths: list[str] = Field(default_factory=list)
+    allowed_network: list[str] = Field(default_factory=list)
+    allowed_entities: list[str] = Field(default_factory=list)
+    entity_scope: EntityScope | None = None
+    secret_access: bool = False
+    non_goals: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_scope_exclusivity(self) -> IntentSpec:
+        if self.allowed_entities and self.entity_scope:
+            raise ValueError(
+                "allowed_entities and entity_scope are mutually exclusive. "
+                "Use allowed_entities for static lists or entity_scope for "
+                "facility/roster/predicate scoping."
+            )
+        return self
+
+
+class AuthMethod(StrEnum):
+    AUTH0 = "auth0"  # OIDC token, passkey-as-authenticator inside Auth0
+    WEBAUTHN = "webauthn"  # native WebAuthn, biometric stays on the device
+
+
+class DelegationGrant(BaseModel):
+    """A human authorizing an agent deployment, recorded as the chain genesis.
+
+    ``HumanApproval`` binds one action to a human. ``DelegationGrant`` binds the
+    whole session: who authorized this agent to run, under which policy, within
+    which scope, until when. Because every later record hash-chains from this
+    genesis, binding the genesis to an authenticated human binds the entire
+    session.
+
+    ``proof`` carries what an offline verifier needs to re-check the human
+    authentication with no live IdP call: the Auth0 JWT, or the WebAuthn
+    assertion bundle (clientDataJSON, authenticatorData, signature, and the
+    credential public key).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    delegation_id: str
+    agent_id: str
+    decision: str = "authorize"  # "authorize" | "deny"
+
+    # Who authorized.
+    auth_method: AuthMethod
+    authorizer_sub: str  # IdP subject claim, or WebAuthn user handle
+    authorizer_email: str | None = None
+    issuer: str | None = None  # IdP issuer URL (auth0 path)
+    credential_id: str | None = None  # WebAuthn credential id, b64url (webauthn path)
+
+    # What was authorized.
+    policy_id: str
+    policy_hash: str  # BLAKE3 hex of the ruleset document
+    scope: IntentSpec  # the authorized scope; SV enforces this exact spec
+
+    # When.
+    granted_at: int  # unix seconds
+    expires_at: int  # unix seconds
+
+    # Offline re-verification material.
+    proof: dict[str, Any] = Field(default_factory=dict)
+
+
+class DataAssetRef(BaseModel):
+    """Reference to a data asset touched by an agent action."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    asset_id: str
+    asset_type: str
+    namespace: str = ""
+    sensitivity: str = ""
+
+
+class DataSubjectRef(BaseModel):
+    """Reference to a data subject whose data an agent action touches."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    subject_id: str
+    subject_type: str = ""
+    jurisdiction: str = ""
+
+
 class AgDRPayload(BaseModel):
     """Kind-specific payload. Structured but extensible via `extra`."""
 
@@ -133,6 +262,7 @@ class AgDRPayload(BaseModel):
     tool_output: str | None = None
     user_intent: str | None = None
     final_output: str | None = None
+    intent_spec: IntentSpec | None = None
     # Inter-agent communication fields (ASI07). Used when kind == AGENT_MESSAGE.
     source_agent_id: str | None = None
     target_agent_id: str | None = None
@@ -155,6 +285,20 @@ class AgDRPayload(BaseModel):
     challenge_id: str | None = None
     # Human approval (Layer 3). Used when kind == HUMAN_APPROVAL.
     human_approval: HumanApproval | None = None
+    # Delegation (session genesis). Used when kind == DELEGATION. Binds the
+    # whole chain to the human who authorized the agent to run.
+    delegation: DelegationGrant | None = None
+    # Data governance (v0.6). Optional tagging for data-asset lineage
+    # and data-subject tracking across agent actions.
+    data_assets: list[DataAssetRef] | None = None
+    data_subjects: list[DataSubjectRef] | None = None
+    # HL7v2 / FHIR clinical chain fields (Pro). Set by ``instrument_hl7`` when
+    # capturing HL7v2 messages into the forensic chain. The parsing and mapping
+    # logic lives in ``airsdk_pro.hl7``; these fields are schema stubs available
+    # to any chain reader without importing the Pro package.
+    hl7v2_message_type: str | None = None
+    hl7v2_segments: dict[str, Any] | None = None
+    fhir_resources: list[dict[str, Any]] | None = None
 
 
 class AgDRRecord(BaseModel):
@@ -171,6 +315,7 @@ class AgDRRecord(BaseModel):
     content_hash: str = Field(min_length=64, max_length=64)
     signature: str
     signer_key: str
+    signature_algorithm: str = SigningAlgorithm.ED25519
 
 
 class Finding(BaseModel):

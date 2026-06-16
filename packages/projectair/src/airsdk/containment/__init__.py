@@ -46,6 +46,13 @@ from airsdk.containment.policy import (
     Decision,
     PolicyVerdict,
 )
+from airsdk.containment.require_delegation import (
+    DelegationPolicy,
+    EnforcementMode,
+    declares_delegation,
+    evaluate_require_delegation,
+    should_require_delegation,
+)
 
 __all__ = [
     "ApprovalInvalidError",
@@ -58,11 +65,16 @@ __all__ = [
     "ContainmentError",
     "ContainmentPolicy",
     "Decision",
+    "DelegationPolicy",
     "DeviceAuthorization",
+    "EnforcementMode",
     "PolicyVerdict",
     "StepUpRequiredError",
     "build_authorize_url",
+    "declares_delegation",
+    "evaluate_require_delegation",
     "make_pkce_pair",
     "poll_device_token",
+    "should_require_delegation",
     "start_device_flow",
 ]

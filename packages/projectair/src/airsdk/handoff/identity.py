@@ -23,6 +23,7 @@ import base64
 from dataclasses import dataclass, field
 from enum import StrEnum
 
+from cryptography import x509
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
@@ -31,6 +32,12 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 
 from .canonicalize import canonicalize_and_hash
 from .exceptions import IdentityCertificateError
+
+# Sigstore Fulcio embeds the authenticated OIDC issuer in a dedicated cert
+# extension (publicly documented OIDs). V2 wraps the value as a DER UTF8String;
+# V1 (legacy) stores the raw UTF-8 issuer string.
+_FULCIO_ISSUER_OID_V2 = "1.3.6.1.4.1.57264.1.8"
+_FULCIO_ISSUER_OID_V1 = "1.3.6.1.4.1.57264.1.1"
 
 
 class IdentityFormat(StrEnum):
@@ -156,16 +163,81 @@ def generate_local_dev_identity(
     )
 
 
-def parse_fulcio_san_issuer(_leaf_cert_der: bytes) -> str:
-    """Extract the IdP issuer URL from a Fulcio leaf cert SAN extension.
-
-    Wave 1 stub. Wave 2 implements URI-SAN parsing per Section 7.5; until
-    then operators must supply the target IdP issuer out of band.
-    """
+def _unrecognized_ext_bytes(ext: x509.Extension[x509.ExtensionType]) -> bytes:
+    """Return the raw value bytes of an opaque (unrecognized) X.509 extension."""
+    value = ext.value
+    if isinstance(value, x509.UnrecognizedExtension):
+        return value.value
     raise IdentityCertificateError(
-        "Fulcio SAN issuer parsing is Wave 2; supply target_agent_idp_issuer "
-        "out-of-band in Wave 1"
+        "Fulcio issuer extension was parsed as a recognized type, not opaque bytes"
     )
+
+
+def _decode_der_utf8string(data: bytes) -> str:
+    """Decode a single DER UTF8String (tag 0x0C) into a str.
+
+    Handles short- and long-form length encoding. Used for the Fulcio V2
+    issuer extension, whose value is a DER-wrapped UTF8String.
+    """
+    if len(data) < 2 or data[0] != 0x0C:
+        raise IdentityCertificateError("expected a DER UTF8String (tag 0x0C)")
+    length = data[1]
+    idx = 2
+    if length & 0x80:
+        num_len_octets = length & 0x7F
+        if num_len_octets == 0 or len(data) < 2 + num_len_octets:
+            raise IdentityCertificateError("invalid DER length encoding")
+        length = int.from_bytes(data[2 : 2 + num_len_octets], "big")
+        idx = 2 + num_len_octets
+    value = data[idx : idx + length]
+    if len(value) != length:
+        raise IdentityCertificateError("truncated DER UTF8String")
+    return value.decode("utf-8")
+
+
+def parse_fulcio_san_issuer(leaf_cert_der: bytes) -> str:
+    """Extract the OIDC issuer URL that Fulcio embedded in a leaf certificate.
+
+    Sigstore Fulcio records the authenticated OIDC issuer in a dedicated
+    certificate extension (the SAN carries the workload identity; the issuer
+    lives in its own extension). This reads the V2 issuer extension
+    (OID 1.3.6.1.4.1.57264.1.8, a DER-encoded UTF8String) and falls back to
+    the legacy V1 extension (OID 1.3.6.1.4.1.57264.1.1, a raw UTF-8 string).
+
+    Parsing is not trust: the cert must still be validated against the Fulcio
+    root before the returned issuer is resolved via OIDC Discovery. This is
+    the input to cross-tenant (Wave 2) verification, not the trust decision.
+    """
+    if not isinstance(leaf_cert_der, (bytes, bytearray)):
+        raise IdentityCertificateError(
+            f"parse_fulcio_san_issuer requires bytes; got {type(leaf_cert_der).__name__}"
+        )
+    try:
+        cert = x509.load_der_x509_certificate(bytes(leaf_cert_der))
+    except ValueError as e:
+        raise IdentityCertificateError(
+            f"not a valid DER X.509 certificate: {e}"
+        ) from e
+
+    extensions = cert.extensions
+    try:
+        ext_v2 = extensions.get_extension_for_oid(
+            x509.ObjectIdentifier(_FULCIO_ISSUER_OID_V2)
+        )
+        return _decode_der_utf8string(_unrecognized_ext_bytes(ext_v2))
+    except x509.ExtensionNotFound:
+        pass
+    try:
+        ext_v1 = extensions.get_extension_for_oid(
+            x509.ObjectIdentifier(_FULCIO_ISSUER_OID_V1)
+        )
+        return _unrecognized_ext_bytes(ext_v1).decode("utf-8")
+    except x509.ExtensionNotFound as e:
+        raise IdentityCertificateError(
+            "Fulcio leaf cert carries neither the V2 "
+            f"({_FULCIO_ISSUER_OID_V2}) nor V1 ({_FULCIO_ISSUER_OID_V1}) "
+            "OIDC issuer extension"
+        ) from e
 
 
 __all__ = [

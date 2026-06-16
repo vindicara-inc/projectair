@@ -4,17 +4,17 @@ import os
 
 import aws_cdk as cdk
 
+from vindicara.infra.stacks.air_cloud_stack import AirCloudStack
 from vindicara.infra.stacks.api_stack import APIStack
 from vindicara.infra.stacks.data_stack import DataStack
 from vindicara.infra.stacks.events_stack import EventsStack
+from vindicara.infra.stacks.ops_chain_stack import OpsChainStack
 from vindicara.infra.stacks.site_stack import SiteStack
 
 app = cdk.App()
 
 account = os.environ.get("CDK_DEFAULT_ACCOUNT", os.environ.get("VINDICARA_AWS_ACCOUNT_ID", ""))
-workload_region = os.environ.get(
-    "CDK_DEFAULT_REGION", os.environ.get("VINDICARA_AWS_REGION", "us-west-2")
-)
+workload_region = os.environ.get("CDK_DEFAULT_REGION", os.environ.get("VINDICARA_AWS_REGION", "us-west-2"))
 site_region = "us-east-1"
 
 if not account:
@@ -27,17 +27,24 @@ env_site = cdk.Environment(account=account, region=site_region)
 
 data = DataStack(app, "VindicaraData", env=env_workload)
 events_stack = EventsStack(app, "VindicaraEvents", env=env_workload)
+ops_chain = OpsChainStack(app, "VindicaraOpsChain", env=env_workload)
 
-APIStack(
+air_cloud = AirCloudStack(app, "AirCloud", env=env_workload)
+
+api_stack = APIStack(
     app,
     "VindicaraAPI",
     policies_table=data.policies_table,
     evaluations_table=data.evaluations_table,
     api_keys_table=data.api_keys_table,
+    identity_registrations_table=data.identity_registrations_table,
     audit_bucket=data.audit_bucket,
     event_bus=events_stack.event_bus,
     env=env_workload,
 )
+# The API Lambda emits AgDR records into the ops chain on every request.
+ops_chain.ops_chain_table.grant_write_data(api_stack.api_function)
+api_stack.api_function.add_environment("VINDICARA_OPS_CHAIN_TABLE", ops_chain.ops_chain_table.table_name)
 
 # SiteStack lives in us-east-1 because CloudFront ACM certs must live there.
 # The dashboard origin domain is composed from VindicaraAPI's HTTP API ID,

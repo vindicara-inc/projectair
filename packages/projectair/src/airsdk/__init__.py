@@ -7,6 +7,7 @@
 from airsdk.agdr import Signer, load_chain, verify_chain, verify_record
 from airsdk.article72 import generate_article72_report
 from airsdk.callback import AIRCallbackHandler
+from airsdk.delegation import mint_grant_from_auth0, open_delegation
 from airsdk.detections import (
     UNIMPLEMENTED_DETECTORS,
     detect_cascading_failures,
@@ -16,6 +17,8 @@ from airsdk.detections import (
     detect_insecure_inter_agent_communication,
     detect_mcp_supply_chain_risk,
     detect_memory_context_poisoning,
+    detect_nemoguard_corroboration,
+    detect_nemoguard_safety,
     detect_prompt_injection,
     detect_resource_consumption,
     detect_rogue_agent,
@@ -28,6 +31,9 @@ from airsdk.detections import (
 from airsdk.exports import export_json, export_pdf, export_siem
 from airsdk.integrations.adk import instrument_adk, make_air_callbacks
 from airsdk.integrations.gemini import instrument_gemini
+from airsdk.integrations.nemo_guardrails import instrument_nemo_guardrails
+from airsdk.integrations.nemoclaw import instrument_nemoclaw
+from airsdk.integrations.nemoguard import NemoGuardClient
 from airsdk.recorder import AIRRecorder, resolve_signing_key
 from airsdk.registry import (
     AgentDescriptor,
@@ -40,14 +46,28 @@ from airsdk.types import (
     AGDR_VERSION,
     AgDRPayload,
     AgDRRecord,
+    AuthMethod,
+    DataAssetRef,
+    DataSubjectRef,
+    DelegationGrant,
+    EntityScope,
     Finding,
     ForensicReport,
+    SigningAlgorithm,
     StepKind,
     VerificationResult,
     VerificationStatus,
 )
+from airsdk.verification import (
+    IntentSource,
+    IntentVerdict,
+    IntentVerificationResult,
+    Violation,
+    verify_intent,
+)
+from airsdk.verification.checks.delegation import check_delegation
 
-__version__ = "0.7.1"
+__version__ = "1.0.1"
 
 __all__ = [
     "AGDR_VERSION",
@@ -58,17 +78,30 @@ __all__ = [
     "AgDRRecord",
     "AgentDescriptor",
     "AgentRegistry",
+    "AuthMethod",
     "BehavioralScope",
+    "DataAssetRef",
+    "DataSubjectRef",
+    "DelegationGrant",
+    "EntityScope",
     "FileTransport",
     "Finding",
     "ForensicReport",
     "HTTPTransport",
+    "IntentSource",
+    "IntentSpec",
+    "IntentVerdict",
+    "IntentVerificationResult",
+    "NemoGuardClient",
     "Signer",
+    "SigningAlgorithm",
     "StepKind",
     "Transport",
     "VerificationResult",
     "VerificationStatus",
+    "Violation",
     "__version__",
+    "check_delegation",
     "detect_cascading_failures",
     "detect_goal_hijack",
     "detect_human_agent_trust_exploitation",
@@ -76,6 +109,8 @@ __all__ = [
     "detect_insecure_inter_agent_communication",
     "detect_mcp_supply_chain_risk",
     "detect_memory_context_poisoning",
+    "detect_nemoguard_corroboration",
+    "detect_nemoguard_safety",
     "detect_prompt_injection",
     "detect_resource_consumption",
     "detect_rogue_agent",
@@ -89,11 +124,16 @@ __all__ = [
     "generate_article72_report",
     "instrument_adk",
     "instrument_gemini",
+    "instrument_nemo_guardrails",
+    "instrument_nemoclaw",
     "load_chain",
     "load_registry",
     "make_air_callbacks",
+    "mint_grant_from_auth0",
+    "open_delegation",
     "resolve_signing_key",
     "run_detectors",
     "verify_chain",
+    "verify_intent",
     "verify_record",
 ]

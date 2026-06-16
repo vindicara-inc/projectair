@@ -145,9 +145,7 @@ def advance_demo() -> None:
         if i < 12:
             tool = NORMAL_TOOLS[i % len(NORMAL_TOOLS)]
             ts = (now - timedelta(minutes=30 - i)).isoformat()
-            store.record(
-                BehaviorEvent(agent_id=_demo.agent_id, tool=tool, data_scope="papers", timestamp=ts)
-            )
+            store.record(BehaviorEvent(agent_id=_demo.agent_id, tool=tool, data_scope="papers", timestamp=ts))
             _record_evidence(AUDIT_EVENT_GUARD, policy_id="content-safety", verdict="allowed")
             _demo.events_recorded += 1
             _demo._normal_index += 1
@@ -231,10 +229,12 @@ def advance_demo() -> None:
 
 
 def _log(message: str) -> None:
-    _demo.steps_log.append({
-        "time": datetime.now(UTC).strftime("%H:%M:%S"),
-        "message": message,
-    })
+    _demo.steps_log.append(
+        {
+            "time": datetime.now(UTC).strftime("%H:%M:%S"),
+            "message": message,
+        }
+    )
     logger.info("demo.step", message=message, phase=_demo.phase.value)
 
 

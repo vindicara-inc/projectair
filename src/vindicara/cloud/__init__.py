@@ -5,6 +5,7 @@ instances over HTTP, verifies them at the door, and persists them through
 a swappable :class:`CapsuleStore` (in-memory for dev / tests, JSONL for
 single-host deployments, DynamoDB for AWS production, etc.).
 """
+
 from __future__ import annotations
 
 from vindicara.cloud.capsule_store import (

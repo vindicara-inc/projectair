@@ -13,7 +13,12 @@ const config = {
 			return isExternalLibrary ? undefined : true;
 		},
 		warningFilter: (warning) => {
-			if (warning.code === 'a11y_invalid_attribute' || warning.code === 'a11y_consider_explicit_label') return false;
+			if (
+				warning.code === 'a11y_invalid_attribute' ||
+				warning.code === 'a11y_consider_explicit_label' ||
+				warning.code === 'a11y_label_has_associated_control'
+			)
+				return false;
 			return true;
 		}
 	},
@@ -22,7 +27,11 @@ const config = {
 		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
 		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 		prerender: {
-			handleMissingId: 'warn'
+			handleMissingId: 'warn',
+			handleHttpError: ({ path, message }) => {
+				if (path.startsWith('/dashboard')) return;
+				throw new Error(message);
+			}
 		},
 		adapter: adapter({
 			pages: 'build',

@@ -1,0 +1,23 @@
+{
+  "template_id": "AIR-05-nemoguard-safety",
+  "version": "1.0.0",
+  "detector_id": "AIR-05",
+  "finding_type": "nemoguard_safety",
+  "layer1": "NVIDIA NemoGuard flagged unsafe content from agent {agent_name} at {timestamp}.",
+  "layer2": [
+    { "framework": "Content Safety", "reference": "AIR-05", "description": "NemoGuard Safety Classification: NVIDIA NIM classifier identified content in a critical, high, or medium safety category." },
+    { "framework": "NemoGuard NIM", "reference": "AIR-05", "description": "AIR-05 corroborates heuristic detection with an independent NIM safety classifier signal." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Review Content", "action": "review_content" },
+      { "label": "Block Agent", "action": "block_agent" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}

@@ -16,47 +16,56 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.asymmetric.mldsa import MLDSA65PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
-from airsdk.agdr import Signer, _uuid7
+from airsdk.agdr import SigningKey, Signer, _uuid7
 from airsdk.containment import (
     Auth0Verifier,
     BlockedActionError,
     ChallengeNotFoundError,
     ContainmentPolicy,
     Decision,
+    DelegationPolicy,
     StepUpRequiredError,
+    evaluate_require_delegation,
 )
 from airsdk.transport import FileTransport, Transport
-from airsdk.types import AgDRPayload, AgDRRecord, HumanApproval, StepKind
+from airsdk.types import AgDRPayload, AgDRRecord, HumanApproval, SigningAlgorithm, StepKind
 
 if TYPE_CHECKING:
     from airsdk.anchoring import AnchoringOrchestrator
     from airsdk.types import Finding
 
 
-def resolve_signing_key(key: str | Ed25519PrivateKey | None) -> Ed25519PrivateKey | None:
-    """Accept an Ed25519 private key as hex seed, PEM, or raw key instance.
+def resolve_signing_key(
+    key: str | SigningKey | None,
+    algorithm: SigningAlgorithm = SigningAlgorithm.ED25519,
+) -> SigningKey | None:
+    """Accept a private key as hex seed, PEM, or raw key instance.
 
-    Returns ``None`` when ``key`` is ``None`` so callers can fall back to
-    ``Signer.generate()`` explicitly.
+    PEM keys are auto-detected (Ed25519 or ML-DSA-65). Hex seeds use
+    ``algorithm`` to pick the right key type. Returns ``None`` when
+    ``key`` is ``None`` so callers can fall back to ``Signer.generate()``.
     """
     if key is None:
         return None
-    if isinstance(key, Ed25519PrivateKey):
+    if isinstance(key, (Ed25519PrivateKey, MLDSA65PrivateKey)):
         return key
     data = key.strip()
     if data.startswith("-----BEGIN"):
         priv = load_pem_private_key(data.encode(), password=None)
-        if not isinstance(priv, Ed25519PrivateKey):
-            raise ValueError(f"key PEM must hold an Ed25519 key, got {type(priv).__name__}")
-        return priv
+        if isinstance(priv, (Ed25519PrivateKey, MLDSA65PrivateKey)):
+            return priv
+        raise ValueError(f"key PEM must hold Ed25519 or ML-DSA-65, got {type(priv).__name__}")
     try:
         seed = bytes.fromhex(data)
     except ValueError as exc:
-        raise ValueError("key must be a PEM-encoded private key or a 64-char hex Ed25519 seed") from exc
+        raise ValueError("key must be a PEM-encoded private key or a 64-char hex seed") from exc
     if len(seed) != 32:
         raise ValueError(f"hex key must decode to 32 bytes, got {len(seed)}")
+    if algorithm == SigningAlgorithm.ML_DSA_65:
+        return MLDSA65PrivateKey.from_seed_bytes(seed)
     return Ed25519PrivateKey.from_private_bytes(seed)
 
 
@@ -90,30 +99,45 @@ class AIRRecorder:
     def __init__(
         self,
         log_path: str | Path,
-        key: str | Ed25519PrivateKey | None = None,
+        key: str | SigningKey | None = None,
         *,
         user_intent: str | None = None,
+        intent_spec: IntentSpec | None = None,
+        delegation: DelegationGrant | None = None,
         transports: list[Transport] | None = None,
         containment: ContainmentPolicy | None = None,
+        delegation_policy: DelegationPolicy | None = None,
         auth0_verifier: Auth0Verifier | None = None,
+        signing_algorithm: SigningAlgorithm = SigningAlgorithm.ED25519,
     ) -> None:
-        priv = resolve_signing_key(key)
-        self._signer = Signer(priv) if priv is not None else Signer.generate()
+        priv = resolve_signing_key(key, algorithm=signing_algorithm)
+        self._signer = Signer(priv) if priv is not None else Signer.generate(signing_algorithm)
         self._log_path = Path(log_path).expanduser()
         self._log_path.parent.mkdir(parents=True, exist_ok=True)
+        if delegation is not None and intent_spec is not None:
+            raise ValueError(
+                "pass either delegation= or intent_spec=, not both; the "
+                "delegation already carries the authorized scope as its IntentSpec"
+            )
         self._user_intent = user_intent
+        self._intent_spec = delegation.scope if delegation is not None else intent_spec
         self._transports: list[Transport] = transports if transports is not None else [FileTransport(self._log_path)]
         self._orchestrator: AnchoringOrchestrator | None = None
         self._containment = containment
+        self._delegation_policy = delegation_policy
         self._auth0 = auth0_verifier
-        # Pending step-up challenges keyed by challenge_id. Each value is the
-        # original tool action so ``approve`` can resume it after a verified
-        # token arrives.
         self._pending: dict[str, dict[str, Any]] = {}
-        # Findings the policy uses for ``block_on_findings`` rules. Operators
-        # update this list as detectors fire (or pass run_detectors output
-        # directly into ``tool_start``).
         self._prior_findings: list[Finding] = []
+        self._verify_on_step = verify_on_step
+        self._chain_records: list[AgDRRecord] = []
+
+        if delegation is not None:
+            self.open_delegation(delegation)
+        elif intent_spec is not None:
+            self._emit(StepKind.INTENT_DECLARATION, {
+                "user_intent": intent_spec.goal,
+                "intent_spec": intent_spec,
+            })
 
     @property
     def public_key_hex(self) -> str:
@@ -140,9 +164,21 @@ class AIRRecorder:
 
     # -- Step emitters -----------------------------------------------------
 
-    def llm_start(self, *, prompt: str, **extra: Any) -> AgDRRecord:
+    def llm_start(
+        self,
+        *,
+        prompt: str,
+        data_assets: list[DataAssetRef] | None = None,
+        data_subjects: list[DataSubjectRef] | None = None,
+        **extra: Any,
+    ) -> AgDRRecord:
         """Agent is about to call an LLM with ``prompt``."""
-        return self._emit(StepKind.LLM_START, {"prompt": prompt, **extra})
+        fields: dict[str, Any] = {"prompt": prompt, **extra}
+        if data_assets is not None:
+            fields["data_assets"] = data_assets
+        if data_subjects is not None:
+            fields["data_subjects"] = data_subjects
+        return self._emit(StepKind.LLM_START, fields)
 
     def llm_end(self, *, response: str, **extra: Any) -> AgDRRecord:
         """LLM returned ``response``."""
@@ -154,6 +190,8 @@ class AIRRecorder:
         tool_name: str,
         tool_args: dict[str, Any] | None = None,
         prior_findings: list[Finding] | None = None,
+        data_assets: list[DataAssetRef] | None = None,
+        data_subjects: list[DataSubjectRef] | None = None,
         **extra: Any,
     ) -> AgDRRecord:
         """Agent is about to invoke a tool.
@@ -180,6 +218,21 @@ class AIRRecorder:
             "tool_args": tool_args or {},
             **extra,
         }
+        if data_assets is not None:
+            fields["data_assets"] = data_assets
+        if data_subjects is not None:
+            fields["data_subjects"] = data_subjects
+
+        delegation_result = evaluate_require_delegation(
+            self._chain_records,
+            policy=self._delegation_policy,
+        )
+        if delegation_result.blocked:
+            fields["blocked"] = True
+            fields["blocked_reason"] = delegation_result.reason
+            self._emit(StepKind.TOOL_START, fields)
+            raise BlockedActionError(delegation_result.reason, tool_name=tool_name)
+
         if self._containment is None:
             return self._emit(StepKind.TOOL_START, fields)
 
@@ -187,6 +240,7 @@ class AIRRecorder:
             tool_name=tool_name,
             tool_args=tool_args,
             prior_findings=prior_findings if prior_findings is not None else self._prior_findings,
+            records=self._chain_records,
         )
         if verdict.decision == Decision.ALLOW:
             return self._emit(StepKind.TOOL_START, fields)
@@ -253,6 +307,36 @@ class AIRRecorder:
                 **extra,
             },
         )
+
+    def open_delegation(self, grant: DelegationGrant) -> AgDRRecord:
+        """Emit the session-genesis DELEGATION record, then declare its scope.
+
+        Binds the entire chain to the human who authorized this agent: who,
+        under which policy, within which scope, until when. Because every later
+        record hash-chains from this genesis, binding the genesis to an
+        authenticated human binds the whole session.
+
+        Must be the chain root. The authorized scope is also emitted as an
+        ``INTENT_DECLARATION`` so Structural Verification enforces exactly what
+        the human authorized. Raises ``RuntimeError`` if the recorder has
+        already emitted records (so a caller cannot slip records in ahead of
+        the delegation).
+        """
+        if self._signer.head_hash != GENESIS_PREV_HASH:
+            raise RuntimeError(
+                "open_delegation must be the first record on the chain; the "
+                "recorder has already emitted records. Construct the recorder "
+                "without intent_spec= and call open_delegation before any step."
+            )
+        record = self._emit(
+            StepKind.DELEGATION,
+            {"delegation": grant, "user_intent": grant.scope.goal},
+        )
+        self._emit(
+            StepKind.INTENT_DECLARATION,
+            {"user_intent": grant.scope.goal, "intent_spec": grant.scope},
+        )
+        return record
 
     # -- Internal ---------------------------------------------------------
 
@@ -361,6 +445,18 @@ class AIRRecorder:
         record = self._signer.sign(kind=kind, payload=payload)
         for transport in self._transports:
             transport.emit(record)
+        self._chain_records.append(record)
         if self._orchestrator is not None:
             self._orchestrator.observe_step(record)
+        if (
+            self._verify_on_step
+            and self._intent_spec is not None
+            and kind == StepKind.TOOL_END
+        ):
+            result = _verify_intent(self._chain_records, self._intent_spec)
+            if result.verdict == IntentVerdict.FAILED:
+                raise BlockedActionError(
+                    f"Structural verification failed: {result.summary}",
+                    tool_name=fields.get("tool_name", ""),
+                )
         return record

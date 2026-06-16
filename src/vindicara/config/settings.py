@@ -7,6 +7,11 @@ _DEFAULT_CORS_ORIGINS = [
     "https://vindicara.io",
     "https://www.vindicara.io",
     "https://dashboard.vindicara.io",
+    "https://app.vindicara.io",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5190",
+    "http://127.0.0.1:5190",
 ]
 
 

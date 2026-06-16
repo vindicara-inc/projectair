@@ -238,10 +238,112 @@ SOC2_AI = FrameworkDefinition(
     ],
 )
 
+HIPAA_SECURITY = FrameworkDefinition(
+    framework_id=ComplianceFramework.HIPAA_SECURITY,
+    name="HIPAA Security Rule (2026 NPRM)",
+    description=(
+        "Technical and administrative safeguards for electronic protected "
+        "health information (ePHI) under the HIPAA Security Rule. Controls "
+        "reflect the 2026 NPRM which eliminates addressable safeguards and "
+        "mandates MFA, encryption, and annual penetration testing. AIR "
+        "provides cryptographic evidence for these controls; full HIPAA "
+        "compliance also requires BAAs, physical safeguards, workforce "
+        "training, and encryption at rest, which are outside agent-action "
+        "scope."
+    ),
+    version="2026-nprm",
+    controls=[
+        ControlDefinition(
+            control_id="HIPAA-1",
+            control_name="Access Control",
+            description=(
+                "45 CFR 164.312(a)(1): unique user identification and "
+                "role-based access for ePHI systems. 2026 NPRM mandates MFA."
+            ),
+            required_evidence_types=[EvidenceType.AGENT_ACTION],
+            min_evidence_count=1,
+        ),
+        ControlDefinition(
+            control_id="HIPAA-2",
+            control_name="Audit Controls",
+            description=(
+                "45 CFR 164.312(b): hardware, software, and procedural "
+                "mechanisms to record and examine ePHI access."
+            ),
+            required_evidence_types=[EvidenceType.GUARD_EVALUATION],
+            min_evidence_count=10,
+        ),
+        ControlDefinition(
+            control_id="HIPAA-3",
+            control_name="Integrity Controls",
+            description=(
+                "45 CFR 164.312(c)(1): protect ePHI from improper "
+                "alteration or destruction. 2026 NPRM mandates encryption."
+            ),
+            required_evidence_types=[EvidenceType.GUARD_EVALUATION],
+            min_evidence_count=5,
+        ),
+        ControlDefinition(
+            control_id="HIPAA-4",
+            control_name="Person or Entity Authentication",
+            description=(
+                "45 CFR 164.312(d): verify identity of persons or entities "
+                "seeking access to ePHI."
+            ),
+            required_evidence_types=[EvidenceType.AGENT_ACTION],
+            min_evidence_count=1,
+        ),
+        ControlDefinition(
+            control_id="HIPAA-5",
+            control_name="Transmission Security",
+            description=(
+                "45 CFR 164.312(e)(1): guard against unauthorized access to "
+                "ePHI during electronic transmission."
+            ),
+            required_evidence_types=[EvidenceType.GUARD_EVALUATION],
+            min_evidence_count=5,
+        ),
+        ControlDefinition(
+            control_id="HIPAA-6",
+            control_name="Minimum Necessary Enforcement",
+            description=(
+                "45 CFR 164.502(b): limit ePHI access to the minimum "
+                "necessary for the intended purpose."
+            ),
+            required_evidence_types=[EvidenceType.AGENT_SUSPENSION],
+            min_evidence_count=1,
+        ),
+        ControlDefinition(
+            control_id="HIPAA-7",
+            control_name="Security Incident Procedures",
+            description=(
+                "45 CFR 164.308(a)(6): identify, respond to, and mitigate "
+                "security incidents involving ePHI."
+            ),
+            required_evidence_types=[
+                EvidenceType.AGENT_SUSPENSION,
+                EvidenceType.POLICY_CHANGE,
+            ],
+            min_evidence_count=1,
+        ),
+        ControlDefinition(
+            control_id="HIPAA-8",
+            control_name="Security Evaluation",
+            description=(
+                "45 CFR 164.308(a)(8): periodic technical and nontechnical "
+                "evaluation. 2026 NPRM mandates annual penetration testing."
+            ),
+            required_evidence_types=[EvidenceType.MCP_SCAN],
+            min_evidence_count=1,
+        ),
+    ],
+)
+
 FRAMEWORKS: dict[ComplianceFramework, FrameworkDefinition] = {
     ComplianceFramework.EU_AI_ACT_ARTICLE_72: EU_AI_ACT_ARTICLE_72,
     ComplianceFramework.NIST_AI_RMF: NIST_AI_RMF,
     ComplianceFramework.SOC2_AI: SOC2_AI,
+    ComplianceFramework.HIPAA_SECURITY: HIPAA_SECURITY,
 }
 
 
