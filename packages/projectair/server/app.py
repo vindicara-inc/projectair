@@ -16,6 +16,7 @@ Then open  http://localhost:8000/  (use https + a real domain for production)
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
@@ -35,6 +36,8 @@ from airsdk.types import IntentSpec
 RP_ID = os.environ.get("AIR_RP_ID", "localhost")
 RP_NAME = "Project AIR"
 ORIGIN = os.environ.get("AIR_ORIGIN", "http://localhost:8000")
+CHAIN_LOG_ROOT = Path("server/chains").resolve()
+CHAIN_LOG_ROOT.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="Project AIR delegation ceremony")
 
@@ -120,7 +123,14 @@ async def authorize_verify(req: Request) -> JSONResponse:
         ttl_seconds=body.get("ttl", 3600),
     )
 
-    recorder = AIRRecorder(body.get("chain", "chain.jsonl"))
+    chain_name = str(body.get("chain", "chain.jsonl"))
+    chain_path = (CHAIN_LOG_ROOT / chain_name).resolve()
+    try:
+        chain_path.relative_to(CHAIN_LOG_ROOT)
+    except ValueError as exc:
+        raise HTTPException(400, "invalid chain path") from exc
+
+    recorder = AIRRecorder(str(chain_path))
     record = recorder.open_delegation(grant)
     return JSONResponse(
         content={
