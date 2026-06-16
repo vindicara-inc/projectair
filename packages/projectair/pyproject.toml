@@ -91,7 +91,10 @@ packages = ["src/airsdk", "src/projectair"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+# "." puts the package root on sys.path so cross-module test imports like
+# `from tests.attestation.conftest import make_grant` resolve under a bare
+# `pytest` invocation (CI), matching `python -m pytest` used locally.
+pythonpath = ["src", "."]
 markers = [
     "network: requires outbound network access; skipped by default. Run with `pytest -m network`.",
     "integration: requires external service credentials (e.g. AIR_AUTH0_*). Run with `pytest -m integration`.",
