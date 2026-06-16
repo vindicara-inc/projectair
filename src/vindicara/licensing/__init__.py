@@ -1,17 +1,18 @@
-"""License token issuance for Stripe auto-fulfillment."""
+"""Server-side license issuance.
 
-from __future__ import annotations
-
+Issues Ed25519-signed license tokens whose verification side ships in
+``packages/projectair-pro/src/airsdk_pro/license.py``. The two halves use
+the same canonicalization and signature scheme; the public key is embedded
+in the customer-installed ``airsdk_pro`` wheel.
+"""
 from vindicara.licensing.issuer import (
     LicenseIssuanceError,
-    LicensePlan,
     issue_license_token,
     plan_for_price_id,
 )
 
 __all__ = [
     "LicenseIssuanceError",
-    "LicensePlan",
     "issue_license_token",
     "plan_for_price_id",
 ]

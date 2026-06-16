@@ -1,7 +1,4 @@
-"""Transactional email delivery for Stripe fulfillment."""
-
-from __future__ import annotations
-
+"""Outbound transactional email."""
 from vindicara.notifications.email import (
     EmailDeliveryError,
     LicenseEmail,
