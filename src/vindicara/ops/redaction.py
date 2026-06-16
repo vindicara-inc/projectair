@@ -6,8 +6,12 @@ properties matter:
 
 1. **Default deny.** Any payload field not explicitly listed in
    :data:`vindicara.ops.schema.REDACTION_POLICY` for the record's kind is
-   replaced by ``"blake3:" || hex_digest`` of the original value's canonical
-   JSON encoding. This includes nested fields (the redactor walks dicts and
+   replaced by ``"blake3:" || hex_mac`` of the original value's canonical
+   JSON encoding. The MAC is a keyed BLAKE3 digest under a per-deployment
+   secret (``VINDICARA_REDACTION_KEY``), not a bare hash, so short low-entropy
+   PII (SSN, MRN, phone, DOB) cannot be brute-forced back out of the public
+   chain. The key is stable per deployment, preserving same-input-same-digest
+   correlation. This includes nested fields (the redactor walks dicts and
    lists recursively) so a future schema addition does not silently leak
    into the public chain.
 
@@ -23,7 +27,9 @@ properties matter:
 
 from __future__ import annotations
 
+import functools
 import json
+import os
 from typing import Any
 
 import blake3
@@ -32,15 +38,52 @@ from vindicara.ops.schema import PUBLIC_FIELDS_DEFAULT, REDACTION_POLICY
 
 REDACTED_PREFIX = "blake3:"
 
+# Per-deployment secret that keys the redaction MAC. Without it, a redacted
+# field is a plain BLAKE3 digest of the original value, which is trivially
+# brute-forceable for low-entropy PII (a 9-digit SSN is only 10^9 candidates,
+# seconds on commodity hardware). Keying with a deployment secret preserves the
+# same-input-same-digest correlation property the public chain relies on while
+# making the digests unrecoverable to anyone who does not hold the secret.
+# The secret must be stable for the life of a chain: rotating it breaks
+# cross-record correlation for records hashed under the old key.
+_REDACTION_KEY_ENV = "VINDICARA_REDACTION_KEY"
+_KDF_CONTEXT = "vindicara.ops.redaction MAC key v1"
+
+
+class RedactionKeyError(RuntimeError):
+    """Raised when the per-deployment redaction secret is required but unset."""
+
+
+@functools.lru_cache(maxsize=4)
+def _derive_key(secret: str) -> bytes:
+    """Derive a 32-byte BLAKE3 MAC key from the deployment secret via BLAKE3 KDF."""
+    return blake3.blake3(secret.encode("utf-8"), derive_key_context=_KDF_CONTEXT).digest()
+
+
+def _redaction_key() -> bytes:
+    """Return the 32-byte MAC key, failing closed if the secret is not configured."""
+    secret = os.environ.get(_REDACTION_KEY_ENV)
+    if not secret:
+        raise RedactionKeyError(
+            f"{_REDACTION_KEY_ENV} is not set. Public-chain redaction requires a "
+            "stable, high-entropy per-deployment secret so short PII (SSN, MRN, "
+            "phone, DOB) cannot be brute-forced from the published BLAKE3 hashes. "
+            "Set it in the ops-chain publisher environment before publishing."
+        )
+    return _derive_key(secret)
+
 
 def _hash_value(value: Any) -> str:
-    """Return the canonical-JSON BLAKE3 hash of ``value`` as ``"blake3:<hex>"``.
+    """Return the keyed-BLAKE3 MAC of ``value`` as ``"blake3:<hex>"``.
 
     Uses sorted keys + no whitespace so the same logical value produces the
-    same hash regardless of dict iteration order or float reformatting.
+    same digest regardless of dict iteration order or float reformatting. The
+    digest is keyed with the per-deployment secret (see :func:`_redaction_key`),
+    so it is a MAC, not a bare hash: identical within a deployment for
+    correlation, but not reversible by brute force without the secret.
     """
     canonical = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
-    digest = blake3.blake3(canonical.encode("utf-8")).hexdigest()
+    digest = blake3.blake3(canonical.encode("utf-8"), key=_redaction_key()).hexdigest()
     return REDACTED_PREFIX + digest
 
 

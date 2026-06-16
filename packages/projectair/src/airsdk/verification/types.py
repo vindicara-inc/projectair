@@ -1,9 +1,9 @@
 """Types for structural verification of agent behavior against declared intent."""
 from __future__ import annotations
 
-from enum import StrEnum
-
 from pydantic import BaseModel, ConfigDict, Field
+
+from airsdk._compat import StrEnum
 
 
 class IntentVerdict(StrEnum):

@@ -77,3 +77,14 @@ docs/pitch/*.pptx
 
 # Legal docs served by the site must be tracked
 !vindicara-site/static/legal/*.docx
+
+# Internal / confidential - never publish to the public repo
+DILIGENCE_READINESS_AUDIT.md
+GCP_MOVEMENT_PLAN.md
+AZURE_W1_BRINGUP.md
+gtm-drafts/
+docs/sales/
+docs/pitch/
+docs/workforce-accountability-spec.md
+cloudrun/
+packages/projectair/air-demo-out/

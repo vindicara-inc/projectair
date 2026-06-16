@@ -1,7 +1,8 @@
 """Article 72 post-market monitoring report generator."""
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime
+from airsdk._compat import UTC
 from uuid import uuid4
 
 from airsdk.article72 import generate_article72_report

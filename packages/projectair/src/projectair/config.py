@@ -17,7 +17,11 @@ from __future__ import annotations
 import json
 import os
 import sys
-import tomllib
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 backport
+    import tomli as tomllib
 from pathlib import Path
 from typing import Any
 

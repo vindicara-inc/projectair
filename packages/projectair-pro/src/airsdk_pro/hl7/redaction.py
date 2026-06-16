@@ -8,12 +8,27 @@ acknowledgement.
 """
 from __future__ import annotations
 
+import functools
+import os
 import re
 from datetime import date
 from enum import StrEnum
 
 import blake3
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+# Per-deployment secret that keys the PHI identifier MAC. A bare BLAKE3 digest
+# of a short identifier (9-digit SSN, MRN, phone) is brute-forceable in seconds.
+# Keying with a stable deployment secret preserves cross-record correlation
+# while making the digest unrecoverable without the secret.
+_PHI_REDACTION_KEY_ENV = "AIRSDK_PHI_REDACTION_KEY"
+_PHI_KDF_CONTEXT = "airsdk_pro.hl7.redaction MAC key v1"
+
+
+@functools.lru_cache(maxsize=4)
+def _derive_phi_key(secret: str) -> bytes:
+    """Derive a 32-byte BLAKE3 MAC key from the deployment secret via BLAKE3 KDF."""
+    return blake3.blake3(secret.encode("utf-8"), derive_key_context=_PHI_KDF_CONTEXT).digest()
 
 
 class PHIMode(StrEnum):
@@ -93,16 +108,30 @@ class RedactionPolicy(BaseModel):
 _DATE8_RE = re.compile(r"\d{8}")
 
 
-def redact_identifier(value: str, policy: RedactionPolicy) -> str:
-    """Hash ``value`` with BLAKE3 in REDACTED mode; return verbatim in RAW mode.
+def _phi_redaction_key() -> bytes:
+    """Return the 32-byte PHI MAC key, failing closed if the secret is not set."""
+    secret = os.environ.get(_PHI_REDACTION_KEY_ENV)
+    if not secret:
+        raise PHIRedactionError(
+            f"{_PHI_REDACTION_KEY_ENV} is not set. Redacted PHI identifiers are "
+            "keyed BLAKE3 MACs; without a stable per-deployment secret, short "
+            "identifiers (SSN, MRN, phone) can be brute-forced from the digest. "
+            "Set it before activating HL7v2 capture in REDACTED mode."
+        )
+    return _derive_phi_key(secret)
 
-    The BLAKE3 digest is hex-encoded (64 characters). The same input
-    always produces the same digest within a single deployment, enabling
-    correlation across records without exposing the raw identifier.
+
+def redact_identifier(value: str, policy: RedactionPolicy) -> str:
+    """MAC ``value`` with keyed BLAKE3 in REDACTED mode; return verbatim in RAW mode.
+
+    The keyed-BLAKE3 digest is hex-encoded (64 characters). The same input
+    always produces the same digest within a single deployment (the key is
+    stable), enabling correlation across records without exposing the raw
+    identifier and without leaving short identifiers brute-forceable.
     """
     if policy.phi_mode == PHIMode.RAW:
         return value
-    return blake3.blake3(value.encode()).hexdigest()
+    return blake3.blake3(value.encode(), key=_phi_redaction_key()).hexdigest()
 
 
 def redact_dob(dob: str, policy: RedactionPolicy) -> str:

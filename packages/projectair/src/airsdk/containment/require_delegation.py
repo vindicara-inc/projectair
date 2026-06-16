@@ -31,8 +31,8 @@ across a deployment is an explicit configuration, not a silent default.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import StrEnum
 
+from airsdk._compat import StrEnum
 from airsdk.containment.policy import Decision
 from airsdk.types import AgDRRecord, StepKind
 

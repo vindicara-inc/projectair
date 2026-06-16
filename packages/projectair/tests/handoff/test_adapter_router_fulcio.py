@@ -25,7 +25,7 @@ from airsdk.handoff.exceptions import (
 from airsdk.handoff.fulcio import FulcioTrustBundle
 from airsdk.handoff.idp.base import AdapterRouter, CapabilityToken, IdPAdapter
 
-_NOW = dt.datetime(2026, 6, 1, 12, 0, 0, tzinfo=dt.UTC)
+_NOW = dt.datetime(2026, 6, 1, 12, 0, 0, tzinfo=dt.timezone.utc)
 _NB = _NOW - dt.timedelta(hours=1)
 _NA = _NOW + dt.timedelta(hours=1)
 _OID_V2 = "1.3.6.1.4.1.57264.1.8"

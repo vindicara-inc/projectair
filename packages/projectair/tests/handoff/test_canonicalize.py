@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import datetime as _dt
 from decimal import Decimal
-from enum import StrEnum
+from airsdk._compat import StrEnum
 
 import pytest
 

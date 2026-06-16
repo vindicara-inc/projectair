@@ -164,7 +164,7 @@ def verify_fulcio_leaf(
     Returns the leaf's :class:`Ed25519PublicKey`, suitable for verifying the
     handoff record signed by that agent identity.
     """
-    when = at_time or _dt.datetime.now(tz=_dt.UTC)
+    when = at_time or _dt.datetime.now(tz=_dt.timezone.utc)
     if when.tzinfo is None:
         raise IdentityCertificateError("at_time must be timezone-aware (UTC)")
 

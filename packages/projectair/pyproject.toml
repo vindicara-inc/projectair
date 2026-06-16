@@ -8,7 +8,7 @@ version = "1.0.1"
 description = "Project AIR: forensic reconstruction and incident response for AI agents. Signed AgDR chains, RFC 3161 + Sigstore Rekor anchoring, causal explanation, and Auth0-verified human-in-the-loop containment."
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 authors = [{ name = "Kevin Minn", email = "support@vindicara.io" }]
 keywords = ["ai", "security", "incident-response", "forensics", "langchain", "agent", "agdr", "owasp"]
 classifiers = [
@@ -16,6 +16,8 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Security",
@@ -56,6 +58,9 @@ dependencies = [
     # canonicalizes payloads before BLAKE3 hashing so two parties hash
     # the same bytes regardless of dict ordering or whitespace.
     "jcs>=0.2.1,<1.0",
+    # tomli: standard-library tomllib backport for Python 3.10. projectair.config
+    # reads pyproject/TOML; tomllib was only added to the stdlib in 3.11.
+    "tomli>=2.0.0; python_version < '3.11'",
 ]
 
 [project.optional-dependencies]
@@ -94,7 +99,7 @@ markers = [
 addopts = "-m 'not network and not integration'"
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py310"
 line-length = 120
 src = ["src", "tests"]
 
@@ -112,7 +117,7 @@ ignore = [
 ]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.10"
 strict = true
 warn_return_any = true
 plugins = ["pydantic.mypy"]

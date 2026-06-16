@@ -43,7 +43,7 @@ DEFAULT_REKOR_SUBMISSION_MODE = "synchronous"
 def _now_iso() -> str:
     """RFC 3339 UTC timestamp with explicit ``Z`` suffix (Section 15.11)."""
     return (
-        _dt.datetime.now(_dt.UTC)
+        _dt.datetime.now(_dt.timezone.utc)
         .isoformat(timespec="microseconds")
         .replace("+00:00", "Z")
     )

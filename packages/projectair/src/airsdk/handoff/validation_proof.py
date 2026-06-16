@@ -51,7 +51,7 @@ DEFAULT_VALIDATION_METHOD = "auth0_jwks_rs256"
 
 def _now_iso() -> str:
     return (
-        _dt.datetime.now(_dt.UTC)
+        _dt.datetime.now(_dt.timezone.utc)
         .isoformat(timespec="microseconds")
         .replace("+00:00", "Z")
     )

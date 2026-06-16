@@ -80,9 +80,10 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Any
 
+from airsdk._compat import UTC
 from airsdk.registry import AgentDescriptor, AgentRegistry
 from airsdk.types import AgDRRecord, Finding, StepKind
 

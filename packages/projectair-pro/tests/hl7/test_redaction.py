@@ -88,13 +88,17 @@ class TestRedactionPolicyConstruction:
 
 
 class TestRedactIdentifier:
-    def test_redacted_mode_returns_blake3_hex(self) -> None:
+    def test_redacted_mode_returns_keyed_blake3_hex(self) -> None:
         import blake3 as _blake3
 
         policy = RedactionPolicy(baa_acknowledged=True, phi_mode=PHIMode.REDACTED)
         result = redact_identifier("MRN12345", policy)
-        expected = _blake3.blake3("MRN12345".encode()).hexdigest()
-        assert result == expected
+        assert len(result) == 64
+        assert all(c in "0123456789abcdef" for c in result)
+        # Keyed MAC, not a bare hash: must differ from the unsalted digest so a
+        # short identifier cannot be brute-forced back out of the published value.
+        unsalted = _blake3.blake3(b"MRN12345").hexdigest()
+        assert result != unsalted
 
     def test_redacted_mode_is_deterministic(self) -> None:
         policy = RedactionPolicy(baa_acknowledged=True, phi_mode=PHIMode.REDACTED)
@@ -112,7 +116,9 @@ class TestRedactIdentifier:
         import blake3 as _blake3
 
         policy = RedactionPolicy(baa_acknowledged=True, phi_mode=PHIMode.REDACTED)
-        assert redact_identifier("", policy) == _blake3.blake3(b"").hexdigest()
+        result = redact_identifier("", policy)
+        assert len(result) == 64
+        assert result != _blake3.blake3(b"").hexdigest()
 
     def test_empty_string_raw(self) -> None:
         policy = RedactionPolicy(baa_acknowledged=True, phi_mode=PHIMode.RAW)

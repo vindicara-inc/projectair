@@ -14,13 +14,37 @@ import json
 import re
 from typing import Any
 
+import blake3
+import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from vindicara.ops.redaction import REDACTED_PREFIX, redact_record
+from vindicara.ops.redaction import REDACTED_PREFIX, RedactionKeyError, _hash_value, redact_record
 from vindicara.ops.schema import DENYLIST_FIELD_NAMES, OpsKind
 
 _BLAKE3_HASH_RE = re.compile(rf"^{re.escape(REDACTED_PREFIX)}[0-9a-f]{{64}}$")
+
+
+def test_missing_key_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Without the deployment secret, redaction must refuse rather than emit a bare hash."""
+    monkeypatch.delenv("VINDICARA_REDACTION_KEY", raising=False)
+    with pytest.raises(RedactionKeyError):
+        _hash_value("123-45-6789")
+
+
+def test_redaction_is_keyed_not_bare_hash(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The published digest must differ from the unsalted BLAKE3 of the same value.
+
+    This is the property that defeats brute-force recovery of short PII: an
+    attacker who hashes candidate SSNs with plain BLAKE3 gets no match.
+    """
+    monkeypatch.setenv("VINDICARA_REDACTION_KEY", "deployment-A-secret")
+    digest = _hash_value("123-45-6789")
+    unsalted = REDACTED_PREFIX + blake3.blake3(b'"123-45-6789"').hexdigest()
+    assert digest != unsalted
+    # A different deployment secret yields a different digest for the same input.
+    monkeypatch.setenv("VINDICARA_REDACTION_KEY", "deployment-B-secret")
+    assert _hash_value("123-45-6789") != digest
 
 
 def test_unknown_kind_redacts_everything() -> None:

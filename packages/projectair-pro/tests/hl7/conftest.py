@@ -34,3 +34,13 @@ def licensed(
 @pytest.fixture
 def recorder(tmp_path: Path) -> AIRRecorder:
     return AIRRecorder(log_path=tmp_path / "chain.jsonl")
+
+
+@pytest.fixture(autouse=True)
+def _phi_redaction_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Provide the per-deployment PHI MAC key so REDACTED-mode redaction works.
+
+    redact_identifier fails closed without AIRSDK_PHI_REDACTION_KEY; tests set a
+    fixed dummy secret so digests are deterministic within the suite.
+    """
+    monkeypatch.setenv("AIRSDK_PHI_REDACTION_KEY", "test-phi-secret-not-for-production")
