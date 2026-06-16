@@ -1,7 +1,7 @@
 """`air` CLI. Surfaces `trace`, `demo`, and `version` subcommands."""
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -31,6 +31,7 @@ from airsdk.types import (
     StepKind,
     VerificationStatus,
 )
+from airsdk.verification import IntentVerdict, verify_intent
 
 app = typer.Typer(
     name="air",
@@ -67,6 +68,120 @@ _register_approve_cli(app)
 from projectair.handoff_cli import register as _register_handoff_cli  # noqa: E402
 
 _register_handoff_cli(app)
+
+# Structural verification: `air verify-intent` (experimental).
+from projectair.verify_intent_cli import register as _register_verify_intent_cli  # noqa: E402
+
+_register_verify_intent_cli(app)
+
+# Delegated Authority: `air authorize`, `air verify-delegation` (beta).
+from projectair.delegation_cli import register as _register_delegation_cli  # noqa: E402
+
+_register_delegation_cli(app)
+
+# AIR Cloud push: `air push`.
+from projectair.push_cli import register as _register_push_cli  # noqa: E402
+
+_register_push_cli(app)
+
+# Pro: SIEM push commands (`air siem datadog|splunk|sumo|sentinel|slack`).
+# All command bodies defer the airsdk_pro import so OSS installs without Pro
+# still expose the help text and emit a clean install message at runtime.
+from projectair.siem_cli import register as _register_siem_cli  # noqa: E402
+
+_register_siem_cli(app)
+
+# Pro: AIR Cloud client commands (`air cloud push-webhook | push-s3`).
+from projectair.cloud_cli import register as _register_cloud_cli  # noqa: E402
+
+_register_cloud_cli(app)
+
+# Pro: premium detectors (`air detect-premium`).
+from projectair.detect_premium_cli import register as _register_detect_premium_cli  # noqa: E402
+
+_register_detect_premium_cli(app)
+
+# Pro: incident alerts (`air alert slack | pagerduty | webhook`).
+from projectair.alert_cli import register as _register_alert_cli  # noqa: E402
+
+_register_alert_cli(app)
+
+# Pro: data governance (`air governance index | query | dsar | export | classify`).
+from projectair.governance_cli import register as _register_governance_cli  # noqa: E402
+
+_register_governance_cli(app)
+
+# Pro: HL7v2 + FHIR R4 clinical evidence (`air hl7 parse | capture`).
+from projectair.hl7_cli import register as _register_hl7_cli  # noqa: E402
+
+_register_hl7_cli(app)
+
+
+# Configuration management: `air config set / get / list`.
+config_app = typer.Typer(
+    name="config",
+    help="Manage AIR CLI configuration.",
+    no_args_is_help=True,
+    add_completion=False,
+)
+app.add_typer(config_app, name="config")
+
+
+@config_app.command("set")
+def config_set(
+    key_value: str = typer.Argument(..., help="section.key format (e.g. telemetry.update_check)"),
+    value: str = typer.Argument(..., help="Value to store."),
+) -> None:
+    """Set a config value (e.g. air config set telemetry.update_check false)."""
+    from projectair.config import set_config
+    parts = key_value.split(".", 1)
+    if len(parts) != 2:
+        typer.secho(
+            "Key must be in section.key format (e.g. telemetry.update_check)",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(1)
+    set_config(parts[0], parts[1], value)
+    typer.echo(f"  {key_value} = {value}")
+
+
+@config_app.command("get")
+def config_get(
+    key: str = typer.Argument(..., help="section.key format"),
+) -> None:
+    """Get a config value."""
+    from projectair.config import get_config
+    parts = key.split(".", 1)
+    if len(parts) != 2:
+        typer.secho("Key must be in section.key format", fg=typer.colors.RED)
+        raise typer.Exit(1)
+    val = get_config(parts[0], parts[1])
+    if val is None:
+        typer.echo(f"  {key}: (not set)")
+    else:
+        typer.echo(f"  {key} = {val}")
+
+
+@config_app.command("list")
+def config_list_cmd() -> None:
+    """Show all config values."""
+    from projectair.config import list_config
+    data = list_config()
+    if not data:
+        typer.echo("  No config set.")
+        return
+    for section, kvs in data.items():
+        typer.echo(f"  [{section}]")
+        for k, v in kvs.items():
+            typer.echo(f"    {k} = {v}")
+
+
+@app.callback(invoke_without_command=True)
+def _app_callback(ctx: typer.Context) -> None:
+    """Global pre-command hook: run the update checker before any subcommand."""
+    if ctx.invoked_subcommand is not None:
+        from projectair.update_check import maybe_check_update
+        maybe_check_update()
 
 
 def _count_conversations(records: list[AgDRRecord]) -> int:
@@ -201,6 +316,21 @@ def _load_registry_or_exit(path: Path | None) -> AgentRegistry | None:
         raise typer.Exit(code=2) from exc
 
 
+def _parse_date_option(value: str | None, flag_name: str) -> date | None:
+    """Parse a --from / --to date string, or exit with a clean error."""
+    if value is None:
+        return None
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        typer.secho(
+            f"Invalid date for {flag_name}: {value!r}. Expected YYYY-MM-DD.",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=2) from None
+
+
 @app.command()
 def trace(
     log: Path = typer.Argument(..., exists=True, readable=True, help="Path to a JSON-lines AgDR log."),
@@ -227,13 +357,15 @@ def trace(
     ),
 ) -> None:
     """Ingest an AgDR log, verify its signatures, and output a forensic timeline."""
+    from projectair.first_run import maybe_prompt_first_run
+    maybe_prompt_first_run()
     registry = _load_registry_or_exit(agent_registry)
     _run_trace_pipeline(log, output, output_format, registry=registry)
 
 
-def _step_header(step_no: int, title: str) -> None:
+def _step_header(step_no: int, title: str, total: int = 9) -> None:
     typer.echo()
-    typer.secho(f"  STEP {step_no}/8 ", fg=typer.colors.BLACK, bg=typer.colors.WHITE, bold=True, nl=False)
+    typer.secho(f"  STEP {step_no}/{total} ", fg=typer.colors.BLACK, bg=typer.colors.WHITE, bold=True, nl=False)
     typer.secho(f" {title}", fg=typer.colors.WHITE, bold=True)
     typer.secho("  " + "─" * 70, fg=typer.colors.BRIGHT_BLACK)
 
@@ -269,12 +401,20 @@ def demo(
     chain, classifies findings under OWASP, exports JSON / PDF / CEF, and
     proves the chain is tamper-evident by mutating one byte and showing
     verification fail at the exact record.
+
+    Use --healthcare for a HIPAA-aligned clinical AI scenario.
     """
+    from projectair.first_run import maybe_prompt_first_run
+    maybe_prompt_first_run()
     workdir.mkdir(parents=True, exist_ok=True)
     log_path = workdir / "agent-trace.log"
     json_export = workdir / "forensic-report.json"
     pdf_export = workdir / "forensic-report.pdf"
     cef_export = workdir / "forensic-report.cef"
+
+    if healthcare:
+        _run_healthcare_demo(workdir, log_path, json_export, pdf_export, cef_export, signing_algorithm)
+        return
 
     typer.secho("\n  Project AIR — concrete demo", fg=typer.colors.WHITE, bold=True)
     typer.secho("  An AI coding agent gets poisoned by a README and exfiltrates an SSH key.", fg=typer.colors.BRIGHT_BLACK)
@@ -341,7 +481,36 @@ def demo(
             )
 
     # ---- STEP 6 -----------------------------------------------------
-    _step_header(6, "AIR exports the evidence in JSON, PDF, and CEF")
+    _step_header(6, "Structural Verification: did the agent honor its declared intent? (experimental)")
+    sv_result = verify_intent(records)
+    verdict_color = {
+        IntentVerdict.VERIFIED: typer.colors.GREEN,
+        IntentVerdict.FAILED: typer.colors.RED,
+        IntentVerdict.INCONCLUSIVE: typer.colors.YELLOW,
+    }[sv_result.verdict]
+    _detail("intent", sv_result.intent)
+    verdict_label = {
+        IntentVerdict.VERIFIED: "PASSED (agent honored its declared intent)",
+        IntentVerdict.FAILED: "FAILED BY AIR (agent violated its declared intent)",
+        IntentVerdict.INCONCLUSIVE: "INCONCLUSIVE",
+    }[sv_result.verdict]
+    _detail("verdict", verdict_label)
+    if sv_result.violations:
+        typer.secho(f"    {len(sv_result.violations)} structural violation(s):", fg=verdict_color, bold=True)
+        for violation in sv_result.violations:
+            v_color = _severity_color(violation.severity)
+            typer.secho(
+                f"      {violation.check_id:14s} {violation.severity.upper():8s} step {violation.step_index:>2}: {violation.title}",
+                fg=v_color,
+            )
+            if violation.causal_path:
+                path_str = " -> ".join(f"#{o}" for o in violation.causal_path)
+                typer.secho(f"        causal path: {path_str}", fg=typer.colors.CYAN)
+    else:
+        typer.secho(f"    {sv_result.summary}", fg=verdict_color)
+
+    # ---- STEP 7 -----------------------------------------------------
+    _step_header(7, "AIR exports the evidence in JSON, PDF, and CEF")
     report = ForensicReport(
         air_version=airsdk_version,
         report_id=str(uuid4()),
@@ -359,15 +528,15 @@ def demo(
     _detail("PDF ", str(pdf_export.resolve()))
     _detail("CEF ", f"{cef_export.resolve()}  (Splunk / ArcSight / QRadar / Sentinel / Sumo / Datadog compatible)")
 
-    # ---- STEP 7 -----------------------------------------------------
-    _step_header(7, "Tamper with one byte of the leaked-SSH-key record")
+    # ---- STEP 8 -----------------------------------------------------
+    _step_header(8, "Tamper with one byte of the leaked-SSH-key record")
     typer.secho("    An attacker (or insider) edits the JSONL log in place to alter the leaked", fg=typer.colors.WHITE)
     typer.secho("    SSH key payload, hoping to cover their tracks. They change exactly one byte.", fg=typer.colors.WHITE)
     tampered_index = tamper_one_byte(log_path, CONCRETE_DEMO_TAMPER_INDEX)
     _detail("tampered record", f"index {tampered_index} (TOOL_END containing the leaked SSH key)")
 
-    # ---- STEP 8 -----------------------------------------------------
-    _step_header(8, "Re-verify: AIR fails at the exact record that was modified")
+    # ---- STEP 9 -----------------------------------------------------
+    _step_header(9, "Re-verify: AIR fails at the exact record that was modified")
     tampered_records = load_chain(log_path)
     tampered_result = verify_chain(tampered_records)
     if tampered_result.status == VerificationStatus.OK:
@@ -388,6 +557,119 @@ def demo(
         typer.secho(f"    reason: {tampered_result.reason}", fg=typer.colors.YELLOW)
     typer.echo()
     typer.secho("  Result: tamper-evident at the byte level. The cover-up is provable.", fg=typer.colors.GREEN, bold=True)
+    typer.secho(f"  Artifacts written to: {workdir.resolve()}", fg=typer.colors.BRIGHT_BLACK)
+    typer.echo()
+
+
+def _run_healthcare_demo(
+    workdir: Path,
+    log_path: Path,
+    json_export: Path,
+    pdf_export: Path,
+    cef_export: Path,
+    signing_algorithm: str,
+) -> None:
+    """HIPAA-aligned clinical decision support demo."""
+    typer.secho("\n  Project AIR — Healthcare Demo (HIPAA-Aligned)", fg=typer.colors.WHITE, bold=True)
+    typer.secho("  A clinical AI agent reviews patient labs, imaging, and medications.", fg=typer.colors.BRIGHT_BLACK)
+    typer.secho("  AIR captures every PHI access as a signed capsule with HIPAA audit controls.", fg=typer.colors.BRIGHT_BLACK)
+
+    _step_header(1, "Clinical AI receives a patient review request", total=7)
+    _detail("request", HEALTHCARE_DEMO_USER_INTENT)
+    _detail("agent", "clinical decision support AI with EHR read/write access")
+    _detail("HIPAA scope", "45 CFR 164.312(b) audit controls, 164.312(c) integrity, 164.312(d) auth")
+
+    _step_header(2, "AIR captures every EHR access as a Signed Intent Capsule", total=7)
+    try:
+        algo = SigningAlgorithm(signing_algorithm)
+    except ValueError:
+        typer.secho(f"Unknown signing algorithm '{signing_algorithm}'.", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2) from None
+    demo_signer = Signer.generate(algo)
+    build_healthcare_demo_log(log_path, signer=demo_signer)
+    records = load_chain(log_path)
+    _detail("PHI accesses captured", str(len(records)))
+    algo_label = "ML-DSA-65 (FIPS 204)" if algo == SigningAlgorithm.ML_DSA_65 else "Ed25519"
+    _detail("signature", f"{algo_label} over (prev_hash || content_hash)")
+    _detail("chain integrity", "BLAKE3 content hash, tamper-evident linked list")
+    typer.echo()
+    for index, record in enumerate(records):
+        kind_label = record.kind.value
+        excerpt = ""
+        for field in ("prompt", "response", "tool_name", "tool_output", "final_output"):
+            value = getattr(record.payload, field, None)
+            if value:
+                excerpt = _truncate(str(value), limit=64)
+                break
+        typer.secho(f"      [{index:>2}] {kind_label:14s} ", fg=typer.colors.BRIGHT_BLACK, nl=False)
+        typer.secho(excerpt, fg=typer.colors.WHITE)
+
+    _step_header(3, "Chain verification: every signature valid", total=7)
+    chain_result = verify_chain(records)
+    if chain_result.status == VerificationStatus.OK:
+        typer.secho("    ✓ HIPAA 164.312(c) satisfied: chain integrity verified.", fg=typer.colors.GREEN, bold=True)
+    else:
+        typer.secho(f"    ✘ chain failed: {chain_result.reason}", fg=typer.colors.RED, bold=True)
+        raise typer.Exit(code=1)
+
+    _step_header(4, "OWASP + HIPAA detector analysis", total=7)
+    findings = run_detectors(records, registry=None)
+    if findings:
+        typer.secho(f"    {len(findings)} finding(s):", fg=typer.colors.WHITE, bold=True)
+        for finding in findings:
+            color = _severity_color(finding.severity)
+            typer.secho(
+                f"      {finding.detector_id:8s} {finding.severity.upper():8s} step {finding.step_index:>2}: {finding.title}",
+                fg=color,
+            )
+    else:
+        typer.secho("    No findings (clean clinical workflow).", fg=typer.colors.GREEN)
+
+    _step_header(5, "Export HIPAA-grade evidence (JSON, PDF, CEF)", total=7)
+    report = ForensicReport(
+        air_version=airsdk_version,
+        report_id=str(uuid4()),
+        source_log=str(log_path.resolve()),
+        generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        records=len(records),
+        conversations=_count_conversations(records),
+        verification=chain_result,
+        findings=findings,
+    )
+    export_json(report, json_export)
+    export_pdf(report, pdf_export)
+    export_siem(report, cef_export)
+    _detail("JSON", str(json_export.resolve()))
+    _detail("PDF ", str(pdf_export.resolve()))
+    _detail("CEF ", f"{cef_export.resolve()}  (SIEM-compatible)")
+
+    _step_header(6, "Tamper test: modify one byte of a patient lab result", total=7)
+    typer.secho("    Simulating an insider altering the HbA1c value in the audit trail.", fg=typer.colors.WHITE)
+    tampered_index = tamper_one_byte(log_path, HEALTHCARE_DEMO_TAMPER_INDEX)
+    _detail("tampered record", f"index {tampered_index} (TOOL_END containing patient lab results)")
+
+    _step_header(7, "Re-verify: AIR detects the tampered PHI record", total=7)
+    tampered_records = load_chain(log_path)
+    tampered_result = verify_chain(tampered_records)
+    if tampered_result.status == VerificationStatus.OK:
+        typer.secho("    ✘ unexpected: chain still verifies after tampering.", fg=typer.colors.RED, bold=True)
+        raise typer.Exit(code=1)
+    typer.secho(f"    ✘ INTEGRITY BREACH: {tampered_result.status.value}", fg=typer.colors.RED, bold=True)
+    if tampered_result.failed_step_id is not None:
+        failed_index = next(
+            (i for i, r in enumerate(tampered_records) if r.step_id == tampered_result.failed_step_id),
+            None,
+        )
+        location = f"index {failed_index}" if failed_index is not None else f"step_id {tampered_result.failed_step_id}"
+        typer.secho(f"    ✘ failed at {location} (patient lab results)", fg=typer.colors.RED, bold=True)
+    if tampered_result.reason:
+        typer.secho(f"    reason: {tampered_result.reason}", fg=typer.colors.YELLOW)
+    typer.echo()
+    typer.secho("  HIPAA AUDIT PROOF:", fg=typer.colors.GREEN, bold=True)
+    typer.secho("    Every PHI access is signed, timestamped, and tamper-evident.", fg=typer.colors.GREEN)
+    typer.secho("    Alteration of any record is detectable at the byte level.", fg=typer.colors.GREEN)
+    typer.secho("    45 CFR 164.312(b) audit controls: SATISFIED.", fg=typer.colors.GREEN)
+    typer.secho("    45 CFR 164.312(c) integrity controls: SATISFIED.", fg=typer.colors.GREEN)
     typer.secho(f"  Artifacts written to: {workdir.resolve()}", fg=typer.colors.BRIGHT_BLACK)
     typer.echo()
 
@@ -427,6 +709,14 @@ def report_article72(
         exists=True,
         readable=True,
     ),
+    from_date: str | None = typer.Option(
+        None, "--from", "--from-date",
+        help="Include records on or after this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
+    to_date: str | None = typer.Option(
+        None, "--to", "--to-date",
+        help="Include records on or before this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
 ) -> None:
     """Generate an EU AI Act Article 72 post-market monitoring report from an AgDR log.
 
@@ -435,29 +725,36 @@ def report_article72(
     sign the attestation before the report is legally usable.
     """
     registry = _load_registry_or_exit(agent_registry)
+    parsed_from = _parse_date_option(from_date, "--from")
+    parsed_to = _parse_date_option(to_date, "--to")
 
-    typer.secho(
-        f"[Article 72] Loading {log}...",
-        fg=typer.colors.WHITE, bold=True,
-    )
-    records = load_chain(log)
-    conversations = _count_conversations(records)
-    verification = verify_chain(records)
-    findings = run_detectors(records, registry=registry)
+    typer.secho(f"[Article 72] Loading {log}...", fg=typer.colors.WHITE, bold=True)
+    all_records = load_chain(log)
+    verification = verify_chain(all_records)
+
+    filtered = filter_records_by_date_range(all_records, from_date=parsed_from, to_date=parsed_to)
+    if parsed_from is not None or parsed_to is not None:
+        typer.secho(
+            f"[Article 72] Date filter {parsed_from or 'start'} to {parsed_to or 'end'}: "
+            f"{len(filtered)} of {len(all_records)} records in window.",
+            fg=typer.colors.BRIGHT_BLACK,
+        )
+
+    findings = run_detectors(filtered, registry=registry)
 
     report = ForensicReport(
         air_version=airsdk_version,
         report_id=str(uuid4()),
         source_log=str(log.resolve()),
         generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
-        records=len(records),
-        conversations=conversations,
+        records=len(filtered),
+        conversations=_count_conversations(filtered),
         verification=verification,
         findings=findings,
     )
     markdown = generate_article72_report(
         report,
-        records,
+        filtered,
         system_id,
         system_name=system_name,
         operator_entity=operator,
@@ -507,13 +804,13 @@ def _pro_unavailable_message() -> str:
     return (
         "Pro features require the projectair-pro package.\n\n"
         "  pip install projectair-pro\n"
-        "  air login --license <token>\n\n"
+        "  air install-license --license <token>\n\n"
         "Buy a license at https://vindicara.io/pricing"
     )
 
 
-@app.command()
-def login(
+@app.command(name="install-license")
+def install_license(
     license_token: str = typer.Option(
         None,
         "--license",
@@ -555,6 +852,95 @@ def login(
     typer.echo(f"  days remaining:  {parsed.days_remaining}")
 
 
+# -- Auth commands ----------------------------------------------------------
+
+_AUTH0_CLI_CLIENT_ID = "GszbWqSkD65eUjv7FrRWYO4IkmGWdd4y"
+_AUTH0_DOMAIN = "dev-kilt2vkudvbu75ny.us.auth0.com"
+_AUTH0_AUDIENCE = "https://api.vindicara.io"
+
+
+@app.command()
+def login() -> None:
+    """Authenticate with Vindicara via Auth0."""
+    import time as _time
+
+    import jwt as _jwt
+
+    from airsdk.containment.auth0_flows import Auth0Tenant, poll_device_token, start_device_flow
+    from projectair.config import save_session
+
+    tenant = Auth0Tenant(
+        domain=_AUTH0_DOMAIN,
+        audience=_AUTH0_AUDIENCE,
+        client_id=_AUTH0_CLI_CLIENT_ID,
+    )
+
+    try:
+        device = start_device_flow(tenant)
+    except Exception as exc:
+        typer.secho(f"Login failed: {exc}", fg=typer.colors.RED)
+        raise typer.Exit(code=1) from exc
+
+    typer.echo(f"  Open: {device.verification_uri}")
+    typer.echo(f"  Code: {device.user_code}")
+    typer.echo("Waiting for browser authentication...")
+
+    try:
+        token = poll_device_token(tenant, device.device_code, interval=device.interval)
+    except Exception as exc:
+        typer.secho(f"Login failed: {exc}", fg=typer.colors.RED)
+        raise typer.Exit(code=1) from exc
+
+    claims = _jwt.decode(token, options={"verify_signature": False})
+    email: str = claims.get("email") or claims.get("sub", "unknown")
+    sub: str = claims.get("sub", "")
+    exp: int = int(claims.get("exp", int(_time.time()) + 3600))
+
+    save_session(
+        {
+            "email": email,
+            "sub": sub,
+            "expires_at": exp,
+            "access_token": token,
+        }
+    )
+
+    typer.secho(f"Logged in as {email}", fg=typer.colors.GREEN, bold=True)
+
+
+@app.command()
+def logout() -> None:
+    """Remove saved Vindicara session."""
+    from projectair.config import delete_session
+
+    removed = delete_session()
+    if removed:
+        typer.secho("Logged out.", fg=typer.colors.GREEN)
+    else:
+        typer.echo("Not logged in.")
+
+
+@app.command()
+def whoami() -> None:
+    """Show current login status."""
+    import time as _time
+
+    from projectair.config import load_session
+
+    session = load_session()
+    if session is None:
+        typer.echo("Not logged in. Run `air login`.")
+        return
+
+    expires_at = session.get("expires_at")
+    if expires_at is None or int(expires_at) <= int(_time.time()):
+        typer.echo("Session expired. Run `air login` to re-authenticate.")
+        return
+
+    email = session.get("email", "unknown")
+    typer.secho(f"Logged in as {email}", fg=typer.colors.GREEN)
+
+
 @app.command()
 def status() -> None:
     """Show whether a Pro license is installed and what it grants."""
@@ -571,7 +957,7 @@ def status() -> None:
         typer.secho("No active Pro license.", fg=typer.colors.YELLOW)
         typer.echo("")
         typer.echo("Free OSS detectors and exports continue to work.")
-        typer.echo("Run `air login --license <token>` to activate Pro features.")
+        typer.echo("Run `air install-license --license <token>` to activate Pro features.")
         return
 
     typer.secho("Pro license active.", fg=typer.colors.GREEN, bold=True)
@@ -591,6 +977,260 @@ def upgrade() -> None:
     typer.echo("  Enterprise    Talk to us SSO/SAML/RBAC, on-prem, SLA, BAA, insurance integrations")
     typer.echo("")
     typer.echo("https://vindicara.io/pricing")
+
+
+@report_app.command("nist-rmf")
+def report_nist_rmf(
+    log: Path = typer.Argument(..., exists=True, readable=True, help="Path to a JSON-lines AgDR log."),
+    system_id: str = typer.Option(
+        ...,
+        "--system-id",
+        help="Unique identifier for the AI system whose risks are being managed.",
+    ),
+    output: Path = typer.Option(
+        Path("nist-rmf-report.md"),
+        "--output", "-o",
+        help="Where to write the generated NIST AI RMF report (Markdown).",
+    ),
+    system_name: str = typer.Option(
+        "[AI system name]",
+        "--system-name",
+        help="Human-readable name of the AI system.",
+    ),
+    operator: str = typer.Option(
+        "[Operator entity]",
+        "--operator",
+        help="Legal entity operating the system (will appear in the attestation).",
+    ),
+    period: str = typer.Option(
+        "[reporting period, e.g. 2026-Q3]",
+        "--period",
+        help="Reporting period label (free text).",
+    ),
+    rmf_profile: str = typer.Option(
+        "AI RMF 1.0 (NIST AI 100-1)",
+        "--rmf-profile",
+        help="RMF profile applied (e.g. AI RMF 1.0, GAI Profile NIST AI 600-1).",
+    ),
+    agent_registry: Path | None = typer.Option(
+        None,
+        "--agent-registry",
+        help="Optional agent registry to enable ASI03/ASI10 Zero-Trust enforcement during report generation.",
+        exists=True,
+        readable=True,
+    ),
+    from_date: str | None = typer.Option(
+        None, "--from", "--from-date",
+        help="Include records on or after this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
+    to_date: str | None = typer.Option(
+        None, "--to", "--to-date",
+        help="Include records on or before this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
+) -> None:
+    """Generate a NIST AI RMF risk-management report from an AgDR log (Pro).
+
+    Requires a Vindicara Pro license with the ``report-nist-ai-rmf``
+    feature flag. The output is a populated Markdown template structured
+    against the four AI RMF functions (GOVERN, MAP, MEASURE, MANAGE),
+    not a NIST-blessed compliance artefact. Operators must review,
+    adapt, and have a qualified person sign the attestation before
+    relying on the report as evidence.
+    """
+    try:
+        from airsdk_pro.license import LicenseError
+        from airsdk_pro.report_nist_rmf import generate_nist_rmf_report
+    except ImportError:
+        typer.secho(_pro_unavailable_message(), fg=typer.colors.YELLOW)
+        raise typer.Exit(code=2) from None
+
+    registry = _load_registry_or_exit(agent_registry)
+    parsed_from = _parse_date_option(from_date, "--from")
+    parsed_to = _parse_date_option(to_date, "--to")
+
+    typer.secho(f"[NIST AI RMF] Loading {log}...", fg=typer.colors.WHITE, bold=True)
+    all_records = load_chain(log)
+    verification = verify_chain(all_records)
+
+    filtered = filter_records_by_date_range(all_records, from_date=parsed_from, to_date=parsed_to)
+    if parsed_from is not None or parsed_to is not None:
+        typer.secho(
+            f"[NIST AI RMF] Date filter {parsed_from or 'start'} to {parsed_to or 'end'}: "
+            f"{len(filtered)} of {len(all_records)} records in window.",
+            fg=typer.colors.BRIGHT_BLACK,
+        )
+
+    findings = run_detectors(filtered, registry=registry)
+
+    report = ForensicReport(
+        air_version=airsdk_version,
+        report_id=str(uuid4()),
+        source_log=str(log.resolve()),
+        generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        records=len(filtered),
+        conversations=_count_conversations(filtered),
+        verification=verification,
+        findings=findings,
+    )
+
+    try:
+        markdown = generate_nist_rmf_report(
+            report,
+            filtered,
+            system_id,
+            system_name=system_name,
+            operator_entity=operator,
+            monitoring_period=period,
+            rmf_profile=rmf_profile,
+        )
+    except LicenseError as exc:
+        typer.secho(f"License check failed: {exc}", fg=typer.colors.RED)
+        raise typer.Exit(code=2) from exc
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(markdown, encoding="utf-8")
+
+    if verification.status != VerificationStatus.OK:
+        typer.secho(
+            f"[WARNING] Chain verification did NOT pass: {verification.reason}. "
+            "Review before relying on this report as evidence.",
+            fg=typer.colors.YELLOW, err=True,
+        )
+    else:
+        typer.secho(
+            f"[Chain verified] {verification.records_verified} signatures valid.",
+            fg=typer.colors.GREEN,
+        )
+
+    typer.secho(f"NIST AI RMF report written to {output.resolve()}", fg=typer.colors.GREEN, bold=True)
+
+
+@report_app.command("soc2-ai")
+def report_soc2_ai(
+    log: Path = typer.Argument(..., exists=True, readable=True, help="Path to a JSON-lines AgDR log."),
+    system_id: str = typer.Option(
+        ...,
+        "--system-id",
+        help="Unique identifier for the AI system being audited.",
+    ),
+    output: Path = typer.Option(
+        Path("soc2-ai-report.md"),
+        "--output", "-o",
+        help="Where to write the generated SOC 2 AI evidence template (Markdown).",
+    ),
+    service_organisation: str = typer.Option(
+        "[Service organisation]",
+        "--service-organisation", "--service-org",
+        help="Legal entity that operates the service being audited.",
+    ),
+    system_name: str = typer.Option(
+        "[AI system name]",
+        "--system-name",
+        help="Human-readable name of the AI system.",
+    ),
+    period: str = typer.Option(
+        "[reporting period, e.g. 2026-Q3]",
+        "--period",
+        help="Reporting period label (free text).",
+    ),
+    in_scope: str = typer.Option(
+        "Security,Processing Integrity",
+        "--in-scope",
+        help="Comma-separated TSC categories elected for the engagement.",
+    ),
+    agent_registry: Path | None = typer.Option(
+        None,
+        "--agent-registry",
+        help="Optional agent registry to enable ASI03/ASI10 Zero-Trust enforcement during report generation.",
+        exists=True,
+        readable=True,
+    ),
+    from_date: str | None = typer.Option(
+        None, "--from", "--from-date",
+        help="Include records on or after this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
+    to_date: str | None = typer.Option(
+        None, "--to", "--to-date",
+        help="Include records on or before this date (YYYY-MM-DD). Full chain is still verified.",
+    ),
+) -> None:
+    """Generate a SOC 2 AI evidence template from an AgDR log (Pro).
+
+    Requires a Vindicara Pro license with the ``report-soc2-ai`` feature
+    flag. The output is a populated Markdown evidence template
+    structured against the AICPA Trust Services Criteria, NOT a SOC 2
+    report (only an independent CPA can issue one). The service
+    organisation must review, supplement with management-assertion
+    language, and supply the evidence to a qualified CPA before the
+    template is usable in a SOC 2 examination.
+    """
+    try:
+        from airsdk_pro.license import LicenseError
+        from airsdk_pro.report_soc2_ai import generate_soc2_ai_report
+    except ImportError:
+        typer.secho(_pro_unavailable_message(), fg=typer.colors.YELLOW)
+        raise typer.Exit(code=2) from None
+
+    registry = _load_registry_or_exit(agent_registry)
+    parsed_from = _parse_date_option(from_date, "--from")
+    parsed_to = _parse_date_option(to_date, "--to")
+    in_scope_categories = tuple(s.strip() for s in in_scope.split(",") if s.strip())
+
+    typer.secho(f"[SOC 2 AI] Loading {log}...", fg=typer.colors.WHITE, bold=True)
+    all_records = load_chain(log)
+    verification = verify_chain(all_records)
+
+    filtered = filter_records_by_date_range(all_records, from_date=parsed_from, to_date=parsed_to)
+    if parsed_from is not None or parsed_to is not None:
+        typer.secho(
+            f"[SOC 2 AI] Date filter {parsed_from or 'start'} to {parsed_to or 'end'}: "
+            f"{len(filtered)} of {len(all_records)} records in window.",
+            fg=typer.colors.BRIGHT_BLACK,
+        )
+
+    findings = run_detectors(filtered, registry=registry)
+
+    report = ForensicReport(
+        air_version=airsdk_version,
+        report_id=str(uuid4()),
+        source_log=str(log.resolve()),
+        generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        records=len(filtered),
+        conversations=_count_conversations(filtered),
+        verification=verification,
+        findings=findings,
+    )
+
+    try:
+        markdown = generate_soc2_ai_report(
+            report,
+            filtered,
+            system_id,
+            service_organisation=service_organisation,
+            system_name=system_name,
+            monitoring_period=period,
+            in_scope_categories=in_scope_categories,
+        )
+    except LicenseError as exc:
+        typer.secho(f"License check failed: {exc}", fg=typer.colors.RED)
+        raise typer.Exit(code=2) from exc
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(markdown, encoding="utf-8")
+
+    if verification.status != VerificationStatus.OK:
+        typer.secho(
+            f"[WARNING] Chain verification did NOT pass: {verification.reason}. "
+            "Review before relying on this evidence in a SOC 2 examination.",
+            fg=typer.colors.YELLOW, err=True,
+        )
+    else:
+        typer.secho(
+            f"[Chain verified] {verification.records_verified} signatures valid.",
+            fg=typer.colors.GREEN,
+        )
+
+    typer.secho(f"SOC 2 AI evidence template written to {output.resolve()}", fg=typer.colors.GREEN, bold=True)
 
 
 def main() -> None:

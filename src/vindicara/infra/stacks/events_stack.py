@@ -1,13 +1,13 @@
 """EventBridge event bus for Vindicara."""
 
-from aws_cdk import Stack
+from aws_cdk import Environment, Stack
 from aws_cdk import aws_events as events
 from constructs import Construct
 
 
 class EventsStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, **kwargs: object) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+    def __init__(self, scope: Construct, construct_id: str, *, env: Environment | None = None) -> None:
+        super().__init__(scope, construct_id, env=env)
 
         self.event_bus = events.EventBus(
             self,

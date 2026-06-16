@@ -10,6 +10,7 @@ publication. The :mod:`airsdk` chain on disk (and in DynamoDB) keeps the full
 unredacted payload so internal verification still works; only the public S3
 JSONL goes through redaction.
 """
+
 from __future__ import annotations
 
 from enum import StrEnum
@@ -54,24 +55,26 @@ REDACTION_POLICY: Final[dict[str, frozenset[str]]] = {
 # matches one of these substrings (case-insensitive) MUST never appear in the
 # published JSONL except as a BLAKE3 hash. Test-only; runtime redaction goes
 # by the per-kind whitelist above.
-DENYLIST_FIELD_NAMES: Final[frozenset[str]] = frozenset({
-    "token",
-    "secret",
-    "password",
-    "passphrase",
-    "session",
-    "cookie",
-    "authorization",
-    "bearer",
-    "key",
-    "email",
-    "ip",
-    "ip_address",
-    "user_agent",
-    "phone",
-    "ssn",
-    "credit_card",
-    "card_number",
-})
+DENYLIST_FIELD_NAMES: Final[frozenset[str]] = frozenset(
+    {
+        "token",
+        "secret",
+        "password",
+        "passphrase",
+        "session",
+        "cookie",
+        "authorization",
+        "bearer",
+        "key",
+        "email",
+        "ip",
+        "ip_address",
+        "user_agent",
+        "phone",
+        "ssn",
+        "credit_card",
+        "card_number",
+    }
+)
 
 PUBLIC_FIELDS_DEFAULT: Final[frozenset[str]] = frozenset()

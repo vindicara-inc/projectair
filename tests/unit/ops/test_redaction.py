@@ -7,6 +7,7 @@ a ``blake3:<hex>`` hash, regardless of what input we throw at it. This is
 the property that backs the launch claim that the public chain leaks no
 PII or secrets.
 """
+
 from __future__ import annotations
 
 import json
@@ -202,12 +203,8 @@ def test_no_denylist_field_leaks_into_public(payload: dict[str, Any]) -> None:
 
     for top_level_key, value in redacted_payload.items():
         if _field_name_in_path(top_level_key, DENYLIST_FIELD_NAMES) is not None:
-            assert isinstance(value, str), (
-                f"denylist field {top_level_key!r} produced non-string redaction: {value!r}"
-            )
-            assert _BLAKE3_HASH_RE.match(value), (
-                f"denylist field {top_level_key!r} not redacted: {value!r}"
-            )
+            assert isinstance(value, str), f"denylist field {top_level_key!r} produced non-string redaction: {value!r}"
+            assert _BLAKE3_HASH_RE.match(value), f"denylist field {top_level_key!r} not redacted: {value!r}"
 
     serialized = json.dumps(out, default=str)
     assert "totally-unknown-kind" in serialized

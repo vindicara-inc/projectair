@@ -2,6 +2,70 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Delegated Authority (beta): bind an agent session to the human who authorized it.** No agent is autonomous; every session now opens with a `DELEGATION` genesis record carrying a `DelegationGrant` (who authorized, under which policy and `policy_hash`, within which `IntentSpec` scope, until when), so the whole hash chain is cryptographically traceable to a named, authenticated person. New `airsdk.delegation` package: `open_delegation(recorder, grant)`, `mint_grant_from_auth0(...)` (phase 1, reuses the shipped `Auth0Verifier`, zero new crypto), and an optional native WebAuthn path (`airsdk.delegation.webauthn`, the "biometric never leaves the device" story; install with `projectair[webauthn]`). `AIRRecorder` gains `open_delegation()` and a `delegation=` constructor argument; the authorized scope is also emitted as an `INTENT_DECLARATION` so Structural Verification enforces exactly what the human signed off on. New `StepKind.DELEGATION`, `DelegationGrant`, and `AuthMethod` types; `AgDRPayload.delegation` field (legacy chains unaffected, defaults to `None`). CLI: `air authorize` and `air verify-delegation`. 21 tests in `tests/delegation/` and `tests/verification/test_delegation.py`.
+- **SV-AUTH: a new deterministic Structural Verification check for delegation coverage.** `check_delegation(records)` flags an "uncovered agent" (`SV-AUTH-01`..`SV-AUTH-05`: no delegation genesis, malformed grant, denied decision, no authenticated subject, action after expiry). It is a verification check, not a detector: the detector taxonomy is unchanged at 10 OWASP Agentic + 3 OWASP LLM + 3 AIR-native = 16 total. `verify_intent` uses `DelegationPolicy(mode=AUTO)` by default: legacy chains stay green, declared chains (DELEGATION genesis) are enforced automatically. `require_delegation=True|False` overrides the policy; `air verify-delegation` reports SV-AUTH coverage directly.
+- **Policy-driven SV-AUTH enforcement.** `airsdk.containment.require_delegation` ships `DelegationPolicy` (`AUTO` / `ALWAYS` / `NEVER`), `should_require_delegation`, and `evaluate_require_delegation`. `AIRRecorder` evaluates delegation at every `tool_start` (default `AUTO` when `delegation_policy=` is omitted). `verify_intent` resolves enforcement the same way when `require_delegation` is omitted. `air verify-intent --require-delegation` passes the deployment floor explicitly.
+- **Layer 4 Wave 2 (piece 4 of 4): cross-tenant verification enforced.** `CrossAgentVerifier` now resolves each agent's signing key from a Fulcio-validated certificate when a trust bundle is configured. New `register_fulcio_cert(der)` (keyed by `identity_certificate_hash`) and `fulcio_trust_bundle=` constructor field. In Fulcio mode, every identity MUST be `sigstore_fulcio`: the registered leaf cert is validated against the bundle **as-of each record's own timestamp** (so short-lived certs verify after the fact) and its Ed25519 key returned; LOCAL_DEV and X.509 identities are rejected fail-closed. Capability-token issuers route through `route_fulcio_vouched` (piece 3) so cross-tenant issuers are accepted only when the source agent's cert vouches for them. Without a trust bundle the verifier is unchanged (Wave 1 single-tenant LOCAL_DEV via `register_identity`), so existing chains and the Layer 4 suite are unaffected. This lifts the single-tenant restriction and enforces, rather than merely flags, cross-tenant identity. 10 tests in `tests/handoff/test_verifier_fulcio_identity.py`.
+- **Layer 4 Wave 2 (piece 3 of 4): cross-tenant issuer resolution.** `AdapterRouter.route_fulcio_vouched(iss, leaf_cert_der=, trust_bundle=)` resolves an unregistered issuer via an injected OIDC-Discovery `discovery_factory`, but only when the Fulcio leaf cert validates to the trusted root (piece 2) and the issuer it embeds (piece 1) equals the token's `iss`; a mismatch raises `CrossTenantTrustError`, and an unconfigured factory raises `ConfigurationError`. Pre-registered issuers short-circuit (pre-arranged trust); resolved issuers are cached. The strict `route()` is unchanged and still rejects raw unregistered issuers with `UnregisteredIssuerError`, preserving the locked "no blind OIDC fallback" decision. This realizes cross-tenant trust with no pre-arranged trust, anchored on Fulcio. Not yet called by `CrossAgentVerifier` (piece 4). 6 tests in `tests/handoff/test_adapter_router_fulcio.py`.
+- **Layer 4 Wave 2 (piece 2 of 4): Fulcio chain validation.** `airsdk.handoff.fulcio.verify_fulcio_leaf(leaf_der, FulcioTrustBundle(...))` validates that a Fulcio leaf certificate chains to an operator-supplied trusted root (issuer-name + signature linkage, validity windows, BasicConstraints CA flags) and returns the bound Ed25519 signing key, rejecting non-Ed25519 leaves (Layer 4 handoff identity is Ed25519-only). The trust anchor is the operator's Sigstore TUF root; no root is hardcoded. This is the bridge that lets the cross-agent verifier resolve a signing key from a verified cert instead of a pre-registered key dict (wiring lands in piece 4). Not yet called by `CrossAgentVerifier`. 9 tests in `tests/handoff/test_fulcio_chain.py`.
+- **Layer 4 Wave 2 (piece 1 of 4): Fulcio issuer extraction.** `airsdk.handoff.identity.parse_fulcio_san_issuer` now reads the OIDC issuer that Sigstore Fulcio embeds in a leaf certificate (V2 extension `1.3.6.1.4.1.57264.1.8` as a DER UTF8String; V1 `1.3.6.1.4.1.57264.1.1` as raw UTF-8), replacing the Wave 1 stub that raised. This is the input to cross-tenant verification; parsing is not trust (the cert must still be validated against the Fulcio root before the issuer is resolved). Not yet wired into `CrossAgentVerifier`; the verifier remains single-tenant until pieces 2-4 land. 6 tests in `tests/handoff/test_fulcio_san_issuer.py`.
+
+## [1.0.1] - 2026-05-25
+
+### Changed
+- **Broadened `cryptography` dependency** from `>=48.0.0,<49.0` to `>=42.0.0,<47.0`. ML-DSA-65 (FIPS 204) post-quantum signatures now gracefully degrade on environments without `cryptography>=48.0.0`: Ed25519 signing and verification continue working; ML-DSA-65 operations raise a clear `RuntimeError` with upgrade instructions instead of crashing on import.
+- ML-DSA-65 imports are now conditional (`_HAS_MLDSA` flag in `agdr.py` and `recorder.py`).
+- Pinned `sigstore>=3.0,<4.0` (was `<5.0`) for compatibility stability.
+
+### Added
+- `betterproto>=2.0.0b6` dependency.
+- Rewritten Auth0 Marketplace installation guide with step-by-step checkpoints, cross-platform instructions, and troubleshooting table.
+
+## [1.0.0] - 2026-05-18
+
+**Status: production.** Five-layer architecture complete. Data governance ships as the first Pro-tier governance capability. AgDR schema v0.6.
+
+### Added
+- **Data Governance schema extensions** (AgDR v0.6). `DataAssetRef` and `DataSubjectRef` types on `AgDRPayload`. Tag any `tool_start` or `llm_start` with the data assets and data subjects it touches. v0.5 chains verify unchanged; the new fields default to `None`.
+- `AIRRecorder.tool_start()` and `llm_start()` accept `data_assets` and `data_subjects` kwargs.
+- **Structural Verification** (`airsdk.verification`): verifies that an agent's actual behavior served its declared intent. Runs four symbolic checks: SV-SECRET, SV-NET, SV-SCOPE, SV-EXFIL. Produces VERIFIED / FAILED / INCONCLUSIVE verdict.
+- `IntentSpec` schema: structured intent declaration with `goal`, `allowed_tools`, `allowed_paths`, `allowed_network`, `secret_access`, and `non_goals` fields.
+- `StepKind.INTENT_DECLARATION`: new chain record kind for structured intent declarations.
+- `AIRRecorder(intent_spec=IntentSpec(...))`: emits an `INTENT_DECLARATION` record as the first chain entry.
+- `air verify-intent <chain>`: CLI command for structural verification. Exits with code 2 on FAILED verdict (CI-friendly).
+- `air governance` CLI subcommand group (Pro): `index`, `query`, `dsar`, `export`, `classify`.
+- 34 new tests (15 OSS schema + 19 structural verification).
+
+## [0.9.0] - 2026-05-12
+
+**Status: beta (NVIDIA integrations).** Full NVIDIA AI safety stack integration: NeMo Guardrails telemetry, NemoGuard NIM classifiers, and cross-corroboration with AIR's heuristic detector pipeline.
+
+### Added
+- `instrument_nemo_guardrails`: wraps `nemoguardrails.LLMRails` to capture every activated rail (input/output/dialog/generation) and every LLM call the guardrails engine makes as signed capsule records. Supports `generate` and `generate_async`.
+- `NemoGuardClient`: wraps all three NVIDIA NemoGuard NIM classifiers (JailbreakDetect `/v1/classify`, ContentSafety `/v1/completions`, TopicControl `/v1/chat/completions`) with signed `tool_start`/`tool_end` capsule pairs per classification. Supports hosted (build.nvidia.com) and self-hosted NIM endpoints via configurable URLs and API key.
+- **AIR-05 NemoGuard Safety Classification** detector: standalone findings when NemoGuard classifiers flag unsafe content. Severity scales with safety category (S1/S3/S7/S17/S22 = critical, others = high, topic control = medium).
+- **AIR-06 NemoGuard Corroboration** detector: cross-corroboration between AIR heuristic detectors and NemoGuard NIM classifiers. When AIR-01 flags prompt injection and NemoGuard JailbreakDetect independently agrees within 5 steps, emits a critical corroboration finding. Maps: jailbreak -> AIR-01, content_safety -> AIR-01/AIR-02/ASI09, topic_control -> ASI01.
+- NemoGuard `tool_end` records now carry structured extra fields (`nemoguard_classifier`, `nemoguard_safe`, `nemoguard_score`, `nemoguard_categories`) for clean detector consumption.
+- Detector count: 10 OWASP Agentic + 3 OWASP LLM + 3 AIR-native = **16 total**.
+
+## [0.8.1] - 2026-05-11
+
+### Added
+- `--from` / `--to` date-range filtering on `air report article72`, `air report nist-rmf`, and `air report soc2-ai`. The full chain is verified for integrity first; only records within the date window are passed to detectors and the report generator. Both flags accept ISO dates (YYYY-MM-DD) and are inclusive on both ends.
+
+## [0.8.0] - 2026-05-11
+
+**Status: experimental (ML-DSA-65).** Post-quantum signing and package metadata update.
+
+### Added
+- **ML-DSA-65 (FIPS 204) post-quantum signatures**, opt-in experimental. `Signer.generate(algorithm=SigningAlgorithm.ML_DSA_65)` or `AIRRecorder(..., signing_algorithm=SigningAlgorithm.ML_DSA_65)`. Requires `cryptography>=48.0.0`. Ed25519 remains the default. Mixed-algorithm chains (some records Ed25519, some ML-DSA-65) verify correctly. AgDR schema bumped to **0.5** (adds `signature_algorithm` field; v0.4 records without the field default to `"ed25519"` and verify unchanged).
+
+### Changed
+- Package author metadata updated to Kevin Minn <support@vindicara.io>.
+
 ## [0.7.1] - 2026-05-07
 
 Pricing alignment release. The `air upgrade` CLI command now reflects the public pricing on https://vindicara.io/pricing.

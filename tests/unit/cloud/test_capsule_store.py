@@ -1,4 +1,5 @@
 """Tests for the AIR Cloud capsule storage backends."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -59,12 +60,8 @@ def test_jsonl_store_round_trips_records(tmp_path: Path) -> None:
 
 
 def test_jsonl_store_persists_across_instances(tmp_path: Path) -> None:
-    JSONLCapsuleStore(tmp_path).append(
-        StoredCapsule(workspace_id="ws-a", record=_signed_record("first"))
-    )
-    JSONLCapsuleStore(tmp_path).append(
-        StoredCapsule(workspace_id="ws-a", record=_signed_record("second"))
-    )
+    JSONLCapsuleStore(tmp_path).append(StoredCapsule(workspace_id="ws-a", record=_signed_record("first")))
+    JSONLCapsuleStore(tmp_path).append(StoredCapsule(workspace_id="ws-a", record=_signed_record("second")))
 
     fresh = JSONLCapsuleStore(tmp_path)
     items = fresh.for_workspace("ws-a")

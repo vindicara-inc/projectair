@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project AIR | Authorize an agent</title>
+  <style>
+    :root { --air-red:#E63946; --bg:#0a0a0f; --fg:#f4f4f6; --muted:#9aa0aa; }
+    body { background:var(--bg); color:var(--fg); font-family:system-ui,sans-serif; max-width:560px; margin:8vh auto; padding:0 20px; }
+    h1 { font-weight:650; letter-spacing:-0.01em; }
+    .air { color:var(--air-red); }
+    label { display:block; margin:14px 0 4px; color:var(--muted); font-size:13px; }
+    input { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #23232b; background:#13131a; color:var(--fg); }
+    button { margin-top:18px; width:100%; padding:12px; border:0; border-radius:10px; background:var(--air-red); color:#fff; font-weight:600; cursor:pointer; }
+    button.secondary { background:#1b1b22; color:var(--fg); border:1px solid #2a2a33; }
+    pre { background:#13131a; padding:12px; border-radius:8px; color:#8fe; overflow:auto; font-size:12px; }
+    .muted { color:var(--muted); font-size:13px; }
+  </style>
+</head>
+<body>
+  <h1>Authorize an agent · Project <span class="air">AIR</span></h1>
+  <p class="muted">Your passkey stays on this device. Vindicara never receives your biometric. This signs a record of who authorized which agent, under which policy.</p>
+
+  <label>Your email</label>
+  <input id="email" placeholder="clinician@hospital.org" />
+  <label>Agent id</label>
+  <input id="agent" placeholder="claims-bot" />
+  <label>Policy id</label>
+  <input id="policy" placeholder="hipaa-claims-v3" />
+  <label>Authorized scope (goal)</label>
+  <input id="goal" placeholder="Process claims for queue Q-7 only" />
+
+  <button class="secondary" onclick="register()">1. Enroll this passkey (one time)</button>
+  <button onclick="authorize()">2. Authorize with passkey</button>
+  <pre id="out">ready</pre>
+
+<script>
+const b64uToBuf = s => Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')), c => c.charCodeAt(0));
+const bufToB64u = b => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const log = m => document.getElementById('out').textContent = typeof m === 'string' ? m : JSON.stringify(m, null, 2);
+const val = id => document.getElementById(id).value;
+
+function reviveCreate(o){ o.challenge=b64uToBuf(o.challenge); o.user.id=b64uToBuf(o.user.id);
+  if(o.excludeCredentials) o.excludeCredentials.forEach(c=>c.id=b64uToBuf(c.id)); return o; }
+function reviveGet(o){ o.challenge=b64uToBuf(o.challenge);
+  if(o.allowCredentials) o.allowCredentials.forEach(c=>c.id=b64uToBuf(c.id)); return o; }
+
+function regResultToJSON(cred){ return JSON.stringify({ id:cred.id, rawId:bufToB64u(cred.rawId), type:cred.type,
+  response:{ attestationObject:bufToB64u(cred.response.attestationObject), clientDataJSON:bufToB64u(cred.response.clientDataJSON) } }); }
+function authResultToJSON(cred){ return JSON.stringify({ id:cred.id, rawId:bufToB64u(cred.rawId), type:cred.type,
+  response:{ authenticatorData:bufToB64u(cred.response.authenticatorData), clientDataJSON:bufToB64u(cred.response.clientDataJSON),
+    signature:bufToB64u(cred.response.signature), userHandle:cred.response.userHandle?bufToB64u(cred.response.userHandle):null } }); }
+
+async function register(){
+  try{
+    const r = await (await fetch('/register/options',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:val('email')})})).json();
+    const opts = reviveCreate(JSON.parse(r.options));
+    const cred = await navigator.credentials.create({publicKey:opts});
+    await fetch('/register/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({handle:r.handle,credential:regResultToJSON(cred)})});
+    log('Passkey enrolled for '+r.handle);
+  }catch(e){ log('register error: '+e); }
+}
+
+async function authorize(){
+  try{
+    const handle = val('email');
+    const r = await (await fetch('/authorize/options',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({handle})})).json();
+    const opts = reviveGet(JSON.parse(r.options));
+    const cred = await navigator.credentials.get({publicKey:opts});
+    const body = { handle, credential:authResultToJSON(cred), agent_id:val('agent'),
+      policy_id:val('policy'), policy_hash:val('policy'), goal:val('goal') };
+    const res = await (await fetch('/authorize/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})).json();
+    log(res);
+  }catch(e){ log('authorize error: '+e); }
+}
+</script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 """Integration tests for the ``/v1/capsules`` ingestion endpoint."""
+
 from __future__ import annotations
 
 import json

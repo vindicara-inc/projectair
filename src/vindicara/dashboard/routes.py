@@ -16,19 +16,25 @@ from vindicara.dashboard.demo import get_demo_state
 
 router = APIRouter()
 
+
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse(name="pages/login.html", request=request, context={"active_page": "login", "error": ""})
+    return templates.TemplateResponse(
+        name="pages/login.html", request=request, context={"active_page": "login", "error": ""}
+    )
 
 
 @router.get("/signup", response_class=HTMLResponse)
 async def signup_page(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse(name="pages/signup.html", request=request, context={"active_page": "signup", "error": ""})
+    return templates.TemplateResponse(
+        name="pages/signup.html", request=request, context={"active_page": "signup", "error": ""}
+    )
 
 
 @router.get("/api-keys", response_class=HTMLResponse)
 async def api_keys_page(request: Request) -> HTMLResponse:
     from vindicara.dashboard.keys.manager import get_key_manager
+
     user_id = getattr(request.state, "user_id", "demo")
     manager = get_key_manager()
     keys = manager.list_keys(user_id)
@@ -42,9 +48,16 @@ async def api_keys_page(request: Request) -> HTMLResponse:
 
 
 _PLACEHOLDER_PAGES = [
-    "applications", "authentication", "team",
-    "event-streams", "monitoring", "security-center",
-    "marketplace", "docs", "billing", "settings",
+    "applications",
+    "authentication",
+    "team",
+    "event-streams",
+    "monitoring",
+    "security-center",
+    "marketplace",
+    "docs",
+    "billing",
+    "settings",
 ]
 
 _PLACEHOLDER_TITLES = {
@@ -113,12 +126,14 @@ async def monitor_page(request: Request) -> HTMLResponse:
     for agent in agents:
         drift = detector.check_drift(agent.agent_id)
         breaker_status = breaker.check(agent.agent_id)
-        drift_data.append({
-            "agent_name": agent.name,
-            "score": drift.score,
-            "alert_count": len(drift.alerts),
-            "breaker_tripped": breaker_status.tripped,
-        })
+        drift_data.append(
+            {
+                "agent_name": agent.name,
+                "score": drift.score,
+                "alert_count": len(drift.alerts),
+                "breaker_tripped": breaker_status.tripped,
+            }
+        )
     return templates.TemplateResponse(
         name="pages/monitor.html",
         request=request,

@@ -1,0 +1,22 @@
+{
+  "template_id": "ASI08-cascade-failure",
+  "version": "1.0.0",
+  "detector_id": "ASI08",
+  "finding_type": "cascade_failure",
+  "layer1": "Agent {agent_name} entered a failure loop at {timestamp}.",
+  "layer2": [
+    { "framework": "OWASP", "reference": "ASI08", "description": "Cascading Failures: oscillating or fan-out failure patterns detected across agent message records." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Halt Agent", "action": "halt_agent" },
+      { "label": "Review Loop", "action": "review_loop" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}

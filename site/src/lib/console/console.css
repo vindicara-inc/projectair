@@ -1,0 +1,284 @@
+/* Project AIR Flightdeck — scoped design system for /dashboard.
+   Dark aurora + grain, frosted glass, sharp HUD corners. Brand red aligns with
+   vindicara.io (--color-brand-red); data reads in cool tones + amber + violet. */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+.console-shell {
+	--console-bg: #05060a;
+	--console-ink: #f4f5f9;
+	--console-muted: #9aa1ad;
+	--console-faint: #646b78;
+	--console-air: #dc2626;
+	--console-air2: #ff5d68;
+	--console-teal: #48e6a4;
+	--console-blue: #6db5ff;
+	--console-amber: #ffb454;
+	--console-orange: #ff8a5c;
+	--console-vio: #9b6bff;
+	--console-slate: #8a92a0;
+	--console-stroke: rgba(255, 255, 255, 0.13);
+	--console-hair: rgba(255, 255, 255, 0.08);
+	--console-ui: 'Hanken Grotesk', system-ui, sans-serif;
+	--console-display: 'Fraunces', serif;
+	--console-mono: 'IBM Plex Mono', monospace;
+
+	/* Legacy aliases used by console components */
+	--bg: var(--console-bg);
+	--ink: var(--console-ink);
+	--muted: var(--console-muted);
+	--faint: var(--console-faint);
+	--air: var(--console-air);
+	--air2: var(--console-air2);
+	--teal: var(--console-teal);
+	--blue: var(--console-blue);
+	--amber: var(--console-amber);
+	--orange: var(--console-orange);
+	--vio: var(--console-vio);
+	--slate: var(--console-slate);
+	--stroke: var(--console-stroke);
+	--hair: var(--console-hair);
+	--ui: var(--console-ui);
+	--display: var(--console-display);
+	--mono: var(--console-mono);
+
+	box-sizing: border-box;
+	min-height: 100vh;
+	overflow-x: hidden;
+	-webkit-font-smoothing: antialiased;
+}
+
+.console-shell *,
+.console-shell *::before,
+.console-shell *::after {
+	box-sizing: border-box;
+}
+
+/* atmosphere */
+.console-shell .aurora {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	overflow: hidden;
+	pointer-events: none;
+}
+.console-shell .aurora i {
+	position: absolute;
+	border-radius: 50%;
+	filter: blur(100px);
+	opacity: 0.4;
+	animation: console-drift 26s ease-in-out infinite;
+}
+.console-shell .aurora i:nth-child(1) {
+	width: 540px;
+	height: 540px;
+	background: var(--console-air);
+	top: -180px;
+	left: -60px;
+	opacity: 0.34;
+}
+.console-shell .aurora i:nth-child(2) {
+	width: 540px;
+	height: 540px;
+	background: #3a55ff;
+	bottom: -200px;
+	right: -80px;
+	animation-delay: -9s;
+}
+.console-shell .aurora i:nth-child(3) {
+	width: 440px;
+	height: 440px;
+	background: #13c08a;
+	top: 40%;
+	left: 46%;
+	opacity: 0.2;
+	animation-delay: -15s;
+}
+@keyframes console-drift {
+	0%,
+	100% {
+		transform: translate(0, 0);
+	}
+	50% {
+		transform: translate(30px, -22px);
+	}
+}
+.console-shell .grain {
+	position: fixed;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+	opacity: 0.045;
+	mix-blend-mode: overlay;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* glass + HUD corners */
+.console-shell .glass {
+	position: relative;
+	border: 1px solid var(--console-stroke);
+	border-radius: 0;
+	background: linear-gradient(155deg, rgba(255, 255, 255, 0.072), rgba(255, 255, 255, 0.02));
+	backdrop-filter: blur(26px) saturate(165%);
+	-webkit-backdrop-filter: blur(26px) saturate(165%);
+	box-shadow:
+		0 20px 60px rgba(0, 0, 0, 0.5),
+		inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.console-shell .hud::before,
+.console-shell .hud::after {
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	border-color: rgba(255, 255, 255, 0.4);
+	border-style: solid;
+	pointer-events: none;
+	z-index: 5;
+}
+.console-shell .hud::before {
+	top: -1px;
+	left: -1px;
+	border-width: 1px 0 0 1px;
+}
+.console-shell .hud::after {
+	bottom: -1px;
+	right: -1px;
+	border-width: 0 1px 1px 0;
+}
+.console-shell .hud.k::before,
+.console-shell .hud.k::after {
+	border-color: var(--console-air);
+}
+
+/* shared panel + headers */
+.console-shell .panel {
+	padding: 20px 22px;
+	display: flex;
+	flex-direction: column;
+}
+.console-shell .ph {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 15px;
+}
+.console-shell .ph h3 {
+	font-size: 14px;
+	font-weight: 600;
+}
+.console-shell .ph .hint {
+	font-family: var(--console-mono);
+	font-size: 10px;
+	letter-spacing: 0.05em;
+	color: var(--console-faint);
+}
+.console-shell .ph .acc {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	margin-right: 8px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.console-shell .mono {
+	font-family: var(--console-mono);
+}
+.console-shell .reveal {
+	opacity: 0;
+	transform: translateY(14px);
+	animation: console-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+@keyframes console-rise {
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* status pills */
+.console-shell .st {
+	font-family: var(--console-mono);
+	font-size: 9px;
+	letter-spacing: 0.05em;
+	padding: 3px 8px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+.console-shell .s-covered {
+	color: #bff5df;
+	background: rgba(72, 230, 164, 0.13);
+	border: 1px solid rgba(72, 230, 164, 0.3);
+}
+.console-shell .s-expiring,
+.console-shell .s-uncovered {
+	color: #ffd49a;
+	background: rgba(255, 180, 84, 0.13);
+	border: 1px solid rgba(255, 180, 84, 0.3);
+}
+.console-shell .s-expired {
+	color: #c2c8d2;
+	background: rgba(138, 146, 160, 0.16);
+	border: 1px solid rgba(138, 146, 160, 0.3);
+}
+
+/* buttons */
+.console-shell .btn {
+	font-family: var(--console-ui);
+	font-size: 11px;
+	font-weight: 600;
+	padding: 6px 12px;
+	border: 1px solid var(--console-hair);
+	background: rgba(255, 255, 255, 0.04);
+	color: var(--console-ink);
+	cursor: pointer;
+	transition: 0.15s;
+}
+.console-shell .btn:hover {
+	filter: brightness(1.25);
+	border-color: var(--console-stroke);
+}
+.console-shell .btn.warn {
+	border-color: rgba(255, 180, 84, 0.34);
+	background: rgba(255, 180, 84, 0.12);
+	color: #ffd49a;
+}
+.console-shell .btn.crit {
+	border-color: rgba(255, 138, 92, 0.36);
+	background: rgba(255, 138, 92, 0.12);
+	color: #ffc4a3;
+}
+.console-shell .btn.ok {
+	border-color: rgba(72, 230, 164, 0.3);
+	background: rgba(72, 230, 164, 0.1);
+	color: #bff5df;
+}
+.console-shell .btn.ghost {
+	color: var(--console-muted);
+	background: transparent;
+}
+
+/* loading / empty / error */
+.console-shell .state {
+	padding: 40px 24px;
+	text-align: center;
+	color: var(--console-muted);
+}
+.console-shell .state .spinner {
+	width: 26px;
+	height: 26px;
+	margin: 0 auto 14px;
+	border: 2px solid var(--console-hair);
+	border-top-color: var(--console-air);
+	border-radius: 50%;
+	animation: console-spin 0.8s linear infinite;
+}
+.console-shell .state.err {
+	color: #ffc4a3;
+}
+@keyframes console-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}

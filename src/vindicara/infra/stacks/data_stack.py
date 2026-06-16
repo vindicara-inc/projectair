@@ -1,14 +1,14 @@
 """DynamoDB tables and S3 buckets for Vindicara."""
 
-from aws_cdk import Duration, RemovalPolicy, Stack
+from aws_cdk import Duration, Environment, RemovalPolicy, Stack
 from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_s3 as s3
 from constructs import Construct
 
 
 class DataStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, **kwargs: object) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+    def __init__(self, scope: Construct, construct_id: str, *, env: Environment | None = None) -> None:
+        super().__init__(scope, construct_id, env=env)
 
         self.policies_table = dynamodb.Table(
             self,
@@ -41,6 +41,17 @@ class DataStack(Stack):
             removal_policy=RemovalPolicy.RETAIN,
         )
 
+        self.flightdeck_table = dynamodb.Table(
+            self,
+            "FlightdeckTable",
+            table_name="vindicara-flightdeck",
+            partition_key=dynamodb.Attribute(name="pk", type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(name="sk", type=dynamodb.AttributeType.STRING),
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
+            removal_policy=RemovalPolicy.RETAIN,
+            point_in_time_recovery=True,
+        )
+
         self.audit_bucket = s3.Bucket(
             self,
             "AuditBucket",
@@ -64,4 +75,25 @@ class DataStack(Stack):
                     ],
                 ),
             ],
+        )
+
+        self.identity_registrations_table = dynamodb.Table(
+            self,
+            "IdentityRegistrationsTable",
+            table_name="vindicara-identity-registrations",
+            partition_key=dynamodb.Attribute(name="email", type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(name="registered_at", type=dynamodb.AttributeType.STRING),
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
+            removal_policy=RemovalPolicy.RETAIN,
+        )
+
+        self.telemetry_pings_table = dynamodb.Table(
+            self,
+            "TelemetryPingsTable",
+            table_name="vindicara-telemetry-pings",
+            partition_key=dynamodb.Attribute(name="session_id", type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(name="timestamp", type=dynamodb.AttributeType.STRING),
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
+            removal_policy=RemovalPolicy.DESTROY,
+            time_to_live_attribute="ttl",
         )

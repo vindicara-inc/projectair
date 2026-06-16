@@ -1,0 +1,23 @@
+{
+  "template_id": "ASI07-insecure-comms",
+  "version": "1.0.0",
+  "detector_id": "ASI07",
+  "finding_type": "insecure_comms",
+  "layer1": "Agents {agent_name} and {target_agent} communicated without proper routing at {timestamp}.",
+  "layer2": [
+    { "framework": "OWASP", "reference": "ASI07", "description": "Insecure Inter-Agent Communication: agents exchange messages outside approved channels or without integrity verification." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Block Channel", "action": "block_channel" },
+      { "label": "Review Routing", "action": "review_routing" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "target_agent", "source": "payload.target_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}

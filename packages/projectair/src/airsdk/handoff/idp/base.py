@@ -12,13 +12,22 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ..exceptions import (
     ConfigurationError,
+    CrossTenantTrustError,
     CustomClaimMissingError,
     UnregisteredIssuerError,
 )
+from ..fulcio import verify_fulcio_leaf
+from ..identity import parse_fulcio_san_issuer
+
+if TYPE_CHECKING:
+    import datetime as _dt
+    from collections.abc import Callable
+
+    from ..fulcio import FulcioTrustBundle
 
 # The four custom claims every Project AIR capability token must carry,
 # regardless of IdP. See Section 7.2.
@@ -135,6 +144,7 @@ class AdapterRouter:
     """
 
     _table: dict[str, IdPAdapter] = field(default_factory=dict)
+    discovery_factory: Callable[[str], IdPAdapter] | None = None
 
     def register(self, adapter: IdPAdapter) -> None:
         for issuer in adapter.handled_issuers():
@@ -152,6 +162,54 @@ class AdapterRouter:
                 f"Register the appropriate adapter or add it to the trust store.",
                 failure_reason="unregistered_issuer",
             )
+        return adapter
+
+    def route_fulcio_vouched(
+        self,
+        iss_claim: str,
+        *,
+        leaf_cert_der: bytes,
+        trust_bundle: FulcioTrustBundle,
+        at_time: _dt.datetime | None = None,
+    ) -> IdPAdapter:
+        """Resolve an adapter for ``iss_claim``, permitting OIDC Discovery only
+        when a Fulcio-validated cert vouches for the issuer (Section 8.4, Wave 2).
+
+        Trust order:
+
+        1. a pre-registered adapter for ``iss_claim`` is returned as-is
+           (pre-arranged trust);
+        2. otherwise the Fulcio leaf cert MUST validate against ``trust_bundle``
+           AND embed an OIDC issuer equal to ``iss_claim``; only then is the
+           issuer resolved via ``discovery_factory`` (which performs OIDC
+           Discovery) and cached for subsequent routes.
+
+        A raw, unvouched, unregistered issuer is never accepted here. That path
+        still goes through :meth:`route`, which fails closed. Fulcio is the trust
+        anchor, so there is no pre-arranged trust requirement between tenants,
+        but there is also no blind trust of an attacker-supplied ``iss``.
+        """
+        existing = self._table.get(iss_claim)
+        if existing is not None:
+            return existing
+        # Cross-tenant: the cert must chain to the trusted Fulcio root, and the
+        # issuer it attests to must match the token's iss. Either failure is
+        # fail-closed (verify_fulcio_leaf raises; mismatch raises below).
+        verify_fulcio_leaf(leaf_cert_der, trust_bundle, at_time=at_time)
+        vouched_issuer = parse_fulcio_san_issuer(leaf_cert_der)
+        if vouched_issuer != iss_claim:
+            raise CrossTenantTrustError(
+                f"Fulcio cert vouches for issuer {vouched_issuer!r}, "
+                f"but the token iss is {iss_claim!r}",
+                failure_reason="fulcio_issuer_mismatch",
+            )
+        if self.discovery_factory is None:
+            raise ConfigurationError(
+                f"issuer {iss_claim!r} is Fulcio-vouched but no discovery_factory "
+                "is configured to resolve it via OIDC Discovery",
+            )
+        adapter = self.discovery_factory(iss_claim)
+        self._table[iss_claim] = adapter
         return adapter
 
     def issuers(self) -> list[str]:

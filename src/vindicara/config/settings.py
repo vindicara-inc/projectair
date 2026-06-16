@@ -7,6 +7,11 @@ _DEFAULT_CORS_ORIGINS = [
     "https://vindicara.io",
     "https://www.vindicara.io",
     "https://dashboard.vindicara.io",
+    "https://app.vindicara.io",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5190",
+    "http://127.0.0.1:5190",
 ]
 
 
@@ -59,4 +64,24 @@ class VindicaraSettings(BaseSettings):
     ses_sender: str = Field(
         default="noreply@vindicara.io",
         description="Verified SES sender identity for outbound email.",
+    )
+    stripe_secret_key: str = Field(
+        default="",
+        description="Stripe secret API key for fetching line items.",
+    )
+    stripe_webhook_secret: str = Field(
+        default="",
+        description="Stripe webhook signing secret (whsec_...).",
+    )
+    license_signing_key_pem: str = Field(
+        default="",
+        description="Ed25519 private key PEM for license signing.",
+    )
+    resend_api_key: str = Field(
+        default="",
+        description="Resend API key for transactional email.",
+    )
+    pro_wheel_signed_url: str = Field(
+        default="",
+        description="Signed URL for the projectair-pro wheel download.",
     )

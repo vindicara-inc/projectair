@@ -1,0 +1,21 @@
+{
+  "template_id": "AIR-04-chain-gap",
+  "version": "1.0.0",
+  "detector_id": "AIR-04",
+  "finding_type": "chain_gap",
+  "layer1": "An unsigned action or gap was detected in the chain at {timestamp}.",
+  "layer2": [
+    { "framework": "Forensic Integrity", "reference": "AIR-04", "description": "Untraceable Action: a gap in the signed AgDR chain means at least one action cannot be forensically accounted for." },
+    { "framework": "Chain of Custody", "reference": "AIR-04", "description": "Every agent action must produce a verifiable, contiguous signed record to maintain audit admissibility." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Flag for Audit", "action": "flag_for_audit" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}

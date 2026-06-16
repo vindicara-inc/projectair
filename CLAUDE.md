@@ -1,8 +1,8 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Project AIR by Vindicara: forensic accountability SDK for AI agents. MIT CLI (`air`) + library (`airsdk`) on PyPI as `projectair`. Five-layer architecture: detection, anchoring, causal reasoning, containment, cross-agent trust, data governance.
 
-Routine code edits only need this file. For product decisions, external content, new subsystem design, or full engineering standards, see the **Further reading** section at the bottom.
+## Brand hierarchy
 
 ## Current state (2026-05-10)
 
@@ -95,127 +95,90 @@ Vindicara runs Project AIR on its own production infrastructure. Every API reque
 - `scripts/e2e_ops_chain.py` (offline smoke test of the full pipeline)
 - `site/src/routes/ops-chain/+page.svelte` (public verify page; fetches manifest live, shows latest Rekor log index)
 
-This is engine-side, not part of the OSS `projectair` distribution. Customers do not install or import anything new; it is Vindicara consuming its own SDK as a credibility play. Cost envelope ~$5/month at launch traffic. Public chain URL stabilizes once `OpsChainStack` deploys against account 399827112476 in us-west-2.
+Use "Project AIR" on hero pages, pitch decks, whitepapers, legal, press, investor materials. Use "AIR" in code, docs, CLI, and technical copy.
 
-### Framework integrations shipped
+## Current state
 
-LangChain (`AIRCallbackHandler`), OpenAI (`instrument_openai`), Anthropic (`instrument_anthropic`), LlamaIndex (`instrument_llamaindex`, shipped 0.3.1), Google Gemini SDK (`instrument_gemini` over `google-genai`, shipped 0.3.2), Google ADK (`instrument_adk` over `google-adk`, shipped 0.3.2). LangChain lives in `callback.py` at the top of `airsdk/`; everything else lives in `packages/projectair/src/airsdk/integrations/`.
+- `projectair` **1.0.0** on PyPI (2026-05-18). **1.0.1 in-flight** (relaxed `cryptography` dep, conditional ML-DSA imports, `betterproto`).
+- `vindicara` 0.2.0 live (server-side engine behind AIR Cloud).
+- AgDR schema **v0.6**. "Signed Intent Capsule" is the public-facing term for AgDR records.
+- Working venv: `.venv-air/` (Python 3.13).
 
-**Any OpenAI-compatible endpoint also works via `instrument_openai`** including NVIDIA NIM (`Llama 3.3 70B Instruct NIM`, etc.), vLLM, TGI, Together AI, Groq, Mistral, and Fireworks. Verified by network-gated E2E test at `tests/test_integrations_nim_e2e.py` and runnable demo at `examples/nim_demo.py` (requires `NVIDIA_API_KEY` from build.nvidia.com). This is compatibility through the existing OpenAI integration, not a separate integration module.
+## Claims discipline (enforced on every response)
 
-### Code location
+- Detector count: **"10 OWASP Agentic + 3 OWASP LLM + 3 AIR-native = 16 total."** Never "14" or "8 of 10."
+- ASI10 is **declared-scope Zero-Trust enforcement**, NOT anomaly detection. Learned-baseline variant is roadmap, not shipped.
+- AIR-04 (chain-integrity gap) is NOT ASI10 coverage. Do not conflate.
+- Every public claim must be grounded in an actual source document, not plausible-sounding generalization.
+- HF0 pitch + Hacker News launch imminent. Diligence sensitivity is high.
 
-- `packages/projectair/` is the public MIT package (the OSS top-of-funnel, the `air` CLI + `airsdk` library)
-- `packages/projectair-pro/` is the licensed commercial tier (`projectair-pro` 0.1.0, `airsdk_pro` namespace). Holds AIR Cloud client, premium detectors, premium reports. Not on PyPI; distributed under a commercial license to paying tiers
-- `packages/air-dashboard/` is the **dedicated AIR Cloud dashboard** (SvelteKit 2 + Svelte 5 + Tailwind 4, static adapter, Three.js rendering deps). Separate from `site/` (the marketing site) and from `src/vindicara/dashboard/` (the legacy SSR dashboard mounted under `/dashboard` of the FastAPI app). When the user says "the dashboard," confirm which one
-- `site/` is the marketing + pricing site (also SvelteKit 2 + Svelte 5 + Tailwind 4); homepage, blog, pricing, contact, privacy/terms/security/acceptable-use pages
-- `src/vindicara/` is Apache-2.0 engine substrate, not directly pip-installable anymore
-- All four live in this monorepo
-- Pitch the split as **Snyk-style: MIT CLI + SDK top-of-funnel, commercial pro tier + engine behind the cloud**
+## Repo map
 
-### Working venv
-
-`/Users/KMiI/Desktop/vindicara/.venv-air/` (Python 3.13). `air` binary lives there.
-
-### Context
-
-HF0 pitch + Hacker News launch imminent. Diligence sensitivity is high. Every public claim must be grounded in an actual source document, not plausible-sounding generalization.
-
-**AWS account migration is in flight.** Vindicara is moving from SLTR account `335741630084` (region `us-east-1`, profile `default`) to Vindicara, Inc. C-Corp account `399827112476` (region `us-west-2`, profile `vindicara`). Three places hardcode the old account ID and must be updated when deploying to the new account: `src/vindicara/infra/stacks/data_stack.py` (audit S3 bucket name), `scripts/deploy-site.sh` (site bucket name), and the GitHub Actions workflow. See `MIGRATION_PLAN.md` at the repo root and `project_aws_migration.md` in memory for the cutover stages.
-
-### Memory
-
-`/Users/KMiI/.claude/projects/-Users-KMiI-Desktop-vindicara/memory/MEMORY.md` holds persistent user preferences, design system rules, and roadmap notes.
+- `packages/projectair/` -- public MIT package (`air` CLI + `airsdk` library). The product.
+- `packages/projectair-pro/` -- commercial tier (`airsdk_pro`). SIEM, governance, premium detectors/reports. Not on PyPI.
+- `packages/air-dashboard/` -- AIR Cloud dashboard (SvelteKit 2, Svelte 5, Tailwind 4, Three.js, Vitest).
+- `vindicara-site/` -- the live product site and Flightdeck console (NOT a marketing site). Hosts the Flightdeck product console plus product, blog, legal, and compliance surfaces (`vindicara-site/src/lib/console/`, Auth0 PKCE, live `/v1/*` API). SvelteKit 2, Svelte 5, Tailwind 4. This is the directory the deploy workflow builds.
+- `site/` -- LEGACY, not deployed. Superseded by `vindicara-site/`. Do not edit unless explicitly migrating it.
+- `src/vindicara/` -- Apache-2.0 engine substrate.
+- `tests/` -- pytest for `src/vindicara/`. Separate from `packages/projectair/tests/`.
+- Pitch the split as **Snyk-style: MIT CLI + SDK top-of-funnel, commercial pro tier + engine behind the cloud**.
+- When the user says "the dashboard," confirm which one (air-dashboard vs `vindicara-site` Flightdeck (`/dashboard`) vs legacy `src/vindicara/dashboard/`).
 
 ## Commands
 
-Install dev environment (editable, with API + dev extras):
-
 ```bash
+# Install
 pip install -e ".[api,dev]"
-```
+pip install -e "packages/projectair[dev]"
 
-The public `projectair` package has its own pyproject and dev extras:
+# Test (projectair)
+pytest packages/projectair/tests
+air demo
 
-```bash
-pip install -e "packages/projectair[dev]"    # installs the `air` CLI + `airsdk` editable
-pytest packages/projectair/tests              # runs the MIT package's own test suite
-air demo                                      # 10-second sanity check: signed chain + report
-air trace path/to/agent.log                   # replay chain, verify signatures, emit forensic-report.json
-air anchor                                    # Layer 1: write an anchor record (RFC 3161 + Rekor) over the chain
-air verify-public path/to/chain.jsonl         # Layer 1: five-step verification using public infra only
-air explain --finding ASI02                   # Layer 2: narrowed evidence excerpt for a flagged step
-air approve --token <jwt>                     # Layer 3: submit verified Auth0 token to resume a halted action
-air handoff verify --ptid <ptid> --chain <p>  # Layer 4: eight-step cross-agent verifier
-```
-
-End-to-end demos for each layer (run after `pip install -e "packages/projectair[dev]"`):
-
-```bash
-python packages/projectair/scripts/e2e_layer1.py            # Layer 1: anchor + verify-public
-python packages/projectair/scripts/e2e_layer1.py --live-tsa --live-rekor  # hits FreeTSA + public Rekor
-python packages/projectair/scripts/e2e_layer3.py            # Layer 3: SSH-exfil + step-up + Auth0 approval
-python packages/projectair/scripts/e2e_layer4.py            # Layer 4: handoff + acceptance + 8-step verify
-python packages/projectair/scripts/e2e_layer4.py --live-rekor  # submits real attestation to public Sigstore Rekor
-```
-
-Lint, format check, type check (runs ruff + mypy strict):
-
-```bash
-./scripts/lint.sh
-```
-
-Run the full test suite with coverage (fails under 80%):
-
-```bash
+# Test (engine, 80% coverage floor)
 ./scripts/test.sh
-```
 
-Common pytest invocations:
+# Lint + type check (src/vindicara + tests/ only)
+./scripts/lint.sh
 
-```bash
-pytest tests/unit/engine/test_policy.py          # single file
-pytest tests/unit/engine/test_policy.py::test_x  # single test
-pytest -k "guard and not adversarial"            # keyword filter
-pytest -m adversarial                            # adversarial marker only
-```
+# Common pytest
+pytest tests/unit/engine/test_policy.py
+pytest -k "guard and not adversarial"
+pytest -m adversarial
 
-Run the FastAPI backend locally (reload on change):
-
-```bash
+# FastAPI local
 uvicorn vindicara.api.app:create_app --factory --reload
-```
 
-CDK infrastructure (requires `[cdk]` extra and AWS creds):
-
-```bash
-# Build the Lambda artifact first (APIStack reads it via from_asset).
-# Outputs to lambda_package/ (gitignored). Targets manylinux2014_x86_64 / py3.13.
+# CDK
 ./scripts/build-lambda.sh
-
 VINDICARA_AWS_ACCOUNT_ID=... cdk synth
 VINDICARA_AWS_ACCOUNT_ID=... cdk deploy VindicaraData VindicaraEvents VindicaraAPI
-```
 
-Marketing site (SvelteKit, `site/`):
+# Product site + Flightdeck console (vindicara-site is the deployed dir; site/ is legacy)
+cd vindicara-site && npm install && npm run dev
+cd vindicara-site && npm run check    # lint bar; failures block deploy
+cd vindicara-site && npm run build    # prerender; fails if a linked /legal/*.docx is untracked
 
-```bash
-cd site && npm install && npm run dev    # dev server
-cd site && npm run check                 # svelte-check (this is the lint bar; failures block deploy)
-cd site && npm run build                 # static build (run after check passes)
-```
-
-Site deploy script: `scripts/deploy-site.sh`. See `reference_site_deploy.md` in memory for the S3/CloudFront wiring.
-
-AIR Cloud dashboard (SvelteKit, `packages/air-dashboard/`):
-
-```bash
+# AIR Cloud dashboard
 cd packages/air-dashboard && npm install
-cd packages/air-dashboard && npm run dev               # dev server
-cd packages/air-dashboard && npm run check             # svelte-check
-cd packages/air-dashboard && npm run test              # vitest
-cd packages/air-dashboard && npm run bundle:check      # bundle-size budget guard
-cd packages/air-dashboard && npm run ci                # check + test + build + bundle:check
+cd packages/air-dashboard && npm run ci   # check + test + build + bundle:check
+
+# Flightdeck console routes live under vindicara-site/ (see Product site commands); open /dashboard after `npm run dev`.
+
+# Publish (always cd packages/projectair first)
+rm -f dist/*.whl dist/*.tar.gz && python -m build && python -m twine check dist/* && python -m twine upload dist/projectair-<ver>*
+```
+
+Site deploy: auto on push to `main` when `vindicara-site/**` changes via `.github/workflows/deploy-site.yml`. Manual: `scripts/deploy-site.sh`.
+
+CI: `ci-projectair.yml` (ruff + pytest, Python 3.12/3.13) gates the OSS package. `deploy-site.yml` auto-deploys the site.
+
+E2E demos (after `pip install -e "packages/projectair[dev]"`):
+
+```bash
+python packages/projectair/scripts/e2e_layer1.py [--live-tsa --live-rekor]
+python packages/projectair/scripts/e2e_layer3.py
+python packages/projectair/scripts/e2e_layer4.py [--live-rekor]
 ```
 
 ## Repo Layout (actual, current)
@@ -298,16 +261,26 @@ See `feedback_four_quality_gates.md` in memory for the full discipline.
 - Never use em dashes in any output. Use commas, semicolons, colons, or separate sentences.
 - Never mention Emirates Airlines.
 - No `Any` types, no bare `except`, no `print` in production paths. `mypy --strict` is the bar.
-- For untrusted input, do not use dynamic code evaluation primitives, unsafe deserialization libraries, or unsafe YAML loaders. Use typed schemas or safe loaders instead.
+- No dynamic code evaluation (`eval`, `exec`, `pickle`, unsafe YAML) on untrusted input.
 - 300 lines max per file. If you need "and" to describe a function, split it.
 - Root cause fixes only. No band-aids, no "temporary" patches.
 
-Full engineering standards live in `docs/STANDARDS.md`.
+## Quality gates (every roadmap item)
 
-## Further reading (not loaded here)
+1. **End-to-End Proof** -- runnable demo under 60 seconds.
+2. **Test Coverage Proof** -- 80% floor enforced by `./scripts/test.sh`.
+3. **Deployment / Readiness Boundary** -- `experimental` / `beta` / `production` label.
+4. **Customer-Facing Value** -- one-sentence customer-language description before engineering starts.
 
-- `docs/SPEC.md` — product vision, competitive landscape, pricing, GTM sequence, architecture deep-dive, content strategy, fundraise context
-- `docs/STANDARDS.md` — full code quality rules, SDK design principles, FastAPI patterns, testing standards, security architecture, performance targets, AWS infrastructure guidance
-- `MEMORY.md` (outside repo) — persistent user preferences, design system rules, roadmap notes
+## Context
 
-Read these when making product decisions, writing external content, or designing a new subsystem. Do not load them for routine code edits.
+**AWS account migration in flight.** SLTR `335741630084` (us-east-1) to Vindicara C-Corp `399827112476` (us-west-2). Three hardcoded locations: `data_stack.py`, `deploy-site.sh`, GitHub Actions workflow. See `MIGRATION_PLAN.md` and `project_aws_migration.md` in memory.
+
+## Detailed docs (read when working in the relevant area)
+
+- `docs/DETECTORS.md` -- full detector taxonomy (ASI01-10, AIR-01..06, NemoGuard, framing discipline, AIR-04 vs ASI10). Read before editing detectors or public copy.
+- `docs/ARCHITECTURE.md` -- layered spine (Layers 0-5), crypto trust contracts, PyPI release details, framework integrations, ops chain, detailed code location, architecture cross-cutting notes, roadmap. Read before adding layers, integrations, or navigating unfamiliar modules.
+- `docs/STANDARDS.md` -- engineering standards, SDK design, FastAPI patterns, testing, security architecture, performance targets, AWS infra, quality gates.
+- `docs/SPEC.md` -- product vision, competitive landscape, pricing, GTM, fundraise context. Read for product decisions or external content.
+
+Memory: `/Users/KMiI/.claude/projects/-Users-KMiI-Desktop-vindicara/memory/MEMORY.md`.

@@ -27,7 +27,7 @@
 
 ## What AIR is
 
-AIR writes a **Signed Intent Capsule** for every agent decision. Each capsule carries a BLAKE3 content hash and an Ed25519 signature, chained to the previous step. The chain root is anchored to [Sigstore Rekor](https://docs.sigstore.dev/) (public transparency log) and RFC 3161 trusted timestamps. The result is evidence that survives subpoena, survives the vendor, and survives the auditor's first question.
+AIR writes a **Signed Intent Capsule** for every agent decision. Each capsule carries a BLAKE3 content hash and an Ed25519 signature (with opt-in experimental ML-DSA-65 / FIPS 204 post-quantum signing), chained to the previous step. The chain root is anchored to [Sigstore Rekor](https://docs.sigstore.dev/) (public transparency log) and RFC 3161 trusted timestamps. The result is evidence that survives subpoena, survives the vendor, and survives the auditor's first question.
 
 ```bash
 pip install projectair

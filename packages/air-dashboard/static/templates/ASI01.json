@@ -1,0 +1,23 @@
+{
+  "template_id": "ASI01-goal-hijack",
+  "version": "1.0.0",
+  "detector_id": "ASI01",
+  "finding_type": "goal_hijack",
+  "layer1": "Agent {agent_name} received a prompt that attempted to override its assigned task at {timestamp}.",
+  "layer2": [
+    { "framework": "OWASP", "reference": "ASI01", "description": "Agent Goal Hijack: adversarial input redirects the agent from its declared objective." },
+    { "framework": "EU AI Act", "reference": "Art. 15", "description": "High-risk AI systems must be designed to withstand attempts to alter their intended purpose." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Quarantine Agent", "action": "quarantine_agent" },
+      { "label": "Review Prompt", "action": "review_prompt" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}

@@ -20,9 +20,13 @@ import re
 import secrets
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from airsdk.types import Finding
+
+if TYPE_CHECKING:
+    from airsdk.containment.require_delegation import DelegationPolicy
+    from airsdk.types import AgDRRecord
 
 
 class Decision(StrEnum):
@@ -71,19 +75,34 @@ class ContainmentPolicy:
     deny_arg_patterns: dict[str, dict[str, str]] = field(default_factory=dict)
     block_on_findings: list[str] = field(default_factory=list)
     step_up_for_actions: list[dict[str, Any]] = field(default_factory=list)
+    delegation_policy: DelegationPolicy | None = None
 
     def evaluate(
         self,
         tool_name: str,
         tool_args: dict[str, Any] | None = None,
         prior_findings: list[Finding] | None = None,
+        records: list[AgDRRecord] | None = None,
     ) -> PolicyVerdict:
         """Decide whether ``tool_name`` with ``tool_args`` is allowed.
 
         The recorder calls this synchronously before writing TOOL_START.
         Return value is consumed verbatim; side effects (chain writes,
         challenge issuance) live on the recorder, not here.
+
+        When ``delegation_policy`` is set and ``records`` is provided, SV-AUTH
+        runs first (policy-driven: AUTO / ALWAYS / NEVER).
         """
+        if self.delegation_policy is not None and records is not None:
+            from airsdk.containment.require_delegation import evaluate_require_delegation
+
+            delegation_verdict = evaluate_require_delegation(records, policy=self.delegation_policy)
+            if delegation_verdict.decision == Decision.BLOCK:
+                return PolicyVerdict(
+                    decision=Decision.BLOCK,
+                    reason=delegation_verdict.reason,
+                )
+
         args = tool_args or {}
         findings = prior_findings or []
 

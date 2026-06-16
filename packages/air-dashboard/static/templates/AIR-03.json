@@ -1,0 +1,22 @@
+{
+  "template_id": "AIR-03-resource-abuse",
+  "version": "1.0.0",
+  "detector_id": "AIR-03",
+  "finding_type": "resource_abuse",
+  "layer1": "Agent {agent_name} exceeded its resource budget at {timestamp}.",
+  "layer2": [
+    { "framework": "OWASP LLM", "reference": "LLM04", "description": "Model Denial of Service: excessive resource consumption by an agent degrades availability for other workloads." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Throttle Agent", "action": "throttle_agent" },
+      { "label": "Adjust Budget", "action": "adjust_budget" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}

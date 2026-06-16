@@ -19,6 +19,7 @@ compared to the network round-trip, and it keeps the module import path
 free of side effects (which simplifies tests and lets the engine import
 this module without lambda credentials).
 """
+
 from __future__ import annotations
 
 import os

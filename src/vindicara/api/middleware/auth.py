@@ -1,6 +1,8 @@
-"""API key authentication middleware with hash-based validation."""
+"""API key authentication middleware with HMAC-based validation."""
 
 import hashlib
+import hmac
+import os
 
 import structlog
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
@@ -12,6 +14,10 @@ from vindicara.config.constants import API_KEY_HEADER, API_KEY_PREFIX
 logger = structlog.get_logger()
 
 _PUBLIC_PATHS = {"/health", "/ready", "/docs", "/openapi.json", "/redoc"}
+_API_KEY_HMAC_SECRET = os.environ.get(
+    "VINDICARA_API_KEY_HMAC_SECRET",
+    "vindicara-dev-hmac-secret-change-in-prod",
+).encode("utf-8")
 
 
 class APIKeyStore:
@@ -43,12 +49,30 @@ class APIKeyStore:
 
     @staticmethod
     def _hash_key(raw_key: str) -> str:
-        return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
+        return hmac.new(
+            _API_KEY_HMAC_SECRET,
+            raw_key.encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
 
 
 class APIKeyAuthMiddleware(BaseHTTPMiddleware):
+    _PUBLIC_PREFIXES = (
+        "/dashboard",
+        "/api/v1/identity",
+        "/api/v1/telemetry",
+        "/webhooks",
+        "/v1/console",
+        "/v1/rules",
+        "/v1/plugins",
+        "/v1/insurance",
+        "/v1/settings",
+        "/v1/delegations",
+        "/v1/findings",
+    )
+
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        if request.url.path in _PUBLIC_PATHS or request.url.path.startswith("/dashboard"):
+        if request.url.path in _PUBLIC_PATHS or any(request.url.path.startswith(p) for p in self._PUBLIC_PREFIXES):
             return await call_next(request)
 
         api_key = request.headers.get(API_KEY_HEADER, "")

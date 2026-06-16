@@ -30,14 +30,15 @@ from .exceptions import (
     ReplayAnomalyError,
     TemporalOrderingError,
 )
+from .fulcio import FulcioTrustBundle, verify_fulcio_leaf
 from .handoff_record import (
     SCHEMA_HANDOFF,
     SCHEMA_HANDOFF_ACCEPTANCE,
     verify_record_content_hash,
     verify_record_signature,
 )
-from .identity import IdentityFormat
-from .idp.base import AdapterRouter
+from .identity import IdentityFormat, cert_hash_from_der
+from .idp.base import AdapterRouter, IdPAdapter
 from .trace import validate_ptid
 from .validation_proof import RekorBackend, verify_validation_proof
 
@@ -189,10 +190,93 @@ class CrossAgentVerifier:
     rekor_backend: RekorBackend | None = None
     skew_tolerance_seconds: int = DEFAULT_SKEW_TOLERANCE_SECONDS
     identity_pubkeys: dict[str, Ed25519PublicKey] = field(default_factory=dict)
+    fulcio_trust_bundle: FulcioTrustBundle | None = None
+    fulcio_certs: dict[str, bytes] = field(default_factory=dict)
 
     def register_identity(self, cert_hash: str, public_key: Ed25519PublicKey) -> None:
         """Wave 1 LOCAL_DEV mapping from cert_hash to Ed25519 public key."""
         self.identity_pubkeys[cert_hash] = public_key
+
+    def register_fulcio_cert(self, cert_der: bytes) -> str:
+        """Register a Fulcio leaf cert (Wave 2), keyed by its identity_certificate_hash.
+
+        Returns that hash. The cert is validated lazily, at verification time,
+        against the trust bundle as-of each record's own timestamp.
+        """
+        cert_hash = cert_hash_from_der(cert_der)
+        self.fulcio_certs[cert_hash] = cert_der
+        return cert_hash
+
+    def _record_time(self, record: dict[str, Any]) -> _dt.datetime | None:
+        ts = record.get("ts_iso")
+        if not isinstance(ts, str):
+            return None
+        return _dt.datetime.fromtimestamp(_parse_iso8601(ts), tz=_dt.UTC)
+
+    def _resolve_identity_key(self, record: dict[str, Any]) -> Ed25519PublicKey:
+        """Resolve the Ed25519 signing key for ``record``'s agent identity.
+
+        With a Fulcio trust bundle configured (Wave 2 cross-tenant), every
+        identity MUST be Sigstore Fulcio: the registered leaf cert is validated
+        against the bundle as-of the record's timestamp and its key returned;
+        LOCAL_DEV and X.509 identities are rejected (fail-closed). Without a
+        bundle (Wave 1 single-tenant), LOCAL_DEV keys are resolved from the
+        registered pubkey map exactly as before.
+        """
+        fmt = record.get("agent", {}).get("identity_certificate_format")
+        if self.fulcio_trust_bundle is not None:
+            if fmt != IdentityFormat.SIGSTORE_FULCIO.value:
+                raise CrossAgentVerificationError(
+                    f"identity format {fmt!r} rejected: a Fulcio trust bundle is "
+                    "configured, so every agent identity must be Sigstore Fulcio",
+                )
+            cert_hash = record.get("agent", {}).get("identity_certificate_hash")
+            if not isinstance(cert_hash, str):
+                raise HandoffRecordInvalidError("agent.identity_certificate_hash missing")
+            cert_der = self.fulcio_certs.get(cert_hash)
+            if cert_der is None:
+                raise CrossAgentVerificationError(
+                    f"no Fulcio certificate registered for cert_hash={cert_hash!r}; "
+                    "supply via CrossAgentVerifier.register_fulcio_cert()",
+                )
+            if cert_hash_from_der(cert_der) != cert_hash:
+                raise CrossAgentVerificationError(
+                    f"registered Fulcio cert does not match record cert_hash={cert_hash!r}",
+                )
+            return verify_fulcio_leaf(
+                cert_der, self.fulcio_trust_bundle, at_time=self._record_time(record)
+            )
+        if fmt == IdentityFormat.SIGSTORE_FULCIO.value:
+            raise CrossAgentVerificationError(
+                "SIGSTORE_FULCIO identity requires a Fulcio trust bundle; construct "
+                "CrossAgentVerifier(fulcio_trust_bundle=...)",
+            )
+        return _public_key_from_local_dev_chain_hash(record, self.identity_pubkeys)
+
+    def _route_capability_issuer(
+        self, token_iss: object, source_record: dict[str, Any]
+    ) -> IdPAdapter:
+        """Route a capability-token issuer to an adapter.
+
+        Single-tenant (no bundle): strict :meth:`AdapterRouter.route`. Cross-
+        tenant (bundle set): :meth:`route_fulcio_vouched`, where the source
+        agent's Fulcio cert must vouch for the token issuer; unregistered,
+        unvouched issuers still fail closed.
+        """
+        if not isinstance(token_iss, str):
+            raise CrossAgentVerificationError("capability token missing a string issuer")
+        if self.fulcio_trust_bundle is None:
+            return self.adapter_router.route(token_iss)
+        cert_hash = source_record.get("agent", {}).get("identity_certificate_hash")
+        cert_der = self.fulcio_certs.get(cert_hash) if isinstance(cert_hash, str) else None
+        if cert_der is None:
+            return self.adapter_router.route(token_iss)
+        return self.adapter_router.route_fulcio_vouched(
+            token_iss,
+            leaf_cert_der=cert_der,
+            trust_bundle=self.fulcio_trust_bundle,
+            at_time=self._record_time(source_record),
+        )
 
     def verify_chain_set(
         self, chain_set: ChainSet, parent_trace_id: str
@@ -268,7 +352,7 @@ class CrossAgentVerifier:
         for r in layer4_records:
             try:
                 verify_record_content_hash(r)
-                pk = _public_key_from_local_dev_chain_hash(r, self.identity_pubkeys)
+                pk = self._resolve_identity_key(r)
                 verify_record_signature(r, pk)
             except HandoffRecordInvalidError as e:
                 result.fail(
@@ -325,7 +409,7 @@ class CrossAgentVerifier:
         # Step 5: capability token verification via AdapterRouter
         cap = h_body.get("capability_token", {})
         token_iss = cap.get("issuer")
-        adapter = self.adapter_router.route(token_iss)
+        adapter = self._route_capability_issuer(token_iss, handoff)
         raw_jwt = cap.get("raw_jwt")
         ptid = handoff.get("trace", {}).get("parent_trace_id")
         if isinstance(raw_jwt, str) and raw_jwt:
@@ -350,20 +434,11 @@ class CrossAgentVerifier:
                 f"adapter routed={adapter.__class__.__name__}"
             )
 
-        # Step 5b: validation proof
+        # Step 5b: validation proof. The validating (target) agent's key is
+        # resolved the same way as every other identity: Fulcio-validated when a
+        # trust bundle is configured, else the Wave 1 registered pubkey.
         proof = a_body.get("capability_token_validation_proof", {})
-        # validating-agent public key: pulled from identity registry
-        cert_hash = acceptance.get("agent", {}).get("identity_certificate_hash")
-        if not isinstance(cert_hash, str):
-            raise CrossAgentVerificationError(
-                "acceptance record missing agent.identity_certificate_hash"
-            )
-        pk = self.identity_pubkeys.get(cert_hash)
-        if pk is None:
-            raise CrossAgentVerificationError(
-                f"no Ed25519 public key registered for validating agent "
-                f"cert_hash={cert_hash!r}"
-            )
+        pk = self._resolve_identity_key(acceptance)
         verify_validation_proof(
             proof=proof,
             validating_agent_public_key=pk,

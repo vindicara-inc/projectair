@@ -11,7 +11,40 @@ Buy a subscription at https://vindicara.io/pricing.
 """
 from __future__ import annotations
 
+from airsdk_pro.alerts import (
+    INCIDENT_WORKFLOWS_FEATURE,
+    AlertConfigError,
+    AlertPushError,
+    AlertResult,
+    alert_to_pagerduty,
+    alert_to_slack,
+    alert_to_webhook,
+)
+from airsdk_pro.cloud import (
+    AIR_CLOUD_CLIENT_FEATURE,
+    CloudConfigError,
+    CloudPushError,
+    CloudPushResult,
+    push_chain_to_s3,
+    push_chain_to_webhook,
+)
+from airsdk_pro.detectors import (
+    PREMIUM_DETECTOR_IDS,
+    PREMIUM_DETECTORS_FEATURE,
+    detect_supply_chain_premium,
+    run_premium_detectors,
+)
 from airsdk_pro.gate import requires_pro
+from airsdk_pro.governance import (
+    GOVERNANCE_FEATURE,
+    AccessType,
+    AssetDefinition,
+    DataAccessRecord,
+    DataAssetRegistry,
+    GovernanceIndex,
+    GovernanceReport,
+    SubjectAccessReport,
+)
 from airsdk_pro.license import (
     LicenseError,
     LicenseExpiredError,
@@ -25,21 +58,88 @@ from airsdk_pro.license import (
     load_license,
     verify_token,
 )
+from airsdk_pro.hl7 import (
+    HL7_FHIR_FEATURE,
+    ClinicalSidecar,
+    FHIRClient,
+    MLLPListener,
+    RedactionPolicy,
+    create_hl7_router,
+    instrument_hl7,
+    parse_hl7v2,
+)
+from airsdk_pro.report_nist_rmf import NIST_RMF_FEATURE, generate_nist_rmf_report
+from airsdk_pro.report_soc2_ai import SOC2_AI_FEATURE, generate_soc2_ai_report
+from airsdk_pro.siem import (
+    SIEM_INTEGRATIONS_FEATURE,
+    SiemConfigError,
+    SiemPushError,
+    SiemPushResult,
+    push_to_datadog,
+    push_to_sentinel,
+    push_to_splunk_hec,
+    push_to_sumo,
+)
 
-__version__ = "0.1.0"
+__version__ = "0.8.0"
 
 __all__ = [
+    "AIR_CLOUD_CLIENT_FEATURE",
+    "AccessType",
+    "ClinicalSidecar",
+    "FHIRClient",
+    "HL7_FHIR_FEATURE",
+    "MLLPListener",
+    "RedactionPolicy",
+    "create_hl7_router",
+    "instrument_hl7",
+    "parse_hl7v2",
+    "AssetDefinition",
+    "DataAccessRecord",
+    "DataAssetRegistry",
+    "GOVERNANCE_FEATURE",
+    "GovernanceIndex",
+    "GovernanceReport",
+    "INCIDENT_WORKFLOWS_FEATURE",
+    "NIST_RMF_FEATURE",
+    "PREMIUM_DETECTORS_FEATURE",
+    "PREMIUM_DETECTOR_IDS",
+    "SIEM_INTEGRATIONS_FEATURE",
+    "SOC2_AI_FEATURE",
+    "SubjectAccessReport",
+    "AlertConfigError",
+    "AlertPushError",
+    "AlertResult",
+    "CloudConfigError",
+    "CloudPushError",
+    "CloudPushResult",
     "LicenseError",
     "LicenseExpiredError",
     "LicenseInvalidError",
     "LicenseMissingError",
     "LicenseToken",
+    "SiemConfigError",
+    "SiemPushError",
+    "SiemPushResult",
     "__version__",
+    "alert_to_pagerduty",
+    "alert_to_slack",
+    "alert_to_webhook",
     "current_license",
+    "detect_supply_chain_premium",
+    "generate_nist_rmf_report",
+    "generate_soc2_ai_report",
     "has_feature",
     "install_license",
     "is_pro_active",
     "load_license",
+    "push_chain_to_s3",
+    "push_chain_to_webhook",
+    "push_to_datadog",
+    "push_to_sentinel",
+    "push_to_splunk_hec",
+    "push_to_sumo",
     "requires_pro",
+    "run_premium_detectors",
     "verify_token",
 ]

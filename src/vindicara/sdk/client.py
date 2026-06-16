@@ -1,5 +1,7 @@
 """VindicaraClient: sync and async interfaces for guard() evaluation."""
 
+from typing import NoReturn
+
 import structlog
 
 from vindicara.compliance.collector import EvidenceCollector
@@ -290,7 +292,7 @@ class VindicaraClient:
             raise VindicaraConnectionError(f"Request to Vindicara API timed out: {exc}") from exc
 
 
-def _raise_typed_error(exc: object) -> None:
+def _raise_typed_error(exc: object) -> NoReturn:
     """Map HTTP status errors to typed SDK exceptions. Always raises."""
     import httpx
 

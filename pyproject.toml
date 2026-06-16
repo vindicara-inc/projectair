@@ -9,7 +9,7 @@ description = "Server-side engine behind Vindicara AIR Cloud. Not intended for d
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.12"
-authors = [{ name = "Vindicara", email = "eng@vindicara.io" }]
+authors = [{ name = "Kevin Minn", email = "support@vindicara.io" }]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -29,7 +29,7 @@ dependencies = [
     # ingestion. Single source of truth for the wire format; license-compatible
     # (MIT into Apache-2.0). Keep the pin in lockstep with the OSS surface AIR
     # Cloud commits to receiving from.
-    "projectair>=0.7.0,<0.8",
+    "projectair>=0.8.0,<1.0",
 ]
 
 [project.optional-dependencies]
@@ -45,6 +45,8 @@ api = [
     "uvicorn>=0.30.0,<1.0",
     "boto3>=1.35.0,<2.0",
     "boto3-stubs[dynamodb,s3,events]>=1.35.0,<2.0",
+    "stripe>=10.0.0,<12.0",
+    "resend>=2.0.0,<3.0",
 ]
 cdk = [
     "aws-cdk-lib>=2.150.0,<3.0",
@@ -103,6 +105,14 @@ ignore = [
     "E501",   # line length handled by ruff format; long strings in security descriptions are intentional
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# Tests legitimately use hardcoded secret-like literals as fixtures.
+"tests/**" = ["S105", "S106"]
+# Deliberate outbound calls to the configured Auth0 https endpoints.
+"src/vindicara/webhooks/handler.py" = ["S310"]
+# "0.0.0.0" here is an entry in a host *blocklist*, not a server bind.
+"src/vindicara/mcp/transport.py" = ["S104"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["vindicara"]
 
@@ -112,6 +122,10 @@ strict = true
 warn_return_any = true
 warn_unused_configs = true
 plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "qrcode.*"
+ignore_missing_imports = true
 
 [tool.coverage.run]
 source = ["vindicara"]

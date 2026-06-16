@@ -1,0 +1,25 @@
+{
+  "template_id": "ASI03-scope-violation",
+  "version": "1.0.0",
+  "detector_id": "ASI03",
+  "finding_type": "scope_violation",
+  "layer1": "Agent {agent_name} attempted to {tool_name} without authorization at {timestamp}.",
+  "layer2": [
+    { "framework": "HIPAA", "reference": "45 CFR 164.502(b)", "description": "Minimum necessary access: agents must not access information beyond what is required for the task." },
+    { "framework": "OWASP", "reference": "ASI03", "description": "Identity and Privilege Abuse: agent acts outside its declared identity scope or privilege tier." },
+    { "framework": "EU AI Act", "reference": "Art. 14", "description": "Human oversight provisions require that unauthorized autonomous actions be detectable and stoppable." }
+  ],
+  "layer3": {
+    "primary": { "label": "Investigate", "action": "open_detail_drawer" },
+    "secondary": [
+      { "label": "Approve Scope", "action": "approve_scope_expansion", "requires_step_up": true },
+      { "label": "Quarantine Agent", "action": "quarantine_agent" },
+      { "label": "Acknowledge", "action": "acknowledge" }
+    ]
+  },
+  "slots": [
+    { "name": "agent_name", "source": "payload.source_agent_id" },
+    { "name": "tool_name", "source": "payload.tool_name" },
+    { "name": "timestamp", "source": "timestamp" }
+  ]
+}
