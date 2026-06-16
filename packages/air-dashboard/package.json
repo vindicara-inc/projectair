@@ -36,6 +36,7 @@
 		"three": "^0.169.0"
 	},
 	"overrides": {
-		"cookie": "^0.7.2"
+		"cookie": "^0.7.2",
+		"esbuild": ">=0.28.1"
 	}
 }
