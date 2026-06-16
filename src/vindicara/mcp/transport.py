@@ -1,6 +1,9 @@
 """MCP JSON-RPC client over HTTP for scanner probes."""
 
+import ipaddress
 import json
+import socket
+from urllib.parse import urlparse
 
 import httpx
 import structlog
@@ -16,29 +19,71 @@ class MCPTransportError(Exception):
         super().__init__(message)
 
 
-_BLOCKED_HOSTS = frozenset(
-    {
-        "localhost",
-        "127.0.0.1",
-        "0.0.0.0",
-        "[::1]",
-        "169.254.169.254",
-        "metadata.google.internal",
-    }
-)
+# Names that must never be probed, even before DNS resolution (defense in depth;
+# the resolution check below is the real guard).
+_BLOCKED_HOSTNAMES = frozenset({"localhost", "metadata.google.internal", "metadata.goog"})
+# Cloud metadata endpoints (also covered by link-local, listed explicitly for clarity).
+_METADATA_IPS = frozenset({"169.254.169.254", "fd00:ec2::254"})
+# Carrier-grade NAT (RFC 6598) — not flagged by ipaddress.is_private on all versions.
+_CGNAT_V4 = ipaddress.ip_network("100.64.0.0/10")
+
+_IpAddress = ipaddress.IPv4Address | ipaddress.IPv6Address
+
+
+def _ip_is_internal(ip: _IpAddress) -> bool:
+    """True for any address an outbound scanner probe must never reach."""
+    if str(ip) in _METADATA_IPS:
+        return True
+    if (
+        ip.is_private
+        or ip.is_loopback
+        or ip.is_link_local
+        or ip.is_reserved
+        or ip.is_multicast
+        or ip.is_unspecified
+    ):
+        return True
+    return ip.version == 4 and ip in _CGNAT_V4
+
+
+def _resolve_target_ips(hostname: str) -> list[_IpAddress]:
+    """Resolve a host to every IP it maps to. IP literals — including octal/hex/
+    decimal encodings, which getaddrinfo normalises — are resolved too, closing
+    string-based bypasses. Returns [] when the host cannot be resolved (the request
+    would simply fail to connect, so there is nothing to SSRF)."""
+    try:
+        return [ipaddress.ip_address(hostname)]
+    except ValueError:
+        pass
+    try:
+        infos = socket.getaddrinfo(hostname, None)
+    except socket.gaierror:
+        return []
+    ips: list[_IpAddress] = []
+    for info in infos:
+        addr = str(info[4][0]).split("%", 1)[0]
+        try:
+            ips.append(ipaddress.ip_address(addr))
+        except ValueError:
+            continue
+    return ips
 
 
 def _validate_url(url: str) -> str:
-    from urllib.parse import urlparse
-
+    """SSRF guard for outbound scanner probes (CWE-918). Parse the URL with a real
+    parser and reject any target that resolves to a private, loopback, link-local,
+    reserved, carrier-grade-NAT, or cloud-metadata address."""
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         raise ValueError(f"MCP server URL must use http(s), got {parsed.scheme!r}")
-    hostname = (parsed.hostname or "").lower()
-    if hostname in _BLOCKED_HOSTS:
-        raise ValueError(f"MCP server URL points to blocked host: {hostname}")
-    if hostname.startswith("10.") or hostname.startswith("172.") or hostname.startswith("192.168."):
-        raise ValueError(f"MCP server URL points to RFC-1918 private address: {hostname}")
+    hostname = (parsed.hostname or "").strip("[]").lower()
+    if not hostname:
+        raise ValueError("MCP server URL has no host")
+    if hostname in _BLOCKED_HOSTNAMES:
+        raise ValueError(f"MCP server URL points to a blocked host: {hostname}")
+    for ip in _resolve_target_ips(hostname):
+        if _ip_is_internal(ip):
+            raise ValueError(f"MCP server URL resolves to a blocked internal address: {ip}")
     return url.rstrip("/")
 
 
@@ -87,8 +132,11 @@ class MCPClient:
         headers = self._build_headers(include_auth)
         log = logger.bind(method=method, url=self._server_url)
 
+        # Re-validate at the point of use to mitigate DNS rebinding between
+        # construction and request, and never follow redirects into internal space.
+        _validate_url(self._server_url)
         try:
-            async with httpx.AsyncClient(timeout=self._timeout) as client:
+            async with httpx.AsyncClient(timeout=self._timeout, follow_redirects=False) as client:
                 resp = await client.post(
                     self._server_url,
                     json=payload,

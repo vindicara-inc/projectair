@@ -23,6 +23,7 @@ this module without lambda credentials).
 from __future__ import annotations
 
 import os
+import re
 import tempfile
 import time
 from contextlib import contextmanager
@@ -53,7 +54,15 @@ def open_recorder(
     the default FileTransport). The temp file is auto-cleaned by the OS.
     """
     transport = DDBTransport(table=table, chain_id=chain_id, failure_mode=failure_mode)
-    log_path = os.path.join(tempfile.gettempdir(), f"vindicara-ops-{chain_id}.jsonl")
+    # chain_id flows into a filesystem path (the recorder mkdir's its parent), so
+    # contain it: strip anything but [A-Za-z0-9._-] (drops path separators and NUL),
+    # then confirm the resolved path stays inside the temp dir (CWE-22). Prevents a
+    # request-derived id carrying '../' or '/' from escaping tempfile.gettempdir().
+    safe_id = re.sub(r"[^A-Za-z0-9._-]", "_", chain_id)[:128] or "chain"
+    temp_root = os.path.realpath(tempfile.gettempdir())
+    log_path = os.path.realpath(os.path.join(temp_root, f"vindicara-ops-{safe_id}.jsonl"))
+    if os.path.commonpath((temp_root, log_path)) != temp_root:
+        raise ValueError("ops log path escaped the temp directory")
     return AIRRecorder(log_path=log_path, transports=[transport])
 
 
