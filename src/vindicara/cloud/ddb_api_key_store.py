@@ -16,7 +16,9 @@ Implements the ``ApiKeyStore`` protocol from ``workspace.py``.
 from __future__ import annotations
 
 import hashlib
+import hmac
 import logging
+import os
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
@@ -29,13 +31,25 @@ _log = logging.getLogger(__name__)
 
 GSI_NAME = "by_key_hash"
 
+# Keyed HMAC-SHA256: a leaked table can't be brute-forced offline without the server
+# secret. Deterministic, so the by_key_hash GSI O(1) lookup is preserved (a salted
+# password KDF would break it). Shares the API-key HMAC secret with the request-auth
+# middleware (vindicara.api.middleware.auth).
+_HMAC_SECRET = os.environ.get(
+    "VINDICARA_API_KEY_HMAC_SECRET",
+    "vindicara-dev-hmac-secret-change-in-prod",
+).encode("utf-8")
+
 
 def _hash_key(raw: str) -> str:
-    # High-entropy random API token (192-256 bits), not a password: a fast
-    # deterministic hash is the correct storage method and is required for the
-    # by_key_hash GSI O(1) lookup. A salted KDF would break the lookup and add no
-    # security for tokens of this entropy. See CodeQL #17 disposition.
-    return hashlib.sha256(raw.encode()).hexdigest()
+    return hmac.new(_HMAC_SECRET, raw.encode("utf-8"), hashlib.sha256).hexdigest()
+
+
+def _legacy_hash_key(raw: str) -> str:
+    # Pre-migration keys were stored as a plain SHA-256 digest. Retained only for
+    # backward-compatible dual-read lookup; such keys are re-hashed to the keyed
+    # form on first use (see DDBApiKeyStore.lookup).
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 def _now_iso() -> str:
@@ -63,20 +77,18 @@ class DDBApiKeyStore:
         )
 
     def lookup(self, key: str) -> ApiKey | None:
-        key_hash = _hash_key(key)
-        resp = self._table.query(
-            IndexName=GSI_NAME,
-            KeyConditionExpression="key_hash = :kh",
-            ExpressionAttributeValues={":kh": key_hash},
-            Limit=1,
-        )
-        items = cast("list[dict[str, str]]", resp.get("Items", []))
-        if not items:
+        # Dual-read: try the keyed HMAC hash first; fall back to the legacy plain
+        # SHA-256 hash so pre-migration keys keep validating. A key found via the
+        # legacy hash is lazily re-hashed to the keyed form so it migrates on use.
+        item = self._query_by_hash(_hash_key(key))
+        migrate = False
+        if item is None:
+            item = self._query_by_hash(_legacy_hash_key(key))
+            migrate = item is not None
+        if item is None or item.get("revoked_at", ""):
             return None
-        item = items[0]
-        revoked = item.get("revoked_at", "")
-        if revoked:
-            return None
+        if migrate:
+            self._migrate_hash(item["key_id"], _hash_key(key))
         return ApiKey(
             key_id=item["key_id"],
             workspace_id=item["workspace_id"],
@@ -86,6 +98,28 @@ class DDBApiKeyStore:
             created_at=item["created_at"],
             revoked_at=None,
         )
+
+    def _query_by_hash(self, key_hash: str) -> dict[str, str] | None:
+        resp = self._table.query(
+            IndexName=GSI_NAME,
+            KeyConditionExpression="key_hash = :kh",
+            ExpressionAttributeValues={":kh": key_hash},
+            Limit=1,
+        )
+        items = cast("list[dict[str, str]]", resp.get("Items", []))
+        return items[0] if items else None
+
+    def _migrate_hash(self, key_id: str, new_hash: str) -> None:
+        # Best-effort lazy migration of a legacy-hashed key to the keyed form; a
+        # failure simply defers migration and never blocks authentication.
+        try:
+            self._table.update_item(
+                Key={"key_id": key_id},
+                UpdateExpression="SET key_hash = :kh",
+                ExpressionAttributeValues={":kh": new_hash},
+            )
+        except Exception:
+            _log.warning("api_key.hash_migration_failed", extra={"key_id": key_id})
 
     def for_workspace(self, workspace_id: str) -> list[ApiKey]:
         items: list[dict[str, str]] = []
