@@ -211,7 +211,7 @@ class CrossAgentVerifier:
         ts = record.get("ts_iso")
         if not isinstance(ts, str):
             return None
-        return _dt.datetime.fromtimestamp(_parse_iso8601(ts), tz=_dt.UTC)
+        return _dt.datetime.fromtimestamp(_parse_iso8601(ts), tz=_dt.timezone.utc)
 
     def _resolve_identity_key(self, record: dict[str, Any]) -> Ed25519PublicKey:
         """Resolve the Ed25519 signing key for ``record``'s agent identity.

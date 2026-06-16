@@ -19,9 +19,9 @@ from __future__ import annotations
 import re
 import secrets
 from dataclasses import dataclass, field
-from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
+from airsdk._compat import StrEnum
 from airsdk.types import Finding
 
 if TYPE_CHECKING:

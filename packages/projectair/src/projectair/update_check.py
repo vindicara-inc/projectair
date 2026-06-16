@@ -10,8 +10,9 @@ available, prints a one-line upgrade hint. Silent on all network errors.
 """
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 
+from airsdk._compat import UTC
 from projectair.config import get_config, set_config
 
 _VERSION_CHECK_URL = "https://api.vindicara.io/api/v1/telemetry/version-check"

@@ -7,13 +7,14 @@ ImportError. Same pattern the Pro report commands use.
 """
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
 import typer
 
 from airsdk import __version__ as airsdk_version
+from airsdk._compat import UTC
 from airsdk.agdr import load_chain, verify_chain
 from airsdk.detections import run_detectors
 from airsdk.types import ForensicReport, VerificationStatus

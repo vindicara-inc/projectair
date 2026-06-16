@@ -22,10 +22,9 @@ Readiness: production. Additive to the AgDR record format; chains with no
 """
 from __future__ import annotations
 
-from enum import StrEnum
-
 from pydantic import BaseModel, ConfigDict
 
+from airsdk._compat import StrEnum
 from airsdk.agdr import Signer, SigningKey, verify_record
 from airsdk.types import AgDRPayload, AgDRRecord, KeyTransition, StepKind
 

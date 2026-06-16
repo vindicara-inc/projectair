@@ -9,7 +9,7 @@ import json
 import os
 import secrets
 import time
-from datetime import UTC, date, datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +19,8 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
+
+from airsdk._compat import UTC
 
 try:
     from cryptography.hazmat.primitives.asymmetric.mldsa import (

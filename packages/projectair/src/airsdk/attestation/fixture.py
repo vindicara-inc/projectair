@@ -14,7 +14,7 @@ instance (W1, experimental).
 """
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import jwt as pyjwt
@@ -28,6 +28,7 @@ from cryptography.hazmat.primitives.serialization import (
 )
 from cryptography.x509.oid import NameOID
 
+from airsdk._compat import UTC
 from airsdk.attestation.types import NRASResult
 
 __all__ = ["FIXTURE_NRAS_URL", "FixtureNRAS"]

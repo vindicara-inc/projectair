@@ -21,7 +21,7 @@ from cryptography.x509.oid import NameOID
 from airsdk.handoff.exceptions import IdentityCertificateError
 from airsdk.handoff.fulcio import FulcioTrustBundle, verify_fulcio_leaf
 
-_NOW = dt.datetime(2026, 6, 1, 12, 0, 0, tzinfo=dt.UTC)
+_NOW = dt.datetime(2026, 6, 1, 12, 0, 0, tzinfo=dt.timezone.utc)
 _NB = _NOW - dt.timedelta(hours=1)
 _NA = _NOW + dt.timedelta(hours=1)
 

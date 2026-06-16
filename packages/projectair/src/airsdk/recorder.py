@@ -54,6 +54,7 @@ from airsdk.verification.verifier import verify_intent as _verify_intent
 
 if TYPE_CHECKING:
     from airsdk.anchoring import AnchoringOrchestrator
+    from airsdk.attestation import AttestationProvider, GPUAttestationConfig
     from airsdk.types import Finding
 
 
@@ -129,6 +130,8 @@ class AIRRecorder:
         user_intent: str | None = None,
         intent_spec: IntentSpec | None = None,
         delegation: DelegationGrant | None = None,
+        attestation: GPUAttestationConfig | None = None,
+        attestation_provider: AttestationProvider | None = None,
         transports: list[Transport] | None = None,
         containment: ContainmentPolicy | None = None,
         delegation_policy: DelegationPolicy | None = None,
@@ -145,6 +148,14 @@ class AIRRecorder:
                 "pass either delegation= or intent_spec=, not both; the "
                 "delegation already carries the authorized scope as its IntentSpec"
             )
+        if attestation is not None and delegation is None:
+            raise ValueError(
+                "GPU attestation requires delegation=; the attestation nonce "
+                "binds to the DELEGATION genesis record, so a session must be "
+                "delegated before it can be attested."
+            )
+        self._attestation = attestation
+        self._attestation_provider = attestation_provider
         self._user_intent = user_intent
         self._intent_spec = delegation.scope if delegation is not None else intent_spec
         self._transports: list[Transport] = transports if transports is not None else [FileTransport(self._log_path)]
@@ -158,7 +169,9 @@ class AIRRecorder:
         self._chain_records: list[AgDRRecord] = []
 
         if delegation is not None:
-            self.open_delegation(delegation)
+            genesis = self.open_delegation(delegation)
+            if attestation is not None:
+                self._emit_gpu_attestation(genesis.content_hash)
         elif intent_spec is not None:
             self._emit(StepKind.INTENT_DECLARATION, {
                 "user_intent": intent_spec.goal,
@@ -363,6 +376,24 @@ class AIRRecorder:
             {"user_intent": grant.scope.goal, "intent_spec": grant.scope},
         )
         return record
+
+    def _emit_gpu_attestation(self, genesis_content_hash: str) -> AgDRRecord:
+        """Emit the GPU_ATTESTATION record right after the DELEGATION genesis.
+
+        The attestation nonce is derived from the genesis content hash, so the
+        NVIDIA-signed token binds to this exact authorized session. Purely
+        additive: only runs when the recorder was built with ``attestation=``
+        (which requires ``delegation=``).
+        """
+        from airsdk.attestation import attest_session
+
+        assert self._attestation is not None
+        attestation = attest_session(
+            genesis_content_hash,
+            self._attestation,
+            provider=self._attestation_provider,
+        )
+        return self._emit(StepKind.GPU_ATTESTATION, {"attestation": attestation})
 
     # -- Internal ---------------------------------------------------------
 

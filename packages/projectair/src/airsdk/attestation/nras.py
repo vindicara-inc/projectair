@@ -11,9 +11,10 @@ import json
 import urllib.error
 import urllib.request
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Protocol
 
+from airsdk._compat import UTC
 from airsdk.attestation.config import GPUAttestationConfig
 from airsdk.attestation.evidence import collect_evidence, derive_nonce
 from airsdk.attestation.types import (

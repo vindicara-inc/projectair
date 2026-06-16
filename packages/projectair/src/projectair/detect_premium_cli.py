@@ -8,13 +8,14 @@ installs still expose the help text.
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
 import typer
 
 from airsdk import __version__ as airsdk_version
+from airsdk._compat import UTC
 from airsdk.agdr import load_chain, verify_chain
 from airsdk.types import ForensicReport, VerificationStatus
 

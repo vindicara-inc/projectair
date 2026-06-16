@@ -15,9 +15,9 @@ I will note this soft edge as supporting context".
 """
 from __future__ import annotations
 
-from enum import StrEnum
-
 from pydantic import BaseModel, ConfigDict, Field
+
+from airsdk._compat import StrEnum
 
 
 class EdgeKind(StrEnum):

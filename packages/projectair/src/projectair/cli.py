@@ -1,13 +1,14 @@
 """`air` CLI. Surfaces `trace`, `demo`, and `version` subcommands."""
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
+from datetime import date, datetime
 from pathlib import Path
 from uuid import uuid4
 
 import typer
 
 from airsdk import __version__ as airsdk_version
+from airsdk._compat import UTC
 from airsdk._concrete_demo import (
     CONCRETE_DEMO_TAMPER_INDEX,
     CONCRETE_DEMO_USER_INTENT,

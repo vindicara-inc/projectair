@@ -6,7 +6,8 @@ temporary directory and never touches the real ~/.config/projectair/.
 from __future__ import annotations
 
 import importlib
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
+from airsdk._compat import UTC
 from typing import Any
 from unittest.mock import MagicMock, patch
 

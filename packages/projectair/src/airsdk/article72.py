@@ -24,7 +24,7 @@ on orchestration and under the 300-line file limit.
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from datetime import UTC, datetime
+from datetime import datetime
 
 from airsdk._article72_content import (
     ATTESTATION_PARAGRAPH,
@@ -36,6 +36,7 @@ from airsdk._article72_content import (
     SERIOUS_INCIDENT_PREAMBLE,
     SUMMARY_PARAGRAPH,
 )
+from airsdk._compat import UTC
 from airsdk.types import AgDRRecord, Finding, ForensicReport, VerificationStatus
 
 SEVERITY_ORDER = ("critical", "high", "medium", "low")

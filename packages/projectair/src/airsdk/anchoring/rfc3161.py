@@ -26,7 +26,7 @@ import base64
 import logging
 import urllib.error
 import urllib.request
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Final
 
 from cryptography import x509
@@ -42,6 +42,7 @@ from rfc3161_client import (
 )
 from rfc3161_client.errors import VerificationError as _RFC3161VerificationError
 
+from airsdk._compat import UTC
 from airsdk.anchoring.exceptions import (
     TSACertificateInvalidError,
     TSANonceMismatchError,

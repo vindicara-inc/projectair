@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import base64
 from dataclasses import dataclass, field
-from enum import StrEnum
 
 from cryptography import x509
 from cryptography.hazmat.primitives import serialization
@@ -29,6 +28,8 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
+
+from airsdk._compat import StrEnum
 
 from .canonicalize import canonicalize_and_hash
 from .exceptions import IdentityCertificateError
