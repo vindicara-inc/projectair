@@ -20,6 +20,7 @@ import os
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from server.chain_path import CHAIN_LOG_ROOT, safe_chain_path
 
 from airsdk.delegation.webauthn import (
     StoredCredential,
@@ -120,7 +121,19 @@ async def authorize_verify(req: Request) -> JSONResponse:
         ttl_seconds=body.get("ttl", 3600),
     )
 
-    recorder = AIRRecorder(body.get("chain", "chain.jsonl"))
+    # ``chain`` is attacker-controlled and selects the file the tamper-evident
+    # evidence chain is written to. Confine it under CHAIN_LOG_ROOT before it
+    # reaches the recorder (CodeQL py/path-injection #18): safe_chain_path drops
+    # any directories/"..", enforces a filename allowlist, and rejects escapes.
+    try:
+        chain_path = safe_chain_path(body.get("chain", "chain.jsonl"))
+        # Re-assert containment on the exact value handed to the recorder, in the
+        # raising form CodeQL recognizes as a path-injection barrier.
+        chain_path.relative_to(CHAIN_LOG_ROOT)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="invalid chain name") from exc
+
+    recorder = AIRRecorder(str(chain_path))
     record = recorder.open_delegation(grant)
     return JSONResponse(
         content={
