@@ -34,6 +34,8 @@ pip install projectair
 air demo
 ```
 
+> **Requires Python 3.10+.** macOS's default `python3` is often older — if `pip install` reports `ERROR: ... (from versions: none)`, you're on an older interpreter. Install into a venv built with a newer Python: `python3.12 -m venv ~/air-venv && ~/air-venv/bin/pip install projectair`.
+
 ## The four-layer stack
 
 | Layer | What it does | Status |

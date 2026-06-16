@@ -30,6 +30,8 @@ Project AIR is the governance standard for agent runtime accountability.
 pip install projectair
 ```
 
+Requires **Python 3.10+**. macOS's default `python3` is often older; if `pip install` reports `from versions: none`, install into a venv built with a newer interpreter: `python3.12 -m venv ~/air-venv && ~/air-venv/bin/pip install projectair`.
+
 This installs the `air` terminal command and the `airsdk` Python library.
 
 ## Try it cold
