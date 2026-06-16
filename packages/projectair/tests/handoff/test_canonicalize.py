@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import datetime as _dt
 from decimal import Decimal
-from airsdk._compat import StrEnum
 
 import pytest
 
+from airsdk._compat import StrEnum
 from airsdk.handoff.canonicalize import (
     canonicalize_and_hash,
     canonicalize_bytes,

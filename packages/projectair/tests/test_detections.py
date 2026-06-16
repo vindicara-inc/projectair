@@ -1447,6 +1447,7 @@ def test_asi10_fan_out_silent_below_threshold() -> None:
 def test_asi10_off_hours_activity_flagged() -> None:
     """Excluding the current UTC hour from allowed_hours_utc must fire off-hours."""
     from datetime import datetime
+
     from airsdk._compat import UTC
     signer = Signer.generate()
     records = [
@@ -1466,6 +1467,7 @@ def test_asi10_off_hours_activity_flagged() -> None:
 
 def test_asi10_in_hours_activity_silent() -> None:
     from datetime import datetime
+
     from airsdk._compat import UTC
     signer = Signer.generate()
     records = [

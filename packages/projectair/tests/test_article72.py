@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 from datetime import datetime
-from airsdk._compat import UTC
 from uuid import uuid4
 
+from airsdk._compat import UTC
 from airsdk.article72 import generate_article72_report
 from airsdk.types import (
     AgDRPayload,
