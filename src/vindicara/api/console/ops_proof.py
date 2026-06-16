@@ -9,6 +9,10 @@ import urllib.error
 import urllib.request
 from dataclasses import dataclass
 
+import structlog
+
+logger = structlog.get_logger()
+
 _DEFAULT_MANIFEST = (
     "https://vindicara-ops-chain-public-399827112476.s3.us-west-2.amazonaws.com"
     "/ops-chain/manifest.json"
@@ -48,9 +52,13 @@ def fetch_ops_manifest() -> tuple[OpsManifest | None, str | None]:
         with urllib.request.urlopen(url, timeout=8) as response:  # noqa: S310
             payload = json.loads(response.read().decode("utf-8"))
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError) as exc:
+        # Log full detail server-side; surface only a generic message. The exception
+        # text can reveal internal URLs/hosts/structure and flows to the console
+        # overview response, so it must not reach the client (CWE-209).
+        logger.warning("ops_manifest.fetch_failed", url=url, error=str(exc))
         _cache.fetched_at = now
         _cache.manifest = None
-        _cache.error = f"ops chain manifest unavailable: {exc}"
+        _cache.error = "ops chain manifest unavailable"
         return None, _cache.error
 
     manifest = OpsManifest(
