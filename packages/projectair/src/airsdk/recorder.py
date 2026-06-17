@@ -16,16 +16,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.asymmetric.mldsa import MLDSA65PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
-from airsdk.agdr import _HAS_MLDSA
-
-if _HAS_MLDSA:
-    from cryptography.hazmat.primitives.asymmetric.mldsa import MLDSA65PrivateKey
-else:
-    MLDSA65PrivateKey = None  # type: ignore[assignment,misc]
-
-from airsdk.agdr import Signer, SigningKey, _uuid7
+from airsdk.agdr import SigningKey, Signer, _uuid7
 from airsdk.containment import (
     Auth0Verifier,
     BlockedActionError,
@@ -37,20 +31,7 @@ from airsdk.containment import (
     evaluate_require_delegation,
 )
 from airsdk.transport import FileTransport, Transport
-from airsdk.types import (
-    GENESIS_PREV_HASH,
-    AgDRPayload,
-    AgDRRecord,
-    DataAssetRef,
-    DataSubjectRef,
-    DelegationGrant,
-    HumanApproval,
-    IntentSpec,
-    SigningAlgorithm,
-    StepKind,
-)
-from airsdk.verification.types import IntentVerdict
-from airsdk.verification.verifier import verify_intent as _verify_intent
+from airsdk.types import AgDRPayload, AgDRRecord, HumanApproval, SigningAlgorithm, StepKind
 
 if TYPE_CHECKING:
     from airsdk.anchoring import AnchoringOrchestrator
@@ -70,15 +51,14 @@ def resolve_signing_key(
     """
     if key is None:
         return None
-    accepted_types = (Ed25519PrivateKey, MLDSA65PrivateKey) if _HAS_MLDSA else (Ed25519PrivateKey,)
-    if isinstance(key, accepted_types):
+    if isinstance(key, (Ed25519PrivateKey, MLDSA65PrivateKey)):
         return key
     data = key.strip()
     if data.startswith("-----BEGIN"):
         priv = load_pem_private_key(data.encode(), password=None)
-        if isinstance(priv, accepted_types):
+        if isinstance(priv, (Ed25519PrivateKey, MLDSA65PrivateKey)):
             return priv
-        raise ValueError(f"key PEM must hold Ed25519, got {type(priv).__name__}")
+        raise ValueError(f"key PEM must hold Ed25519 or ML-DSA-65, got {type(priv).__name__}")
     try:
         seed = bytes.fromhex(data)
     except ValueError as exc:
@@ -86,12 +66,7 @@ def resolve_signing_key(
     if len(seed) != 32:
         raise ValueError(f"hex key must decode to 32 bytes, got {len(seed)}")
     if algorithm == SigningAlgorithm.ML_DSA_65:
-        if not _HAS_MLDSA:
-            raise RuntimeError(
-                "ML-DSA-65 requires cryptography>=48.0.0. "
-                "Upgrade with: pip install 'cryptography>=48.0.0'"
-            )
-        return MLDSA65PrivateKey.from_seed_bytes(seed)  # type: ignore[union-attr]
+        return MLDSA65PrivateKey.from_seed_bytes(seed)
     return Ed25519PrivateKey.from_private_bytes(seed)
 
 
@@ -137,7 +112,6 @@ class AIRRecorder:
         delegation_policy: DelegationPolicy | None = None,
         auth0_verifier: Auth0Verifier | None = None,
         signing_algorithm: SigningAlgorithm = SigningAlgorithm.ED25519,
-        verify_on_step: bool = False,
     ) -> None:
         priv = resolve_signing_key(key, algorithm=signing_algorithm)
         self._signer = Signer(priv) if priv is not None else Signer.generate(signing_algorithm)

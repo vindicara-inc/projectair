@@ -18,6 +18,8 @@
     "vite": "^5.4.0"
   },
   "dependencies": {
+    "@noble/curves": "^2.2.0",
+    "@noble/hashes": "^2.2.0",
     "three": "^0.160.1"
   }
 }

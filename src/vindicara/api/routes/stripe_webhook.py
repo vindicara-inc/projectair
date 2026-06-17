@@ -1,280 +1,211 @@
-"""Stripe webhook handler for auto-fulfillment of Pro and Team purchases.
+"""Stripe webhook endpoint that auto-issues a Pro license on successful checkout.
 
-Flow: Stripe checkout -> webhook -> license token minted -> AIR Cloud
-workspace provisioned -> API key generated -> activation email sent.
+Path: ``POST /webhooks/stripe``. Whitelisted in
+:mod:`vindicara.api.middleware.auth` so Stripe (which can't carry our
+API key) can hit it; authentication is the ``Stripe-Signature`` header
+verified against the configured webhook signing secret.
 
-Authentication is via Stripe-Signature header verification (not the
-standard X-Vindicara-Key middleware, which skips /webhooks/* paths).
+Flow on ``checkout.session.completed``:
+    1. Verify signature on the raw request body.
+    2. Extract customer email + the line-item Price ID.
+    3. Resolve the Price ID to a license plan (tier + duration + features).
+    4. Mint an Ed25519-signed license token.
+    5. Email the token + projectair-pro wheel link to the customer.
+    6. Return 200.
+
+Any failure between (3) and (5) returns a 5xx so Stripe retries the event,
+preventing silent loss of a paid license. Signature failures and unknown
+event types return 400 / 200 respectively (Stripe should not retry those).
 """
-
 from __future__ import annotations
-
-import secrets
 
 import stripe
 import structlog
-from fastapi import APIRouter, Request
-from starlette.responses import JSONResponse, Response
+from fastapi import APIRouter, HTTPException, Request, Response
 
-from vindicara.cloud.workspace import (
-    ApiKey,
-    ApiKeyStore,
-    Workspace,
-    WorkspaceStore,
-    generate_api_key,
-)
 from vindicara.config.settings import VindicaraSettings
-from vindicara.licensing.issuer import (
+from vindicara.licensing import (
     LicenseIssuanceError,
     issue_license_token,
     plan_for_price_id,
 )
-from vindicara.notifications.email import (
-    EmailDeliveryError,
-    LicenseEmail,
-    send_license_email,
+from vindicara.notifications import EmailDeliveryError, LicenseEmail, send_license_email
+
+logger = structlog.get_logger(__name__)
+router = APIRouter()
+
+# Stripe events we act on. Anything else returns a fast 200 so Stripe stops
+# retrying; we don't have to subscribe to events we don't handle, but the
+# dashboard UI sometimes adds extras and a 200 is the cheapest acknowledgement.
+_HANDLED_EVENTS = frozenset(
+    {
+        "checkout.session.completed",
+        "invoice.paid",
+    }
 )
 
-logger = structlog.get_logger()
-router = APIRouter(tags=["webhooks"])
 
-
-# ------------------------------------------------------------------ #
-# Helpers                                                              #
-# ------------------------------------------------------------------ #
-
-
-def _extract_email_from_checkout(session: dict[str, object]) -> str | None:
-    """Pull the customer email from a checkout.session.completed event."""
-    details = session.get("customer_details")
-    if isinstance(details, dict):
-        email = details.get("email")
-        if isinstance(email, str) and email:
-            return email
-    # Fallback: top-level customer_email
-    fallback = session.get("customer_email")
-    if isinstance(fallback, str) and fallback:
-        return fallback
-    return None
-
-
-def _extract_email_from_invoice(invoice: dict[str, object]) -> str | None:
-    """Pull the customer email from an invoice.paid event."""
-    email = invoice.get("customer_email")
-    if isinstance(email, str) and email:
-        return email
-    return None
-
-
-def _extract_price_id(session_id: str, api_key: str) -> str | None:
-    """Fetch the first Price ID from a Checkout Session's line items."""
-    stripe.api_key = api_key
-    items = stripe.checkout.Session.list_line_items(session_id, limit=1)
-    for item in items.data:
-        price = getattr(item, "price", None)
-        if price is not None:
-            price_id: str = getattr(price, "id", "")
-            if price_id:
-                return price_id
-    return None
-
-
-def _workspace_slug(email: str) -> str:
-    """Derive a workspace ID slug from an email address."""
-    local = email.split("@")[0].lower().replace(".", "-")
-    suffix = secrets.token_hex(4)
-    return f"{local}-{suffix}"
-
-
-def _provision_workspace(
-    request: Request,
-    email: str,
-    tier: str,
-) -> tuple[str | None, str | None]:
-    """Create an AIR Cloud workspace and bootstrap API key.
-
-    Returns (api_key_string, workspace_name) or (None, None) if the
-    cloud stores are not available on this deployment.
-    """
-    ws_store: WorkspaceStore | None = getattr(request.app.state, "cloud_workspaces", None)
-    key_store: ApiKeyStore | None = getattr(request.app.state, "cloud_api_keys", None)
-
-    if ws_store is None or key_store is None:
-        logger.warning("stripe.workspace_skip", reason="cloud stores not available")
-        return None, None
-
-    ws_id = _workspace_slug(email)
-    ws_name = f"{email.split('@')[0]}'s {tier.title()} workspace"
-
-    workspace = Workspace(
-        workspace_id=ws_id,
-        name=ws_name,
-        owner_email=email,
-    )
-    ws_store.create(workspace)
-
-    raw_key = generate_api_key()
-    api_key_obj = ApiKey(
-        key_id=f"ak_{secrets.token_hex(8)}",
-        workspace_id=ws_id,
-        key=raw_key,
-        role="owner",
-        name="bootstrap",
-    )
-    key_store.issue(api_key_obj)
-
-    logger.info("stripe.workspace_created", workspace_id=ws_id, email=email)
-    return raw_key, ws_name
-
-
-# ------------------------------------------------------------------ #
-# Fulfillment orchestration                                            #
-# ------------------------------------------------------------------ #
-
-
-def _fulfill_checkout(
-    event: dict[str, object],
-    request: Request,
-    settings: VindicaraSettings,
-) -> Response:
-    """Handle checkout.session.completed: mint license + provision + email."""
-    data = event.get("data", {})
-    session: dict[str, object] = data.get("object", {}) if isinstance(data, dict) else {}
-
-    email = _extract_email_from_checkout(session)
-    if not email:
-        logger.error("stripe.no_email", event_type="checkout.session.completed")
-        return JSONResponse({"error": "Missing customer email"}, status_code=500)
-
-    session_id = session.get("id", "")
-    if not isinstance(session_id, str) or not session_id:
-        logger.error("stripe.no_session_id")
-        return JSONResponse({"error": "Missing session ID"}, status_code=500)
-
-    price_id = _extract_price_id(session_id, settings.stripe_secret_key)
-    if not price_id:
-        logger.error("stripe.no_price_id", session_id=session_id)
-        return JSONResponse({"error": "No line items found"}, status_code=500)
-
-    plan = plan_for_price_id(price_id)
-    token = issue_license_token(email, plan, settings.license_signing_key_pem)
-
-    api_key, ws_name = _provision_workspace(request, email, plan.tier)
-
-    license_email = LicenseEmail(
-        recipient=email,
-        tier=plan.tier,
-        expires_at=token["expires_at"],  # type: ignore[arg-type]
-        license_token=token,
-        wheel_download_url=settings.pro_wheel_signed_url,
-        api_key=api_key,
-        workspace_name=ws_name,
-    )
-    send_license_email(license_email, api_key=settings.resend_api_key)
-
-    logger.info("stripe.fulfilled", email=email, tier=plan.tier)
-    return JSONResponse({"status": "fulfilled"})
-
-
-def _fulfill_renewal(
-    event: dict[str, object],
-    request: Request,
-    settings: VindicaraSettings,
-) -> Response:
-    """Handle invoice.paid for renewals: re-issue license, skip workspace."""
-    data = event.get("data", {})
-    invoice: dict[str, object] = data.get("object", {}) if isinstance(data, dict) else {}
-
-    billing_reason = invoice.get("billing_reason", "")
-    if billing_reason == "subscription_create":
-        logger.info("stripe.invoice_skip", reason="subscription_create handled by checkout")
-        return JSONResponse({"status": "skipped"})
-
-    email = _extract_email_from_invoice(invoice)
-    if not email:
-        logger.error("stripe.no_email", event_type="invoice.paid")
-        return JSONResponse({"error": "Missing customer email"}, status_code=500)
-
-    lines = invoice.get("lines", {})
-    price_id: str | None = None
-    if isinstance(lines, dict):
-        line_data = lines.get("data", [])
-        if isinstance(line_data, list) and line_data:
-            first = line_data[0]
-            if isinstance(first, dict):
-                price_obj = first.get("price", {})
-                if isinstance(price_obj, dict):
-                    pid = price_obj.get("id")
-                    if isinstance(pid, str):
-                        price_id = pid
-
-    if not price_id:
-        logger.error("stripe.no_price_in_invoice")
-        return JSONResponse({"error": "No price in invoice lines"}, status_code=500)
-
-    plan = plan_for_price_id(price_id)
-    token = issue_license_token(email, plan, settings.license_signing_key_pem)
-
-    license_email = LicenseEmail(
-        recipient=email,
-        tier=plan.tier,
-        expires_at=token["expires_at"],  # type: ignore[arg-type]
-        license_token=token,
-        wheel_download_url=settings.pro_wheel_signed_url,
-    )
-    send_license_email(license_email, api_key=settings.resend_api_key)
-
-    logger.info("stripe.renewed", email=email, tier=plan.tier)
-    return JSONResponse({"status": "renewed"})
-
-
-# ------------------------------------------------------------------ #
-# Route handler                                                        #
-# ------------------------------------------------------------------ #
+def _settings() -> VindicaraSettings:
+    return VindicaraSettings()
 
 
 @router.post("/webhooks/stripe")
 async def stripe_webhook(request: Request) -> Response:
-    """Receive Stripe webhook events and auto-fulfill purchases."""
-    settings = VindicaraSettings()
+    settings = _settings()
 
     if not settings.stripe_webhook_secret:
-        logger.error("stripe.webhook_secret_missing")
-        return JSONResponse(
-            {"error": "Webhook secret not configured"},
-            status_code=503,
-        )
+        logger.error("stripe.webhook.no_secret_configured")
+        raise HTTPException(status_code=503, detail="Stripe webhook not configured")
 
-    payload = await request.body()
+    raw_body = await request.body()
     sig_header = request.headers.get("stripe-signature", "")
 
     try:
-        event: dict[str, object] = stripe.Webhook.construct_event(  # type: ignore[no-untyped-call]
-            payload,
-            sig_header,
-            settings.stripe_webhook_secret,
+        event = stripe.Webhook.construct_event(
+            payload=raw_body,
+            sig_header=sig_header,
+            secret=settings.stripe_webhook_secret,
         )
-    except stripe.SignatureVerificationError:
-        logger.warning("stripe.bad_signature")
-        return JSONResponse({"error": "Invalid signature"}, status_code=400)
     except ValueError:
-        logger.warning("stripe.bad_payload")
-        return JSONResponse({"error": "Invalid payload"}, status_code=400)
+        logger.warning("stripe.webhook.malformed_payload")
+        raise HTTPException(status_code=400, detail="Invalid payload") from None
+    except stripe.SignatureVerificationError:
+        logger.warning("stripe.webhook.bad_signature")
+        raise HTTPException(status_code=400, detail="Invalid signature") from None
 
-    event_type = event.get("type", "")
-    logger.info("stripe.event_received", event_type=event_type)
+    event_type = event["type"]
+    event_id = event["id"]
+    logger.info("stripe.webhook.received", event_type=event_type, event_id=event_id)
+
+    if event_type not in _HANDLED_EVENTS:
+        return Response(status_code=200, content=f"ignored: {event_type}")
+
+    if event_type == "checkout.session.completed":
+        await _handle_checkout_completed(event, settings)
+    elif event_type == "invoice.paid":
+        await _handle_invoice_paid(event, settings)
+
+    return Response(status_code=200, content="ok")
+
+
+async def _handle_checkout_completed(
+    event: stripe.Event, settings: VindicaraSettings
+) -> None:
+    session = event["data"]["object"]
+    customer_email = (
+        session.get("customer_details", {}).get("email")
+        or session.get("customer_email")
+        or ""
+    )
+    if not customer_email:
+        logger.error(
+            "stripe.webhook.missing_email", session_id=session.get("id"), event_id=event["id"]
+        )
+        raise HTTPException(status_code=500, detail="Session has no customer email")
+
+    # Resolve Price ID. Checkout Sessions carry it under either
+    # display_items / line_items depending on Stripe API version. The Sessions
+    # API only includes line_items if explicitly expanded, so fetch them.
+    session_id = session["id"]
+    try:
+        line_items = stripe.checkout.Session.list_line_items(
+            session_id, api_key=settings.stripe_secret_key, limit=1
+        )
+    except stripe.error.StripeError as exc:
+        logger.error(
+            "stripe.webhook.line_items_fetch_failed",
+            session_id=session_id,
+            error=str(exc),
+        )
+        raise HTTPException(status_code=500, detail="Could not fetch line items") from exc
+
+    if not line_items["data"]:
+        logger.error("stripe.webhook.empty_line_items", session_id=session_id)
+        raise HTTPException(status_code=500, detail="Session has no line items")
+
+    price_id = line_items["data"][0]["price"]["id"]
+    await _issue_and_email(customer_email, price_id, settings, source="checkout")
+
+
+async def _handle_invoice_paid(
+    event: stripe.Event, settings: VindicaraSettings
+) -> None:
+    invoice = event["data"]["object"]
+    customer_email = invoice.get("customer_email") or ""
+    if not customer_email:
+        logger.warning(
+            "stripe.webhook.invoice_no_email", invoice_id=invoice.get("id")
+        )
+        return
+
+    lines = invoice.get("lines", {}).get("data", [])
+    if not lines:
+        logger.warning(
+            "stripe.webhook.invoice_no_lines", invoice_id=invoice.get("id")
+        )
+        return
+
+    price_id = lines[0].get("price", {}).get("id")
+    if not price_id:
+        logger.warning(
+            "stripe.webhook.invoice_no_price", invoice_id=invoice.get("id")
+        )
+        return
+
+    # Skip the initial invoice from a new subscription. Stripe also emits
+    # checkout.session.completed for that, and we already handled it there.
+    if invoice.get("billing_reason") == "subscription_create":
+        logger.info(
+            "stripe.webhook.invoice_skipped_initial",
+            invoice_id=invoice.get("id"),
+        )
+        return
+
+    await _issue_and_email(customer_email, price_id, settings, source="renewal")
+
+
+async def _issue_and_email(
+    email: str, price_id: str, settings: VindicaraSettings, *, source: str
+) -> None:
+    try:
+        plan = plan_for_price_id(price_id)
+    except LicenseIssuanceError as exc:
+        logger.error(
+            "stripe.webhook.unknown_price", price_id=price_id, source=source, error=str(exc)
+        )
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     try:
-        if event_type == "checkout.session.completed":
-            return _fulfill_checkout(event, request, settings)
-        if event_type == "invoice.paid":
-            return _fulfill_renewal(event, request, settings)
+        token = issue_license_token(
+            email=email,
+            plan=plan,
+            signing_key_pem=settings.license_signing_key_pem,
+        )
     except LicenseIssuanceError as exc:
-        logger.error("stripe.license_error", error=str(exc))
-        return JSONResponse({"error": str(exc)}, status_code=500)
-    except EmailDeliveryError as exc:
-        logger.error("stripe.email_error", error=str(exc))
-        return JSONResponse({"error": str(exc)}, status_code=500)
+        logger.error("stripe.webhook.signing_failed", email=email, error=str(exc))
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
-    # Unknown event type: acknowledge so Stripe doesn't retry.
-    return JSONResponse({"status": "ignored"})
+    if not settings.pro_wheel_signed_url:
+        logger.error("stripe.webhook.no_wheel_url", email=email)
+        raise HTTPException(status_code=500, detail="Wheel download URL not configured")
+
+    payload = LicenseEmail(
+        recipient=email,
+        tier=plan.tier,
+        expires_at=int(token["expires_at"]),  # type: ignore[arg-type]
+        license_token=token,
+        wheel_download_url=settings.pro_wheel_signed_url,
+    )
+    try:
+        message_id = send_license_email(payload, resend_api_key=settings.resend_api_key)
+    except EmailDeliveryError as exc:
+        logger.error("stripe.webhook.email_failed", email=email, error=str(exc))
+        raise HTTPException(status_code=500, detail="Email delivery failed") from exc
+
+    logger.info(
+        "stripe.webhook.license_delivered",
+        email=email,
+        tier=plan.tier,
+        source=source,
+        message_id=message_id,
+    )

@@ -3,6 +3,8 @@
   import Panel from '$lib/console/components/Panel.svelte';
   import StateBlock from '$lib/console/components/StateBlock.svelte';
   import type { Delegation, FindingAction } from '$lib/console/api/types';
+  import { operator, signedIn, openSignIn } from '$lib/console/stores/operator';
+  import { openClockOut } from '$lib/console/stores/sessionlog';
 
   let load = $state(api.getOverview());
   const avclass = (i: number) => ['a', 'b', 'c', 'a', 'x'][i % 5];
@@ -38,7 +40,7 @@
               <td class="mono">{g.policy ?? '—'}</td>
               <td><span class="meth {g.method === 'auth0' ? 'o' : ''} {g.method === 'none' ? 'none' : ''}">{g.method}</span></td>
               <td class="exp">{g.expires}</td>
-              <td><span class="st s-{g.status}">{g.status.toUpperCase()}</span></td>
+              <td><span class="st s-{g.status}">{g.status === 'expired' ? 'LAPSED' : g.status.toUpperCase()}</span></td>
             </tr>
           {/each}
         </tbody>
@@ -84,12 +86,19 @@
       <Panel reveal delay={0.4} klass="usr">
         <div class="uhead">
           <div class="uav"><svg viewBox="0 0 64 64"><defs><linearGradient id="uav1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9b6bff"/><stop offset="1" stop-color="#6db5ff"/></linearGradient></defs><rect width="64" height="64" fill="url(#uav1)"/><circle cx="32" cy="25" r="11" fill="#fff" opacity=".92"/><path d="M12 56c2-12 11-18 20-18s18 6 20 18z" fill="#fff" opacity=".92"/></svg></div>
-          <div><div class="un">{d.operator.name}</div><div class="ur">{d.operator.role}</div></div>
+          <div>
+            <div class="un">{$signedIn ? $operator.name : 'Not signed in'}</div>
+            <div class="ur">{$signedIn ? `${$operator.role} · ${$operator.organization}` : 'Sign in to bind this session to you'}</div>
+          </div>
         </div>
-        <div class="kv tt"><span class="kk">Authenticated</span><span class="vv">{d.operator.authMethod} · FIDO2</span></div>
-        <div class="kv"><span class="kk">Session</span><span class="vv">expires {d.operator.sessionExpires}</span></div>
+        <div class="kv tt"><span class="kk">Authenticated</span><span class="vv">{$signedIn ? `${$operator.authMethod} · FIDO2` : '—'}</span></div>
+        <div class="kv"><span class="kk">Organization</span><span class="vv">{$signedIn ? $operator.organization : '—'}</span></div>
         <div class="kv bb"><span class="kk">Grants you authorized</span><span class="vv">{d.operator.grantsAuthorized} active</span></div>
-        <button class="verbtn vio">Lock session</button>
+        {#if $signedIn}
+          <button class="verbtn vio" onclick={openClockOut}>Clock out &amp; file report</button>
+        {:else}
+          <button class="verbtn vio" onclick={openSignIn}>Sign in</button>
+        {/if}
       </Panel>
     </div>
   </div>
