@@ -1,5 +1,5 @@
-<script lang="ts">
-  import Prove from '$lib/console/screens/Prove.svelte';
+<script>
+  import Prove from '$components/Prove.svelte';
 </script>
-
+<svelte:head><title>Project AIR · Prove</title></svelte:head>
 <Prove />
