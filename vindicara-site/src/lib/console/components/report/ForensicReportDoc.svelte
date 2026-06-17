@@ -232,21 +232,32 @@
   .report-doc { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 6px 0 30px; }
   .page {
     background: #fff; color: #16181d; width: 100%; max-width: 820px; padding: 54px 60px;
-    box-shadow: 0 18px 50px rgba(0,0,0,.5); font-family: 'Hanken Grotesk', system-ui, sans-serif;
-    font-size: 13.5px; line-height: 1.6;
+    box-shadow: 0 18px 50px rgba(0,0,0,.5); font-family: var(--mono);
+    font-size: 13px; line-height: 1.65;
   }
-  .page :global(.mono) { font-family: 'IBM Plex Mono', monospace; }
-  h1 { font-family: 'Fraunces', Georgia, serif; font-size: 34px; font-weight: 700; line-height: 1.1; margin: 30px 0 8px; letter-spacing: -.01em; }
-  h2 { font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 600; margin: 0 0 14px; border-bottom: 2px solid #16181d; padding-bottom: 8px; }
+  .page :global(.mono) { font-family: var(--mono); }
+  h1 {
+    font-family: var(--display); font-size: 28px; font-weight: 700; line-height: 1.15;
+    margin: 30px 0 8px; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  h2 {
+    font-family: var(--display); font-size: 18px; font-weight: 600; margin: 0 0 14px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    border-bottom: 2px solid #16181d; padding-bottom: 8px;
+  }
   p { margin: 0 0 12px; }
   b { font-weight: 700; }
 
   /* cover */
   .cover { min-height: 70vh; }
-  .wordmark { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .wordmark {
+    font-family: var(--display); font-size: 17px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
   .wordmark .air { color: #E63946; font-weight: 700; }
   .wordmark .dot { width: 11px; height: 11px; border-radius: 2px; background: #E63946; }
-  .tagline { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: #6b7280; margin-top: 4px; }
+  .tagline { font-family: var(--mono); font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: #6b7280; margin-top: 4px; }
   .subtitle { color: #4b5563; font-size: 15px; margin-bottom: 26px; }
   .meta { display: grid; gap: 7px; margin: 0 0 26px; }
   .meta > div { display: grid; grid-template-columns: 190px 1fr; gap: 12px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
@@ -254,22 +265,26 @@
   .meta dd { font-weight: 600; }
 
   .authbox { border: 2px solid #E63946; padding: 18px 22px; margin: 8px 0 24px; background: #fff5f5; }
-  .authlabel { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #b91c1c; }
-  .authname { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .authlabel { font-family: var(--mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #b91c1c; }
+  .authname { font-family: var(--display); font-size: 20px; font-weight: 700; letter-spacing: 0.06em; margin-top: 4px; }
   .authrole { font-size: 14px; color: #374151; }
   .authmethod { font-size: 12px; color: #6b7280; margin-top: 6px; }
   .authkey { font-size: 11px; color: #6b7280; margin-top: 3px; }
 
   .attest { font-size: 12.5px; color: #374151; border-left: 3px solid #cbd5e1; padding-left: 14px; }
-  .classification { margin-top: 22px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #9ca3af; }
+  .classification { margin-top: 22px; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #9ca3af; }
 
   /* tables */
   table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin: 6px 0 8px; }
-  th { text-align: left; border-bottom: 1.5px solid #16181d; padding: 6px 8px; font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: #6b7280; }
+  th {
+    text-align: left; border-bottom: 1.5px solid #16181d; padding: 6px 8px;
+    font-family: var(--display); font-size: 9px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: #6b7280;
+  }
   td { border-bottom: 1px solid #e5e7eb; padding: 6px 8px; vertical-align: top; }
   .nowrap { white-space: nowrap; }
   .ok { color: #047857; font-weight: 600; }
-  .sev { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 10px; }
+  .sev { font-family: var(--mono); font-weight: 700; font-size: 10px; }
   .sev-critical { color: #b91c1c; }
   .sev-high { color: #b45309; }
   .sev-medium { color: #1d4ed8; }
@@ -280,13 +295,16 @@
   /* dossier */
   .dossier { border: 1px solid #e5e7eb; padding: 18px 20px; margin-bottom: 18px; break-inside: avoid; }
   .dh { display: flex; gap: 14px; align-items: baseline; }
-  .dnum { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: #E63946; }
+  .dnum { font-family: var(--display); font-size: 18px; font-weight: 700; letter-spacing: 0.06em; color: #E63946; }
   .dtitle { font-weight: 700; font-size: 15px; }
   .dmeta { font-size: 10.5px; color: #6b7280; margin-top: 2px; }
   .plain { margin-top: 10px; font-size: 13px; }
   .kv { display: grid; grid-template-columns: 200px 1fr; gap: 12px; padding: 7px 0; border-bottom: 1px solid #f1f1f1; }
   .kv .k { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; }
-  .subh { font-weight: 700; font-size: 12px; margin: 14px 0 4px; text-transform: uppercase; letter-spacing: .03em; color: #374151; }
+  .subh {
+    font-family: var(--display); font-weight: 600; font-size: 11px;
+    margin: 14px 0 4px; text-transform: uppercase; letter-spacing: .1em; color: #374151;
+  }
   .findings { margin: 0 0 4px 18px; font-size: 12px; }
   .findings li { margin-bottom: 4px; }
   .code { color: #6b7280; font-size: 10.5px; }
@@ -302,7 +320,7 @@
   .px { font-size: 11.5px; color: #4b5563; }
   .anchor { display: grid; gap: 5px; font-size: 10.5px; margin-bottom: 16px; }
   .anchor > div { display: grid; grid-template-columns: 210px 1fr; gap: 10px; }
-  .anchor dt { color: #6b7280; font-family: 'Hanken Grotesk', sans-serif; }
+  .anchor dt { color: #6b7280; font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
   .anchor dd { word-break: break-all; }
   .verify { margin: 0 0 12px 18px; font-size: 12px; }
   .verify li { margin-bottom: 5px; }

@@ -4,7 +4,7 @@
 
   const pillars = [
     { tag: 'M', accent: '#6db5ff', label: 'Monitor', value: '16 + SV', sub: 'detectors + structural verification', to: '/flightdeck' },
-    { tag: 'E', accent: '#ff5d68', label: 'Enforce', value: 'deterministic', sub: "floor that can't be jailbroken", to: '/flightdeck/readiness' },
+    { tag: 'E', accent: '#e07078', label: 'Enforce', value: 'deterministic', sub: "floor that can't be jailbroken", to: '/flightdeck/readiness' },
   ];
   const pillarsLower = [
     { tag: 'P', accent: '#48e6a4', label: 'Prove', value: 'Rekor', sub: 'anchored 41s ago · ml-dsa-65', to: '/flightdeck/readiness' },
@@ -37,7 +37,7 @@
 <style>
   .rail { display: flex; flex-direction: column; overflow: hidden; height: calc(100vh - 44px); position: sticky; top: 22px; }
   .rhead { padding: 20px 22px; border-bottom: 1px solid var(--hair); display: flex; align-items: center; gap: 10px; }
-  .dot { width: 11px; height: 11px; border-radius: 2px; background: var(--air); box-shadow: 0 0 16px var(--air); }
+  .dot { width: 11px; height: 11px; border-radius: 2px; background: var(--air); box-shadow: 0 0 12px rgba(230,57,70,.48); }
   .logo { font-family: var(--display); font-weight: 600; font-size: 19px; }
   .logo :global(.air), .air { color: var(--air); font-weight: 700; }
   .rtag { margin-left: auto; font-family: var(--mono); font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); }

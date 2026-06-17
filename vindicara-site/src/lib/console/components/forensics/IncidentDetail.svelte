@@ -92,30 +92,30 @@
 
   {#if scenario.containment}
     <Panel klass="sec">
-      <div class="ph"><h3><span class="acc" style="background:var(--blue)"></span>Action paused for a human</h3><span class="hint">human-in-the-loop</span></div>
+      <div class="ph"><h3>Action paused for a human</h3><span class="hint">human-in-the-loop</span></div>
       <ContainmentPanel {scenario} {chain} ondecision={onDecision} />
     </Panel>
   {/if}
 
   <Panel klass="sec">
-    <div class="ph"><h3><span class="acc" style="background:var(--air)"></span>What happened, step by step</h3><span class="hint">{items.length} signed steps</span></div>
+    <div class="ph"><h3>What happened, step by step</h3><span class="hint">{items.length} signed steps</span></div>
     <StepTimeline {items} failedIndex={verification?.failed_index ?? null} {tampered} />
   </Panel>
 
   {#if scenario.findings.length}
     <Panel klass="sec">
-      <div class="ph"><h3><span class="acc" style="background:var(--amber)"></span>What Project AIR caught</h3><span class="hint">{scenario.findings.length} findings</span></div>
+      <div class="ph"><h3>What Project AIR caught</h3><span class="hint">{scenario.findings.length} findings</span></div>
       <FindingsPanel findings={scenario.findings} />
     </Panel>
   {/if}
 
   <Panel klass="sec">
-    <div class="ph"><h3><span class="acc" style="background:var(--vio)"></span>Did it do what it was asked?</h3><span class="hint">intent verification</span></div>
+    <div class="ph"><h3>Did it do what it was asked?</h3><span class="hint">intent verification</span></div>
     <IntentVerdictPanel verdict={scenario.verdict} />
   </Panel>
 
   <Panel klass="sec signature">
-    <div class="ph"><h3><span class="acc" style="background:var(--teal)"></span>Proof the record can't be altered</h3><span class="hint">tamper-evident</span></div>
+    <div class="ph"><h3>Proof the record can't be altered</h3><span class="hint">tamper-evident</span></div>
     <IntegrityPanel
       {verification}
       {tampered}
@@ -129,7 +129,7 @@
   </Panel>
 
   <Panel klass="sec">
-    <div class="ph"><h3><span class="acc" style="background:var(--blue)"></span>Take this with you</h3><span class="hint">export · SIEM</span></div>
+    <div class="ph"><h3>Take this with you</h3><span class="hint">export · SIEM</span></div>
     <ExportBar {scenario} chain={displayChain} {verification} />
   </Panel>
 </div>

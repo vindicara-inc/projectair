@@ -13,7 +13,7 @@
   <div class="sgrid">
     {#each d.sections as sec, i}
       <Panel reveal delay={0.05 * i}>
-        <div class="ph"><h3><span class="acc" style="background:{sec.accent}"></span>{sec.title}</h3></div>
+        <div class="ph"><h3>{sec.title}</h3></div>
         {#each sec.rows as r}
           <div class="srow">
             <div class="sl"><div class="t">{r.label}</div>{#if r.detail}<div class="d">{r.detail}</div>{/if}</div>

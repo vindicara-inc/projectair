@@ -8,7 +8,7 @@
   function flip() { if (!disabled) onchange?.(!on); }
 </script>
 
-<button class="sw {accent} {on ? 'on' : ''}" class:disabled aria-pressed={on} aria-label="toggle" onclick={flip}></button>
+<button class="sw {accent} {on ? 'on' : ''}" class:disabled aria-pressed={on} onclick={flip}></button>
 
 <style>
   .sw { width: 38px; height: 22px; border-radius: 11px; background: rgba(255,255,255,.13); position: relative; cursor: pointer; transition: .18s; flex: 0 0 38px; border: 0; padding: 0; }

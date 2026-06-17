@@ -2,14 +2,16 @@
    Dark, aurora + grain, frosted glass, sharp HUD corners. Vindicara red is
    reserved for the rail core; data reads in cool tones + amber + a violet accent. */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Orbitron:wght@500;600;700&display=swap');
 
 :root {
   --bg: #05060a; --ink: #f4f5f9; --muted: #9aa1ad; --faint: #646b78;
   --air: #E63946; --air2: #ff5d68;
   --teal: #48e6a4; --blue: #6db5ff; --amber: #ffb454; --orange: #ff8a5c; --vio: #9b6bff; --slate: #8a92a0;
   --stroke: rgba(255,255,255,.13); --hair: rgba(255,255,255,.08);
-  --ui: 'Hanken Grotesk', sans-serif; --display: 'Fraunces', serif; --mono: 'IBM Plex Mono', monospace;
+  --ui: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --display: 'Orbitron', 'IBM Plex Mono', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -19,13 +21,71 @@ body {
   min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased;
 }
 
-/* atmosphere */
+/* atmosphere — blobs roam up, down, and across the whole viewport */
 .aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.aurora i { position: absolute; border-radius: 50%; filter: blur(100px); opacity: .4; animation: drift 26s ease-in-out infinite; }
-.aurora i:nth-child(1) { width: 540px; height: 540px; background: #E63946; top: -180px; left: -60px; opacity: .34; }
-.aurora i:nth-child(2) { width: 540px; height: 540px; background: #3a55ff; bottom: -200px; right: -80px; animation-delay: -9s; }
-.aurora i:nth-child(3) { width: 440px; height: 440px; background: #13c08a; top: 40%; left: 46%; opacity: .2; animation-delay: -15s; }
-@keyframes drift { 0%,100% { transform: translate(0,0); } 50% { transform: translate(30px,-22px); } }
+.aurora i {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(115px);
+  will-change: transform, opacity;
+}
+.aurora i:nth-child(1) {
+  width: 54vmin;
+  height: 54vmin;
+  background: #c4303f;
+  top: 6%;
+  left: 4%;
+  opacity: .17;
+  animation: aurora-red 34s ease-in-out infinite;
+}
+.aurora i:nth-child(2) {
+  width: 52vmin;
+  height: 52vmin;
+  background: #3550e8;
+  bottom: 6%;
+  right: 4%;
+  opacity: .16;
+  animation: aurora-blue 38s ease-in-out infinite;
+  animation-delay: -11s;
+}
+.aurora i:nth-child(3) {
+  width: 46vmin;
+  height: 46vmin;
+  background: #12a87a;
+  top: 38%;
+  left: 42%;
+  opacity: .13;
+  animation: aurora-green 30s ease-in-out infinite;
+  animation-delay: -19s;
+}
+
+@keyframes aurora-red {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: .15; }
+  16% { transform: translate(34vw, 30vh) scale(1.1); opacity: .19; }
+  33% { transform: translate(16vw, 58vh) scale(0.94); opacity: .16; }
+  50% { transform: translate(-24vw, 42vh) scale(1.08); opacity: .18; }
+  66% { transform: translate(-12vw, 14vh) scale(0.96); opacity: .15; }
+  83% { transform: translate(28vw, -22vh) scale(1.05); opacity: .17; }
+}
+
+@keyframes aurora-blue {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: .14; }
+  20% { transform: translate(-36vw, -34vh) scale(1.12); opacity: .18; }
+  40% { transform: translate(-14vw, -52vh) scale(0.9); opacity: .14; }
+  60% { transform: translate(28vw, -24vh) scale(1.07); opacity: .17; }
+  80% { transform: translate(10vw, 32vh) scale(0.95); opacity: .15; }
+}
+
+@keyframes aurora-green {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: .11; }
+  25% { transform: translate(-30vw, 28vh) scale(1.08); opacity: .15; }
+  50% { transform: translate(32vw, -30vh) scale(1.14); opacity: .16; }
+  75% { transform: translate(-22vw, -36vh) scale(0.92); opacity: .12; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora i { animation: none !important; }
+}
 .grain { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .045; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 
@@ -37,7 +97,7 @@ body {
 .hud::before, .hud::after { content: ''; position: absolute; width: 12px; height: 12px; border-color: rgba(255,255,255,.4); border-style: solid; pointer-events: none; z-index: 5; }
 .hud::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
 .hud::after { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
-.hud.k::before, .hud.k::after { border-color: var(--air); }
+.hud.k::before, .hud.k::after { border-color: rgba(230,57,70,.32); }
 
 /* shared panel + headers */
 .panel { padding: 20px 22px; display: flex; flex-direction: column; }
@@ -64,20 +124,21 @@ body {
 .btn.ok { border-color: rgba(72,230,164,.3); background: rgba(72,230,164,.1); color: #bff5df; }
 .btn.ghost { color: var(--muted); background: transparent; }
 
-/* loading / empty / error */
-.state { padding: 40px 24px; text-align: center; color: var(--muted); }
-.state .spinner { width: 26px; height: 26px; margin: 0 auto 14px; border: 2px solid var(--hair); border-top-color: var(--air); border-radius: 50%; animation: spin 0.8s linear infinite; }
-.state.err { color: #ffc4a3; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* print: strip the console chrome so reports print as a clean white document */
+/* print: strip the console chrome so the report prints as a clean white document */
 @media print {
   .aurora, .grain, .rail, .wbar, .tagfoot, .drawer, .scrim, .lockwrap, .no-print { display: none !important; }
   .app { display: block !important; padding: 0 !important; min-height: 0 !important; }
   .work { min-height: 0 !important; gap: 0 !important; }
   body { background: #fff !important; }
+  /* clock-out overlay: drop the dark backdrop so only the session report prints */
   .co-backdrop, .co-panel { position: static !important; inset: auto !important; background: none !important; backdrop-filter: none !important; overflow: visible !important; padding: 0 !important; gap: 0 !important; }
   .report-doc { gap: 0 !important; padding: 0 !important; }
   .report-doc .page { box-shadow: none !important; max-width: 100% !important; break-after: page; padding: 28px 32px !important; }
   .report-doc .page:last-child { break-after: auto; }
 }
+
+/* loading / empty / error */
+.state { padding: 40px 24px; text-align: center; color: var(--muted); }
+.state .spinner { width: 26px; height: 26px; margin: 0 auto 14px; border: 2px solid var(--hair); border-top-color: var(--air); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.state.err { color: #ffc4a3; }
+@keyframes spin { to { transform: rotate(360deg); } }

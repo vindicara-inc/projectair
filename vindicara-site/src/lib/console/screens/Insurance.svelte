@@ -16,7 +16,7 @@
 
   <div class="row2">
     <Panel reveal>
-      <div class="ph"><h3><span class="acc" style="background:var(--blue)"></span>What gets transported</h3><span class="hint">buyer-consented</span></div>
+      <div class="ph"><h3>What gets transported</h3><span class="hint">buyer-consented</span></div>
       {#each d.transport as t}
         <div class="srow">
           <div class="sl"><div class="t">{t.label}</div><div class="d">{t.detail}</div></div>
@@ -26,7 +26,7 @@
     </Panel>
 
     <Panel reveal delay={0.06}>
-      <div class="ph"><h3><span class="acc" style="background:var(--vio)"></span>Buyer consent</h3><span class="hint">revocable</span></div>
+      <div class="ph"><h3>Buyer consent</h3><span class="hint">revocable</span></div>
       <div class="naSub">A carrier sees nothing until the buyer grants it, the same delegation model as agents.</div>
       {#each d.consents as c}
         <div class="rdrow">

@@ -1,176 +1,417 @@
 <script lang="ts">
+  import './overview.css';
+  import { goto } from '$app/navigation';
+
   import { api } from '$lib/console/api/client';
-  import Panel from '$lib/console/components/Panel.svelte';
-  import StateBlock from '$lib/console/components/StateBlock.svelte';
-  import type { Delegation, FindingAction } from '$lib/console/api/types';
-  import { operator, signedIn, openSignIn } from '$lib/console/stores/operator';
-  import { openClockOut } from '$lib/console/stores/sessionlog';
+  import type { FindingAction, OverviewData } from '$lib/console/api/types';
+  import Globe3D from '$lib/console/components/Globe3D.svelte';
+  import StarsField from '$lib/console/components/StarsField.svelte';
+  import Drawer from '$lib/console/components/Drawer.svelte';
+  import FlightDeckNav from '$lib/console/components/FlightDeckNav.svelte';
 
-  let load = $state(api.getOverview());
-  const avclass = (i: number) => ['a', 'b', 'c', 'a', 'x'][i % 5];
+  import { operator, signedIn } from '$lib/console/stores/operator';
+  import { mode, selectedScenarioId } from '$lib/console/stores/mode';
+  import {
+    actionLabel,
+    actionTone,
+    activeNodeCount,
+    atcAgents,
+    criticalIncidentCount,
+    demoAtcIntent,
+    detectorCount,
+    fleetAgentCount,
+    fleetCryptoFromProof,
+    incidentsCryptoFromProof,
+    timelineFromEnforcement,
+    type AtcAgent
+  } from './overview-data';
+  import { flashOverview, overviewToast } from './overview-toast';
+  import { openClockOut, recordReview } from '$lib/console/stores/sessionlog';
+  import { lockSession } from '$lib/console/stores/session';
+  import { openSignIn } from '$lib/console/stores/operator';
 
-  async function act(id: string, intent: FindingAction['intent']) {
-    await api.actOnFinding(id, intent);
-    load = api.getOverview();
+  let askQuery = $state('');
+  let drawerOpen = $state(false);
+  let overview = $state<OverviewData | null>(null);
+  let loading = $state(true);
+  let loadError = $state('');
+
+  let employeePhotoSrc = $state<string | null>(null);
+  let photoInput = $state<HTMLInputElement | null>(null);
+
+  async function refresh() {
+    loading = true;
+    loadError = '';
+    try {
+      overview = await api.getOverview();
+    } catch (e) {
+      overview = null;
+      loadError = e instanceof Error ? e.message : 'request failed';
+    } finally {
+      loading = false;
+    }
+  }
+
+  $effect(() => {
+    $mode;
+    refresh();
+  });
+
+  const criticalAgents = $derived(atcAgents($mode, overview));
+  const timelineEvents = $derived(overview ? timelineFromEnforcement(overview.enforcement) : []);
+  const fleetCrypto = $derived(overview ? fleetCryptoFromProof(overview.proof) : []);
+  const incidentsCrypto = $derived(overview ? incidentsCryptoFromProof(overview.proof) : []);
+
+  const employeeProfile = $derived({
+    photoSrc: employeePhotoSrc,
+    name: $signedIn ? $operator.name : (overview?.onDuty?.name ?? 'John Smith'),
+    position: $signedIn ? $operator.role : (overview?.onDuty?.position ?? 'Department Director'),
+    department: $signedIn ? $operator.organization : (overview?.onDuty?.department ?? 'Emergency'),
+    employeeNumber: overview?.onDuty?.employeeNumber ?? 'EMP-0047'
+  });
+
+  function openAtc(agent: AtcAgent) {
+    if (agent.scenarioId) {
+      selectedScenarioId.set(agent.scenarioId);
+      recordReview(agent.scenarioId, agent.behavior);
+    }
+    goto('/flightdeck/incidents');
+  }
+
+  async function runAtcAction(agent: AtcAgent, intent: FindingAction['intent']) {
+    const findingId = agent.findingId ?? `demo-${agent.scenarioId ?? agent.name}`;
+    try {
+      await api.actOnFinding(findingId, intent);
+      if (agent.scenarioId) {
+        selectedScenarioId.set(agent.scenarioId);
+        recordReview(agent.scenarioId, agent.behavior);
+      }
+      flashOverview(`${actionLabel(intent)} applied · ${agent.name}`);
+      await refresh();
+    } catch (e) {
+      flashOverview(e instanceof Error ? e.message : 'Action failed', 'warn');
+    }
+  }
+
+  function askAir() {
+    const q = askQuery.trim();
+    if (!q) {
+      flashOverview('Type a question about an agent action or compliance record', 'info');
+      return;
+    }
+    flashOverview('Routing query to forensic search…', 'info');
+    goto(`/report?q=${encodeURIComponent(q)}`);
+  }
+
+  function onAskKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      askAir();
+    }
+  }
+
+  function employeeReport() {
+    flashOverview('Opening session report for department head', 'info');
+    goto('/flightdeck/report');
+  }
+
+  function employeeSignOff() {
+    flashOverview('Clocking out · filing signed session report', 'info');
+    openClockOut();
+  }
+
+  function employeeBreak() {
+    flashOverview('Break started · session locked until re-authorize', 'warn');
+    lockSession();
+    openSignIn();
+  }
+
+  function openTimelineEvent(title: string) {
+    flashOverview('Opening signed forensic record', 'info');
+    goto('/flightdeck/report');
+  }
+
+  function openCryptoCard(name: string) {
+    if (name === 'Sigstore' || name === 'RFC3161') {
+      goto('/flightdeck/report');
+      return;
+    }
+    goto('/flightdeck/readiness');
+  }
+
+  function openPillar(pillar: 'monitor' | 'protect' | 'prove') {
+    if (pillar === 'monitor') goto('/flightdeck/readiness');
+    else if (pillar === 'protect') goto('/flightdeck/incidents');
+    else goto('/flightdeck/report');
+  }
+
+  function openGlobe() {
+    flashOverview('Opening global agent network map', 'info');
+    goto('/flightdeck/rules');
+  }
+
+  function openTimelineSection() {
+    flashOverview('Opening forensic activity log', 'info');
+    goto('/flightdeck/report');
+  }
+
+  function openAtcSection() {
+    flashOverview('Opening live traffic control queue', 'info');
+    goto('/flightdeck/incidents');
+  }
+
+  function openDutyStatus() {
+    flashOverview(`${employeeProfile.name} · on duty · ${employeeProfile.department}`, 'info');
+  }
+
+  function openEmployeePhoto() {
+    photoInput?.click();
+  }
+
+  function onPhotoSelected(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      employeePhotoSrc = typeof reader.result === 'string' ? reader.result : null;
+      flashOverview('Employee photo updated for this session', 'ok');
+    };
+    reader.readAsDataURL(file);
   }
 </script>
 
-{#await load}
-  <Panel><StateBlock kind="loading" /></Panel>
-{:then d}
-  <div class="stats">
-    {#each d.stats as s, i}
-      <Panel reveal delay={0.06 + i * 0.03} klass={'stat t-' + s.tone}>
-        <div class="l">{s.label}</div><div class="v">{s.value}</div>
-        <div class="m"><span class="led"></span>{s.meta}</div>
-      </Panel>
-    {/each}
-  </div>
+<div class="fd">
+  <StarsField />
+  <FlightDeckNav onMenuClick={() => (drawerOpen = true)} />
 
-  <div class="row2">
-    <Panel reveal delay={0.2}>
-      <div class="ph"><h3><span class="acc" style="background:var(--vio)"></span>Active delegations</h3><span class="hint">human · agent · policy · expiry</span></div>
-      <table>
-        <thead><tr><th>Authorizer</th><th>Agent</th><th>Policy</th><th>Method</th><th>Expires</th><th>Status</th></tr></thead>
-        <tbody>
-          {#each d.delegations as g, i}
-            <tr>
-              <td><div class="who"><div class="av {avclass(i)}">{g.authorizer.name === 'none' ? '?' : g.authorizer.name.slice(0,2).toUpperCase()}</div><div><div class="nm">{g.authorizer.name}</div><div class="rl">{g.authorizer.role}</div></div></div></td>
-              <td>{g.agent}</td>
-              <td class="mono">{g.policy ?? '—'}</td>
-              <td><span class="meth {g.method === 'auth0' ? 'o' : ''} {g.method === 'none' ? 'none' : ''}">{g.method}</span></td>
-              <td class="exp">{g.expires}</td>
-              <td><span class="st s-{g.status}">{g.status === 'expired' ? 'LAPSED' : g.status.toUpperCase()}</span></td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </Panel>
-
-    <Panel reveal delay={0.24}>
-      <div class="ph"><h3><span class="acc" style="background:var(--blue)"></span>Enforcement feed</h3><span class="hint">live</span></div>
-      <div class="feed">
-        {#each d.enforcement as e}
-          <div class="ev"><span class="k k-{e.kind}"></span><div class="t">{@html e.text}</div><span class="tm">{e.at}</span></div>
-        {/each}
-      </div>
-    </Panel>
-  </div>
-
-  <div class="row3">
-    <Panel reveal delay={0.28}>
-      <div class="ph"><h3><span class="acc" style="background:var(--amber)"></span>Needs action</h3><span class="badge">{d.findings.filter(f => f.response.state === 'awaiting').length} awaiting you</span></div>
-      <div class="naSub">{d.findings.filter(f => f.response.state === 'contained').length} contained automatically · {d.findings.filter(f => f.response.state === 'awaiting').length} need your decision</div>
-      {#each d.findings as f}
-        <div class="naItem">
-          <div class="naTop"><span class="sev {f.severity === 'critical' ? 'cr' : 'hi'}">{f.severity === 'critical' ? 'CRIT' : 'HIGH'}</span><span class="ft">{f.title}</span><span class="fm">{f.check}</span></div>
-          <div class="naBot">
-            <span class="resp {f.response.state === 'contained' ? 'done' : 'wait'}"><span class="rk"></span>{f.response.label}</span>
-            <div class="naBtns">{#each f.actions as a}<button class="btn {a.tone ?? ''}" onclick={() => act(f.id, a.intent)}>{a.label}</button>{/each}</div>
-          </div>
-        </div>
-      {/each}
-    </Panel>
-
-    <div class="col">
-      <Panel reveal delay={0.36} klass="proof">
-        <div class="ph"><h3><span class="acc" style="background:var(--teal)"></span>Proof</h3><span class="hint">Rekor</span></div>
-        <div class="big">{d.proof.chainIntact ? 'Chain intact' : 'Chain BROKEN'}</div>
-        <div class="sm">{d.proof.records.toLocaleString()} records · {d.proof.tampered} tampered</div>
-        <div class="kv"><span class="kk">Signature</span><span class="vv">{d.proof.signature}</span></div>
-        <div class="kv"><span class="kk">Last anchor</span><span class="vv">{d.proof.lastAnchor}</span></div>
-        <div class="kv bb"><span class="kk">Rekor index</span><span class="vv">{d.proof.rekorIndex}</span></div>
-        <button class="verbtn">Verify on Sigstore &rarr;</button>
-      </Panel>
-
-      <Panel reveal delay={0.4} klass="usr">
-        <div class="uhead">
-          <div class="uav"><svg viewBox="0 0 64 64"><defs><linearGradient id="uav1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9b6bff"/><stop offset="1" stop-color="#6db5ff"/></linearGradient></defs><rect width="64" height="64" fill="url(#uav1)"/><circle cx="32" cy="25" r="11" fill="#fff" opacity=".92"/><path d="M12 56c2-12 11-18 20-18s18 6 20 18z" fill="#fff" opacity=".92"/></svg></div>
-          <div>
-            <div class="un">{$signedIn ? $operator.name : 'Not signed in'}</div>
-            <div class="ur">{$signedIn ? `${$operator.role} · ${$operator.organization}` : 'Sign in to bind this session to you'}</div>
-          </div>
-        </div>
-        <div class="kv tt"><span class="kk">Authenticated</span><span class="vv">{$signedIn ? `${$operator.authMethod} · FIDO2` : '—'}</span></div>
-        <div class="kv"><span class="kk">Organization</span><span class="vv">{$signedIn ? $operator.organization : '—'}</span></div>
-        <div class="kv bb"><span class="kk">Grants you authorized</span><span class="vv">{d.operator.grantsAuthorized} active</span></div>
-        {#if $signedIn}
-          <button class="verbtn vio" onclick={openClockOut}>Clock out &amp; file report</button>
-        {:else}
-          <button class="verbtn vio" onclick={openSignIn}>Sign in</button>
-        {/if}
-      </Panel>
+  <div class="fd-wrap fd-ask-wrap">
+    <div class="fd-ask">
+      <input bind:value={askQuery} placeholder="Ask about any agent action, causal chain, or compliance record..." onkeydown={onAskKeydown} />
+      <button class="fd-ask-btn" type="button" onclick={askAir}>Ask <span class="fd-ask-air">AIR</span></button>
     </div>
   </div>
-{:catch err}
-  <Panel><StateBlock kind="error" message={err.message} /></Panel>
-{/await}
 
-<style>
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-  :global(.stat) { padding: 18px 20px; }
-  .l { font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
-  .v { font-family: var(--display); font-size: 30px; font-weight: 600; line-height: 1; margin-top: 9px; }
-  .m { font-size: 11px; color: var(--muted); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
-  .led { width: 7px; height: 7px; border-radius: 50%; }
-  :global(.t-vio) .v { color: #cdbcff; } :global(.t-vio) .led { background: var(--vio); box-shadow: 0 0 9px var(--vio); }
-  :global(.t-teal) .v { color: #bff5df; } :global(.t-teal) .led { background: var(--teal); }
-  :global(.t-amber) .v { color: #ffd49a; } :global(.t-amber) .led { background: var(--amber); }
-  :global(.t-blue) .v { color: #cfe9ff; } :global(.t-blue) .led { background: var(--blue); }
+  <div class="fd-wrap fd-main">
+    {#if loading && !overview}
+      <div class="fd-loading">Loading console…</div>
+    {:else if loadError}
+      <div class="fd-loading">
+        Couldn't load overview. {loadError}
+        <div>
+          <button class="fd-retry" type="button" onclick={() => refresh()}>Retry</button>
+        </div>
+      </div>
+    {:else if overview}
+    <div class="fd-grid">
+      <section class="fd-col-fleet">
+        <div class="fd-stack">
+          <article class="fd-card fd-card--summary fd-card--click" role="button" tabindex="0" onclick={() => goto('/flightdeck/rules')} onkeydown={(e) => e.key === 'Enter' && goto('/flightdeck/rules')}>
+            <div class="fd-summary-top">
+              <span class="fd-summary-live"><span class="fd-summary-dot" aria-hidden="true"></span> Live fleet</span>
+              <span class="fd-glow fd-glow--emerald">Active</span>
+            </div>
+            <div class="fd-summary-count">{fleetAgentCount(overview)}</div>
+            <div class="fd-summary-label">agents</div>
+          </article>
 
-  .row2 { display: grid; grid-template-columns: 1.7fr 1fr; gap: 20px; align-items: stretch; }
-  .row3 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: stretch; }
-  .col { display: flex; flex-direction: column; gap: 20px; }
-  :global(.col .panel) { flex: 1; }
+          {#each fleetCrypto as c}
+            <article
+              class="fd-card fd-card--crypto fd-card--crypto-{c.tone} fd-card--click"
+              role="button"
+              tabindex="0"
+              onclick={() => openCryptoCard(c.name)}
+              onkeydown={(e) => e.key === 'Enter' && openCryptoCard(c.name)}
+            >
+              <div class="fd-crypto-top">
+                <span class="fd-crypto-name">{c.name}</span>
+                <span class="fd-glow fd-glow--{c.tone}">{c.status}</span>
+              </div>
+              <div class="fd-crypto-metric">{c.metric}</div>
+              <div class="fd-crypto-label">{c.label}</div>
+            </article>
+          {/each}
+        </div>
+      </section>
 
-  table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); padding: 0 10px 11px; font-weight: 500; }
-  td { padding: 13px 10px; border-top: 1px solid var(--hair); font-size: 12.5px; vertical-align: middle; }
-  .who { display: flex; align-items: center; gap: 10px; }
-  .av { width: 28px; height: 28px; display: grid; place-items: center; font-weight: 700; color: #fff; font-size: 10.5px; }
-  .av.a { background: linear-gradient(135deg, #9b6bff, #6db5ff); } .av.b { background: linear-gradient(135deg, #2b8bff, #13c08a); }
-  .av.c { background: linear-gradient(135deg, #13c08a, #6db5ff); } .av.x { background: rgba(138,146,160,.25); color: #c2c8d2; }
-  .nm { font-weight: 600; } .rl { font-size: 10px; color: var(--faint); }
-  .exp { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-  .meth { font-family: var(--mono); font-size: 9px; padding: 3px 7px; border: 1px solid rgba(155,107,255,.3); color: #cdbcff; background: rgba(155,107,255,.1); }
-  .meth.o { border-color: rgba(109,181,255,.3); color: #bcd9ff; background: rgba(109,181,255,.08); }
-  .meth.none { border-color: rgba(138,146,160,.3); color: #c2c8d2; background: rgba(138,146,160,.12); }
+      <section class="fd-col-globe">
+        <button class="fd-globe-label fd-globe-label--btn" type="button" onclick={openGlobe}>
+          <span class="dot">•</span> Global Agent Network · <span class="live">Live</span> · {activeNodeCount(overview)} Active Nodes
+        </button>
+        <button class="fd-globe-hit" type="button" aria-label="Open agent network" onclick={openGlobe}>
+          <Globe3D />
+        </button>
+      </section>
 
-  .feed { display: flex; flex-direction: column; flex: 1; }
-  .ev { display: flex; gap: 11px; padding: 10px 0; border-top: 1px solid var(--hair); align-items: flex-start; }
-  .ev:first-child { border-top: 0; }
-  .k { width: 7px; height: 7px; border-radius: 50%; margin-top: 5px; flex: 0 0 7px; }
-  .k-blocked, .k-stepup { background: var(--amber); } .k-authorized { background: var(--vio); }
-  .k-sealed, .k-verified { background: var(--teal); box-shadow: 0 0 8px var(--teal); } .k-revoked { background: var(--slate); }
-  .ev .t { font-size: 12px; line-height: 1.4; flex: 1; } .ev .tm { font-family: var(--mono); font-size: 10px; color: var(--faint); white-space: nowrap; }
+      <section class="fd-col-incidents">
+        <div class="fd-stack">
+          <article
+            class="fd-card fd-card--summary fd-card--summary-incidents fd-card--click"
+            role="button"
+            tabindex="0"
+            onclick={() => goto('/flightdeck/incidents')}
+            onkeydown={(e) => e.key === 'Enter' && goto('/flightdeck/incidents')}
+          >
+            <div class="fd-summary-top">
+              <span class="fd-summary-live"><span class="fd-summary-dot" aria-hidden="true"></span> Prioritized</span>
+              <span class="fd-glow fd-glow--critical">Critical</span>
+            </div>
+            <div class="fd-summary-count">{criticalIncidentCount(overview)}</div>
+            <div class="fd-summary-label">critical</div>
+          </article>
 
-  .badge { font-family: var(--mono); font-size: 9px; padding: 3px 8px; font-weight: 600; color: #ffd49a; background: rgba(255,180,84,.14); border: 1px solid rgba(255,180,84,.3); }
-  .naSub { font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
-  .naItem { padding: 13px 0; border-top: 1px solid var(--hair); }
-  .naItem:first-of-type { border-top: 0; }
-  .naTop { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
-  .naTop .ft { font-size: 12.5px; flex: 1; font-weight: 500; } .naTop .fm { font-family: var(--mono); font-size: 9.5px; color: var(--faint); }
-  .naBot { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
-  .sev { font-family: var(--mono); font-size: 9px; padding: 3px 7px; font-weight: 600; }
-  .sev.hi { color: #ffd49a; background: rgba(255,180,84,.14); border: 1px solid rgba(255,180,84,.3); }
-  .sev.cr { color: #ffc4a3; background: rgba(255,138,92,.16); border: 1px solid rgba(255,138,92,.34); }
-  .resp { font-family: var(--mono); font-size: 9.5px; padding: 4px 9px; display: inline-flex; align-items: center; gap: 7px; }
-  .resp.done { color: #bff5df; background: rgba(72,230,164,.12); border: 1px solid rgba(72,230,164,.28); }
-  .resp.wait { color: #ffd49a; background: rgba(255,180,84,.12); border: 1px solid rgba(255,180,84,.28); }
-  .resp .rk { width: 6px; height: 6px; border-radius: 50%; } .resp.done .rk { background: var(--teal); } .resp.wait .rk { background: var(--amber); }
-  .naBtns { margin-left: auto; display: flex; gap: 7px; }
+          {#each incidentsCrypto as c}
+            <article
+              class="fd-card fd-card--crypto fd-card--crypto-{c.tone} fd-card--click"
+              role="button"
+              tabindex="0"
+              onclick={() => openCryptoCard(c.name)}
+              onkeydown={(e) => e.key === 'Enter' && openCryptoCard(c.name)}
+            >
+              <div class="fd-crypto-top">
+                <span class="fd-crypto-name">{c.name}</span>
+                <span class="fd-glow fd-glow--{c.tone}">{c.status}</span>
+              </div>
+              <div class="fd-crypto-metric">{c.metric}</div>
+              <div class="fd-crypto-label">{c.label}</div>
+            </article>
+          {/each}
+        </div>
+      </section>
+    </div>
 
-  :global(.proof) .big { font-family: var(--display); font-size: 22px; font-weight: 600; color: #bff5df; margin-bottom: 2px; }
-  :global(.proof) .sm { font-size: 12px; color: var(--muted); }
-  .kv { display: flex; justify-content: space-between; font-size: 11.5px; padding: 8px 0; border-top: 1px solid var(--hair); }
-  .kv.tt { border-top: 0; } .kv.bb { border-bottom: 1px solid var(--hair); }
-  .kk { color: var(--faint); } .vv { font-family: var(--mono); color: var(--ink); }
-  .verbtn { margin-top: auto; padding: 10px; border: 1px solid rgba(72,230,164,.3); background: linear-gradient(180deg, rgba(72,230,164,.16), rgba(72,230,164,.04)); color: #bff5df; font-weight: 600; font-size: 12.5px; cursor: pointer; }
-  .verbtn.vio { border-color: rgba(155,107,255,.3); background: linear-gradient(180deg, rgba(155,107,255,.16), rgba(155,107,255,.04)); color: #e0d3ff; }
-  :global(.usr) .uhead { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .uav { width: 48px; height: 48px; overflow: hidden; flex: 0 0 48px; border: 1px solid var(--stroke); }
-  .uav svg { width: 100%; height: 100%; display: block; }
-  .un { font-family: var(--display); font-size: 17px; font-weight: 600; } .ur { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    <section class="fd-card fd-timeline">
+      <button class="fd-h2-sm fd-h2-sm--btn" type="button" onclick={openTimelineSection}>
+        Recent Forensic Activity · <em>Cryptographically Signed</em>
+      </button>
+      <div class="fd-tl-wrap">
+        <div class="fd-tl-line"></div>
+        <div class="fd-tl-grid">
+          {#each timelineEvents as e}
+            <button class="fd-tl-item" type="button" onclick={() => openTimelineEvent(e.title)}>
+              <i class="fd-tl-dot fd-tl-dot--{e.status === 'pending' ? 'orange' : 'cyan'}"></i>
+              <div class="fd-tl-row">
+                <span class="fd-tl-time fd-mono">{e.t}</span>
+                <span class="fd-tl-sep"> - </span>
+                <span class="fd-tl-title">{e.title}</span>
+              </div>
+              <div class="fd-tl-actor">{e.actor}</div>
+              <span class="fd-tl-state fd-tl-state--{e.status}">
+                {e.status === 'ok' ? '✓ Verified' : 'Pending Review'}
+              </span>
+            </button>
+          {/each}
+        </div>
+      </div>
+    </section>
 
-  @media (max-width: 980px) { .stats { grid-template-columns: repeat(2,1fr); } .row2, .row3 { grid-template-columns: 1fr; } }
-</style>
+    <div class="fd-bottom-panels">
+      <article class="fd-card fd-critical-box">
+        <button class="fd-h2-sm fd-h2-sm--btn" type="button" onclick={openAtcSection}>AIR TRAFFIC CONTROL · <em>LIVE</em></button>
+        <div class="fd-critical-inner">
+          {#each criticalAgents as agent}
+            <div class="fd-critical-entry">
+              <button class="fd-critical-line" type="button" onclick={() => openAtc(agent)}>
+                <span class="fd-critical-line-name">{agent.name}</span>
+                <span class="fd-critical-line-behavior">{agent.behavior}</span>
+                <span class="fd-glow fd-glow--critical">Critical</span>
+              </button>
+              <div class="fd-critical-actions">
+                {#if agent.actions?.length}
+                  {#each agent.actions.slice(0, 3) as action}
+                    <button
+                      class="fd-critical-action fd-critical-action--{actionTone(action.intent)}"
+                      type="button"
+                      onclick={() => runAtcAction(agent, action.intent)}
+                    >
+                      {action.label || actionLabel(action.intent)}
+                    </button>
+                  {/each}
+                {:else}
+                  <button class="fd-critical-action fd-critical-action--revoke" type="button" onclick={() => runAtcAction(agent, demoAtcIntent('revoke'))}>Revoke</button>
+                  <button class="fd-critical-action fd-critical-action--quarantine" type="button" onclick={() => runAtcAction(agent, demoAtcIntent('quarantine'))}>Quarantine</button>
+                  <button class="fd-critical-action fd-critical-action--renew" type="button" onclick={() => runAtcAction(agent, demoAtcIntent('renew'))}>Renew</button>
+                {/if}
+              </div>
+            </div>
+          {/each}
+        </div>
+      </article>
+
+      <article
+        class="fd-card fd-verify-box fd-card--click"
+        role="button"
+        tabindex="0"
+        onclick={() => goto('/flightdeck/readiness')}
+        onkeydown={(e) => e.key === 'Enter' && goto('/flightdeck/readiness')}
+      >
+        <span class="fd-h2-sm fd-verify-monitor">Monitor</span>
+        <div class="fd-verify-content">
+          <span class="fd-summary-live"><span class="fd-summary-dot" aria-hidden="true"></span> Deterministic floor</span>
+          <div class="fd-verify-count">{detectorCount(overview)}</div>
+          <div class="fd-verify-label">detectors &amp; structural verification</div>
+        </div>
+      </article>
+
+      <div class="fd-employee-col">
+        <article class="fd-card fd-employee-box">
+          <button class="fd-h2-sm fd-employee-duty fd-employee-duty--btn" type="button" onclick={openDutyStatus}>On duty</button>
+          <input bind:this={photoInput} class="fd-photo-input" type="file" accept="image/*" hidden onchange={onPhotoSelected} />
+          <div class="fd-employee-inner">
+            <button class="fd-employee-frame fd-employee-frame--btn" type="button" aria-label="Update employee photo" onclick={openEmployeePhoto}>
+              {#if employeeProfile.photoSrc}
+                <img class="fd-employee-photo" src={employeeProfile.photoSrc} alt="" />
+              {:else}
+                <div class="fd-employee-photo fd-employee-photo--empty" aria-hidden="true">
+                  <svg viewBox="0 0 64 64" fill="none">
+                    <circle cx="32" cy="24" r="11" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M14 54c2.5-12 10-18 18-18s15.5 6 18 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                </div>
+              {/if}
+            </button>
+            <dl class="fd-employee-details">
+              <div class="fd-employee-row">
+                <dt>Name</dt>
+                <dd>{employeeProfile.name}</dd>
+              </div>
+              <div class="fd-employee-row">
+                <dt>Position</dt>
+                <dd>{employeeProfile.position}</dd>
+              </div>
+              <div class="fd-employee-row">
+                <dt>Department</dt>
+                <dd>{employeeProfile.department}</dd>
+              </div>
+              <div class="fd-employee-row">
+                <dt>Employee number</dt>
+                <dd class="fd-mono">{employeeProfile.employeeNumber}</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="fd-employee-actions">
+            <button class="fd-employee-action fd-employee-action--report" type="button" onclick={employeeReport}>Report</button>
+            <button class="fd-employee-action fd-employee-action--signoff" type="button" onclick={employeeSignOff}>Sign off</button>
+            <button class="fd-employee-action fd-employee-action--break" type="button" onclick={employeeBreak}>Break</button>
+          </div>
+        </article>
+
+        <div class="fd-pillars-tag" aria-label="Monitor, Protect, Prove">
+          <button class="fd-pillar" type="button" onclick={() => openPillar('monitor')}>Monitor</button>
+          <span class="fd-pillars-sep" aria-hidden="true">|</span>
+          <button class="fd-pillar" type="button" onclick={() => openPillar('protect')}>Protect</button>
+          <span class="fd-pillars-sep" aria-hidden="true">|</span>
+          <button class="fd-pillar" type="button" onclick={() => openPillar('prove')}>Prove</button>
+        </div>
+      </div>
+    </div>
+    {/if}
+  </div>
+
+  <Drawer open={drawerOpen} onclose={() => (drawerOpen = false)} />
+
+  {#if $overviewToast}
+    <div class="fd-toast fd-toast--{$overviewToast.tone ?? 'ok'}" role="status">
+      {$overviewToast.message}
+    </div>
+  {/if}
+</div>

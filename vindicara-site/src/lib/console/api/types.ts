@@ -63,6 +63,21 @@ export interface Operator {
   grantsAuthorized: number;
 }
 
+export interface FlightDeckSummary {
+  fleetAgents: number;
+  activeNodes: number;
+  haltedAgents: number;
+  criticalIncidents: number;
+  detectors: string;
+}
+
+export interface OnDutyOperator {
+  name: string;
+  position: string;
+  department: string;
+  employeeNumber: string;
+}
+
 export interface OverviewData {
   stats: Stat[];
   delegations: Delegation[];
@@ -70,6 +85,8 @@ export interface OverviewData {
   findings: Finding[];
   proof: ProofStatus;
   operator: Operator;
+  flightDeck?: FlightDeckSummary;
+  onDuty?: OnDutyOperator;
 }
 
 // --- readiness (Larry's four questions, answered) -------------------------- //
@@ -160,21 +177,9 @@ export interface SettingsData {
   sections: SettingsSection[];
 }
 
-// --- agents (identity registry, GET /v1/agents) ---------------------------- //
-export interface AgentSummary {
-  agentId: string;
-  name: string;
-  permittedTools: string[];
-  dataScope: string[];
-  status: 'active' | 'suspended';
-  suspendedReason: string;
-  createdAt: string;         // ISO string or "" when unknown
-}
-
 // --- the client contract --------------------------------------------------- //
 export interface ApiClient {
   getOverview(): Promise<OverviewData>;
-  getAgents(): Promise<AgentSummary[]>;
   getReadiness(): Promise<ReadinessData>;
   getRules(): Promise<{ rulesets: Ruleset[]; selected: RuleDoc }>;
   getRuleDoc(id: string): Promise<RuleDoc>;

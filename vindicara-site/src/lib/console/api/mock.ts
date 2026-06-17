@@ -2,7 +2,6 @@
 // so the app runs end-to-end with no backend. Swap to LiveClient by setting
 // PUBLIC_AIR_API_MODE=live. Small artificial latency exercises loading states.
 import type {
-  AgentSummary,
   ApiClient,
   FindingAction,
   InsuranceData,
@@ -82,9 +81,7 @@ export class MockClient implements ApiClient {
         { kind: 'blocked', text: '<b>Blocked</b> external POST · refactor-bot', at: 'now' },
         { kind: 'stepup', text: '<b>Step-up</b> requested · intake-agent', at: '12s' },
         { kind: 'authorized', text: '<b>Authorized</b> claims-bot by dr.okafor', at: '1m' },
-        { kind: 'sealed', text: '<b>Sealed</b> + anchored chain root', at: '1m' },
-        { kind: 'revoked', text: '<b>Revoked</b> billing-bot · uncovered', at: '3m' },
-        { kind: 'verified', text: '<b>Verified</b> intake-v1 within scope', at: '4m' }
+        { kind: 'sealed', text: '<b>Sealed</b> + anchored chain root', at: '1m' }
       ],
       findings: [
         { id: 'f1', severity: 'critical', title: 'billing-bot ran with no authorizer', check: 'SV-AUTH-01', response: { state: 'contained', label: 'AIR paused the agent' }, actions: [{ label: 'Revoke', intent: 'revoke', tone: 'crit' }, { label: 'Require auth', intent: 'require_auth' }] },
@@ -92,18 +89,21 @@ export class MockClient implements ApiClient {
         { id: 'f3', severity: 'high', title: 'intake-agent acted 4m after grant expiry', check: 'SV-AUTH-05', response: { state: 'awaiting', label: 'Awaiting your decision' }, actions: [{ label: 'Renew grant', intent: 'renew' }, { label: 'Revoke', intent: 'revoke', tone: 'ghost' }] }
       ],
       proof: { chainIntact: true, records: 2041118, tampered: 0, signature: 'ml-dsa-65', lastAnchor: '41s ago', rekorIndex: '1466351923' },
-      operator: { name: 'Kevin Minn', role: 'Founder · root authority', authMethod: 'passkey', sessionExpires: '42m', grantsAuthorized: 3 }
+      operator: { name: 'Kevin Minn', role: 'Founder · root authority', authMethod: 'passkey', sessionExpires: '42m', grantsAuthorized: 3 },
+      flightDeck: {
+        fleetAgents: 212,
+        activeNodes: 9,
+        haltedAgents: 5,
+        criticalIncidents: 5,
+        detectors: '16+'
+      },
+      onDuty: {
+        name: 'John Smith',
+        position: 'Department Director',
+        department: 'Emergency',
+        employeeNumber: 'EMP-0047'
+      }
     };
-  }
-
-  async getAgents(): Promise<AgentSummary[]> {
-    await delay();
-    return [
-      { agentId: 'claims-bot', name: 'claims-bot', permittedTools: ['claims.read', 'claims.adjudicate', 'ehr.read'], dataScope: ['/phi/claims/**'], status: 'active', suspendedReason: '', createdAt: '2026-05-02' },
-      { agentId: 'intake-agent', name: 'intake-agent', permittedTools: ['intake.read', 'intake.triage'], dataScope: ['/intake/**'], status: 'active', suspendedReason: '', createdAt: '2026-05-11' },
-      { agentId: 'scheduler-3', name: 'scheduler-3', permittedTools: ['calendar.read', 'calendar.write'], dataScope: ['/sched/**'], status: 'active', suspendedReason: '', createdAt: '2026-04-28' },
-      { agentId: 'billing-bot', name: 'billing-bot', permittedTools: ['billing.read'], dataScope: ['/billing/**'], status: 'suspended', suspendedReason: 'Ran with no authorizer (SV-AUTH-01)', createdAt: '2026-03-19' }
-    ];
   }
 
   async getReadiness(): Promise<ReadinessData> {

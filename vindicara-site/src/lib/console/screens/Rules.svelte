@@ -21,7 +21,7 @@
   {@const curId = selectedId || d.selected.id}
   <div class="rules">
     <Panel reveal klass="rfiles">
-      <div class="ph"><h3><span class="acc" style="background:var(--vio)"></span>Rulesets</h3></div>
+      <div class="ph"><h3>Rulesets</h3></div>
       {#each d.rulesets as r}
         <button class="rfile {curId === r.id ? 'on' : ''}" onclick={() => pick(r)}>
           <span>{r.name}</span><span class="lyr {r.layer}">{r.layer === 'individual' ? 'INDIV' : r.layer.toUpperCase()}</span>

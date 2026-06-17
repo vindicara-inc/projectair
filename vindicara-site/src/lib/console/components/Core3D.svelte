@@ -26,21 +26,21 @@
       const shellGeo = new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(1.0, 1));
       const sp = shellGeo.attributes.position, sN = sp.count;
       const sCol = new Float32Array(sN * 3);
-      const faint = new THREE.Color(0x4a1217), bright = new THREE.Color(0xff6b74);
+      const faint = new THREE.Color(0x3d1520), bright = new THREE.Color(0xe87880);
       let ymin = Infinity, ymax = -Infinity;
       for (let j = 0; j < sN; j++) { const y = sp.getY(j); if (y < ymin) ymin = y; if (y > ymax) ymax = y; }
       for (let j = 0; j < sN; j++) { const f = (sp.getY(j) - ymin) / ((ymax - ymin) || 1); const c = faint.clone().lerp(bright, f); sCol[j*3]=c.r; sCol[j*3+1]=c.g; sCol[j*3+2]=c.b; }
       shellGeo.setAttribute('color', new THREE.BufferAttribute(sCol, 3));
-      const shell = new THREE.LineSegments(shellGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.85 }));
+      const shell = new THREE.LineSegments(shellGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.62 }));
       group.add(shell);
 
-      const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.44, 0), new THREE.MeshBasicMaterial({ color: 0xff5d68, transparent: true, opacity: 0.2 }));
+      const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.44, 0), new THREE.MeshBasicMaterial({ color: 0xff5d68, transparent: true, opacity: 0.17 }));
       group.add(core);
-      const coreWire = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(0.44, 0)), new THREE.LineBasicMaterial({ color: 0xffd0d4, transparent: true, opacity: 0.55 }));
+      const coreWire = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(0.44, 0)), new THREE.LineBasicMaterial({ color: 0xffc8cc, transparent: true, opacity: 0.45 }));
       group.add(coreWire);
 
       const N = 420, pos = new Float32Array(N*3), col = new Float32Array(N*3);
-      const cA = new THREE.Color(0x5a1820), cB = new THREE.Color(0xff6b74);
+      const cA = new THREE.Color(0x4a1820), cB = new THREE.Color(0x6db5ff);
       for (let i = 0; i < N; i++) {
         const a = Math.random()*Math.PI*2, r = 1.4+Math.random()*0.5, y = (Math.random()-0.5)*0.4;
         pos[i*3]=Math.cos(a)*r; pos[i*3+1]=y; pos[i*3+2]=Math.sin(a)*r;
@@ -49,7 +49,7 @@
       const pg = new THREE.BufferGeometry();
       pg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
       pg.setAttribute('color', new THREE.BufferAttribute(col, 3));
-      const particles = new THREE.Points(pg, new THREE.PointsMaterial({ size: 0.04, vertexColors: true, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false }));
+      const particles = new THREE.Points(pg, new THREE.PointsMaterial({ size: 0.038, vertexColors: true, transparent: true, opacity: 0.62, blending: THREE.AdditiveBlending, depthWrite: false }));
       scene.add(particles);
 
       let t = 0;
@@ -85,5 +85,5 @@
   .core { flex: 1; position: relative; min-height: 150px; border-bottom: 1px solid var(--hair); }
   canvas { position: absolute; inset: 0; }
   .corecap { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-family: var(--mono); font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--faint); z-index: 4; }
-  .corecap b { color: var(--air2); }
+  .corecap b { color: var(--air2); opacity: .88; }
 </style>
