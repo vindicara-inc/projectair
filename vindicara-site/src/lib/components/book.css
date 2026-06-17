@@ -1,0 +1,307 @@
+/* Vindicara "book" brand for the APPM function pages (Audit · Prove · Protect · Monitor).
+   Ported from vindicara-site app.css: navy + Spectral, scoped under .vx so it never
+   leaks into the FlightDeck console. Each page sets --accent via a .vx--<fn> modifier. */
+@import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+.vx {
+  --navy: #06080f;
+  --navy1: #080b14;
+  --navy2: #0b0f1c;
+  --panel: #0a0e18;
+  --raise: #121826;
+  --white: #f6f8fc;
+  --soft: #aeb9d0;
+  --faint: #6e7c99;
+  --line: rgba(255, 255, 255, 0.1);
+  --line2: rgba(255, 255, 255, 0.06);
+  --air: #e63946;
+  --air2: #ff5763;
+  --airbg: rgba(230, 57, 70, 0.12);
+  --good: #3fd99b;
+  --display: 'Spectral', serif;
+  --ui: 'Hanken Grotesk', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 22px 50px -28px rgba(0, 0, 0, 0.8);
+
+  /* per-tab accents (no cyan) — site-saturated */
+  --amber: #ffb454;
+  --violet: #9b6bff;
+  --emerald: #48e6a4;
+  --accent: var(--amber);
+  --accent-ink: #1c1404;
+
+  position: relative;
+  min-height: 100vh;
+  background: radial-gradient(140% 100% at 50% -28%, #0a1326 0%, #04050b 56%);
+  color: var(--white);
+  font-family: var(--ui);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+.vx--audit { --accent: var(--amber); --accent-ink: #1c1404; }
+.vx--prove { --accent: var(--violet); --accent-ink: #0d0826; }
+.vx--protect { --accent: var(--air); --accent-ink: #fff; }
+.vx--monitor { --accent: var(--emerald); --accent-ink: #04140d; }
+
+/* dotted field + corner glows, like the site */
+/* Site signature: a masked dot field whose visible patch sweeps across on a loop. */
+.vx::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.6) 1.1px, transparent 1.9px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 45%);
+  mask-image: radial-gradient(circle, #000 0%, transparent 45%);
+  -webkit-mask-size: 40% 40%;
+  mask-size: 40% 40%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: dotsweep 26s linear infinite;
+}
+.vx::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(52% 44% at 90% 2%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 60%),
+    radial-gradient(58% 52% at 4% 104%, rgba(230, 57, 70, 0.08), transparent 58%);
+}
+@keyframes dotsweep {
+  0% { -webkit-mask-position: 0% 38%; mask-position: 0% 38%; }
+  12.5% { -webkit-mask-position: 25% 68%; mask-position: 25% 68%; }
+  25% { -webkit-mask-position: 50% 38%; mask-position: 50% 38%; }
+  37.5% { -webkit-mask-position: 75% 68%; mask-position: 75% 68%; }
+  50% { -webkit-mask-position: 100% 38%; mask-position: 100% 38%; }
+  62.5% { -webkit-mask-position: 75% 68%; mask-position: 75% 68%; }
+  75% { -webkit-mask-position: 50% 38%; mask-position: 50% 38%; }
+  87.5% { -webkit-mask-position: 25% 68%; mask-position: 25% 68%; }
+  100% { -webkit-mask-position: 0% 38%; mask-position: 0% 38%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vx::before { animation: none; opacity: 0.5; }
+}
+.vx > * { position: relative; z-index: 1; }
+
+.vx h1, .vx h2, .vx h3, .vx .display {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0;
+}
+.vx .air { color: var(--air); font-weight: 700; }
+.vx .mono { font-family: var(--mono); }
+.vx .eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--air2);
+  font-weight: 500;
+}
+.vx .lead { color: var(--soft); line-height: 1.6; }
+
+/* Page shell */
+.bk-brand {
+  position: fixed;
+  top: 22px;
+  left: 26px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  color: var(--white);
+}
+.bk-brand svg { display: block; }
+.bk-brand:hover { color: var(--air2); }
+
+.bk-page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 92px 96px 64px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.bk-hero { display: flex; flex-direction: column; gap: 16px; }
+.bk-title { font-size: clamp(38px, 5.4vw, 62px); font-weight: 700; letter-spacing: -0.025em; }
+.bk-lead { max-width: 620px; font-size: 15.5px; }
+
+.bk-seal { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 9px; margin-top: 4px; }
+.bk-seal-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 10px var(--good); }
+.bk-seal-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--good); }
+.bk-seal-chip { font-family: var(--mono); font-size: 10px; letter-spacing: 0.05em; color: var(--soft); border: 1px solid var(--line); padding: 4px 9px; }
+
+/* Function panel */
+.bk-panel {
+  background: linear-gradient(180deg, #0a0e1a, #07090f);
+  border: 1px solid var(--line);
+  border-top: 2px solid color-mix(in srgb, var(--accent) 60%, var(--line));
+  box-shadow: 0 30px 72px -28px rgba(0, 0, 0, 0.92), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  padding: 32px 34px;
+}
+.bk-fn { display: flex; align-items: center; gap: 14px; }
+.bk-tag {
+  font-family: var(--display);
+  font-size: 27px;
+  font-weight: 700;
+  color: #fff;
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--accent) 34%, var(--raise));
+  border: 1px solid color-mix(in srgb, var(--accent) 62%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.bk-fn h3 { font-size: 24px; }
+.bk-pk {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: 4px;
+}
+.bk-body {
+  margin: 18px 0 0;
+  max-width: 660px;
+  font-size: 13.5px;
+  color: var(--soft);
+  line-height: 1.65;
+}
+
+.bk-products {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 24px;
+}
+.bk-prod {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 24px 24px 22px;
+  background: #05070e;
+  border: 1px solid var(--line);
+  transition: border-color 0.15s, background 0.15s;
+}
+.bk-prod:hover {
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
+  background: #080b15;
+}
+.bk-prod-name { font-family: var(--display); font-size: 18px; font-weight: 600; color: var(--white); }
+.bk-prod-meta { font-family: var(--ui); font-size: 13px; font-weight: 500; color: var(--white); letter-spacing: 0; }
+.bk-prod-cta {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--ui);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--accent-ink);
+  padding: 10px 18px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.05s;
+}
+.bk-prod-cta:hover { filter: brightness(1.08); }
+.bk-prod-cta:active { transform: translateY(1px); }
+.bk-prod-cta:focus-visible { outline: 2px solid var(--white); outline-offset: 2px; }
+.bk-fnote {
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line2);
+  font-size: 13px;
+  color: var(--soft);
+}
+.bk-fnote b { color: var(--white); font-weight: 700; }
+
+/* Bookmark rail — vertical dictionary tabs flush against the screen edge.
+   Each tab reads top-to-bottom like a book spine; the active one is accent-filled. */
+.book-rail {
+  position: fixed;
+  right: 0;
+  top: 84px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 50;
+}
+.book-tab {
+  position: relative;
+  width: 60px;
+  height: 104px;
+  display: grid;
+  place-items: center;
+  background: var(--panel);
+  color: var(--soft);
+  border: 1px solid var(--line);
+  border-right: 0;
+  border-radius: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 30px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: color 0.18s, background 0.18s, border-color 0.18s;
+}
+.book-tab::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--tab-accent);
+  box-shadow: 0 0 12px var(--tab-accent);
+}
+.book-tab:hover { color: #fff; background: var(--raise); }
+.book-tab.on {
+  color: #fff;
+  background: color-mix(in srgb, var(--tab-accent) 20%, var(--panel));
+  border-color: var(--tab-accent);
+}
+
+/* navy toast */
+.bk-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 11px 18px;
+  background: var(--panel);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  box-shadow: var(--shadow);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--white);
+  animation: bk-toast-in 0.22s ease-out;
+}
+@keyframes bk-toast-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (max-width: 820px) {
+  .bk-page { padding: 88px 70px 56px 22px; }
+  .bk-products { grid-template-columns: 1fr; }
+}
