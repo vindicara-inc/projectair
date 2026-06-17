@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import './book.css';
   import { goto } from '$app/navigation';
   import BookmarkRail from '$components/BookmarkRail.svelte';
@@ -12,8 +12,8 @@
   ];
 
   let toast = $state('');
-  let toastTimer;
-  function inquire(p) {
+  let toastTimer: ReturnType<typeof setTimeout> | undefined;
+  function inquire(p: (typeof packs)[number]) {
     toast = `Let's talk — scoping your ${p.name}`;
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(() => (toast = ''), 3200);
