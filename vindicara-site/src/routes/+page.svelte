@@ -2,19 +2,12 @@
   // @ts-nocheck
   import { onMount } from 'svelte';
 
+  let openMenu = $state(null);
+  function toggleMenu(id){ openMenu = openMenu === id ? null : id; }
+
   onMount(() => {
-    const items = document.querySelectorAll('.nav-item');
-    const megas = document.querySelectorAll('.mega');
-    let current = null;
-    function closeAll(){ items.forEach(i=>i.classList.remove('on')); megas.forEach(m=>m.classList.remove('open')); current=null; }
-    items.forEach(it=>it.addEventListener('click',(e)=>{
-      e.stopPropagation();
-      const id = it.dataset.menu;
-      if(current===id){ closeAll(); return; }
-      closeAll(); it.classList.add('on'); document.getElementById(id).classList.add('open'); current=id;
-    }));
-    document.addEventListener('click', closeAll);
-    document.querySelectorAll('.mega').forEach(m=>m.addEventListener('click',e=>e.stopPropagation()));
+    const onDocClick = () => { openMenu = null; };
+    document.addEventListener('click', onDocClick);
 
     const s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
@@ -59,9 +52,9 @@
   <div class="bar">
     <a class="logo" href="/"><img src="/logo.svg" alt="Project AIR" class="logo-img" /></a>
     <nav>
-      <button class="nav-item" data-menu="solutions">Solutions <span class="car">▾</span></button>
-      <button class="nav-item" data-menu="products">Products <span class="car">▾</span></button>
-      <button class="nav-item" data-menu="company">Company <span class="car">▾</span></button>
+      <button class="nav-item" class:on={openMenu==='solutions'} onclick={(e)=>{ e.stopPropagation(); toggleMenu('solutions'); }}>Solutions <span class="car">▾</span></button>
+      <button class="nav-item" class:on={openMenu==='products'} onclick={(e)=>{ e.stopPropagation(); toggleMenu('products'); }}>Products <span class="car">▾</span></button>
+      <button class="nav-item" class:on={openMenu==='company'} onclick={(e)=>{ e.stopPropagation(); toggleMenu('company'); }}>Company <span class="car">▾</span></button>
       <a class="ghost" href="/about">Customers</a>
       <a class="ghost" href="/pricing">Pricing</a>
     </nav>
@@ -71,7 +64,7 @@
     </div>
   </div>
 
-  <div class="mega" id="solutions">
+  <div class="mega" class:open={openMenu==='solutions'} onclick={(e)=>e.stopPropagation()}>
     <div class="mega-in">
       <div class="col">
         <h4>By industry</h4>
@@ -102,7 +95,7 @@
     </div>
   </div>
 
-  <div class="mega" id="products">
+  <div class="mega" class:open={openMenu==='products'} onclick={(e)=>e.stopPropagation()}>
     <div class="mega-rich">
       <a class="feature" href="/platform">
         <div class="feat-dots"></div>
@@ -126,7 +119,7 @@
     </div>
   </div>
 
-  <div class="mega" id="company">
+  <div class="mega" class:open={openMenu==='company'} onclick={(e)=>e.stopPropagation()}>
     <div class="mega-in">
       <div class="col">
         <h4>Company</h4>
