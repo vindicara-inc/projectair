@@ -9,29 +9,28 @@
     const onDocClick = () => { openMenu = null; };
     document.addEventListener('click', onDocClick);
 
-    drawGlobe();
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    s.onload = initGlobe;
+    document.head.appendChild(s);
 
-    function drawGlobe(){
-      const el=document.getElementById('globe'); if(!el) return;
-      const cv=document.createElement('canvas'); cv.style.display='block'; el.appendChild(cv);
-      const ctx=cv.getContext('2d'); const dpr=Math.min(window.devicePixelRatio||1,2);
-      let W=0; const H=440;
-      function resize(){ W=el.clientWidth||440; cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); }
-      resize(); window.addEventListener('resize',resize);
-      const N=1300, dots=[];
-      for(let i=0;i<N;i++){const y=1-(i/(N-1))*2,r=Math.sqrt(1-y*y),th=Math.PI*(3-Math.sqrt(5))*i;dots.push({x:Math.cos(th)*r,y,z:Math.sin(th)*r});}
-      let ang=0.4;
-      function frame(){
-        const w=W,h=H,cx=w/2,cy=h/2,R=Math.min(w,h)*0.42;
-        ctx.clearRect(0,0,w,h);
-        const g=ctx.createRadialGradient(cx,cy,R*0.3,cx,cy,R*1.7);
-        g.addColorStop(0,'rgba(255,210,140,0.10)'); g.addColorStop(0.5,'rgba(230,57,70,0.06)'); g.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-        ang+=0.0035; const s=Math.sin(ang),c=Math.cos(ang);
-        for(const p of dots){const x=p.x*c+p.z*s, z=-p.x*s+p.z*c, y=p.y; const sx=cx+x*R, sy=cy-y*R; const depth=(z+1)/2; ctx.globalAlpha=0.12+depth*0.7; ctx.fillStyle=depth>0.55?'#ffffff':'#7fe6ff'; ctx.beginPath(); ctx.arc(sx,sy,0.7+depth*1.6,0,6.283); ctx.fill();}
-        ctx.globalAlpha=1; requestAnimationFrame(frame);
-      }
-      frame();
+    function initGlobe(){
+      const el=document.getElementById('globe'); if(!el||!window.THREE) return;
+      const W=el.clientWidth||440, H=440;
+      const scene=new THREE.Scene();
+      const cam=new THREE.PerspectiveCamera(38,W/H,0.1,100); cam.position.z=4.0;
+      const rnd=new THREE.WebGLRenderer({alpha:true,antialias:true}); rnd.setPixelRatio(Math.min(devicePixelRatio,2)); rnd.setSize(W,H); el.appendChild(rnd.domElement);
+      const root=new THREE.Group(); root.rotation.z=0.36; scene.add(root);
+      const loader=new THREE.TextureLoader(); loader.crossOrigin='anonymous';
+      const night=loader.load('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg');
+      const earth=new THREE.Mesh(new THREE.SphereGeometry(1.15,72,72), new THREE.MeshBasicMaterial({map:night}));
+      root.add(earth);
+      earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.152,72,72), new THREE.MeshBasicMaterial({map:night,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending})));
+      const topo=loader.load('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png');
+      earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.156,72,72), new THREE.MeshBasicMaterial({map:topo,color:0xffffff,transparent:true,opacity:1,blending:THREE.AdditiveBlending})));
+      earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.159,72,72), new THREE.MeshBasicMaterial({map:topo,color:0xffffff,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending})));
+      (function loop(){requestAnimationFrame(loop); earth.rotation.y+=0.0011; rnd.render(scene,cam);})();
+      addEventListener('resize',()=>{const w=el.clientWidth;cam.aspect=w/H;cam.updateProjectionMatrix();rnd.setSize(w,H);});
     }
   });
 </script>
