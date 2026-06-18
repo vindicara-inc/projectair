@@ -1,13 +1,23 @@
 <script>
-  // Shared sticky header for /solutions/* industry pages.
-  // Styling comes from $lib/styles/industry.css (imported by the page).
+  // Shared sticky header. Solutions mega-menu + a hamburger menu (holds FlightDeck + nav).
+  // Styling comes from $lib/styles/industry.css (imported by the page/shell).
   // @ts-nocheck
   import { onMount } from 'svelte';
 
-  let open = $state(false);
+  let open = $state(false);       // Solutions mega-menu
+  let menuOpen = $state(false);   // hamburger menu
+
+  function openFlightdeck() {
+    menuOpen = false;
+    const w = 1440, h = 900;
+    const left = Math.max(0, Math.round((window.screen.width - w) / 2));
+    const top = Math.max(0, Math.round((window.screen.height - h) / 2));
+    window.open('/flightdeck', 'flightdeck', `popup,width=${w},height=${h},left=${left},top=${top}`);
+  }
+
   onMount(() => {
-    // Close when clicking anywhere outside the header (robust against Svelte 5 event delegation).
-    const onDoc = (e) => { if (!e.target.closest('header')) open = false; };
+    // Close menus when clicking outside the header (robust against Svelte 5 event delegation).
+    const onDoc = (e) => { if (!e.target.closest('header')) { open = false; menuOpen = false; } };
     document.addEventListener('click', onDoc);
     return () => document.removeEventListener('click', onDoc);
   });
@@ -17,17 +27,18 @@
   <div class="bar">
     <a class="logo" href="/"><img src="/plane.svg" alt="" class="logo-img" /><span class="wordmark"><span class="proj">project</span> <span class="air-wm">AIR</span><span class="tm">™</span></span></a>
     <nav>
-      <button class="nav-item" class:on={open} onclick={() => (open = !open)}>Solutions <span class="car">▾</span></button>
+      <button class="nav-item" class:on={open} onclick={() => { open = !open; menuOpen = false; }}>Solutions <span class="car">▾</span></button>
       <a href="/platform" class="nv">Products</a>
       <a href="/about" class="nv">Company</a>
       <a href="/pricing" class="nv">Pricing</a>
     </nav>
     <div class="right">
-      <a class="ghost" href="/flightdeck">Sign in</a>
       <a class="cta" href="/contact">Book a demo</a>
+      <button class="burger" class:on={menuOpen} aria-label="Menu" onclick={() => { menuOpen = !menuOpen; open = false; }}><span></span><span></span><span></span></button>
     </div>
   </div>
 
+  <!-- Solutions mega-menu -->
   <div class="mega" class:open>
     <div class="mega-in">
       <div class="col">
@@ -57,5 +68,12 @@
         <a class="hcard" href="/evidence"><div class="ht">Hardware-rooted evidence</div><div class="hd">Validated on real NVIDIA H100 confidential compute.</div></a>
       </div>
     </div>
+  </div>
+
+  <!-- Hamburger menu -->
+  <div class="hammenu" class:open={menuOpen}>
+    <button class="hm-fd" onclick={openFlightdeck}>FlightDeck →</button>
+    <a class="hm-l" href="/flightdeck">Sign in</a>
+    <a class="hm-l" href="/explore">Explore everything</a>
   </div>
 </header>

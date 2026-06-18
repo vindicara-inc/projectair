@@ -74,6 +74,19 @@
 .ind .hcard.feat{background:linear-gradient(180deg,var(--accent-soft),var(--raise));border-color:rgba(var(--accent-rgb),.5)}
 .ind .hcard .ht{font-size:15px;font-weight:700;color:var(--white)}
 .ind .hcard .hd{font-size:12px;color:var(--soft);margin-top:4px;line-height:1.45}
+/* hamburger button + its menu (holds FlightDeck + nav) */
+.ind .burger{width:40px;height:38px;border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex:none;padding:0}
+.ind .burger span{display:block;width:16px;height:1.6px;background:var(--soft);transition:.2s;border-radius:2px}
+.ind .burger:hover span{background:#fff}
+.ind .burger.on span:nth-child(1){transform:translateY(5.6px) rotate(45deg)}
+.ind .burger.on span:nth-child(2){opacity:0}
+.ind .burger.on span:nth-child(3){transform:translateY(-5.6px) rotate(-45deg)}
+.ind .hammenu{display:none;position:absolute;right:16px;top:100%;margin-top:8px;background:var(--panel);border:1px solid var(--line);border-radius:13px;box-shadow:0 30px 60px -24px rgba(0,0,0,.85);z-index:55;padding:12px;min-width:190px;flex-direction:column;gap:6px}
+.ind .hammenu.open{display:flex}
+.ind .hm-l{color:var(--soft);text-decoration:none;font-size:14px;padding:8px 9px;border-radius:8px}
+.ind .hm-l:hover{color:#fff;background:rgba(255,255,255,.05)}
+.ind .hm-fd{background:#fff;color:var(--air);border:0;font-family:inherit;font-weight:800;font-size:13px;letter-spacing:.02em;padding:11px 14px;border-radius:9px;cursor:pointer;text-align:center;margin-bottom:2px}
+.ind .hm-fd:hover{background:#f0e6ef}
 
 /* hero */
 .ind .hero{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:62px 28px 30px;display:grid;grid-template-columns:1.08fr .92fr;gap:46px;align-items:center}

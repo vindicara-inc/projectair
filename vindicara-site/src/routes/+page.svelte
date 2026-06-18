@@ -49,7 +49,7 @@
 
 <header>
   <div class="bar">
-    <a class="logo" href="/"><img src="/logo.svg" alt="Project AIR" class="logo-img" /></a>
+    <a class="logo" href="/"><img src="/plane.svg" alt="" class="logo-img" /><span class="wordmark"><span class="proj">project</span> <span class="airw">AIR</span><span class="tm">™</span></span></a>
     <nav>
       <button class="nav-item" class:on={openMenu==='solutions'} onclick={(e)=>{ e.stopPropagation(); toggleMenu('solutions'); }}>Solutions <span class="car">▾</span></button>
       <button class="nav-item" class:on={openMenu==='products'} onclick={(e)=>{ e.stopPropagation(); toggleMenu('products'); }}>Products <span class="car">▾</span></button>
@@ -254,6 +254,10 @@
   .bar{max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 28px}
   .logo{display:flex;align-items:center;gap:9px;text-decoration:none}
   .logo-img{height:120px;width:auto;display:block;margin-left:-64px;margin-top:-38px}
+  .wordmark{display:inline-flex;align-items:baseline;gap:6px;margin-left:-30px}
+  .wordmark .proj{font-family:'Spectral',Georgia,serif;font-style:italic;font-weight:500;font-size:24px;color:#fff;letter-spacing:.004em}
+  .wordmark .airw{font-family:'Inter',sans-serif;color:var(--air2);font-size:24px;line-height:1;font-weight:900;text-transform:uppercase;letter-spacing:.004em}
+  .wordmark .tm{font-size:10px;color:#8a93a8;align-self:flex-start;margin:3px 0 0 1px}
   .air{color:var(--air2);font-weight:700}
   nav{display:flex;align-items:center;gap:4px}
   .nav-item{background:none;border:0;color:var(--white);font-family:inherit;font-size:14.5px;font-weight:500;padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;border-radius:8px}

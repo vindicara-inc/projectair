@@ -20,6 +20,9 @@
   "dependencies": {
     "@noble/curves": "^2.2.0",
     "@noble/hashes": "^2.2.0",
-    "three": "^0.160.1"
+    "d3-geo": "^3.1.1",
+    "three": "^0.160.1",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
   }
 }
