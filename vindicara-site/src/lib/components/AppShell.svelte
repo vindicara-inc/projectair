@@ -4,6 +4,13 @@
   let { active = '', title = '', scroll = false, children } = $props();
   let menuOpen = $state(false);
 
+  function openFlightdeck() {
+    const w = 1440, h = 900;
+    const left = Math.max(0, Math.round((window.screen.width - w) / 2));
+    const top = Math.max(0, Math.round((window.screen.height - h) / 2));
+    window.open('/flightdeck', 'flightdeck', `popup,width=${w},height=${h},left=${left},top=${top}`);
+  }
+
   const product = [
     { id: 'overview',     label: 'Overview',     to: '/overview',     num: '01' },
     { id: 'platform',     label: 'The platform', to: '/platform',     num: '02' },
@@ -52,7 +59,7 @@
       {/each}
     </nav>
     <div class="railcta">
-      <button class="fd" onclick={() => goto('/flightdeck')}>F L I G H T D E C K</button>
+      <button class="fd" onclick={openFlightdeck}>F L I G H T D E C K</button>
       <button class="dp" onclick={() => goto('/design-partner')}>Become a design partner</button>
     </div>
     <div class="status"><span class="dot"></span><b>Ops chain live</b><br>Rekor #1466351923 · anchored 41s ago</div>
@@ -79,7 +86,7 @@
         <div class="mlbl">Company</div>
         {#each company as c}<a class="ml" href={c.to} onclick={() => (menuOpen = false)}>{c.label}</a>{/each}
         <a class="ml" href="/contact" onclick={() => (menuOpen = false)}>Contact</a>
-        <button class="fd" onclick={() => { menuOpen = false; goto('/flightdeck'); }}>F L I G H T D E C K</button>
+        <button class="fd" onclick={() => { menuOpen = false; openFlightdeck(); }}>F L I G H T D E C K</button>
         <button class="dp" onclick={() => { menuOpen = false; goto('/design-partner'); }}>Become a design partner</button>
       </nav>
     {/if}
