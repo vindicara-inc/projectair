@@ -10,7 +10,7 @@
     document.addEventListener('click', onDocClick);
 
     const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    s.src = '/three.min.js';
     s.onload = initGlobe;
     document.head.appendChild(s);
 
@@ -22,11 +22,11 @@
       const rnd=new THREE.WebGLRenderer({alpha:true,antialias:true}); rnd.setPixelRatio(Math.min(devicePixelRatio,2)); rnd.setSize(W,H); el.appendChild(rnd.domElement);
       const root=new THREE.Group(); root.rotation.z=0.36; scene.add(root);
       const loader=new THREE.TextureLoader(); loader.crossOrigin='anonymous';
-      const night=loader.load('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg');
+      const night=loader.load('/earth-night.jpg');
       const earth=new THREE.Mesh(new THREE.SphereGeometry(1.15,72,72), new THREE.MeshBasicMaterial({map:night}));
       root.add(earth);
       earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.152,72,72), new THREE.MeshBasicMaterial({map:night,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending})));
-      const topo=loader.load('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png');
+      const topo=loader.load('/earth-topology.png');
       earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.156,72,72), new THREE.MeshBasicMaterial({map:topo,color:0xffffff,transparent:true,opacity:1,blending:THREE.AdditiveBlending})));
       earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.159,72,72), new THREE.MeshBasicMaterial({map:topo,color:0xffffff,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending})));
       (function loop(){requestAnimationFrame(loop); earth.rotation.y+=0.0011; rnd.render(scene,cam);})();
