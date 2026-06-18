@@ -46,10 +46,10 @@
       </div>
       <div class="col">
         <h4>By framework</h4>
-        <a class="mi" href="/standards"><span class="ic"></span><span><span class="mt">SOC 2</span><span class="md">CC7.2 / CC7.3 agent evidence</span></span></a>
-        <a class="mi" href="/standards"><span class="ic"></span><span><span class="mt">HIPAA</span><span class="md">45 CFR 164.312(b)</span></span></a>
-        <a class="mi" href="/standards"><span class="ic"></span><span><span class="mt">ISO 42001</span><span class="md">AI management system</span></span></a>
-        <a class="mi" href="/standards"><span class="ic"></span><span><span class="mt">EU AI Act</span><span class="md">Article 12 logging</span></span></a>
+        <a class="mi" href="/solutions/soc2"><span class="ic"></span><span><span class="mt">SOC 2</span><span class="md">CC7.2 / CC7.3 agent evidence</span></span></a>
+        <a class="mi" href="/solutions/hipaa"><span class="ic"></span><span><span class="mt">HIPAA</span><span class="md">45 CFR 164.312(b)</span></span></a>
+        <a class="mi" href="/solutions/iso-42001"><span class="ic"></span><span><span class="mt">ISO 42001</span><span class="md">AI management system</span></span></a>
+        <a class="mi" href="/solutions/eu-ai-act"><span class="ic"></span><span><span class="mt">EU AI Act</span><span class="md">Article 12 logging</span></span></a>
       </div>
       <div class="col hl">
         <h4>Highlights</h4>

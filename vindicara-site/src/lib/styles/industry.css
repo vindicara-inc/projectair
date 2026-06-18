@@ -17,6 +17,8 @@
 }
 /* By use case family — yellow accent (AIR stays red) */
 .ind.uc{ --accent:#f5c518; --accent2:#ffd84d; --accent-rgb:245,197,24; --accent-soft:rgba(245,197,24,.14); }
+/* By framework family — violet accent (AIR stays red) */
+.ind.fw{ --accent:#8b5cf6; --accent2:#a78bfa; --accent-rgb:139,92,246; --accent-soft:rgba(139,92,246,.16); }
 
 .ind .air{color:var(--air2);font-weight:700;font-style:normal}
 .ind .proj{font-family:'Spectral',Georgia,serif;font-style:italic;font-weight:500}
