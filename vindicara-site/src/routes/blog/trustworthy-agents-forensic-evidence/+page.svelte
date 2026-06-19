@@ -98,7 +98,7 @@ agent = AgentExecutor(callbacks=[handler])`}</pre>
     <h2>Real incidents, real mappings</h2>
     <p>Every public agent breach in the last eighteen months maps to an ASI signature. ForcedLeak (Salesforce Agentforce) was ASI01: goal hijack via indirect prompt injection in trusted CRM records. The Salesloft Drift breach was ASI03: inherited OAuth credentials reused to escalate access into systems the operator never authorised the agent to reach. GitHub Copilot YOLO mode was ASI02: tool misuse through auto-approved destructive shell calls. ServiceNow Now Assist was ASI01 + ASI03: indirect injection from user-supplied ticket fields driving the agent into actions outside its authorised scope.</p>
     <p>Each of those incidents left behind fragmented, unsigned traces scattered across logs. None of them produced a single evidence bundle a legal team, SOC analyst, or insurance carrier could act on without weeks of reconstruction.</p>
-    <p>The <a href="/">incidents table on vindicara.io</a> walks through what <span class="air">AIR</span>'s detection signatures would have caught at the step the breach actually happened. Every mapping is against the OWASP 2026 taxonomy.</p>
+    <p>The <a href="/home">incidents table on vindicara.io</a> walks through what <span class="air">AIR</span>'s detection signatures would have caught at the step the breach actually happened. Every mapping is against the OWASP 2026 taxonomy.</p>
 
     <h2>What we are doing, and what we are asking for</h2>
     <p><code>projectair</code> ships on PyPI today. The MIT SDK and CLI are live. The design partner program for <span class="air">AIR</span> Cloud opens May 4: three production LangChain deployments, sixty days of feedback, preferred pricing in return.</p>

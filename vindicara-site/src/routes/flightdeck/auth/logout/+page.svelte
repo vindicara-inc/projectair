@@ -5,7 +5,7 @@
 <div class="lo">
   <div class="ok">You have successfully logged out.</div>
   <button class="login" onclick={() => beginAuth0Login()}>Log in again</button>
-  <a class="home" href="/">Back to vindicara.io</a>
+  <a class="home" href="/home">Back to vindicara.io</a>
 </div>
 
 <style>

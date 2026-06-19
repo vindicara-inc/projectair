@@ -25,7 +25,7 @@
 
 <header>
   <div class="bar">
-    <a class="logo" href="/"><img src="/plane.svg" alt="" class="logo-img" /><span class="wordmark"><span class="proj">project</span> <span class="air-wm">AIR</span><span class="tm">™</span></span></a>
+    <a class="logo" href="/home"><img src="/plane.svg" alt="" class="logo-img" /><span class="wordmark"><span class="proj">project</span> <span class="air-wm">AIR</span><span class="tm">™</span></span></a>
     <nav>
       <button class="nav-item" class:on={open} onclick={() => { open = !open; menuOpen = false; }}>Solutions <span class="car">▾</span></button>
       <a href="/platform" class="nv">Products</a>
