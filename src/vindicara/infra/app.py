@@ -9,6 +9,7 @@ from vindicara.infra.stacks.api_stack import APIStack
 from vindicara.infra.stacks.data_stack import DataStack
 from vindicara.infra.stacks.events_stack import EventsStack
 from vindicara.infra.stacks.ops_chain_stack import OpsChainStack
+from vindicara.infra.stacks.site_server_stack import SiteServerStack
 from vindicara.infra.stacks.site_stack import SiteStack
 
 app = cdk.App()
@@ -60,5 +61,10 @@ SiteStack(
     api_region=workload_region,
     env=env_site,
 )
+
+# Server-rendered vindicara.io on Fargate behind an ALB (us-west-2). Deploys
+# alongside the static SiteStack during cutover; once the container is verified
+# at its ALB DNS, cut vindicara.io -> ALB, then retire the CloudFront/S3 path.
+SiteServerStack(app, "VindicaraSiteServer", env=env_workload)
 
 app.synth()
