@@ -20,8 +20,13 @@
   onMount(() => {
     const url = get(page).url;
     const onAuthRoute = url.pathname.startsWith('/flightdeck/auth/');
-    // Sales demo entry: ?demo opens the public showcase without Auth0.
-    if (url.searchParams.has('demo')) mode.set('demo');
+    // Routing: ?demo = the public sales showcase; an authenticated operator
+    // always gets Live (their real data); Live with no token -> Auth0 login.
+    if (url.searchParams.has('demo')) {
+      mode.set('demo');
+    } else if (get(sessionToken)) {
+      mode.set('live');
+    }
     if (!onAuthRoute && get(mode) === 'live' && !get(sessionToken)) {
       void beginAuth0Login();
     }

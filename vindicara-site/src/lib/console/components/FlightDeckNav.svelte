@@ -37,8 +37,6 @@
       <button class="fd-link" class:on={path === '/flightdeck/report'} type="button" onclick={() => goto('/flightdeck/report')}>Forensics</button>
       <button class="fd-link" type="button" onclick={openApprovals}>Approvals</button>
       <button class="fd-link" class:on={path === '/flightdeck/readiness'} type="button" onclick={() => goto('/flightdeck/readiness')}>Compliance</button>
-      <button class="fd-link" class:on={path === '/audit'} type="button" onclick={() => goto('/audit')}>Audit</button>
-      <button class="fd-link" class:on={path === '/prove'} type="button" onclick={() => goto('/prove')}>Prove</button>
     </nav>
 
     <div class="fd-actions">
