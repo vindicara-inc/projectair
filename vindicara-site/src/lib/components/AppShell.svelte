@@ -3,33 +3,27 @@
   // Shared interior shell. Top-nav header + content stage + unified footer,
   // matching the /solutions/* + homepage design system (industry.css).
   // Props kept for backwards-compat with existing pages; layout no longer uses the rail.
-  import IndustryHeader from '$lib/components/IndustryHeader.svelte';
+  import SiteHeader from '$lib/components/SiteHeader.svelte';
   import '$lib/styles/industry.css';
   let { active = '', title = '', scroll = false, children } = $props();
 </script>
 
 <div class="ind">
   <div class="dotfield"></div>
-  <IndustryHeader />
+  <SiteHeader />
 
   <main class="stage">
     {@render children?.()}
   </main>
 
   <footer class="foot">
-    <span class="fco">Vindicara · <span class="proj">project</span> <span class="air-wm">AIR</span> v1.0.1</span>
     <nav class="fnav">
-      <a href="/explore">Explore</a>
-      <a href="/about">About</a>
-      <a href="/blog">Blog</a>
-      <a href="/press">Press</a>
-      <a href="/pricing">Pricing</a>
-      <a href="/security">Security</a>
       <a href="/terms">Terms</a>
       <a href="/privacy">Privacy</a>
-      <a href="/contact">Contact</a>
+      <a href="/security">Security</a>
+      <a href="/dpa">DPA</a>
     </nav>
-    <span class="fmail">support@vindicara.io</span>
+    <span class="fmail">© Vindicara · support@vindicara.io</span>
   </footer>
 </div>
 

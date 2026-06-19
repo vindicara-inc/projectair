@@ -21,7 +21,7 @@
     <div class="surfaces">
       <div class="surf"><div class="sl"><span class="nm">air</span><span class="lic">MIT · OSS</span></div><p>The CLI. Ingest any agent trace, run the 16 detectors, output a signed forensic timeline. Free to download today.</p></div>
       <div class="surf"><div class="sl"><span class="nm">airsdk</span><span class="lic">MIT · OSS</span></div><p>Drop-in instrumentation for LangChain, OpenAI, Anthropic, LlamaIndex, Gemini, and Google ADK. Signs every action at the moment it happens.</p></div>
-      <div class="surf"><div class="sl"><span class="nm">FlightDeck</span><span class="lic ent">ENTERPRISE</span></div><p>The hosted console. The deterministic floor enforced live, human-identity binding, and evidence packs. Where security, legal, and compliance work.</p></div>
+      <div class="surf"><div class="sl"><span class="nm">FlightDeck</span></div><p>The hosted console. The deterministic floor enforced live, human-identity binding, and evidence packs. Where security, legal, and compliance work.</p></div>
     </div>
   </div>
 </AppShell>
@@ -42,7 +42,6 @@
   .surf{border:1px solid var(--line);background:var(--navy1);padding:16px 18px}
   .surf .sl{display:flex;justify-content:space-between;align-items:center}
   .surf .nm{font-family:var(--mono);font-size:14px;font-weight:600} .surf .lic{font-family:var(--mono);font-size:9px;color:var(--faint);border:1px solid var(--line);padding:2px 7px}
-  .surf .lic.ent{color:var(--air2);border-color:var(--air)}
   .surf p{font-size:11.5px;color:var(--soft);margin-top:8px;line-height:1.5}
   @media (max-width:1080px){ .four{grid-template-columns:1fr 1fr} .surfaces{grid-template-columns:1fr} }
 </style>

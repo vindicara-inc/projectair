@@ -1,7 +1,7 @@
 <script>
   // @ts-nocheck
   import { onMount } from 'svelte';
-  import IndustryHeader from '$lib/components/IndustryHeader.svelte';
+  import SiteHeader from '$lib/components/SiteHeader.svelte';
   import { setupReveal } from '$lib/reveal.js';
   import '$lib/styles/industry.css';
   onMount(setupReveal);
@@ -15,7 +15,7 @@
 
 <div class="ind fw">
   <div class="dotfield"></div>
-  <IndustryHeader />
+  <SiteHeader />
 
   <section class="hero">
     <div class="hl">
