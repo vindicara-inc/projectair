@@ -21,6 +21,7 @@ from airsdk._healthcare_demo import (
     build_healthcare_demo_log,
 )
 from airsdk.agdr import Signer, filter_records_by_date_range, load_chain, verify_chain
+from airsdk.alerting import LocalAlerter
 from airsdk.article72 import generate_article72_report
 from airsdk.detections import (
     IMPLEMENTED_AIR_DETECTORS,
@@ -271,6 +272,10 @@ def _run_trace_pipeline(
                 fg=_severity_color(finding.severity),
             )
             typer.secho(f"    {finding.description}", fg=typer.colors.BRIGHT_BLACK)
+        typer.secho(
+            "  Tip: `air watch <log>` alerts you the moment a detector fires - live.",
+            fg=typer.colors.BRIGHT_BLACK,
+        )
     else:
         typer.secho("  No detector findings on this trace.", fg=typer.colors.GREEN)
 
@@ -379,6 +384,75 @@ def _step_header(step_no: int, title: str, total: int = 9) -> None:
 def _detail(label: str, value: str) -> None:
     typer.secho(f"    {label}: ", fg=typer.colors.BRIGHT_BLACK, nl=False)
     typer.secho(value, fg=typer.colors.WHITE)
+
+
+@app.command()
+def watch(
+    log: Path = typer.Argument(
+        ...,
+        help="Chain file to watch (JSON-lines AgDR log). May not exist yet.",
+    ),
+    interval: float = typer.Option(
+        1.0, "--interval", "-i", min=0.1, help="Seconds between checks."
+    ),
+    agent_registry: Path | None = typer.Option(
+        None,
+        "--agent-registry",
+        help=(
+            "Optional YAML/JSON agent registry. Enables ASI03 Identity & "
+            "Privilege Abuse and ASI10 Rogue Agents alerts."
+        ),
+    ),
+) -> None:
+    """Watch a chain in real time and alert the instant a detector fires.
+
+    Free, local, unlimited. Leave it running in a second terminal while your
+    agent writes its chain; AIR prints an alert the moment it catches something.
+    Hosted delivery (Slack / email / team routing) is Pro.
+    """
+    import time as _time
+
+    registry = _load_registry_or_exit(agent_registry)
+    alerter = LocalAlerter(registry=registry)
+    typer.secho(
+        f"[air watch] watching {log}  -  Ctrl-C to stop",
+        fg=typer.colors.BRIGHT_BLACK,
+    )
+    last_sig: tuple[int, float] | None = None
+    try:
+        while True:
+            try:
+                stat = log.stat()
+            except OSError:
+                # chain not created yet (or briefly unreadable); keep waiting
+                _time.sleep(interval)
+                continue
+            sig = (stat.st_size, stat.st_mtime)
+            if sig != last_sig:
+                last_sig = sig
+                try:
+                    fresh = alerter.new_findings(load_chain(log))
+                except Exception:
+                    # half-written trailing record; retry on the next tick
+                    _time.sleep(interval)
+                    continue
+                for finding in fresh:
+                    typer.secho(
+                        f"  ALERT  {finding.detector_id}  {finding.title}  "
+                        f"(step {finding.step_index})",
+                        fg=_severity_color(finding.severity),
+                        bold=True,
+                    )
+                    typer.secho(
+                        f"         {finding.description}",
+                        fg=typer.colors.BRIGHT_BLACK,
+                    )
+            _time.sleep(interval)
+    except KeyboardInterrupt:
+        typer.secho(
+            f"\n[air watch] stopped  -  {alerter.seen_count} alert(s) this session.",
+            fg=typer.colors.BRIGHT_BLACK,
+        )
 
 
 def _truncate(text: str, limit: int = 80) -> str:
