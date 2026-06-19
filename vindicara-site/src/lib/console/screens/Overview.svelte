@@ -39,6 +39,14 @@
   let employeePhotoSrc = $state<string | null>(null);
   let photoInput = $state<HTMLInputElement | null>(null);
 
+  // Recent Forensic Activity lens selector — 4 chooser buttons.
+  const FORENSIC_LENSES = ['Department', 'Service line', 'Agent role', 'Data Sensitivity'];
+  let forensicLens = $state('Department');
+
+  // Monitor scope selector — Agent / Cohort / Fleet.
+  const MONITOR_SCOPES = ['Agent', 'Cohort', 'Fleet'];
+  let monitorScope = $state('Agent');
+
   async function refresh() {
     loading = true;
     loadError = '';
@@ -240,6 +248,18 @@
         <button class="fd-globe-hit" type="button" aria-label="Open agent network" onclick={openGlobe}>
           <Globe3D />
         </button>
+        <div class="fd-lens-group">
+          <div class="fd-faf-lenses" role="group" aria-label="View activity by">
+            {#each FORENSIC_LENSES as lens}
+              <button type="button" class="fd-faf-lens" class:on={forensicLens === lens} aria-pressed={forensicLens === lens} onclick={() => (forensicLens = lens)}>{lens}</button>
+            {/each}
+          </div>
+          <div class="fd-faf-lenses" role="group" aria-label="Scope">
+            {#each MONITOR_SCOPES as s}
+              <button type="button" class="fd-faf-lens" class:on={monitorScope === s} aria-pressed={monitorScope === s} onclick={() => (monitorScope = s)}>{s}</button>
+            {/each}
+          </div>
+        </div>
       </section>
 
       <section class="fd-col-incidents">
@@ -286,8 +306,8 @@
       <div class="fd-tl-wrap">
         <div class="fd-tl-line"></div>
         <div class="fd-tl-grid">
-          {#each timelineEvents as e}
-            <button class="fd-tl-item" type="button" onclick={() => openTimelineEvent(e.title)}>
+          {#each [...timelineEvents, ...timelineEvents] as e, i}
+            <button class="fd-tl-item" type="button" aria-hidden={i >= timelineEvents.length} tabindex={i >= timelineEvents.length ? -1 : 0} onclick={() => openTimelineEvent(e.title)}>
               <i class="fd-tl-dot fd-tl-dot--{e.status === 'pending' ? 'orange' : 'cyan'}"></i>
               <div class="fd-tl-row">
                 <span class="fd-tl-time fd-mono">{e.t}</span>

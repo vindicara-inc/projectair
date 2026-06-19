@@ -5,11 +5,11 @@
   // Props kept for backwards-compat with existing pages; layout no longer uses the rail.
   import SiteHeader from '$lib/components/SiteHeader.svelte';
   import '$lib/styles/industry.css';
-  let { active = '', title = '', scroll = false, children } = $props();
+  let { active = '', title = '', scroll = false, dots = true, children } = $props();
 </script>
 
 <div class="ind">
-  <div class="dotfield"></div>
+  {#if dots}<div class="dotfield"></div>{/if}
   <SiteHeader />
 
   <main class="stage">

@@ -1,6 +1,9 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import AppShell from '$components/AppShell.svelte';
+  import LiveMap from '$components/LiveMap.svelte';
+
+  let { data } = $props();
 
   let plat = $state<'mac' | 'windows' | 'linux'>('mac');
   let copied = $state('');
@@ -38,7 +41,11 @@
   <link rel="canonical" href="https://vindicara.io/get-started" />
 </svelte:head>
 
-<AppShell active="get-started" title="get started" scroll={true}>
+<AppShell active="get-started" title="get started" scroll={true} dots={false}>
+  <LiveMap />
+  {#if data?.installsMonth}
+    <p class="gs-installs" style="text-align:center;font-family:var(--mono,'JetBrains Mono',monospace);font-size:12px;letter-spacing:.05em;color:#9aa6bd;margin:0 0 14px;opacity:.9">{data.installsMonth.toLocaleString()} installs this month · MIT · on PyPI</p>
+  {/if}
   <div class="gs">
     <header class="ghead reveal">
       <div class="eyebrow">Get started</div>
