@@ -116,7 +116,7 @@
 </div>
 
 <div class="trust">
-  <span>OWASP Agentic</span><span>EU AI Act Art. 72</span><span>NIST AI RMF</span><span>FRE 902(13)–(14)</span><span>NVIDIA Inception</span><span>MIT open source</span>
+  <span>OWASP Agentic</span><span>EU AI Act Art. 72</span><span>NIST AI RMF</span><span>FRE 902(13)–(14)</span><span>MIT open source</span>
 </div>
 </div>
 

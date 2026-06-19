@@ -87,6 +87,6 @@
   .cta{display:flex;align-items:center;gap:16px;margin-top:22px;flex-wrap:wrap}
   .apply{background:var(--air);color:#fff;border:0;padding:13px 22px;font-family:var(--ui);font-weight:700;font-size:14px;cursor:pointer}
   .apply:hover{filter:brightness(1.08)}
-  .note{font-size:11.5px;color:var(--faint);font-family:var(--mono)}
+  .note{font-size:11.5px;color:#fff;font-family:var(--mono)}
   @media (max-width:1080px){ .cols{grid-template-columns:1fr} }
 </style>

@@ -202,7 +202,7 @@
 .ind .pills span{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--faint);border:1px solid var(--line);padding:7px 12px;border-radius:999px}
 
 /* footer */
-.ind .foot{position:relative;z-index:1;max-width:1100px;margin:40px auto 0;padding:22px 28px 48px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--faint)}
+.ind .foot{position:relative;z-index:1;max-width:1100px;margin:40px auto 0;padding:22px 28px 48px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--soft)}
 
 /* scroll reveal */
 .ind .rv{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.2,1)}

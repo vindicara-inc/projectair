@@ -23,8 +23,8 @@
       <button class="nav-item" class:on={openMenu==='solutions'} onclick={(e)=>{ e.stopPropagation(); toggleMenu('solutions'); }}>Solutions <span class="car">▾</span></button>
       <button class="nav-item" class:on={openMenu==='products'} onclick={(e)=>{ e.stopPropagation(); toggleMenu('products'); }}>Products <span class="car">▾</span></button>
       <button class="nav-item" class:on={openMenu==='company'} onclick={(e)=>{ e.stopPropagation(); toggleMenu('company'); }}>Company <span class="car">▾</span></button>
-      <a class="ghost" href="/about">Customers</a>
       <a class="ghost" href="/pricing">Pricing</a>
+      <a class="airtag" href="/get-started"><span class="tp">project</span> <span class="ta">AIR</span></a>
     </nav>
     <div class="right">
       <a class="ghost" href="/flightdeck">Sign in</a>
@@ -92,7 +92,6 @@
       <div class="col">
         <h4>Company</h4>
         <a class="mi" href="/about"><span class="ic"></span><span><span class="mt">About</span><span class="md">Why we build the record</span></span></a>
-        <a class="mi" href="/about"><span class="ic"></span><span><span class="mt">Customers</span><span class="md">Who runs on <span class="air">AIR</span></span></span></a>
         <a class="mi" href="/contact"><span class="ic"></span><span><span class="mt">Contact</span><span class="md">Talk to us</span></span></a>
         <a class="mi" href="/policy"><span class="ic"></span><span><span class="mt">Policy</span><span class="md">Evidence-based agent governance</span></span></a>
       </div>
@@ -105,13 +104,12 @@
       <div class="col">
         <h4>Community</h4>
         <a class="mi" href="https://github.com/vindicara-inc/projectair" target="_blank" rel="noopener"><span class="ic"></span><span><span class="mt">Open source</span><span class="md">Our OSS projects</span></span></a>
-        <a class="mi" href="/about"><span class="ic"></span><span><span class="mt">Customer stories</span><span class="md">Who runs on <span class="air">AIR</span></span></span></a>
         <a class="mi" href="/contact"><span class="ic"></span><span><span class="mt">Events</span><span class="md">Where to find us</span></span></a>
         <a class="mi" href="/design-partner"><span class="ic"></span><span><span class="mt">Partners</span><span class="md">Build with Vindicara</span></span></a>
       </div>
       <div class="col hl">
         <h4>Highlights</h4>
-        <a class="hcard feat" href="https://www.nvidia.com/en-us/startups/" target="_blank" rel="noopener"><div class="ht">NVIDIA Inception member</div><div class="hd">In the Innovation Lab review.</div></a>
+        <a class="hcard feat" href="https://github.com/vindicara-inc/projectair" target="_blank" rel="noopener"><div class="ht">Open source on PyPI</div><div class="hd">MIT-licensed. Install projectair and verify every line.</div></a>
         <a class="hcard" href="/design-partner"><div class="ht">Become a design partner</div><div class="hd">Shape the roadmap, founder-led integration.</div></a>
       </div>
     </div>
@@ -143,6 +141,10 @@
   .ghost:hover{color:#fff;background:rgba(255,255,255,.07)}
   .cta{background:var(--air);color:#fff;border:0;font-weight:600;font-size:14px;padding:10px 18px;border-radius:9px;cursor:pointer;text-decoration:none;display:inline-block}
   .cta:hover{background:var(--air2)}
+  .airtag{display:inline-flex;align-items:baseline;gap:4px;text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;margin-left:2px}
+  .airtag:hover{border-color:var(--air2);background:rgba(255,255,255,.05)}
+  .airtag .tp{font-family:'Spectral',Georgia,serif;font-style:italic;font-weight:500;font-size:14px;color:#fff;line-height:1}
+  .airtag .ta{font-family:'Inter',sans-serif;font-weight:900;font-size:14px;color:var(--air2);text-transform:uppercase;letter-spacing:.02em;line-height:1}
   .mega{display:none;position:absolute;left:0;right:0;top:100%;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:0 30px 60px -24px rgba(0,0,0,.85)}
   .mega.open{display:block}
   .mega-in{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1.1fr;padding:6px 28px 20px}
