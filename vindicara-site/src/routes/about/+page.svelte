@@ -41,6 +41,13 @@
       <div class="dh">We run on our own infrastructure</div>
       <p>Every request to this site is recorded as a signed AgDR chain using the same airsdk library you install from PyPI, anchored to public Sigstore Rekor every 60 seconds and published as redacted JSONL. The trust contract is identical to what we sell: signed at the moment of action, not reconstructed from logs.</p>
     </div>
+
+    <div class="backed">
+      <div class="bh">Backed by</div>
+      <a href="https://www.nvidia.com/en-us/startups/" target="_blank" rel="noopener" aria-label="NVIDIA Inception Program">
+        <img src="/nvidia-inception-program-badge.svg" alt="NVIDIA Inception Program member" />
+      </a>
+    </div>
   </div>
 </AppShell>
 
@@ -58,5 +65,9 @@
   .dogfood{background:#0a1326;border:1px solid var(--line);padding:18px 20px;margin-top:20px}
   .dogfood .dh{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--air2);margin-bottom:8px}
   .dogfood p{font-size:13px;color:var(--soft);line-height:1.6}
+  .backed{margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+  .backed .bh{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);margin-bottom:12px}
+  .backed a{display:inline-block}
+  .backed img{height:64px;width:auto;display:block}
   @media (max-width:1080px){ .pillars{grid-template-columns:1fr 1fr} .prins{grid-template-columns:1fr} }
 </style>
