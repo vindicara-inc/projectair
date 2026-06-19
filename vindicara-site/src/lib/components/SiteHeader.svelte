@@ -5,6 +5,7 @@
   // Self-contained: defines its own CSS variables on <header> so it renders correctly
   // regardless of the page it is dropped into (it does not rely on .air-home).
   import { onMount } from 'svelte';
+  import { beginAuth0Login } from '$lib/console/stores/session';
 
   let openMenu = $state(null);
   function toggleMenu(id){ openMenu = openMenu === id ? null : id; }
@@ -27,7 +28,7 @@
       <a class="airtag" href="/get-started"><span class="tp">project</span> <span class="ta">AIR</span></a>
     </nav>
     <div class="right">
-      <a class="ghost" href="/flightdeck">Sign in</a>
+      <button type="button" class="ghost signin" onclick={(e)=>{ e.stopPropagation(); beginAuth0Login(); }}>Sign in</button>
       <a class="cta" href="/contact">Book a demo</a>
     </div>
   </div>
@@ -79,7 +80,7 @@
         <a class="pcard" href="/protect"><div class="pc-h">Protect</div><div class="pc-d">Halt agents before harm, not after.</div><div class="pc-l">Learn more →</div></a>
         <a class="pcard" href="/monitor"><div class="pc-h">Monitor</div><div class="pc-d">16 detectors, every action, live.</div><div class="pc-l">Learn more →</div></a>
         <a class="pcard" href="/get-started"><div class="pc-h"><span class="air">AIR</span> SDK &amp; CLI</div><div class="pc-d">Open source, on PyPI. Start in an afternoon.</div><div class="pc-l">Learn more →</div></a>
-        <a class="pcard" href="/flightdeck"><div class="pc-h">FlightDeck</div><div class="pc-d">The operator cockpit for your fleet.</div><div class="pc-l">Learn more →</div></a>
+        <a class="pcard" href="/flightdeck?demo=1"><div class="pc-h">FlightDeck</div><div class="pc-d">The operator cockpit for your fleet.</div><div class="pc-l">See the demo →</div></a>
         <a class="pcard" href="/pricing"><div class="pc-h"><span class="air">AIR</span> Cloud</div><div class="pc-d">Hosted ingestion, retention, alerting.</div><div class="pc-l">Learn more →</div></a>
         <a class="pcard" href="/admissibility"><div class="pc-h">Admissibility</div><div class="pc-d">Self-authenticating, FRE 902(13)–(14).</div><div class="pc-l">Learn more →</div></a>
         <a class="pcard" href="/structural-verification"><div class="pc-h">Structural Verification</div><div class="pc-d">The deterministic floor agents can't talk past.</div><div class="pc-l">Learn more →</div></a>
@@ -137,7 +138,7 @@
   .nav-item .car{font-size:10px;color:var(--faint);transition:transform .15s}
   .nav-item.on .car{transform:rotate(180deg);color:var(--air2)}
   .right{display:flex;align-items:center;gap:8px}
-  .ghost{color:var(--white);font-size:14px;text-decoration:none;padding:9px 12px;font-weight:500;border-radius:8px}
+  .ghost{color:var(--white);font-size:14px;text-decoration:none;padding:9px 12px;font-weight:500;border-radius:8px;background:none;border:0;font-family:inherit;cursor:pointer}
   .ghost:hover{color:#fff;background:rgba(255,255,255,.07)}
   .cta{background:var(--air);color:#fff;border:0;font-weight:600;font-size:14px;padding:10px 18px;border-radius:9px;cursor:pointer;text-decoration:none;display:inline-block}
   .cta:hover{background:var(--air2)}

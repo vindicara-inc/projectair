@@ -18,7 +18,10 @@
   // Auth-gate: in LIVE mode with no token, send the operator to Auth0 first.
   // Demo mode never redirects (public showcase). Skip on /flightdeck/auth/*.
   onMount(() => {
-    const onAuthRoute = get(page).url.pathname.startsWith('/flightdeck/auth/');
+    const url = get(page).url;
+    const onAuthRoute = url.pathname.startsWith('/flightdeck/auth/');
+    // Sales demo entry: ?demo opens the public showcase without Auth0.
+    if (url.searchParams.has('demo')) mode.set('demo');
     if (!onAuthRoute && get(mode) === 'live' && !get(sessionToken)) {
       void beginAuth0Login();
     }
