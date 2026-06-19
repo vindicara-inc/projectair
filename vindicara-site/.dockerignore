@@ -1,0 +1,10 @@
+node_modules
+build
+.svelte-kit
+.git
+.github
+*.log
+.DS_Store
+.env
+.env.*
+.playwright-mcp

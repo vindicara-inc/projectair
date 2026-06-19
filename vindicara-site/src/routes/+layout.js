@@ -1,4 +1,6 @@
-// Prerendered static site: full HTML at build time for every marketing route.
-// (ssr=false here previously caused every page to ship as an empty JS shell,
-// which broke Google for Startups website verification and all SEO.)
-export const prerender = true;
+// Server-rendered app (adapter-node on ECS Fargate). Public routes render full
+// HTML per request via SSR, so they stay indexable and always live. Keep ssr
+// true: ssr=false once shipped empty JS shells and broke SEO. Per-route
+// overrides: get-started prerenders (build-time install counter); the Flightdeck
+// console is dynamic + client-rendered (see flightdeck/+layout.ts).
+export const ssr = true;
