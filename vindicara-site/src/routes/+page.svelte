@@ -3,7 +3,7 @@
   // VINDICARA intro — a scroll-gated dot-globe over a vector grid floor.
   // Three scrolls, three lenses, three colors. Land-filled dot continents.
   import { onMount } from 'svelte';
-  import { geoOrthographic, geoPath, geoDistance, geoContains } from 'd3-geo';
+  import { geoOrthographic, geoPath, geoDistance, geoEquirectangular } from 'd3-geo';
   import { feature } from 'topojson-client';
   import world from 'world-atlas/countries-110m.json';
 
@@ -22,16 +22,38 @@
     const land = feature(world, world.objects.countries);
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // fill the whole continents with a dot lattice
+    // fill the whole continents with a dot lattice.
+    // Land test via a one-time rasterized equirectangular mask, NOT geoContains:
+    // geoContains runs a full point-in-polygon test per point (~5s over this grid),
+    // which blanked the globe for seconds. Rasterizing the land once and sampling
+    // pixel alpha is the same result in milliseconds. Same grid, same dots.
     const dots = (() => {
+      const MW = 1024, MH = 512;
+      const mc = document.createElement('canvas');
+      mc.width = MW; mc.height = MH;
+      const mctx = mc.getContext('2d');
+      const mproj = geoEquirectangular().fitSize([MW, MH], { type: 'Sphere' });
+      const mpath = geoPath(mproj, mctx);
+      mctx.fillStyle = '#fff';
+      mctx.beginPath(); mpath(land); mctx.fill();
+      const mask = mctx.getImageData(0, 0, MW, MH).data;
+      const isLand = (lon, lat) => {
+        const xy = mproj([lon, lat]);
+        if (!xy) return false;
+        const x = xy[0] | 0, y = xy[1] | 0;
+        if (x < 0 || x >= MW || y < 0 || y >= MH) return false;
+        return mask[(y * MW + x) * 4 + 3] > 128;
+      };
+
       const pts = [];
       let seed = 20260618;
       const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
       for (let lat = -56; lat <= 80; lat += 1.5) {
         const step = 1.5 / Math.max(0.22, Math.cos(lat * Math.PI / 180));
         for (let lon = -180; lon <= 180; lon += step) {
-          const p = [lon + (rnd() - 0.5) * 1.0, lat + (rnd() - 0.5) * 1.0];
-          if (geoContains(land, p)) pts.push([p[0], p[1], 0.5 + rnd() * 0.5]);
+          const plon = lon + (rnd() - 0.5) * 1.0;
+          const plat = lat + (rnd() - 0.5) * 1.0;
+          if (isLand(plon, plat)) pts.push([plon, plat, 0.5 + rnd() * 0.5]);
         }
       }
       return pts;
