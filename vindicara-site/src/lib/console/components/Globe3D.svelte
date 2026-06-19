@@ -43,12 +43,12 @@
       const composer = new EffectComposer(renderer);
       composer.addPass(new RenderPass(scene, camera));
       // Higher threshold + lower strength stops continent dots popping in/out of bloom.
-      const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.28, 0.45, 0.28);
+      const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.5, 0.55, 0.42);
       composer.addPass(bloom);
       composer.addPass(new OutputPass());
 
       const spin = new THREE.Group();
-      spin.scale.setScalar(0.82);
+      spin.scale.setScalar(0.98);
       scene.add(spin);
 
       const cv = document.createElement('canvas');
@@ -62,27 +62,27 @@
       const sprite = new THREE.CanvasTexture(cv);
 
       const palette = {
-        coral: 0xff6b6b,
-        amber: 0xffb84d,
-        mint: 0x4ade80,
-        sky: 0x38bdf8,
-        violet: 0xa78bfa,
-        rose: 0xf472b6,
-        gold: 0xfbbf24,
-        teal: 0x2dd4bf,
-        halt: 0xff4d6d
+        cyan: 0x00f0ff,
+        magenta: 0xff2bd6,
+        lime: 0x6dff3a,
+        violet: 0xb24bff,
+        blue: 0x2b8bff,
+        pink: 0xff3d7f,
+        yellow: 0xffe11a,
+        teal: 0x1affd5,
+        halt: 0xff2d5e
       } as const;
 
       const nodeColors = [
-        palette.amber,
-        palette.mint,
+        palette.cyan,
+        palette.magenta,
         palette.halt,
         palette.violet,
-        palette.sky,
-        palette.rose,
-        palette.gold,
+        palette.blue,
+        palette.pink,
+        palette.yellow,
         palette.teal,
-        palette.coral
+        palette.lime
       ];
 
       interface ArcLink {
@@ -105,18 +105,16 @@
       }
 
       function addArc(from: { x: number; y: number; z: number }, to: { x: number; y: number; z: number }, color: number, phase: number) {
-        const mid = new THREE.Vector3().addVectors(from, to).multiplyScalar(0.5);
-        mid.normalize().multiplyScalar(1.35);
-        const curve = new THREE.QuadraticBezierCurve3(
-          new THREE.Vector3(from.x, from.y, from.z),
-          mid,
-          new THREE.Vector3(to.x, to.y, to.z)
-        );
-        const pts = curve.getPoints(48);
-        const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
-        const line = new THREE.Line(
-          lineGeo,
-          new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending })
+        const fromV = new THREE.Vector3(from.x, from.y, from.z);
+        const toV = new THREE.Vector3(to.x, to.y, to.z);
+        // Lift the control point proportional to the node gap: short links stay
+        // low and gentle (no sharp hooks), long links arc smoothly higher.
+        const d = fromV.distanceTo(toV);
+        const ctrl = new THREE.Vector3().addVectors(fromV, toV).normalize().multiplyScalar(1.03 + d * 0.42);
+        const curve = new THREE.QuadraticBezierCurve3(fromV, ctrl, toV);
+        const line = new THREE.Mesh(
+          new THREE.TubeGeometry(curve, 44, 0.012, 8, false),
+          new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false })
         );
         spin.add(line);
 
@@ -130,93 +128,42 @@
       }
 
       function wireActiveLinks() {
-        // Cross-links only — never a closed polygon around the globe.
-        const pairs: [number, number, number, number][] = [
-          [0, 2, palette.violet, 0.55],
-          [1, 3, palette.mint, 0.78],
-          [0, 4, palette.sky, 0.32],
-          [0, 3, palette.amber, 0.18],
-          [1, 4, palette.teal, 0.44],
-          [2, 4, palette.halt, 0.62],
-          [2, 3, palette.coral, 0.27],
-          [1, 2, palette.gold, 0.71],
-          [3, 4, palette.rose, 0.36],
-          [0, 6, palette.sky, 0.49],
-          [1, 5, palette.mint, 0.83],
-          [2, 7, palette.violet, 0.14],
-          [4, 8, palette.amber, 0.58],
-          [5, 7, palette.teal, 0.66],
-          [6, 8, palette.gold, 0.41],
-          [3, 8, palette.rose, 0.22],
-          [0, 8, palette.coral, 0.74],
-          [5, 8, palette.violet, 0.53]
-        ];
-        for (const [a, b, color, phase] of pairs) {
+        // Evenly distributed web: a single skip-2 cycle touches every node once,
+        // so the strings spread uniformly around the planet with no clustering.
+        const N = activeNodes.length;
+        const neon = [palette.cyan, palette.magenta, palette.lime, palette.violet, palette.blue, palette.pink, palette.yellow, palette.teal, palette.halt];
+        for (let k = 0; k < N; k++) {
+          const from = activeNodes[k];
+          const to = activeNodes[(k + 2) % N];
+          if (from && to) addArc(from.position, to.position, neon[k % neon.length], k / N);
+        }
+        // three longer cross-links, spread every third node, to fill open areas
+        for (const k of [0, 3, 6]) {
+          const from = activeNodes[k];
+          const to = activeNodes[(k + 4) % N];
+          if (from && to) addArc(from.position, to.position, neon[(k + 4) % neon.length], (k + 0.5) / N);
+        }
+        // two extra links across the lower region
+        for (const [a, b] of [[4, 7], [5, 8]]) {
           const from = activeNodes[a];
           const to = activeNodes[b];
-          if (from && to) addArc(from.position, to.position, color, phase);
+          if (from && to) addArc(from.position, to.position, neon[(a + 1) % neon.length], (a + 0.25) / N);
         }
       }
 
-      function addDots(isLand: (u: number, v: number) => boolean) {
-        const land: number[] = [];
-        const landColors: number[] = [];
-        const equator = new THREE.Color(palette.amber);
-        const temperate = new THREE.Color(palette.teal);
-        const polar = new THREE.Color(palette.violet);
-        const tint = new THREE.Color();
-        const N = 16000;
-        for (let i = 0; i < N; i++) {
-          const y = 1 - (i / (N - 1)) * 2;
-          const r = Math.sqrt(1 - y * y);
-          const th = Math.PI * (3 - Math.sqrt(5)) * i;
-          const x = Math.cos(th) * r;
-          const z = Math.sin(th) * r;
-          const u = (Math.atan2(z, x) + Math.PI) / (2 * Math.PI);
-          const v = 1 - (Math.asin(y) + Math.PI / 2) / Math.PI;
-          if (isLand(u, v)) {
-            land.push(x * 1.01, y * 1.01, z * 1.01);
-            const latBand = Math.abs(y);
-            if (latBand < 0.38) tint.lerpColors(equator, temperate, latBand / 0.38);
-            else tint.lerpColors(temperate, polar, (latBand - 0.38) / 0.62);
-            landColors.push(tint.r, tint.g, tint.b);
-          }
-        }
-        const lg = new THREE.BufferGeometry();
-        lg.setAttribute('position', new THREE.Float32BufferAttribute(land, 3));
-        lg.setAttribute('color', new THREE.Float32BufferAttribute(landColors, 3));
-        spin.add(
-          new THREE.Points(
-            lg,
-            new THREE.PointsMaterial({
-              vertexColors: true,
-              size: 0.026,
-              sizeAttenuation: true,
-              map: sprite,
-              transparent: true,
-              opacity: 0.92,
-              depthWrite: false,
-              blending: THREE.AdditiveBlending
-            })
-          )
-        );
-        [
-          [0.18, 0.55],
-          [0.52, 0.42],
-          [0.78, 0.6],
-          [0.33, 0.7],
-          [0.62, 0.3],
-          [0.11, 0.38],
-          [0.44, 0.68],
-          [0.86, 0.47],
-          [0.27, 0.52]
-        ].forEach((c, k) => {
-          const pos = nodePos(c[0], c[1]);
+      function placeNodes() {
+        const N = 9;
+        const golden = Math.PI * (3 - Math.sqrt(5));
+        for (let k = 0; k < N; k++) {
+          const y = 1 - (k / (N - 1)) * 2;
+          const rr = Math.sqrt(Math.max(0, 1 - y * y));
+          const theta = golden * k;
+          const pos = new THREE.Vector3(Math.cos(theta) * rr, y, Math.sin(theta) * rr).multiplyScalar(1.03);
           const halted = k === 2;
           const m = new THREE.Mesh(
             new THREE.SphereGeometry(halted ? 0.038 : 0.03, 12, 12),
             new THREE.MeshBasicMaterial({
-              color: nodeColors[k] ?? palette.sky,
+              color: nodeColors[k] ?? palette.cyan,
               transparent: true,
               opacity: 0.95,
               blending: THREE.AdditiveBlending
@@ -227,31 +174,45 @@
           m.userData.phase = k * 1.3;
           spin.add(m);
           activeNodes.push(m);
-        });
+        }
 
         wireActiveLinks();
       }
 
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        const c2 = document.createElement('canvas');
-        c2.width = img.width;
-        c2.height = img.height;
-        const x2 = c2.getContext('2d')!;
-        x2.drawImage(img, 0, 0);
-        const d = x2.getImageData(0, 0, c2.width, c2.height).data;
-        addDots((u, v) => {
-          const px = Math.min(c2.width - 1, (u * c2.width) | 0);
-          const py = Math.min(c2.height - 1, (v * c2.height) | 0);
-          return d[(py * c2.width + px) * 4] > 18;
-        });
-      };
-      img.onerror = () => addDots(() => Math.random() < 0.22);
-      img.src = 'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png';
+      // Jupiter texture, self-hosted at /jupiter.jpg (same-origin, CSP-safe).
+      // Gas giant: smooth colour bands, so no bump map (no craters/relief).
+      const loader = new THREE.TextureLoader();
+      const planetTex = loader.load('/jupiter.jpg');
+      planetTex.colorSpace = THREE.SRGBColorSpace;
+      planetTex.anisotropy = 4;
+      const planet = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 96, 96),
+        new THREE.MeshStandardMaterial({ map: planetTex, roughness: 1, metalness: 0 })
+      );
+      spin.add(planet);
+
+      // White dots circulating around the planet (a tilted orbital band).
+      const orbitGroup = new THREE.Group();
+      orbitGroup.rotation.set(0.52, 0, 0.16);
+      scene.add(orbitGroup);
+      const orbitPts: number[] = [];
+      const ORB = 280;
+      for (let i = 0; i < ORB; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const rr = 1.32 + Math.random() * 0.72;
+        const yy = (Math.random() - 0.5) * 0.3;
+        orbitPts.push(Math.cos(a) * rr, yy, Math.sin(a) * rr);
+      }
+      const orbitGeo = new THREE.BufferGeometry();
+      orbitGeo.setAttribute('position', new THREE.Float32BufferAttribute(orbitPts, 3));
+      const orbit = new THREE.Points(
+        orbitGeo,
+        new THREE.PointsMaterial({ color: 0xffffff, size: 0.042, sizeAttenuation: true, map: sprite, transparent: true, opacity: 0.92, depthWrite: false, blending: THREE.AdditiveBlending })
+      );
+      orbitGroup.add(orbit);
 
       const sp: number[] = [];
-      for (let i = 0; i < 360; i++) {
+      for (let i = 0; i < 800; i++) {
         const u = Math.random();
         const v = Math.random();
         const lon = 2 * Math.PI * u;
@@ -269,11 +230,11 @@
         new THREE.Points(
           sg,
           new THREE.PointsMaterial({
-            color: 0xd8b4fe,
-            size: 0.018,
+            color: 0xffffff,
+            size: 0.02,
             sizeAttenuation: true,
             transparent: true,
-            opacity: 0.42,
+            opacity: 0.8,
             map: sprite,
             depthWrite: false,
             blending: THREE.AdditiveBlending
@@ -281,14 +242,25 @@
         )
       );
 
-      // Even fill — no single-sided point lights (Phong + rim light was leaving half the globe dark).
-      scene.add(new THREE.AmbientLight(0xfff7ed, 0.95));
-      scene.add(new THREE.HemisphereLight(0xffd6a5, 0x1e1033, 0.72));
+      // Moon lighting: soft cool fill + one warm directional key for crater
+      // relief and a gentle terminator. Only the Moon (MeshStandard) responds.
+      // Moody, mysterious lighting: low cool ambient so one side falls into
+      // shadow, a strong warm side key, and a faint cool rim for atmosphere.
+      // Low ambient so the far side falls into shadow (one dark side), a strong
+      // warm key on the lit side, and a faint cool rim to define the silhouette.
+      scene.add(new THREE.AmbientLight(0x2b3556, 0.12));
+      const key = new THREE.DirectionalLight(0xffe6c8, 1.95);
+      key.position.set(-1.8, 0.5, 0.9);
+      scene.add(key);
+      const rim = new THREE.DirectionalLight(0x8fb4ff, 0.4);
+      rim.position.set(2, -0.4, -1.1);
+      scene.add(rim);
 
       let t = 0;
       const loop = () => {
         t += 0.016;
         spin.rotation.y += 0.0011;
+        orbit.rotation.y += 0.0012;
 
         // Only the halted node breathes slightly; arc lines stay steady (opacity was flickering).
         for (const n of activeNodes) {
