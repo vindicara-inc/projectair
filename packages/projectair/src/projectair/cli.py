@@ -56,10 +56,15 @@ report_app = typer.Typer(
 app.add_typer(report_app, name="report")
 
 # Layer 1 anchoring commands: `air anchor`, `air verify`, `air verify-public`.
-# Lives in a sibling module to keep the legacy CLI surface untouched.
-from projectair.anchor_cli import register as _register_anchor_cli  # noqa: E402
+# Lives in a sibling module to keep the legacy CLI surface untouched. Anchoring
+# ships as an optional extra (`pip install 'projectair[anchoring]'`); when it is
+# not installed, skip these commands so the rest of the CLI still works.
+try:
+    from projectair.anchor_cli import register as _register_anchor_cli
 
-_register_anchor_cli(app)
+    _register_anchor_cli(app)
+except ModuleNotFoundError:
+    pass
 
 # Layer 2 causal explain command: `air explain`.
 from projectair.explain_cli import register as _register_explain_cli  # noqa: E402

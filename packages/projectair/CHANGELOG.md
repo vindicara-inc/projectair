@@ -4,6 +4,14 @@ All notable changes to `projectair` are documented here. Format: [Keep a Changel
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-06-19
+
+### Changed
+- **Layer 1 anchoring (`sigstore` + `rfc3161-client`) is now an optional extra: `pip install 'projectair[anchoring]'`.** Why: the `sigstore` dependency chain pulls pre-release transitive packages (`sigstore-protobuf-specs`, `betterproto`, `defusedxml`) that strict resolvers — notably `uv`, which backs `pipx` — refuse by default, so `pipx install projectair` failed outright. Moving anchoring out of the core dependencies makes `pip install projectair` and `pipx install projectair` resolve cleanly with zero pre-releases. `airsdk.anchoring`, `air anchor`, and `air verify-public` now require the extra and raise a clear install hint when it is absent. No change to the chain format or detectors: 10 OWASP Agentic + 3 OWASP LLM + 3 AIR-native = 16 total.
+
+### Fixed
+- Removed the unused `betterproto` dependency (imported nowhere; a pre-release that also tripped `uv`/pipx).
+
 ## [1.1.0] - 2026-06-19
 
 ### Added

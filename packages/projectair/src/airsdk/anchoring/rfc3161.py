@@ -32,15 +32,22 @@ from typing import Final
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import Encoding as _SerializationEncoding
-from rfc3161_client import (
-    HashAlgorithm,
-    TimestampRequestBuilder,
-    TimeStampResponse,
-    Verifier,
-    VerifierBuilder,
-    decode_timestamp_response,
-)
-from rfc3161_client.errors import VerificationError as _RFC3161VerificationError
+
+try:
+    from rfc3161_client import (
+        HashAlgorithm,
+        TimestampRequestBuilder,
+        TimeStampResponse,
+        Verifier,
+        VerifierBuilder,
+        decode_timestamp_response,
+    )
+    from rfc3161_client.errors import VerificationError as _RFC3161VerificationError
+except ModuleNotFoundError as _exc:  # pragma: no cover - optional extra
+    raise ModuleNotFoundError(
+        "Layer 1 anchoring requires the optional anchoring extra. "
+        "Install it with:  pip install 'projectair[anchoring]'"
+    ) from _exc
 
 from airsdk._compat import UTC
 from airsdk.anchoring.exceptions import (

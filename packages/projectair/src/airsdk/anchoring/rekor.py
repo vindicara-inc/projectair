@@ -34,10 +34,17 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
-from sigstore.models import LogEntry
-from sigstore.models import (  # type: ignore[attr-defined]
-    verify_merkle_inclusion as _verify_merkle_inclusion,
-)
+
+try:
+    from sigstore.models import LogEntry
+    from sigstore.models import (  # type: ignore[attr-defined]
+        verify_merkle_inclusion as _verify_merkle_inclusion,
+    )
+except ModuleNotFoundError as _exc:  # pragma: no cover - optional extra
+    raise ModuleNotFoundError(
+        "Layer 1 anchoring requires the optional anchoring extra. "
+        "Install it with:  pip install 'projectair[anchoring]'"
+    ) from _exc
 
 from airsdk.anchoring.exceptions import (
     RekorEntryRejectedError,
