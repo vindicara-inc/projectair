@@ -94,6 +94,7 @@
         <a class="mi" href="/about"><span class="ic"></span><span><span class="mt">About</span><span class="md">Why we build the record</span></span></a>
         <a class="mi" href="/about"><span class="ic"></span><span><span class="mt">Customers</span><span class="md">Who runs on <span class="air">AIR</span></span></span></a>
         <a class="mi" href="/contact"><span class="ic"></span><span><span class="mt">Contact</span><span class="md">Talk to us</span></span></a>
+        <a class="mi" href="/policy"><span class="ic"></span><span><span class="mt">Policy</span><span class="md">Evidence-based agent governance</span></span></a>
       </div>
       <div class="col">
         <h4>Resources</h4>
