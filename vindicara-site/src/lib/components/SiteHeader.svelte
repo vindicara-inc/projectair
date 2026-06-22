@@ -6,8 +6,10 @@
   // regardless of the page it is dropped into (it does not rely on .air-home).
   import { onMount } from 'svelte';
   import { beginAuth0Login } from '$lib/console/stores/session';
+  import MobileSheet from './MobileSheet.svelte';
 
   let openMenu = $state(null);
+  let mobileOpen = $state(false);
   function toggleMenu(id){ openMenu = openMenu === id ? null : id; }
 
   onMount(() => {
@@ -31,6 +33,14 @@
       <button type="button" class="ghost signin" onclick={(e)=>{ e.stopPropagation(); beginAuth0Login(); }}>Sign in</button>
       <a class="cta" href="/contact">Book a demo</a>
     </div>
+    <button
+      class="burger"
+      class:open={mobileOpen}
+      aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+      aria-expanded={mobileOpen}
+      aria-controls="mobile-nav"
+      onclick={(e)=>{ e.stopPropagation(); mobileOpen = !mobileOpen; }}
+    ><span></span><span></span><span></span></button>
   </div>
 
   <div class="mega" class:open={openMenu==='solutions'} onclick={(e)=>e.stopPropagation()}>
@@ -117,6 +127,8 @@
   </div>
 </header>
 
+<MobileSheet bind:open={mobileOpen} />
+
 <style>
   header{position:sticky;top:0;z-index:40;background:rgba(12,20,38,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
     --navy:#070d1a; --panel:#101c34; --raise:#16264a;
@@ -142,6 +154,13 @@
   .ghost:hover{color:#fff;background:rgba(255,255,255,.07)}
   .cta{background:var(--air);color:#fff;border:0;font-weight:600;font-size:14px;padding:10px 18px;border-radius:9px;cursor:pointer;text-decoration:none;display:inline-block}
   .cta:hover{background:var(--air2)}
+  .burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:42px;height:42px;padding:0 9px;background:none;border:0;cursor:pointer;border-radius:9px}
+  .burger:hover{background:rgba(255,255,255,.07)}
+  .burger span{display:block;height:2px;width:100%;background:var(--white);border-radius:2px;transition:transform .22s ease,opacity .18s ease}
+  .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .burger.open span:nth-child(2){opacity:0}
+  .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .burger:focus-visible{outline:2px solid var(--air2);outline-offset:2px}
   .mega{display:none;position:absolute;left:0;right:0;top:100%;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:0 30px 60px -24px rgba(0,0,0,.85)}
   .mega.open{display:block}
   .mega-in{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1.1fr;padding:6px 28px 20px}
@@ -173,5 +192,9 @@
   .pc-d{color:var(--soft);font-size:12.5px;margin-top:5px;line-height:1.42;flex:1}
   .pc-l{color:var(--air2);font-size:12px;font-weight:600;margin-top:12px}
   @media(max-width:880px){ .mega-in{grid-template-columns:1fr 1fr} .prod-grid{grid-template-columns:1fr 1fr} }
-  @media(max-width:600px){ .mega-in{grid-template-columns:1fr} .mega-rich{grid-template-columns:1fr} .prod-grid{grid-template-columns:1fr} nav{display:none} }
+  /* nav / .right are hidden by industry.css at <=900; the burger (no global rule
+     competes for it) is shown here at the same breakpoint so they swap in lockstep. */
+  @media(max-width:900px){ .burger{display:inline-flex} }
+  @media(max-width:600px){ .mega-in{grid-template-columns:1fr} .mega-rich{grid-template-columns:1fr} .prod-grid{grid-template-columns:1fr} }
+  @media(prefers-reduced-motion:reduce){ .burger span{transition:none} }
 </style>

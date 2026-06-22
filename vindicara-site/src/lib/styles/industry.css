@@ -75,7 +75,7 @@
 .ind .hcard .ht{font-size:15px;font-weight:700;color:var(--white)}
 .ind .hcard .hd{font-size:12px;color:var(--soft);margin-top:4px;line-height:1.45}
 /* hamburger button + its menu (holds FlightDeck + nav) */
-.ind .burger{width:40px;height:38px;border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex:none;padding:0}
+.ind .burger{width:40px;height:38px;border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:9px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex:none;padding:0}
 .ind .burger span{display:block;width:16px;height:1.6px;background:var(--soft);transition:.2s;border-radius:2px}
 .ind .burger:hover span{background:#fff}
 .ind .burger.on span:nth-child(1){transform:translateY(5.6px) rotate(45deg)}
@@ -217,6 +217,11 @@
   .ind .evsec{grid-template-columns:1fr}
   .ind .tiers{grid-template-columns:1fr}
   .ind .mega-in{grid-template-columns:1fr 1fr}
-  .ind .logo-img{height:84px;margin:-24px 0 -24px -44px}
-  .ind nav{display:none}
+  .ind .bar{padding:8px 16px}
+  .ind .logo-img{height:56px;margin:-17px 0 -17px -30px}
+  .ind .wordmark{margin-left:-10px}
+  .ind .wordmark .proj,.ind .wordmark .airw,.ind .wordmark .air{font-size:21px}
+  .ind header nav{display:none}   /* desktop top-nav only; must NOT match the MobileSheet drawer <nav> */
+  .ind .right{display:none}
+  .ind .burger{display:flex}
 }
