@@ -48,6 +48,12 @@ class LicensePlan:
 # Price ID → plan mapping. The Price IDs are public (they appear in Stripe
 # Checkout URLs); the secret material is the signing key, not these.
 _PRICE_TO_PLAN: dict[str, LicensePlan] = {
+    # Current live Pro Individual ($45/mo) Payment Link price.
+    "price_1Tkx6CC4TNI7tWa07aqstlC6": LicensePlan(
+        tier="individual", duration_days=33, features=_INDIVIDUAL_FEATURES
+    ),
+    # Legacy Pro Individual monthly ($39); retained so any subscriptions created
+    # before the $45 repricing still fulfill on renewal.
     "price_1TUFKqC4TNI7tWa0kzayypru": LicensePlan(
         tier="individual", duration_days=33, features=_INDIVIDUAL_FEATURES
     ),
