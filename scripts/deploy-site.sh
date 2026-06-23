@@ -1,53 +1,46 @@
 #!/usr/bin/env bash
-# Build and deploy the marketing site (vindicara-site/, includes FlightDeck at
-# /flightdeck) to S3 + CloudFront.
-# Requires: aws CLI authenticated with permissions for the bucket and distribution.
+# Build and deploy the server-rendered vindicara.io (adapter-node) to ECS
+# Fargate behind the ALB, via the VindicaraSiteServer CDK stack. This is the
+# manual equivalent of .github/workflows/deploy-site.yml.
+#
+# Replaces the old static S3 + CloudFront sync: that published an adapter-node
+# build as a static export, so every /_app/* asset 404'd and the site rendered
+# unstyled. The container image is the single source of truth now.
+#
+# Requires:
+#   - Docker running (CDK builds + pushes the image asset)
+#   - AWS credentials for the workload account
+#   - The CDK app deps available to Python: aws-cdk-lib + the vindicara package
+#     (pip install -e ".[cdk]", or the prebuilt .venv-infra, which this script
+#     prefers automatically)
 #
 # Required env vars (no defaults; fails loud if missing):
-#   VINDICARA_SITE_BUCKET   S3 bucket name (e.g. vindicara-site-399827112476)
-#   VINDICARA_CF_DIST_ID    CloudFront distribution ID
-#   AWS_PROFILE             AWS profile (e.g. vindicara)
+#   VINDICARA_AWS_ACCOUNT_ID   target AWS account (e.g. 399827112476)
+# Optional:
+#   CDK_DEFAULT_REGION         workload region (default us-west-2)
 
 set -euo pipefail
 
-: "${VINDICARA_SITE_BUCKET:?VINDICARA_SITE_BUCKET must be set (e.g. vindicara-site-399827112476)}"
-: "${VINDICARA_CF_DIST_ID:?VINDICARA_CF_DIST_ID must be set (CloudFront distribution ID)}"
-: "${AWS_PROFILE:?AWS_PROFILE must be set (e.g. vindicara)}"
+: "${VINDICARA_AWS_ACCOUNT_ID:?VINDICARA_AWS_ACCOUNT_ID must be set (e.g. 399827112476)}"
+export CDK_DEFAULT_ACCOUNT="$VINDICARA_AWS_ACCOUNT_ID"
+export CDK_DEFAULT_REGION="${CDK_DEFAULT_REGION:-us-west-2}"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SITE_DIR="$REPO_ROOT/vindicara-site"
-BUILD_DIR="$SITE_DIR/build"
+cd "$REPO_ROOT"
 
-echo "==> Building site (includes FlightDeck at /flightdeck)"
-(cd "$SITE_DIR" && npm run build)
-
-if [[ ! -d "$BUILD_DIR" ]]; then
-  echo "build directory not found: $BUILD_DIR" >&2
+if ! docker info >/dev/null 2>&1; then
+  echo "Docker daemon is not running. Start Docker Desktop and retry." >&2
   exit 1
 fi
 
-if [[ ! -f "$BUILD_DIR/flightdeck.html" ]]; then
-  echo "FlightDeck build missing: $BUILD_DIR/flightdeck.html" >&2
-  exit 1
+# Prefer the infra venv so `python -m vindicara.infra.app` resolves both the
+# vindicara package and aws_cdk regardless of the system python.
+APP="python3 -m vindicara.infra.app"
+if [[ -x "$REPO_ROOT/.venv-infra/bin/python" ]]; then
+  APP="$REPO_ROOT/.venv-infra/bin/python -m vindicara.infra.app"
 fi
 
-echo "==> Syncing to s3://$VINDICARA_SITE_BUCKET (profile=$AWS_PROFILE)"
-# Immutable hashed assets: cache a year, keep old hashes (no --delete here).
-aws s3 sync "$BUILD_DIR/_app/" "s3://$VINDICARA_SITE_BUCKET/_app/" \
-  --cache-control "public,max-age=31536000,immutable" --profile "$AWS_PROFILE"
-# HTML + the rest: no-cache, clean cutover.
-aws s3 sync "$BUILD_DIR/" "s3://$VINDICARA_SITE_BUCKET/" \
-  --exclude "_app/*" --cache-control "no-cache" --delete --profile "$AWS_PROFILE"
+echo "==> Deploying VindicaraSiteServer (account=$CDK_DEFAULT_ACCOUNT region=$CDK_DEFAULT_REGION)"
+npx cdk deploy VindicaraSiteServer --app "$APP" --require-approval never
 
-echo "==> Invalidating CloudFront $VINDICARA_CF_DIST_ID"
-INVALIDATION_ID=$(
-  aws cloudfront create-invalidation \
-    --profile "$AWS_PROFILE" \
-    --distribution-id "$VINDICARA_CF_DIST_ID" \
-    --paths "/*" \
-    --query 'Invalidation.Id' \
-    --output text
-)
-
-echo "==> Invalidation queued: $INVALIDATION_ID"
 echo "==> Deploy complete. https://vindicara.io"

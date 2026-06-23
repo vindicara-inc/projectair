@@ -16,11 +16,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from cryptography.hazmat.primitives.asymmetric.mldsa import MLDSA65PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
-from airsdk.agdr import Signer, SigningKey, _uuid7
+from airsdk.agdr import _HAS_MLDSA, MLDSA65PrivateKey, Signer, SigningKey, _require_mldsa, _uuid7
 from airsdk.containment import (
+    ApprovalInvalidError,
     Auth0Verifier,
     BlockedActionError,
     ChallengeNotFoundError,
@@ -51,6 +51,13 @@ if TYPE_CHECKING:
     from airsdk.attestation import AttestationProvider, GPUAttestationConfig
     from airsdk.types import Finding
 
+# Accepted private-key instance types. ML-DSA-65 is only present when
+# cryptography>=48 is installed; on older cryptography the package still imports
+# and Ed25519 works unchanged (see airsdk.agdr).
+_PRIVATE_KEY_TYPES: tuple[type, ...] = (
+    (Ed25519PrivateKey, MLDSA65PrivateKey) if _HAS_MLDSA else (Ed25519PrivateKey,)
+)
+
 
 def resolve_signing_key(
     key: str | SigningKey | None,
@@ -64,12 +71,12 @@ def resolve_signing_key(
     """
     if key is None:
         return None
-    if isinstance(key, (Ed25519PrivateKey, MLDSA65PrivateKey)):
+    if isinstance(key, _PRIVATE_KEY_TYPES):
         return key
     data = key.strip()
     if data.startswith("-----BEGIN"):
         priv = load_pem_private_key(data.encode(), password=None)
-        if isinstance(priv, (Ed25519PrivateKey, MLDSA65PrivateKey)):
+        if isinstance(priv, _PRIVATE_KEY_TYPES):
             return priv
         raise ValueError(f"key PEM must hold Ed25519 or ML-DSA-65, got {type(priv).__name__}")
     try:
@@ -79,6 +86,7 @@ def resolve_signing_key(
     if len(seed) != 32:
         raise ValueError(f"hex key must decode to 32 bytes, got {len(seed)}")
     if algorithm == SigningAlgorithm.ML_DSA_65:
+        _require_mldsa()
         return MLDSA65PrivateKey.from_seed_bytes(seed)
     return Ed25519PrivateKey.from_private_bytes(seed)
 
@@ -152,6 +160,9 @@ class AIRRecorder:
         self._delegation_policy = delegation_policy
         self._auth0 = auth0_verifier
         self._pending: dict[str, dict[str, Any]] = {}
+        # Single-use ledger of consumed approval-token JTIs. A valid token may
+        # approve at most one challenge: replaying it (same jti) is rejected.
+        self._consumed_jtis: set[str] = set()
         self._prior_findings: list[Finding] = []
         self._verify_on_step = verify_on_step
         self._chain_records: list[AgDRRecord] = []
@@ -417,10 +428,11 @@ class AIRRecorder:
         blocked) record. The agent that was awaiting approval now
         resumes with that record's step_id.
 
-        Raises ``ApprovalInvalidError`` if the token does not verify or
-        ``ChallengeNotFoundError`` if no pending challenge matches.
-        Both leave the action permanently halted; an attacker submitting
-        a forged token cannot drive the agent forward.
+        Raises ``ApprovalInvalidError`` if the token does not verify or has
+        already been used to approve another challenge (single-use jti), or
+        ``ChallengeNotFoundError`` if no pending challenge matches. All leave
+        the action permanently halted; an attacker submitting a forged or
+        replayed token cannot drive the agent forward.
         """
         if self._auth0 is None:
             raise ChallengeNotFoundError(
@@ -432,6 +444,14 @@ class AIRRecorder:
                 "already resolved, or never issued",
             )
         claims = self._auth0.verify(auth0_token)
+        # Replay defense: a token carrying a jti may be consumed exactly once.
+        if claims.jti is not None:
+            if claims.jti in self._consumed_jtis:
+                raise ApprovalInvalidError(
+                    f"approval token jti {claims.jti!r} has already been used; "
+                    "replayed approval tokens are rejected",
+                )
+            self._consumed_jtis.add(claims.jti)
 
         approval = HumanApproval(
             challenge_id=challenge_id,

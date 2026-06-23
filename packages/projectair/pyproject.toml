@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projectair"
-version = "1.2.0"
+version = "1.3.0"
 description = "Project AIR: forensic reconstruction and incident response for AI agents. Signed AgDR chains, RFC 3161 + Sigstore Rekor anchoring, causal explanation, and Auth0-verified human-in-the-loop containment."
 readme = "README.md"
 license = "MIT"
@@ -12,7 +12,7 @@ requires-python = ">=3.10"
 authors = [{ name = "Kevin Minn", email = "support@vindicara.io" }]
 keywords = ["ai", "security", "incident-response", "forensics", "langchain", "agent", "agdr", "owasp"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
@@ -26,9 +26,13 @@ classifiers = [
 ]
 dependencies = [
     "blake3>=1.0.0,<2.0",
-    # cryptography >=48: ML-DSA-65 (FIPS 204) post-quantum signatures via
-    # OpenSSL 3.5 bundled in shipped wheels. Also includes prior CVE patches.
-    "cryptography>=48.0.0,<49.0",
+    # cryptography floor 42.0.0 keeps the core install broadly resolvable
+    # (Ed25519 signing/verification works everywhere on >=42). ML-DSA-65
+    # (FIPS 204) post-quantum signing requires cryptography>=48 and is imported
+    # conditionally: on <48 it raises a clear RuntimeError with upgrade
+    # instructions instead of failing at import. Opt into the newer floor with
+    # the [pqc] extra below.
+    "cryptography>=42.0.0,<47.0",
     "pydantic>=2.7.0,<3.0",
     "typer>=0.12.0,<1.0",
     # langchain-core: floor 1.2.22 patches CVE-2026-34070 (load_prompt path traversal, HIGH)
@@ -70,6 +74,14 @@ anchoring = [
 # reference ceremony server; the Auth0 passkey fast path needs nothing new.
 webauthn = [
     "webauthn>=2.0.0,<3.0",
+]
+# Post-quantum signing (ML-DSA-65 / FIPS 204) needs OpenSSL 3.5, shipped in
+# cryptography>=48. Opt in with: pip install 'projectair[pqc]'. Without it the
+# core install stays on the broadly-resolvable cryptography>=42 floor and
+# Ed25519 signing/verification works unchanged; ML-DSA operations raise a clear
+# RuntimeError with this upgrade hint.
+pqc = [
+    "cryptography>=48.0.0,<49.0",
 ]
 dev = [
     # dev/CI installs the anchoring extra so the Layer 1 test suite can import it.

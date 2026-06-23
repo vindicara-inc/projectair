@@ -53,6 +53,19 @@ from airsdk.types import (
 
 SigningKey = Ed25519PrivateKey | MLDSA65PrivateKey
 
+_MLDSA_UNAVAILABLE = (
+    "ML-DSA-65 (FIPS 204) post-quantum signing requires cryptography>=48 "
+    "(OpenSSL 3.5). The installed cryptography is older. Ed25519 signing and "
+    "verification are unaffected. To enable ML-DSA-65, run: "
+    "pip install 'projectair[pqc]'"
+)
+
+
+def _require_mldsa() -> None:
+    """Raise a clear RuntimeError when ML-DSA-65 is requested but unavailable."""
+    if not _HAS_MLDSA:
+        raise RuntimeError(_MLDSA_UNAVAILABLE)
+
 
 def _canonical_json(obj: Any) -> bytes:
     """Stable JSON encoding: sorted keys, no extraneous whitespace, UTF-8."""
@@ -81,6 +94,32 @@ def _blake3_hex(data: bytes) -> str:
     return blake3.blake3(data).hexdigest()
 
 
+def _meta_hash(*, step_id: str, timestamp: str, kind: str, algorithm: str) -> str:
+    """BLAKE3 over the record metadata bound into the signature (meta_signed=True).
+
+    Binding step_id, timestamp, kind, and signature_algorithm closes the gap
+    where those fields sat outside the signed material and could be altered
+    without breaking ``verify_record``.
+    """
+    return _blake3_hex(
+        _canonical_json(
+            {
+                "step_id": step_id,
+                "timestamp": timestamp,
+                "kind": kind,
+                "signature_algorithm": algorithm,
+            }
+        )
+    )
+
+
+def _sig_material(prev_hash: str, content_hash: str, meta_hash: str | None) -> bytes:
+    material = bytes.fromhex(prev_hash) + bytes.fromhex(content_hash)
+    if meta_hash is not None:
+        material += bytes.fromhex(meta_hash)
+    return material
+
+
 class Signer:
     """Holds a keypair and emits signed AgDRRecord instances in chain order.
 
@@ -106,6 +145,7 @@ class Signer:
     @classmethod
     def generate(cls, algorithm: SigningAlgorithm = SigningAlgorithm.ED25519) -> Signer:
         if algorithm == SigningAlgorithm.ML_DSA_65:
+            _require_mldsa()
             return cls(MLDSA65PrivateKey.generate())
         return cls(Ed25519PrivateKey.generate())
 
@@ -138,6 +178,7 @@ class Signer:
         if len(key_bytes) != 32:
             raise ValueError(f"{env_var} hex seed must decode to 32 bytes, got {len(key_bytes)}")
         if algorithm == SigningAlgorithm.ML_DSA_65:
+            _require_mldsa()
             return cls(MLDSA65PrivateKey.from_seed_bytes(key_bytes))
         return cls(Ed25519PrivateKey.from_private_bytes(key_bytes))
 
@@ -159,12 +200,20 @@ class Signer:
 
         payload_dict = payload.model_dump(exclude_none=True)
         content_hash = _blake3_hex(_canonical_json(payload_dict))
-        sig_material = bytes.fromhex(self._prev_hash) + bytes.fromhex(content_hash)
+        step_id = _uuid7()
+        timestamp = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+        meta_hash = _meta_hash(
+            step_id=step_id,
+            timestamp=timestamp,
+            kind=kind.value,
+            algorithm=self._algorithm.value,
+        )
+        sig_material = _sig_material(self._prev_hash, content_hash, meta_hash)
         signature_hex = self._priv.sign(sig_material).hex()
 
         record = AgDRRecord(
-            step_id=_uuid7(),
-            timestamp=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            step_id=step_id,
+            timestamp=timestamp,
             kind=kind,
             payload=payload,
             prev_hash=self._prev_hash,
@@ -172,6 +221,7 @@ class Signer:
             signature=signature_hex,
             signer_key=self._signer_key_hex,
             signature_algorithm=self._algorithm,
+            meta_signed=True,
         )
         self._prev_hash = content_hash
         return record
@@ -183,6 +233,11 @@ def verify_record(record: AgDRRecord) -> tuple[bool, str | None]:
     Dispatches to Ed25519 or ML-DSA-65 based on ``record.signature_algorithm``.
     Records without the field (v0.4 and earlier) default to Ed25519.
 
+    When ``record.meta_signed`` is True the signed material also covers the
+    record metadata (step_id, timestamp, kind, signature_algorithm), so those
+    fields cannot be altered without breaking verification. Legacy records
+    (meta_signed False) verify over prev_hash + content_hash exactly as before.
+
     Returns (ok, reason). reason is None when ok is True.
     """
     payload_dict = record.payload.model_dump(exclude_none=True)
@@ -193,9 +248,21 @@ def verify_record(record: AgDRRecord) -> tuple[bool, str | None]:
     algo = record.signature_algorithm
     try:
         key_bytes = bytes.fromhex(record.signer_key)
-        sig_material = bytes.fromhex(record.prev_hash) + bytes.fromhex(record.content_hash)
+        meta_hash = (
+            _meta_hash(
+                step_id=record.step_id,
+                timestamp=record.timestamp,
+                kind=record.kind.value,
+                algorithm=str(record.signature_algorithm),
+            )
+            if record.meta_signed
+            else None
+        )
+        sig_material = _sig_material(record.prev_hash, record.content_hash, meta_hash)
         sig_bytes = bytes.fromhex(record.signature)
         if algo == SigningAlgorithm.ML_DSA_65:
+            if not _HAS_MLDSA:
+                return False, _MLDSA_UNAVAILABLE
             MLDSA65PublicKey.from_public_bytes(key_bytes).verify(sig_bytes, sig_material)
         else:
             Ed25519PublicKey.from_public_bytes(key_bytes).verify(sig_bytes, sig_material)

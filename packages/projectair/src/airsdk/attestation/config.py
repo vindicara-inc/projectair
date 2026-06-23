@@ -40,3 +40,8 @@ class GPUAttestationConfig:
     cached_signing_cert_path: Path | None = None
     cached_rim_path: Path | None = None
     cached_ocsp_path: Path | None = None
+    # Fail closed on revocation: when True, a missing cached OCSP reference is
+    # a verification failure rather than a skipped check. Default False keeps
+    # the W1 behavior (OCSP is optional until the cached format is locked with
+    # NVIDIA, spec 2.8); set True for deployments that must enforce revocation.
+    require_ocsp: bool = False

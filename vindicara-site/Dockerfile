@@ -21,6 +21,16 @@ ENV PORT=3000
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=build /app/build ./build
+# Vite 8 + adapter-node 5.5.5 bundle the request handler under
+# build/server/chunks/, so its import.meta.url-derived asset directory resolves
+# to build/server/chunks/client instead of build/client. That makes sirv's
+# existsSync check fail, silently dropping static-asset serving so every
+# /_app/* request (and favicon) falls through to SSR and 404s, rendering the
+# site unstyled. Point client + prerendered at where the handler looks for them.
+# Proper fix: align the Vite / adapter-node versions; this symlink is the
+# durable workaround until then.
+RUN ln -sfn ../../client build/server/chunks/client \
+ && ln -sfn ../../prerendered build/server/chunks/prerendered
 EXPOSE 3000
 # Least privilege: run as the built-in non-root node user.
 USER node

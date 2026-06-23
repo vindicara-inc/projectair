@@ -372,6 +372,13 @@ class AgDRRecord(BaseModel):
     signature: str
     signer_key: str
     signature_algorithm: str = SigningAlgorithm.ED25519
+    # When True, the signature covers the record metadata (step_id, timestamp,
+    # kind, signature_algorithm) in addition to prev_hash + content_hash, so a
+    # forensic timestamp or step kind cannot be altered without breaking
+    # verification. Additive and self-protecting: legacy records omit the field
+    # (default False) and verify over prev_hash + content_hash exactly as
+    # before; flipping the flag on a signed record invalidates its signature.
+    meta_signed: bool = False
 
 
 class Finding(BaseModel):

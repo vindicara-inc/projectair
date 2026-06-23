@@ -231,10 +231,16 @@ def _check_cached_ocsp(
     """Provisional cached-OCSP check (W1 open decision 2.8).
 
     When no cached OCSP reference is configured the check is skipped, not
-    failed: the cached reference set is optional until the canonical format
-    is locked with NVIDIA.
+    failed, unless ``config.require_ocsp`` is set: the cached reference set is
+    optional until the canonical format is locked with NVIDIA, but deployments
+    that must enforce revocation can opt into fail-closed behavior.
     """
     if config.cached_ocsp_path is None:
+        if config.require_ocsp:
+            failures.append(
+                f"step {record.step_id}: require_ocsp is set but no cached OCSP "
+                "reference is configured (revocation could not be checked)"
+            )
         return
     try:
         reference = json.loads(Path(config.cached_ocsp_path).read_text(encoding="utf-8"))

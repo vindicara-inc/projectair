@@ -64,7 +64,16 @@ class SiteServerStack(Stack):
         )
 
         # CDK builds vindicara-site/Dockerfile and pushes it as an asset image.
-        image = ecr_assets.DockerImageAsset(self, "SiteImage", directory=_SITE_DIR)
+        # Pin LINUX_AMD64: the build host may be arm64 (Apple Silicon) but the
+        # Fargate service runs the default X86_64 runtime platform. An arm64
+        # image on x86 Fargate fails to start ("exec format error"), so the
+        # asset arch must match the task arch. CDK cross-builds via buildx.
+        image = ecr_assets.DockerImageAsset(
+            self,
+            "SiteImage",
+            directory=_SITE_DIR,
+            platform=ecr_assets.Platform.LINUX_AMD64,
+        )
 
         cluster = ecs.Cluster(self, "SiteCluster", vpc=vpc, container_insights=True)
 
@@ -96,8 +105,19 @@ class SiteServerStack(Stack):
                 environment={
                     "NODE_ENV": "production",
                     "PORT": "3000",
-                    # SvelteKit reads PUBLIC_* at build time, but the API origin is
-                    # also passed at runtime for the security-header hook's CSP.
+                    # This app reads Auth0 + API config via $env/dynamic/public,
+                    # i.e. from the Node server's process.env at RUNTIME (not
+                    # inlined at build time). These are public client-side values
+                    # (they mirror the GitHub repo Variables the old static
+                    # workflow injected) and are not secrets. Without them the
+                    # Flightdeck console boots with "Auth0 is not configured" and
+                    # login breaks. This stack is now the source of truth for them.
+                    "PUBLIC_AIR_API_MODE": "live",
+                    "PUBLIC_AIR_API_BASE": api_origin,
+                    "PUBLIC_AUTH0_DOMAIN": "dev-kilt2vkudvbu75ny.us.auth0.com",
+                    "PUBLIC_AUTH0_CLIENT_ID": "GszbWqSkD65eUjv7FrRWYO4IkmGWdd4y",
+                    "PUBLIC_AUTH0_AUDIENCE": "cabinet-coach.v2",
+                    # Also passed for the security-header hook's CSP (hooks.server.js).
                     "AIR_API_ORIGIN": api_origin,
                 },
                 log_driver=ecs.LogDrivers.aws_logs(stream_prefix="site", log_group=log_group),

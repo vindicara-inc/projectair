@@ -128,6 +128,11 @@ from projectair.hl7_cli import register as _register_hl7_cli  # noqa: E402
 
 _register_hl7_cli(app)
 
+# Hardware root of trust: `air attest` (NVIDIA NRAS GPU attestation, experimental).
+from projectair.attest_cli import register as _register_attest_cli  # noqa: E402
+
+_register_attest_cli(app)
+
 
 # Configuration management: `air config set / get / list`.
 config_app = typer.Typer(
@@ -1060,12 +1065,14 @@ def status() -> None:
 @app.command()
 def upgrade() -> None:
     """Print the upgrade URL and what each tier unlocks."""
-    typer.secho("Vindicara AIR Pro tiers", fg=typer.colors.BRIGHT_WHITE, bold=True)
+    typer.secho("Project AIR tiers (retention-metered)", fg=typer.colors.BRIGHT_WHITE, bold=True)
     typer.echo("")
-    typer.echo("  Individual    $39/mo     AIR Cloud client, premium reports, premium detectors")
-    typer.echo("  Team          $599/mo    Hosted AIR Cloud workspace, multi-agent dashboards")
-    typer.echo("  Enterprise    Talk to us SSO/SAML/RBAC, on-prem, SLA, BAA, insurance integrations")
+    typer.echo("  Free          $0          7-day retention, read-only viewer")
+    typer.echo("  Pro           $45/mo      individual, self-serve, 90-day retention")
+    typer.echo("  Team          Talk to us  1-year retention for your whole team (SOC 2 window)")
+    typer.echo("  Enterprise    Talk to us  6-year retention, tamper-evident retention-locked storage, SSO/RBAC, BAA")
     typer.echo("")
+    typer.echo("How long you keep the record is the only lever that moves price.")
     typer.echo("https://vindicara.io/pricing")
 
 

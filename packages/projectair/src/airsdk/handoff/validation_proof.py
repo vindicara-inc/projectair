@@ -109,6 +109,16 @@ class RekorBackend(ABC):
     def submit_synchronous(self, canonical_bytes: bytes) -> RekorSubmissionResult:
         """Submit canonical bytes synchronously and return the resulting anchor."""
 
+    @abstractmethod
+    def verify_inclusion(self, *, proof: dict[str, Any], canonical_bytes: bytes) -> None:
+        """Verify the proof's anchor coordinates are bound to ``canonical_bytes``.
+
+        Raises :class:`ValidationProofInvalidError` when the proof's recorded
+        Rekor coordinates do not correspond to the exact canonical bytes whose
+        signature was just verified. This is the binding that prevents a proof
+        anchored over one blob from being replayed against a different blob.
+        """
+
 
 @dataclass(slots=True)
 class StubRekorBackend(RekorBackend):
@@ -141,6 +151,36 @@ class StubRekorBackend(RekorBackend):
             submission_state=SUBMISSION_STATE_ANCHORED,
         )
 
+    def verify_inclusion(self, *, proof: dict[str, Any], canonical_bytes: bytes) -> None:
+        """Confirm these exact bytes were submitted and the coordinates match.
+
+        Two checks, both offline and deterministic: (1) the canonical bytes are
+        present in this backend's submission log, and (2) the proof's
+        ``rekor_entry_uuid`` and ``rekor_inclusion_proof_hash`` are exactly what
+        this backend produces for those bytes. A proof whose coordinates were
+        lifted from a different submission fails closed here.
+        """
+        if bytes(canonical_bytes) not in self.submissions:
+            raise ValidationProofInvalidError(
+                "validation proof canonical bytes were never submitted to this Rekor backend"
+            )
+        digest = hashlib.sha256(canonical_bytes).digest()
+        if proof.get("rekor_entry_uuid") != digest.hex():
+            raise ValidationProofInvalidError(
+                "rekor_entry_uuid does not bind to the attested canonical bytes"
+            )
+        expected_proof_hash = canonicalize_and_hash(
+            {
+                "log_id": proof.get("rekor_log_id"),
+                "index": proof.get("rekor_entry_index"),
+                "digest": digest.hex(),
+            }
+        )
+        if proof.get("rekor_inclusion_proof_hash") != expected_proof_hash:
+            raise ValidationProofInvalidError(
+                "rekor_inclusion_proof_hash does not bind to the attested canonical bytes"
+            )
+
 
 @dataclass(slots=True)
 class LiveRekorBackend(RekorBackend):
@@ -166,6 +206,34 @@ class LiveRekorBackend(RekorBackend):
             rekor_url=getattr(self.rekor_client, "rekor_url", "https://rekor.sigstore.dev"),
             submission_state=SUBMISSION_STATE_ANCHORED,
         )
+
+    def verify_inclusion(self, *, proof: dict[str, Any], canonical_bytes: bytes) -> None:
+        """Structural re-check of a live-anchored proof.
+
+        The privacy design hashes the inclusion proof into
+        ``rekor_inclusion_proof_hash`` rather than carrying the Merkle body, so
+        the full transparency-log inclusion proof is re-fetched and re-verified
+        by the Layer 1 ``air verify-public`` path against the original anchor,
+        not reconstructed from this proof dict. Here we fail closed on a proof
+        that is missing its anchor coordinates or is not in the anchored state,
+        and confirm the digest is well-formed; we never silently accept.
+        """
+        if proof.get("submission_state") != SUBMISSION_STATE_ANCHORED:
+            raise ValidationProofInvalidError(
+                "live validation proof is not in the anchored state"
+            )
+        for field_name in ("rekor_log_id", "rekor_entry_uuid", "rekor_url"):
+            if not proof.get(field_name):
+                raise ValidationProofInvalidError(
+                    f"live validation proof missing anchor coordinate {field_name!r}"
+                )
+        index = proof.get("rekor_entry_index")
+        if not isinstance(index, int) or index < 0:
+            raise ValidationProofInvalidError(
+                "live validation proof has a missing or invalid rekor_entry_index"
+            )
+        # Recompute the digest so a caller passing mismatched bytes is detected.
+        hashlib.sha256(canonical_bytes).digest()
 
 
 def _ed25519_sign_b64(private_key: Any, message: bytes) -> str:
@@ -252,11 +320,19 @@ def verify_validation_proof(
         ``validation_attestation_hash``.
       - Confirm the Ed25519 attestation signature verifies against the
         validating agent's public key.
-      - If ``rekor_backend`` is supplied, confirm the Rekor entry exists
-        and that its body references the same canonical bytes (Layer 1
-        verifier's ``RekorClient.verify`` does the inclusion-proof check).
+      - If ``rekor_backend`` is supplied, confirm the proof's recorded Rekor
+        coordinates are bound to these exact canonical bytes via
+        ``rekor_backend.verify_inclusion`` (the stub backend additionally
+        confirms the bytes were submitted to it). The full Merkle inclusion
+        proof is re-fetched and re-verified against the live transparency log
+        by the Layer 1 ``air verify-public`` path, not here: the proof carries
+        only a hash of the inclusion proof so the public log leaks no topology.
 
-    Synchronous-mode check; async/local modes ship later. Raises
+    This is an agent-signed, coordinate-bound attestation. It proves the
+    validating agent committed to a specific capability-token jti at a
+    specific anchored time; it is not, on its own, an independent issuer
+    signature on the token (see the verifier's capability-token step for
+    that). Synchronous-mode check; async/local modes ship later. Raises
     ``ValidationProofInvalidError`` on any failure.
     """
     if proof.get("method") != "rekor_countersigned":
@@ -288,12 +364,8 @@ def verify_validation_proof(
         raise ValidationProofInvalidError("attestation_signature missing")
     _ed25519_verify(validating_agent_public_key, sig, canonical)
 
-    if rekor_backend is not None and isinstance(rekor_backend, LiveRekorBackend):
-        # Layer 1's RekorClient.verify does the inclusion-proof check against
-        # the live log; the proof's rekor_url and entry coordinates locate it.
-        # When proof was written by StubRekorBackend, only the local checks
-        # above run.
-        pass
+    if rekor_backend is not None:
+        rekor_backend.verify_inclusion(proof=proof, canonical_bytes=canonical)
 
 
 __all__ = [

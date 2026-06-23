@@ -2,9 +2,13 @@
 
 Inputs: a set of chain files (JSON Lines) that share a Parent Trace ID.
 Output: pass / fail with precise diagnostics pointing at the record that
-broke verification. Wave 1 supports the full eight steps for single-tenant
-chains using LOCAL_DEV identities; cross-tenant Fulcio chain validation
-runs in lenient mode (logged, not enforced) until v1.5.
+broke verification, plus ``jwt_reverified`` recording whether the
+capability-token JWT was cryptographically re-verified (it can only be when
+the handoff record carries ``raw_jwt``). Wave 1 runs the eight steps for
+single-tenant chains using LOCAL_DEV identities; construct the verifier with
+``require_capability_token_jwt=True`` to fail closed when the issuer-signed
+JWT is absent. Cross-tenant Fulcio chain validation runs in lenient mode
+(logged, not enforced) until v1.5.
 
 The temporal-ordering math in :func:`verify_temporal_ordering` is the
 canonical reference implementation per Section 15.15. Naive comparison
@@ -14,7 +18,6 @@ from __future__ import annotations
 
 import datetime as _dt
 import json
-from base64 import b64decode
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -153,6 +156,13 @@ class VerificationResult:
     diagnostics: list[str] = field(default_factory=list)
     flags: list[str] = field(default_factory=list)
     passed: bool = True
+    # True only when at least one capability-token JWT was cryptographically
+    # re-verified against its issuer (raw_jwt present and checked). When False,
+    # pairing rested on jti match + the agent-signed validation proof, which a
+    # compromised target agent could in principle author. Callers MUST surface
+    # this: a green ``passed`` with ``jwt_reverified is False`` is a partial,
+    # not a full, cross-agent verification.
+    jwt_reverified: bool = False
 
     def fail(self, message: str) -> None:
         self.passed = False
@@ -192,6 +202,15 @@ class CrossAgentVerifier:
     identity_pubkeys: dict[str, Ed25519PublicKey] = field(default_factory=dict)
     fulcio_trust_bundle: FulcioTrustBundle | None = None
     fulcio_certs: dict[str, bytes] = field(default_factory=dict)
+    # Fail-closed posture for the capability-token step. When True, a handoff
+    # whose record does not carry the issuer-signed JWT (``raw_jwt``) cannot be
+    # cryptographically re-verified, so the chain set FAILS rather than passing
+    # on the jti-match + validation-proof path alone. Default False preserves
+    # the sidecar-JWT deployment model (the raw JWT is stored out of band); the
+    # ``air handoff verify`` CLI sets it True by default. Regardless of this
+    # flag, ``VerificationResult.jwt_reverified`` records whether the JWT was
+    # actually checked.
+    require_capability_token_jwt: bool = False
 
     def register_identity(self, cert_hash: str, public_key: Ed25519PublicKey) -> None:
         """Wave 1 LOCAL_DEV mapping from cert_hash to Ed25519 public key."""
@@ -366,7 +385,7 @@ class CrossAgentVerifier:
             fmt = r.get("agent", {}).get("identity_certificate_format")
             if fmt == IdentityFormat.LOCAL_DEV.value:
                 result.flag(
-                    "LOCAL_DEV identity in use — chain is not anchored to a real CA root; "
+                    "LOCAL_DEV identity in use: chain is not anchored to a real CA root; "
                     "production deployments MUST use Sigstore Fulcio or X.509 PEM"
                 )
                 break
@@ -418,18 +437,29 @@ class CrossAgentVerifier:
                 expected_audience=target_id,
                 expected_parent_trace_id=ptid,
             )
+            result.jwt_reverified = True
+        elif self.require_capability_token_jwt:
+            # Fail-closed: without the issuer-signed JWT we cannot
+            # cryptographically verify the capability token, and the validation
+            # proof alone is authored by the (possibly compromised) target
+            # agent. A strict verifier refuses to pass.
+            result.fail(
+                "capability-token JWT re-verification required but no raw_jwt is "
+                "present in the handoff record; pairing on jti + agent-signed "
+                "validation proof alone is not accepted in strict mode "
+                f"(adapter routed={adapter.__class__.__name__})"
+            )
+            return
         else:
-            # Honest framing: pairing relies on jti string match plus the
-            # agent-signed Rekor-anchored validation proof. That binds the
-            # acceptance to a specific JTI and a specific anchored time,
-            # but does NOT cryptographically verify the JWT signature here.
-            # Full step-5 (re-fetch JWKS, re-validate JWT) requires the raw
-            # JWT to be present in the handoff record's
-            # capability_token.raw_jwt or in a sibling chain record;
-            # production deployments typically store it as a sidecar.
+            # Permissive (sidecar-JWT) mode: pairing relies on jti string match
+            # plus the agent-signed, Rekor-anchored, coordinate-bound validation
+            # proof. That binds the acceptance to a specific jti and anchored
+            # time, but does NOT cryptographically verify the JWT signature
+            # here. ``jwt_reverified`` stays False so callers can surface that
+            # this was a partial verification.
             result.flag(
                 "step 5 capability-token JWT re-verification deferred "
-                "(no raw_jwt in handoff record) — pairing relies on jti "
+                "(no raw_jwt in handoff record); pairing relies on jti "
                 "string match + agent-signed validation proof; "
                 f"adapter routed={adapter.__class__.__name__}"
             )
@@ -463,6 +493,3 @@ __all__ = [
     "VerificationResult",
     "verify_temporal_ordering",
 ]
-
-
-_ = b64decode  # retained for future raw-JWT verification path

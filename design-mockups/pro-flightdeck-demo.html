@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pro AIR · FlightDeck demo (single operator)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Spectral:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070710; --panel:#0b0b15; --panel2:#10101c; --raise:#16162a;
+    --ink:#fff; --muted:rgba(255,255,255,.56); --faint:rgba(255,255,255,.40);
+    --air:#e63946; --air2:#ff5d68; --cyan:#67e8f9; --ok:#5dcaa5; --warn:#ffb454;
+    --hair:rgba(255,255,255,.08); --stroke:rgba(255,255,255,.14);
+    --mono:'JetBrains Mono',ui-monospace,monospace; --sans:'Inter',system-ui,sans-serif; --serif:'Spectral',Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px);background-size:22px 22px;}
+  .up{font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em}
+  /* top bar */
+  .top{display:flex;align-items:center;gap:18px;padding:14px 22px;border-bottom:1px solid var(--hair);background:rgba(8,8,18,.86);position:sticky;top:0;z-index:5}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:15px}
+  .sq{width:13px;height:13px;border-radius:2px;background:var(--air);box-shadow:0 0 16px var(--air)}
+  .brand .a{color:var(--air)}
+  .pill{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--stroke);padding:3px 8px;border-radius:4px;color:var(--muted)}
+  .pill.pro{color:#fff;background:rgba(230,57,70,.16);border-color:rgba(230,57,70,.5)}
+  .pill.demo{color:var(--cyan);border-color:rgba(103,232,249,.4)}
+  .grow{flex:1}
+  .meter{min-width:230px}
+  .meter .lab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:5px}
+  .meter .bar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+  .meter .fill{height:100%;width:33%;background:linear-gradient(90deg,var(--air),var(--air2))}
+  .op{display:flex;align-items:center;gap:9px}
+  .av{width:30px;height:30px;border-radius:50%;background:rgba(103,232,249,.16);color:var(--cyan);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:600}
+  .op .nm{font-size:12px}.op .ro{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  /* shell */
+  .shell{display:grid;grid-template-columns:230px 1fr;gap:18px;padding:18px 22px;max-width:1200px;margin:0 auto}
+  /* rail */
+  .rail{display:flex;flex-direction:column;gap:3px}
+  .grp{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);padding:16px 10px 6px}
+  .nav{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;border-left:2px solid transparent;color:var(--muted);font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+  .nav i{width:6px;height:6px;border-radius:50%;background:var(--faint);flex:0 0 6px}
+  .nav:hover{background:rgba(255,255,255,.04);color:var(--ink)}
+  .nav.on{color:#fff;border-left-color:var(--air);background:rgba(230,57,70,.10)}
+  .nav.on i{background:var(--air);box-shadow:0 0 8px var(--air)}
+  .nav .t{margin-left:auto;font-size:8px;border:1px solid var(--hair);padding:2px 6px;border-radius:3px;color:var(--faint)}
+  .nav.lk{color:var(--faint);cursor:not-allowed}
+  .nav.lk i{background:transparent;border:1px solid var(--faint);width:8px;height:8px;border-radius:2px}
+  .nav.lk .t{color:var(--warn);border-color:rgba(255,180,84,.4)}
+  /* main */
+  .panel{background:linear-gradient(160deg,rgba(20,22,34,.72),rgba(10,11,20,.86));border:1px solid var(--hair);border-radius:12px}
+  .phead{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--hair)}
+  .phead h2{margin:0;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+  .live{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ok)}
+  .live .d{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+  /* stat tiles */
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .tile{background:var(--panel2);border:1px solid var(--hair);border-radius:10px;padding:13px 14px}
+  .tile .k{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .tile .v{font-size:21px;font-weight:600;margin-top:6px;font-family:var(--mono)}
+  .tile .s{font-size:10px;color:var(--muted);margin-top:3px}
+  .tile .v .u{font-size:12px;color:var(--faint)}
+  /* feed */
+  .row{display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--hair)}
+  .row:last-child{border-bottom:0}
+  .ag{font-family:var(--mono);font-size:11px;color:var(--cyan);width:96px;flex:0 0 96px}
+  .act{flex:1;font-size:13px;color:var(--ink)}
+  .act .sub{font-size:11px;color:var(--faint);margin-top:2px;font-family:var(--mono)}
+  .chips{display:flex;gap:7px;flex:0 0 auto}
+  .chip{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;border:1px solid var(--hair);color:var(--muted)}
+  .chip.sig{color:var(--ok);border-color:rgba(93,202,165,.35)}
+  .chip.anc{color:var(--cyan);border-color:rgba(103,232,249,.3)}
+  .chip.flag{color:var(--warn);border-color:rgba(255,180,84,.4)}
+  .mini{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--stroke);border-radius:5px;padding:6px 10px;cursor:pointer}
+  .mini:hover{color:#fff;border-color:var(--air)}
+  /* prove + upsell */
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  .prove{padding:16px 18px}
+  .prove h3,.ups h3{margin:0 0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+  .prove p,.ups p{margin:0 0 14px;font-size:12px;color:var(--muted);line-height:1.6}
+  .btns{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:9px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--stroke);background:rgba(255,255,255,.04);color:#fff}
+  .btn.primary{background:var(--air);border-color:var(--air)}
+  .btn:hover{filter:brightness(1.12)}
+  .ups{padding:16px 18px;border:1px dashed rgba(255,180,84,.35);background:linear-gradient(160deg,rgba(40,30,12,.4),rgba(12,11,20,.7))}
+  .ups h3{color:var(--warn)}
+  .ulist{display:flex;flex-direction:column;gap:9px}
+  .uitem{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+  .uitem .lk{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,180,84,.4);color:var(--warn);padding:2px 6px;border-radius:3px;margin-left:auto;flex:0 0 auto}
+  .foot{max-width:1200px;margin:6px auto 30px;padding:0 22px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--faint)}
+  @media(max-width:880px){.shell{grid-template-columns:1fr}.tiles{grid-template-columns:repeat(2,1fr)}.twocol{grid-template-columns:1fr}.rail{flex-direction:row;flex-wrap:wrap}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand"><span class="sq"></span>PROJECT <span class="a">AIR</span></div>
+  <span class="pill pro">Pro</span>
+  <span class="pill demo">Demo</span>
+  <div class="grow"></div>
+  <div class="meter">
+    <div class="lab"><span>Signed actions · this cycle</span><span>8,240 / 25,000</span></div>
+    <div class="bar"><div class="fill"></div></div>
+  </div>
+  <div class="op"><span class="av">KM</span><div><div class="nm">K. Minn</div><div class="ro">Solo operator</div></div></div>
+</div>
+
+<div class="shell">
+
+  <nav class="rail">
+    <div class="grp">Console</div>
+    <div class="nav on"><i></i>Overview</div>
+    <div class="nav"><i></i>Agents</div>
+    <div class="nav"><i></i>Incidents<span class="t">3</span></div>
+    <div class="nav"><i></i>Forensics<span class="t">pdf</span></div>
+    <div class="grp">Proof</div>
+    <div class="nav"><i></i>Evidence packs<span class="t">12</span></div>
+    <div class="nav"><i></i>Anchoring · verify</div>
+    <div class="nav"><i></i>Rules<span class="t">.md</span></div>
+    <div class="nav"><i></i>NIST AI RMF</div>
+    <div class="grp">Team &amp; Enterprise</div>
+    <div class="nav lk"><i></i>Monitor<span class="t">Team</span></div>
+    <div class="nav lk"><i></i>Protect<span class="t">Team</span></div>
+    <div class="nav lk"><i></i>SIEM export<span class="t">Team</span></div>
+    <div class="nav lk"><i></i>Seats · fleet<span class="t">Team</span></div>
+    <div class="nav lk"><i></i>SOC 2 report<span class="t">Ent</span></div>
+  </nav>
+
+  <main>
+    <div class="tiles">
+      <div class="tile"><div class="k">Actions · cycle</div><div class="v">8,240<span class="u"> / 25k</span></div><div class="s">resets in 11 days</div></div>
+      <div class="tile"><div class="k">Detectors</div><div class="v">16</div><div class="s">premium on</div></div>
+      <div class="tile"><div class="k">Latest anchor</div><div class="v" style="font-size:15px">Rekor #1465…522</div><div class="s">permanent · public</div></div>
+      <div class="tile"><div class="k">Hosted history</div><div class="v">30<span class="u"> days</span></div><div class="s">proof kept forever</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="phead"><h2>Agent activity</h2><span class="live"><span class="d"></span>Live</span><div class="grow" style="flex:1"></div><span class="up" style="font-size:10px;color:var(--faint)">Audit · Prove</span></div>
+      <div class="row"><div class="ag">agent-cabin</div><div class="act">Read patient record /charts/4821<div class="sub">tool_end · llm_decision pair · 14:02:11Z</div></div><div class="chips"><span class="chip sig">Signed</span><span class="chip anc">Anchored</span></div><button class="mini">View proof</button></div>
+      <div class="row"><div class="ag">agent-cabin</div><div class="act">Drafted discharge summary<div class="sub">llm_end · intent matched · 14:02:09Z</div></div><div class="chips"><span class="chip sig">Signed</span></div><button class="mini">View proof</button></div>
+      <div class="row"><div class="ag">agent-intake</div><div class="act">Prompt-injection attempt blocked in retrieved doc<div class="sub">AIR-01 · LLM01 · severity high · 14:01:55Z</div></div><div class="chips"><span class="chip flag">AIR-01</span><span class="chip sig">Signed</span></div><button class="mini">View proof</button></div>
+      <div class="row"><div class="ag">agent-cabin</div><div class="act">Queried billing API (read-only)<div class="sub">tool_end · in declared scope · 14:01:40Z</div></div><div class="chips"><span class="chip sig">Signed</span><span class="chip anc">Anchored</span></div><button class="mini">View proof</button></div>
+      <div class="row"><div class="ag">agent-intake</div><div class="act">Summarized intake form for clinician<div class="sub">llm_end · 14:01:22Z</div></div><div class="chips"><span class="chip sig">Signed</span></div><button class="mini">View proof</button></div>
+    </div>
+
+    <div class="twocol">
+      <div class="panel prove">
+        <h3>Prove it</h3>
+        <p>Export a signed evidence pack any third party can verify with zero Vindicara infrastructure. The Rekor anchor outlives your subscription.</p>
+        <div class="btns"><button class="btn primary">Export evidence pack</button><button class="btn">Verify publicly</button></div>
+      </div>
+      <div class="panel ups">
+        <h3>Go further</h3>
+        <p>Pro audits and proves. Stopping agents in the moment and streaming to your stack is Team and up.</p>
+        <div class="ulist">
+          <div class="uitem">Halt agents before harm — Monitor + Protect<span class="lk">Team</span></div>
+          <div class="uitem">Stream to Datadog · Splunk · Sentinel · Sumo · Slack<span class="lk">Team</span></div>
+          <div class="uitem">Seats, dual-control, fleet scope<span class="lk">Team</span></div>
+          <div class="uitem">SOC 2 evidence · 6-year retention<span class="lk">Enterprise</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="foot">Pro AIR · single operator · 30-day hosted history · anchor permanent · evidence packs yours to keep — design mockup, not wired</div>
+
+</body>
+</html>

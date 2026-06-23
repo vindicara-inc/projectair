@@ -1,11 +1,23 @@
 name: Deploy site
 
+# vindicara.io is a server-rendered SvelteKit app (adapter-node) running on ECS
+# Fargate behind an ALB, defined by the VindicaraSiteServer CDK stack. This
+# workflow builds the container image and rolls the ECS service via `cdk deploy`.
+#
+# It deliberately does NOT do the old static `aws s3 sync` + CloudFront deploy:
+# that path published an adapter-node build as if it were a static export, so
+# every /_app/* asset 404'd and the site rendered unstyled. The container build
+# is the single source of truth now.
+
 on:
   push:
     branches: [main]
     paths:
       - 'vindicara-site/**'
-      - 'scripts/deploy-site.sh'
+      - 'src/vindicara/infra/stacks/site_server_stack.py'
+      - 'src/vindicara/infra/app.py'
+      - 'cdk.json'
+      - 'cdk.context.json'
       - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
 
@@ -22,40 +34,36 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-      VINDICARA_SITE_BUCKET: ${{ vars.VINDICARA_SITE_BUCKET }}
-      VINDICARA_CF_DIST_ID: ${{ vars.VINDICARA_CF_DIST_ID }}
       AWS_REGION: ${{ vars.AWS_REGION }}
-      # SvelteKit inlines PUBLIC_* at BUILD time. Without these the deployed
-      # Flightdeck ships with empty Auth0 + API config and login breaks.
-      # These are public client-side values (not secrets), so use repo Variables.
-      PUBLIC_AIR_API_MODE: ${{ vars.PUBLIC_AIR_API_MODE }}
-      PUBLIC_AIR_API_BASE: ${{ vars.PUBLIC_AIR_API_BASE }}
-      PUBLIC_AUTH0_DOMAIN: ${{ vars.PUBLIC_AUTH0_DOMAIN }}
-      PUBLIC_AUTH0_CLIENT_ID: ${{ vars.PUBLIC_AUTH0_CLIENT_ID }}
-      PUBLIC_AUTH0_AUDIENCE: ${{ vars.PUBLIC_AUTH0_AUDIENCE }}
     steps:
       - uses: actions/checkout@v4
 
+      # Gate: type-check the site before we spend time building an image. The
+      # actual production build happens inside vindicara-site/Dockerfile.
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: vindicara-site/package-lock.json
 
-      - name: Install dependencies
+      - name: Install site deps
         working-directory: vindicara-site
         run: npm ci
 
-      - name: Type check
+      - name: Type check the site
         working-directory: vindicara-site
         run: npm run check
 
-      - name: Build site
-        working-directory: vindicara-site
-        run: npm run build
+      # CDK app is Python (cdk.json -> `python3 -m vindicara.infra.app`).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
-      - name: Verify FlightDeck build
-        run: test -f vindicara-site/build/flightdeck.html
+      - name: Install CDK app dependencies
+        run: pip install -e ".[cdk]"
+
+      - name: Install AWS CDK CLI
+        run: npm install -g aws-cdk@2
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -63,21 +71,18 @@ jobs:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # Immutable, content-hashed assets: cache forever. No --delete so a visitor
-      # mid-session on the old HTML can still fetch its (old-hash) chunks.
-      - name: Sync immutable assets
-        run: |
-          aws s3 sync vindicara-site/build/_app/ s3://${{ env.VINDICARA_SITE_BUCKET }}/_app/ \
-            --cache-control "public,max-age=31536000,immutable"
+      # The CDK app resolves the target account from CDK_DEFAULT_ACCOUNT (or
+      # VINDICARA_AWS_ACCOUNT_ID). Derive it from the assumed role so no extra
+      # repo variable is required.
+      - name: Resolve AWS account
+        run: echo "CDK_DEFAULT_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)" >> "$GITHUB_ENV"
 
-      # HTML and everything else: never hard-cache; clean cutover with --delete.
-      - name: Sync HTML and assets
-        run: |
-          aws s3 sync vindicara-site/build/ s3://${{ env.VINDICARA_SITE_BUCKET }}/ \
-            --exclude "_app/*" --cache-control "no-cache" --delete
-
-      - name: Invalidate CloudFront
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ env.VINDICARA_CF_DIST_ID }} \
-            --paths "/*"
+      # Builds vindicara-site/Dockerfile (linux/amd64, native on the runner),
+      # pushes to ECR, and rolls the Fargate service. Docker is preinstalled on
+      # ubuntu-latest. PUBLIC_* Auth0/API config is injected at RUNTIME by the
+      # stack (container env, read via $env/dynamic/public), so no build-time
+      # secrets are needed here.
+      - name: Deploy SSR site to ECS (CDK)
+        env:
+          CDK_DEFAULT_REGION: ${{ vars.AWS_REGION }}
+        run: cdk deploy VindicaraSiteServer --require-approval never

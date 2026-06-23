@@ -183,9 +183,39 @@ def test_temporal_ordering_upper_bound_violation() -> None:
 
 def test_unknown_issuer_fails_routing(adapter, tmp_path) -> None:
     verifier, ea_path, coach_path, ptid, *_ = _stage_chain_set(adapter, tmp_path)
-    # Replace the verifier's router with an empty one — token issuer no longer registered
+    # Replace the verifier's router with an empty one: token issuer no longer registered
     verifier.adapter_router = AdapterRouter()
     cs = ChainSet.from_paths([ea_path, coach_path])
     from airsdk.handoff.exceptions import UnregisteredIssuerError
     with pytest.raises(UnregisteredIssuerError):
         verifier.verify_chain_set(cs, parent_trace_id=ptid)
+
+
+def test_permissive_mode_flags_unverified_token(adapter, tmp_path) -> None:
+    # The staged chain carries no raw_jwt. Permissive (default) mode passes but
+    # MUST record jwt_reverified=False and surface a flag, so a green result can
+    # never silently hide a skipped capability-token check.
+    verifier, ea_path, coach_path, ptid, *_ = _stage_chain_set(adapter, tmp_path)
+    cs = ChainSet.from_paths([ea_path, coach_path])
+    result = verifier.verify_chain_set(cs, parent_trace_id=ptid)
+    assert result.passed
+    assert result.jwt_reverified is False
+    assert any("JWT re-verification deferred" in f for f in result.flags)
+
+
+def test_strict_mode_fails_without_raw_jwt(adapter, tmp_path) -> None:
+    # A strict verifier refuses to pass a chain whose handoff carries no
+    # issuer-signed JWT to re-verify. This is the fail-closed posture the
+    # `air handoff verify` CLI uses by default.
+    verifier, ea_path, coach_path, ptid, *_ = _stage_chain_set(adapter, tmp_path)
+    strict = CrossAgentVerifier(
+        adapter_router=verifier.adapter_router,
+        rekor_backend=verifier.rekor_backend,
+        identity_pubkeys=verifier.identity_pubkeys,
+        require_capability_token_jwt=True,
+    )
+    cs = ChainSet.from_paths([ea_path, coach_path])
+    result = strict.verify_chain_set(cs, parent_trace_id=ptid)
+    assert result.passed is False
+    assert result.jwt_reverified is False
+    assert any("raw_jwt" in d for d in result.diagnostics)

@@ -141,6 +141,18 @@ def verify(
         int,
         typer.Option("--skew", help="Clock-skew tolerance for temporal ordering."),
     ] = 5,
+    require_token_jwt: Annotated[
+        bool,
+        typer.Option(
+            "--require-token-jwt/--allow-unverified-token",
+            help=(
+                "Fail closed (default) when a handoff record carries no "
+                "issuer-signed capability-token JWT to re-verify. Pass "
+                "--allow-unverified-token only for the sidecar-JWT deployment "
+                "model, where the raw JWT is stored out of band."
+            ),
+        ),
+    ] = True,
 ) -> None:
     """Verify a cross-agent chain set by Parent Trace ID."""
     typer.echo(f"verifying {len(chain)} chain(s) for PTID {ptid}")
@@ -158,6 +170,7 @@ def verify(
         adapter_router=router,
         skew_tolerance_seconds=skew_tolerance_seconds,
         identity_pubkeys=pubkeys,
+        require_capability_token_jwt=require_token_jwt,
     )
     try:
         result = verifier.verify_chain_set(chain_set, parent_trace_id=ptid)
@@ -171,6 +184,16 @@ def verify(
             typer.secho(f"  fail: {d}", fg=typer.colors.RED, err=True)
         typer.secho("VERIFICATION FAILED", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
+    if result.jwt_reverified:
+        jwt_status = "capability-token JWT cryptographically re-verified"
+        jwt_color = typer.colors.GREEN
+    else:
+        jwt_status = (
+            "PARTIAL: capability-token JWT not re-verified "
+            "(pairing relied on jti + agent-signed validation proof)"
+        )
+        jwt_color = typer.colors.YELLOW
+    typer.secho(f"  {jwt_status}", fg=jwt_color)
     typer.secho(
         f"CROSS-AGENT CHAIN VERIFIED ({result.handoffs} handoff/"
         f"{result.acceptances} acceptance across {result.chains_examined} chain(s))",

@@ -5,17 +5,21 @@ the real FreeTSA and the real public Sigstore Rekor at rekor.sigstore.dev,
 captures the resulting Rekor log index, and re-verifies the embedded
 inclusion proof offline.
 
-Run from the package root:
+Layer 1 anchors to public infrastructure (FreeTSA + Sigstore Rekor), so
+unlike the other layer demos this one needs network. It is explicit about
+that: run it with both live flags to send real bytes.
 
-    PYTHONPATH=src python scripts/e2e_layer1.py
+    PYTHONPATH=src python scripts/e2e_layer1.py --live-tsa --live-rekor
 
-This sends real bytes to public infrastructure. The Rekor entry is
+Without the flags it prints how to enable live anchoring and exits cleanly
+(0), so an offline run does not look like a failure. The Rekor entry is
 permanent and globally visible. No PII is included; the entry contains
 only the SHA-256 of a BLAKE3 chain root plus a single-use ECDSA P-256
 public key generated at script start.
 """
 from __future__ import annotations
 
+import argparse
 import os
 import subprocess
 import sys
@@ -41,6 +45,21 @@ def _section(title: str) -> None:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Project AIR Layer 1 end-to-end test.")
+    parser.add_argument(
+        "--live-tsa", action="store_true", help="Contact the real FreeTSA RFC 3161 endpoint."
+    )
+    parser.add_argument(
+        "--live-rekor", action="store_true", help="Submit to the real public Sigstore Rekor."
+    )
+    args = parser.parse_args()
+    if not (args.live_tsa and args.live_rekor):
+        print("Project AIR Layer 1 e2e anchors to public infrastructure and needs network.")
+        print("Re-run with both live flags to send real bytes:")
+        print("    python scripts/e2e_layer1.py --live-tsa --live-rekor")
+        print("Skipped (no network requested); exiting cleanly.")
+        return 0
+
     print(f"Project AIR v{air_version} Layer 1 end-to-end live test")
     print("Targets: FreeTSA (https://freetsa.org/tsr) and Sigstore Rekor (https://rekor.sigstore.dev)")
 

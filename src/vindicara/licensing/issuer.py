@@ -22,17 +22,35 @@ TOKEN_VERSION = 1
 
 # Feature bundles per tier. Mirror these in the pricing-page copy when changes
 # ship; the verifier on the customer side enforces them via has_feature().
+# Pro AIR (individual). Locked bundle: see docs/pro-tier-spec.md.
+# report-soc2-ai is Enterprise-only; Monitor/Protect, SIEM, multi-seat are Team+.
 _INDIVIDUAL_FEATURES: tuple[str, ...] = (
     "air-cloud-client",
-    "report-nist-ai-rmf",
-    "report-soc2-ai",
     "premium-detectors",
+    "anchor",            # BLAKE3 + Ed25519 + RFC 3161 + Sigstore Rekor
+    "audit",             # APPM pillar 1
+    "prove",             # APPM pillar 2
+    "evidence-packs",    # exportable, third-party verifiable
+    "report-nist-ai-rmf",
+    "flightdeck-hosted", # single-operator scope
 )
+# Team (locked spec). Everything in Pro plus the second half of APPM (Monitor +
+# Protect), the collaboration/integration layer, and certified admissibility.
+# Pro proves; Team proves, watches, and intervenes. report-soc2-ai, BAA/HIPAA,
+# ML-DSA-65, Agent IAM (full L4), Vindicara-named attestation, and
+# dedicated/on-prem/IR stay Enterprise+ — that boundary is the moat.
 _TEAM_FEATURES: tuple[str, ...] = (
     *_INDIVIDUAL_FEATURES,
-    "team-workspace",
-    "siem-export",
-    "incident-workflows",
+    "monitor",               # APPM Monitor — continuous fleet-wide watch (L2)
+    "protect",               # APPM Protect — real-time containment, fail-closed (L3)
+    "dual-control",          # FlightDeck dual-control on the Engage cascade
+    "cohort-scope",
+    "fleet-scope",
+    "siem",                  # Datadog, Splunk, Sumo Logic, Sentinel, Slack
+    "multi-seat",            # shared workspace, operators, roles
+    "alerting",
+    "admissibility",         # certified legal-hold packs; customer signs FRE 902
+    "report-fleet-posture",  # operational fleet/incident report (non-attestation)
 )
 
 
@@ -48,6 +66,12 @@ class LicensePlan:
 # Price ID → plan mapping. The Price IDs are public (they appear in Stripe
 # Checkout URLs); the secret material is the signing key, not these.
 _PRICE_TO_PLAN: dict[str, LicensePlan] = {
+    # Current Pro AIR price: $99/mo (docs/pro-tier-spec.md).
+    "price_1TbIB2C4TNI7tWa0226pj2SS": LicensePlan(
+        tier="individual", duration_days=33, features=_INDIVIDUAL_FEATURES
+    ),
+    # Legacy individual prices ($45/annual). Kept mapped so any still-live
+    # checkout link issues the correct features; archive these in Stripe.
     "price_1TUFKqC4TNI7tWa0kzayypru": LicensePlan(
         tier="individual", duration_days=33, features=_INDIVIDUAL_FEATURES
     ),

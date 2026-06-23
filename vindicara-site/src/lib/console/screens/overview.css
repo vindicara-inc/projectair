@@ -30,7 +30,12 @@ body:has(.fd) {
   z-index: 1;
 }
 
-.fd > :not(.fd-stars) {
+/* Stack content above .fd-stars, but never clobber the position of elements
+   that set their own: the sticky top nav (.fd-nav) and the fixed overlays
+   (nav drawer, its scrim, toasts). Forcing position:relative on the drawer
+   drops it out of the viewport into document flow (the misalignment), and
+   forcing it on the nav kills its sticky behavior. */
+.fd > :not(.fd-stars):not(.fd-nav):not(.drawer):not(.scrim):not(.fd-toast) {
   position: relative;
   z-index: 1;
 }

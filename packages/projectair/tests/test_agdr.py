@@ -19,6 +19,58 @@ def test_sign_produces_valid_record(signer: Signer) -> None:
     record = signer.sign(StepKind.LLM_START, AgDRPayload(prompt="hello"))
     assert record.kind == StepKind.LLM_START
     assert record.prev_hash == "0" * 64
+    assert record.meta_signed is True
+    ok, reason = verify_record(record)
+    assert ok, reason
+
+
+def test_meta_binding_detects_timestamp_tamper(signer: Signer) -> None:
+    record = signer.sign(StepKind.TOOL_START, AgDRPayload(tool_name="read_file"))
+    tampered = record.model_copy(update={"timestamp": "2020-01-01T00:00:00Z"})
+    ok, reason = verify_record(tampered)
+    assert not ok
+    assert reason is not None
+
+
+def test_meta_binding_detects_kind_tamper(signer: Signer) -> None:
+    record = signer.sign(StepKind.TOOL_START, AgDRPayload(tool_name="read_file"))
+    tampered = record.model_copy(update={"kind": StepKind.LLM_START})
+    ok, _ = verify_record(tampered)
+    assert not ok
+
+
+def test_meta_binding_flag_strip_breaks_signature(signer: Signer) -> None:
+    # Flipping meta_signed False on a meta-signed record must invalidate it: the
+    # signature was computed over the meta-inclusive material.
+    record = signer.sign(StepKind.TOOL_START, AgDRPayload(tool_name="read_file"))
+    stripped = record.model_copy(update={"meta_signed": False})
+    ok, _ = verify_record(stripped)
+    assert not ok
+
+
+def test_legacy_record_without_meta_signed_still_verifies(signer: Signer) -> None:
+    # A record signed over prev_hash + content_hash only (legacy chains and the
+    # anchored reference entries) must keep verifying unchanged.
+    from datetime import datetime
+
+    from airsdk._compat import UTC
+    from airsdk.agdr import _blake3_hex, _canonical_json, _uuid7
+
+    payload = AgDRPayload(prompt="legacy")
+    content_hash = _blake3_hex(_canonical_json(payload.model_dump(exclude_none=True)))
+    sig_material = bytes.fromhex("0" * 64) + bytes.fromhex(content_hash)
+    record = AgDRRecord(
+        step_id=_uuid7(),
+        timestamp=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        kind=StepKind.LLM_START,
+        payload=payload,
+        prev_hash="0" * 64,
+        content_hash=content_hash,
+        signature=signer._priv.sign(sig_material).hex(),
+        signer_key=signer.public_key_hex,
+        signature_algorithm="ed25519",
+    )
+    assert record.meta_signed is False
     ok, reason = verify_record(record)
     assert ok, reason
 

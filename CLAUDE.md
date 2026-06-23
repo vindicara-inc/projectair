@@ -99,9 +99,12 @@ Use "Project AIR" on hero pages, pitch decks, whitepapers, legal, press, investo
 
 ## Current state
 
-- `projectair` **1.0.0** on PyPI (2026-05-18). **1.0.1 in-flight** (relaxed `cryptography` dep, conditional ML-DSA imports, `betterproto`).
+- `projectair` **1.2.0** on PyPI (2026-06-19). Shipped since 1.0.0: `air watch` real-time alerting (beta); GPU attestation / hardware root of trust (W1, experimental); key custody (`rotate_signer` / `verify_key_custody`, production); NeMo Agent Toolkit A2A + MCP handoff capture (W4, alpha); IORails verdict capture + containment bridge (W2, production); Delegated Authority `DELEGATION` genesis (beta) + SV-AUTH; Layer 4 Wave 2 cross-tenant Fulcio verification (all four pieces). 1.2.0 moved Layer 1 anchoring (`sigstore` + `rfc3161-client`) to the optional `[anchoring]` extra so `pip`/`pipx install projectair` resolve with zero pre-releases.
+- Core `cryptography` floor is **`>=42.0.0,<47.0`** (broad install, Ed25519 everywhere). ML-DSA-65 needs `cryptography>=48`; install the **`[pqc]`** extra. ML-DSA imports are guarded; on older cryptography, ML-DSA operations raise a clear `RuntimeError` and Ed25519 is unaffected.
 - `vindicara` 0.2.0 live (server-side engine behind AIR Cloud).
-- AgDR schema **v0.6**. "Signed Intent Capsule" is the public-facing term for AgDR records.
+- AgDR schema **v0.7** (`AGDR_VERSION = "0.7"`). Records now set `meta_signed=True`: the signature covers step_id / timestamp / kind / signature_algorithm in addition to prev_hash + content_hash. Additive and back-compatible: legacy records (no `meta_signed`) verify over prev_hash + content_hash unchanged. "Signed Intent Capsule" is the public-facing term for AgDR records.
+- Layer 4 verifier: `air handoff verify` fails closed by default when a handoff carries no issuer-signed capability-token JWT (`--allow-unverified-token` opts into the sidecar model). `VerificationResult.jwt_reverified` records whether the JWT was cryptographically re-verified; the library default is permissive with the `require_capability_token_jwt` knob.
+- Pricing is retention-metered (site is the source of truth): Free $0, **Pro $45/mo**, Team **Talk to us**, Enterprise **Talk to us**. `air upgrade` and CLAUDE.md mirror the site; the older flat Individual $39 / Team $599 model is retired.
 - Working venv: `.venv-air/` (Python 3.13).
 
 ## Claims discipline (enforced on every response)
