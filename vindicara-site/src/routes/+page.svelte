@@ -148,7 +148,7 @@
 
 <svelte:head>
   <title>Vindicara — the accountability layer for AI agents</title>
-  <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </svelte:head>
 
 <main style="--accent:{entered ? '#9fb0d0' : css(STAGES[stage].rgb)}">
@@ -217,7 +217,7 @@
     background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent) 42%,transparent),transparent);
     box-shadow:0 0 18px 1px color-mix(in srgb,var(--accent) 20%,transparent);transition:.8s ease}
 
-  .skip{position:absolute;top:22px;right:26px;z-index:6;font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:.04em;color:#F7FAFF;text-decoration:none;border-bottom:1px solid transparent;opacity:.9}
+  .skip{position:absolute;top:22px;right:26px;z-index:6;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:14px;letter-spacing:.04em;color:#F7FAFF;text-decoration:none;border-bottom:1px solid transparent;opacity:.9}
   .skip:hover{opacity:1;border-bottom-color:#cdd8ec}
   .airx{color:#ff5763;font-weight:700}
 
@@ -226,19 +226,19 @@
   .rule{width:min(560px,68vw);height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);margin:22px auto 0}
 
   .lens{position:absolute;left:0;right:0;bottom:15vh;z-index:5;text-align:center;pointer-events:none}
-  .lnum{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.2em;color:var(--accent);font-weight:500;text-shadow:0 0 18px color-mix(in srgb,var(--accent) 55%,transparent)}
+  .lnum{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:13px;letter-spacing:.2em;color:var(--accent);font-weight:500;text-shadow:0 0 18px color-mix(in srgb,var(--accent) 55%,transparent)}
   .lnum span{color:#5f6b86;text-shadow:none}
   .llabel{font-family:'Spectral',serif;font-size:clamp(28px,4.5vw,48px);font-weight:600;color:#F7FAFF;margin-top:6px;letter-spacing:.01em}
   .lsub{font-size:15px;color:#9aa6c2;margin-top:8px;font-style:italic;font-family:'Spectral',serif}
-  .hint{position:absolute;left:0;right:0;bottom:8vh;z-index:5;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#5f6b86;animation:breathe 2.6s ease-in-out infinite}
+  .hint{position:absolute;left:0;right:0;bottom:8vh;z-index:5;text-align:center;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#5f6b86;animation:breathe 2.6s ease-in-out infinite}
   @keyframes breathe{0%,100%{opacity:.4}50%{opacity:.85}}
 
   .doors{position:absolute;left:0;right:0;bottom:12vh;z-index:5;text-align:center}
   .dtitle{font-family:'Spectral',serif;font-size:clamp(22px,3.4vw,34px);font-weight:600;color:#F7FAFF;margin-bottom:22px}
   .drow{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-  .door{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.06em;text-decoration:none;color:#e7ecf6;padding:11px 20px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(255,255,255,.05);transition:.18s}
+  .door{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:13px;letter-spacing:.06em;text-decoration:none;color:#e7ecf6;padding:11px 20px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(255,255,255,.05);transition:.18s}
   .door:hover{border-color:var(--c);color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent),0 0 22px color-mix(in srgb,var(--c) 30%,transparent)}
-  .enter{display:inline-block;margin-top:24px;font-family:'JetBrains Mono',monospace;font-size:15px;letter-spacing:.04em;color:#F7FAFF;text-decoration:none;border-bottom:1px solid #F7FAFF;padding-bottom:2px}
+  .enter{display:inline-block;margin-top:24px;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:15px;letter-spacing:.04em;color:#F7FAFF;text-decoration:none;border-bottom:1px solid #F7FAFF;padding-bottom:2px}
   .enter:hover{color:#ff5763;border-color:#ff5763}
 
   .progress{position:absolute;bottom:28px;left:0;right:0;z-index:6;display:flex;gap:8px;justify-content:center}

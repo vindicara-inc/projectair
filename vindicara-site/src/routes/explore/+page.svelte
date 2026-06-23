@@ -113,7 +113,7 @@
   .grp{position:relative;z-index:1;max-width:1100px;margin:40px auto 0;padding:0 28px}
   .ghead{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:18px}
   .gdot{width:9px;height:9px;border-radius:50%;background:var(--ga);box-shadow:0 0 12px var(--ga)}
-  .ghead h2{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);font-weight:500}
+  .ghead h2{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);font-weight:500}
 
   .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
   .c{display:block;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px 18px;text-decoration:none;transition:.16s}

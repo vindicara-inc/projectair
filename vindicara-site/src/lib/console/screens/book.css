@@ -1,7 +1,7 @@
 /* Vindicara "book" brand for the APPM function pages (Audit · Prove · Protect · Monitor).
    Ported from vindicara-site app.css: navy + Spectral, scoped under .vx so it never
    leaks into the FlightDeck console. Each page sets --accent via a .vx--<fn> modifier. */
-@import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
 
 .vx {
   --navy: #06080f;
@@ -20,7 +20,7 @@
   --good: #3fd99b;
   --display: 'Spectral', serif;
   --ui: 'Hanken Grotesk', sans-serif;
-  --mono: 'JetBrains Mono', monospace;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 22px 50px -28px rgba(0, 0, 0, 0.8);
 
   /* per-tab accents (no cyan) — site-saturated */

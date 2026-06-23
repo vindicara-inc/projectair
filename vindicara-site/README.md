@@ -1,7 +1,7 @@
 # Vindicara · Project AIR — site
 
 The enterprise redesign of vindicara.io, built in SvelteKit (static SPA, same as the
-current deploy). Dark navy / red / white, Spectral + Hanken Grotesk + JetBrains Mono.
+current deploy). Dark navy / red / white, Spectral + Hanken Grotesk + SF Mono.
 
 Hand this whole folder to Cowork. It can `npm install`, `npm run build`, and deploy the
 `build/` output to S3/CloudFront.

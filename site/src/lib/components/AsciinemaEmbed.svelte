@@ -51,7 +51,7 @@
   /* Asciinema player's default styling is fine, but we tighten a few things
      to fit the Vindicara dark theme. */
   .asciinema-container :global(.asciinema-player) {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace, 'Fira Code', monospace !important;
   }
   .asciinema-container :global(.asciinema-terminal) {
     padding: 1rem !important;

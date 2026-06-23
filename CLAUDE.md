@@ -263,6 +263,7 @@ See `feedback_four_quality_gates.md` in memory for the full discipline.
 
 - Never use em dashes in any output. Use commas, semicolons, colons, or separate sentences.
 - Never mention Emirates Airlines.
+- Never use the SF Mono typeface anywhere in the stack (site, dashboard, mockups, docs, OG images). Its shapes read as weak and wishy-washy and are off-brand. Use the approved monospace instead wherever a mono font is needed.
 - No `Any` types, no bare `except`, no `print` in production paths. `mypy --strict` is the bar.
 - No dynamic code evaluation (`eval`, `exec`, `pickle`, unsafe YAML) on untrusted input.
 - 300 lines max per file. If you need "and" to describe a function, split it.

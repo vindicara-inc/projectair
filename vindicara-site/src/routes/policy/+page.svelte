@@ -109,7 +109,7 @@
 
 <style>
   .policy h1{font-size:38px;margin:14px 0 0;max-width:20ch;line-height:1.1}
-  .eyebrow2{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--air2);font-weight:600}
+  .eyebrow2{font-family:var(--mono,ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--air2);font-weight:600}
   .lead{font-size:18px;color:var(--white);line-height:1.6;margin:22px 0 8px;font-family:var(--display,'Spectral',Georgia,serif);max-width:64ch}
 
   .proposals{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:30px 0 12px}

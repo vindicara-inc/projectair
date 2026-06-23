@@ -184,6 +184,6 @@
 <style>
   /* page-specific: the sovereign globe */
   .globe{width:100%;height:420px}
-  .glabel{position:absolute;top:0;left:0;right:0;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);z-index:2}
+  .glabel{position:absolute;top:0;left:0;right:0;text-align:center;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);z-index:2}
   .glabel .lv{color:var(--good)}
 </style>

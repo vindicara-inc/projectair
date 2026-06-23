@@ -44,7 +44,7 @@
 <AppShell active="get-started" title="get started" scroll={true} dots={false}>
   <LiveMap />
   {#if data?.installsMonth}
-    <p class="gs-installs" style="text-align:center;font-family:var(--mono,'JetBrains Mono',monospace);font-size:12px;letter-spacing:.05em;color:#9aa6bd;margin:0 0 14px;opacity:.9">{data.installsMonth.toLocaleString()} installs this month · MIT · on PyPI</p>
+    <p class="gs-installs" style="text-align:center;font-family:var(--mono,ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);font-size:12px;letter-spacing:.05em;color:#9aa6bd;margin:0 0 14px;opacity:.9">{data.installsMonth.toLocaleString()} installs this month · MIT · on PyPI</p>
   {/if}
   <div class="gs">
     <header class="ghead reveal">

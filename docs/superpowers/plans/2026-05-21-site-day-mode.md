@@ -45,7 +45,7 @@ Replace the existing `@theme` block and add `:root` / `:root[data-theme="light"]
   --color-brand-pink: #ec4899;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace, 'Fira Code', monospace;
 }
 
 :root {

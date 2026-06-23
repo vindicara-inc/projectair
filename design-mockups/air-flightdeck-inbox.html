@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIR FlightDeck · Findings inbox (AIR-translated)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070710; --panel:#0b0b15; --panel2:#10101c; --raise:#16162a; --slide:#0a0a14;
+    --ink:#fff; --muted:rgba(255,255,255,.58); --faint:rgba(255,255,255,.40);
+    --air:#e63946; --air2:#ff5d68; --cyan:#67e8f9; --ok:#5dcaa5; --warn:#ffb454; --blue:#6aa8ff; --violet:#9b8cff;
+    --hair:rgba(255,255,255,.08); --stroke:rgba(255,255,255,.14);
+    --mono:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --sans:'Inter',system-ui,sans-serif;
+    --crit:#ff5d68; --high:#ffb454; --med:#6aa8ff; --low:#5dcaa5;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px}
+  .up{font-family:var(--mono);text-transform:uppercase;letter-spacing:.12em}
+  button{font-family:inherit;cursor:pointer}
+  /* layout */
+  .app{display:grid;grid-template-columns:228px 1fr;min-height:100vh}
+  /* rail */
+  .rail{background:#08080f;border-right:1px solid var(--hair);padding:14px 12px;display:flex;flex-direction:column;gap:2px}
+  .logo{display:flex;align-items:center;gap:9px;padding:4px 8px 14px}
+  .sq{width:14px;height:14px;border-radius:3px;background:var(--air);box-shadow:0 0 16px var(--air)}
+  .logo b{font-family:var(--mono);letter-spacing:.18em;font-size:14px}
+  .logo b .a{color:var(--air)}
+  .trial{margin:0 6px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(230,57,70,.12);border:1px solid rgba(230,57,70,.4);border-radius:7px;padding:7px 10px}
+  .trial .lab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+  .trial a{color:var(--air2);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;text-decoration:none}
+  .ws{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border:1px solid var(--hair);border-radius:7px;padding:9px 11px;margin:0 6px 12px;font-size:13px;font-weight:600}
+  .ws span{color:var(--faint);font-size:11px}
+  .grp{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);padding:14px 10px 5px}
+  .nav{display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:6px;border-left:2px solid transparent;color:var(--muted);font-size:12.5px;font-weight:500}
+  .nav .ic{width:7px;height:7px;border-radius:2px;background:var(--faint);flex:0 0 7px}
+  .nav .ct{margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--faint);background:rgba(255,255,255,.05);padding:2px 6px;border-radius:10px}
+  .nav:hover{background:rgba(255,255,255,.04);color:var(--ink)}
+  .nav.on{color:#fff;border-left-color:var(--air);background:rgba(230,57,70,.10)}
+  .nav.on .ic{background:var(--air);box-shadow:0 0 8px var(--air);border-radius:50%}
+  .nav.lk{opacity:.5}
+  .nav.lk .ct{color:var(--warn);background:rgba(255,180,84,.12)}
+  /* main */
+  .main{position:relative;overflow:hidden}
+  .topbar{display:flex;align-items:center;gap:16px;padding:16px 26px 4px}
+  .hello{font-size:20px;font-weight:600}
+  .hello b{color:#fff}
+  .grow{flex:1}
+  /* tier switch */
+  .tierbox{display:flex;align-items:center;gap:8px}
+  .tierbox .cap{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .seg{display:flex;background:var(--panel2);border:1px solid var(--hair);border-radius:8px;padding:3px}
+  .seg button{background:transparent;border:0;color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:6px}
+  .seg button.on{background:var(--air);color:#fff;box-shadow:0 0 14px rgba(230,57,70,.5)}
+  /* hosted meter */
+  .meter{min-width:210px}
+  .meter .lab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:5px}
+  .meter .lab b{color:var(--ink)}
+  .meter .bar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+  .meter .fill{height:100%;background:linear-gradient(90deg,var(--air),var(--air2))}
+  .upg{background:var(--air);color:#fff;border:0;border-radius:7px;padding:8px 14px;font-weight:600;font-size:12px}
+  .av{width:32px;height:32px;border-radius:50%;background:var(--air);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  /* content */
+  .content{padding:14px 26px 60px;max-width:980px}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:10px 0 20px}
+  .tile{background:var(--panel);border:1px solid var(--hair);border-radius:11px;padding:14px 15px}
+  .tile.alt{background:var(--panel2)}
+  .tile .top{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;font-weight:500;margin-bottom:6px;text-transform:none;font-family:var(--sans);letter-spacing:0}
+  .tile .dot{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px}
+  .tile .big{font-size:26px;font-weight:700;line-height:1.1}
+  .tile .sub{font-size:11px;color:var(--faint);margin-top:3px}
+  .tile .sub b{color:var(--ok)}
+  .sevbar{display:flex;gap:3px;margin-bottom:8px}
+  .sevbar i{height:5px;border-radius:3px;flex:1}
+  .legend{display:flex;gap:12px;font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .legend i{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px;vertical-align:middle}
+  /* filter bar */
+  .fbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .search{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--hair);border-radius:20px;padding:8px 14px;color:var(--faint);font-size:12px;min-width:200px}
+  .toggle{display:flex;background:var(--panel2);border:1px solid var(--hair);border-radius:20px;padding:3px;position:relative}
+  .toggle button{background:transparent;border:0;color:var(--muted);font-size:12px;padding:6px 14px;border-radius:16px}
+  .toggle button.on{background:#fff;color:#000;font-weight:600}
+  .chip{background:var(--panel2);border:1px solid var(--hair);border-radius:20px;padding:8px 14px;color:var(--muted);font-size:12px;display:flex;align-items:center;gap:7px}
+  .chip.act{color:var(--violet);border-color:rgba(155,140,255,.4)}
+  .chip b{color:var(--violet)}
+  /* tooltip on refined */
+  .tip{position:absolute;left:0;top:46px;background:#05050c;border:1px solid var(--stroke);border-radius:10px;padding:14px 16px;width:300px;z-index:30;box-shadow:0 18px 50px rgba(0,0,0,.6);display:none}
+  .tip.show{display:block}
+  .tip .row{display:flex;justify-content:space-between;margin-bottom:8px}
+  .tip .row .h{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
+  .tip .row .n{font-size:20px;font-weight:700}
+  .tip .row .n small{font-size:11px;color:var(--ok);margin-left:5px}
+  .tip .viz{height:34px;background:linear-gradient(90deg,var(--violet),rgba(155,140,255,.2));border-radius:6px;clip-path:polygon(0 0,100% 18%,100% 82%,0 100%);margin:6px 0}
+  .tip .cap{font-size:11px;color:var(--muted)}
+  /* table */
+  table{width:100%;border-collapse:collapse}
+  thead th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:0 14px 10px;border-bottom:1px solid var(--hair)}
+  tbody tr{border-bottom:1px solid var(--hair)}
+  tbody tr:hover{background:rgba(255,255,255,.03);cursor:pointer}
+  tbody tr.sel{background:rgba(230,57,70,.07);box-shadow:inset 2px 0 0 var(--air)}
+  td{padding:14px;vertical-align:top}
+  td.ty{width:44px}
+  .tyic{width:26px;height:26px;border-radius:6px;background:var(--panel2);border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--cyan)}
+  .nm{font-size:13.5px;font-weight:500}
+  .loc{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:3px}
+  .tag{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--violet);background:rgba(155,140,255,.12);padding:2px 6px;border-radius:4px;margin-left:7px}
+  .sev{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:4px 9px;border-radius:14px}
+  .sev i{width:6px;height:6px;border-radius:50%}
+  .sev.c{color:var(--crit);background:rgba(255,93,104,.12)} .sev.c i{background:var(--crit)}
+  .sev.h{color:var(--high);background:rgba(255,180,84,.12)} .sev.h i{background:var(--high)}
+  .sev.m{color:var(--med);background:rgba(106,168,255,.12)} .sev.m i{background:var(--med)}
+  .sev.l{color:var(--low);background:rgba(93,202,165,.12)} .sev.l i{background:var(--low)}
+  .blast{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .empty{text-align:center;color:var(--faint);font-size:12px;padding:24px;border-top:1px solid var(--hair);margin-top:4px}
+  /* slide-over */
+  .slide{position:fixed;top:0;right:0;height:100vh;width:560px;background:var(--slide);border-left:1px solid var(--stroke);transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:50;display:flex;flex-direction:column;box-shadow:-30px 0 80px rgba(0,0,0,.5)}
+  .slide.open{transform:translateX(0)}
+  .sl-top{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--hair)}
+  .iconbtn{width:30px;height:30px;border-radius:7px;background:var(--panel2);border:1px solid var(--hair);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:14px}
+  .actbtn{margin-left:auto;background:var(--panel2);border:1px solid var(--stroke);border-radius:8px;color:#fff;padding:8px 13px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .sl-head{padding:18px 22px;display:flex;gap:16px;border-bottom:1px solid var(--hair)}
+  .gauge{width:74px;height:74px;flex:0 0 74px;position:relative}
+  .gauge svg{transform:rotate(-90deg)}
+  .gauge .val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .gauge .val b{font-size:22px;font-weight:700;line-height:1}
+  .gauge .val small{font-family:var(--mono);font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-top:2px}
+  .sl-title h3{margin:0 0 4px;font-size:16px}
+  .sl-title .det{font-size:12px;color:var(--faint);margin-bottom:8px}
+  .badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:5px;margin-right:6px}
+  .badge.new{background:rgba(155,140,255,.16);color:var(--violet)}
+  .badge.cat{background:var(--panel2);color:var(--muted);border:1px solid var(--hair)}
+  .tabs{display:flex;gap:22px;padding:0 22px;border-bottom:1px solid var(--hair)}
+  .tabs button{background:transparent;border:0;border-bottom:2px solid transparent;color:var(--faint);padding:13px 0;font-size:13px;font-weight:500}
+  .tabs button.on{color:#fff;border-bottom-color:var(--air)}
+  .tabs button .lk{font-family:var(--mono);font-size:8px;color:var(--warn);margin-left:5px}
+  .sl-body{padding:20px 22px;overflow-y:auto;flex:1}
+  .sl-body h4{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:0 0 8px}
+  .sl-body p{color:rgba(255,255,255,.78);line-height:1.55;font-size:13px;margin:0 0 20px}
+  .sec{margin-bottom:22px}
+  .sec .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .ghostbtn{background:var(--panel2);border:1px solid var(--stroke);border-radius:7px;color:#fff;padding:6px 11px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .ghostbtn.lk{color:var(--warn);border-color:rgba(255,180,84,.35)}
+  /* affected steps */
+  .steps{border:1px solid var(--hair);border-radius:8px;overflow:hidden}
+  .steps .sh{background:var(--panel2);font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding:9px 12px;border-bottom:1px solid var(--hair)}
+  .steps .it{display:flex;align-items:center;gap:10px;padding:11px 12px;font-family:var(--mono);font-size:12px;border-bottom:1px solid var(--hair)}
+  .steps .it:last-child{border-bottom:0}
+  .steps .it.on{background:rgba(230,57,70,.10)}
+  .steps .it .mini{font-size:9px;color:var(--air);background:rgba(230,57,70,.14);padding:2px 6px;border-radius:4px;margin-left:auto}
+  /* gated actions row */
+  .gactions{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+  /* modal */
+  .scrim{position:fixed;inset:0;background:rgba(3,3,9,.66);backdrop-filter:blur(3px);z-index:60;display:none;align-items:center;justify-content:center}
+  .scrim.show{display:flex}
+  .modal{background:#0c0c16;border:1px solid var(--stroke);border-radius:14px;width:460px;padding:26px;box-shadow:0 30px 90px rgba(0,0,0,.7)}
+  .modal .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+  .modal h2{margin:0 0 10px;font-size:22px}
+  .modal p{color:var(--muted);font-size:13px;line-height:1.55;margin:0 0 20px}
+  .modal p a{color:var(--air2)}
+  .modal .btns{display:flex;gap:10px}
+  .modal .btns button{flex:0 0 auto;padding:11px 18px;border-radius:8px;font-weight:600;font-size:13px}
+  .btn-primary{background:var(--air);color:#fff;border:0}
+  .btn-ghost{background:transparent;color:#fff;border:1px solid var(--stroke)}
+  /* code/instructions modal */
+  .codebox{background:#05050c;border:1px solid var(--hair);border-radius:8px;padding:14px;font-family:var(--mono);font-size:11.5px;line-height:1.7;color:#cfd2e6;white-space:pre;overflow-x:auto;margin-bottom:16px}
+  .codebox .c{color:var(--faint)} .codebox .kw{color:var(--air2)} .codebox .s{color:var(--ok)}
+  .note{font-size:11px;color:var(--faint);font-family:var(--mono)}
+  .mono{font-family:var(--mono)}
+  .hideRow{display:none !important}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- RAIL -->
+  <aside class="rail">
+    <div class="logo"><div class="sq"></div><b>V<span class="a">/</span>AIR</b></div>
+    <div class="trial"><span class="lab">⚡ Free plan</span><a href="#" onclick="openWall('plan');return false">Upgrade</a></div>
+    <div class="ws">vindicara-inc <span>▾</span></div>
+
+    <div class="nav on"><span class="ic"></span>Dashboard</div>
+    <div class="nav"><span class="ic"></span>Findings <span class="ct">23</span></div>
+    <div class="nav" data-tier="pro"><span class="ic"></span>Auto-Contain</div>
+
+    <div class="grp">Captured</div>
+    <div class="nav"><span class="ic"></span>Agents <span class="ct">3</span></div>
+    <div class="nav"><span class="ic"></span>Chains <span class="ct">11</span></div>
+    <div class="nav"><span class="ic"></span>Sessions <span class="ct">42</span></div>
+    <div class="nav"><span class="ic"></span>Handoffs <span class="ct">1</span></div>
+
+    <div class="grp">Detect</div>
+    <div class="nav"><span class="ic"></span>Live Capture</div>
+    <div class="nav" data-tier="pro"><span class="ic"></span>Deep Audit</div>
+
+    <div class="grp">Protect</div>
+    <div class="nav" data-tier="team"><span class="ic"></span>Containment</div>
+    <div class="nav" data-tier="team"><span class="ic"></span>Policies</div>
+
+    <div class="grp">More</div>
+    <div class="nav"><span class="ic"></span>Integrations</div>
+    <div class="nav" data-tier="pro"><span class="ic"></span>Reports</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="hello">Hello, <b>get-sltr!</b></div>
+      <div class="grow"></div>
+      <div class="tierbox">
+        <span class="cap">Preview tier</span>
+        <div class="seg" id="seg">
+          <button class="on" data-t="free">Free</button>
+          <button data-t="pro">Pro</button>
+          <button data-t="team">Team</button>
+        </div>
+      </div>
+      <div class="meter" id="meter">
+        <div class="lab"><span>Hosted actions</span><span><b id="used">94</b>/100</span></div>
+        <div class="bar"><div class="fill" id="mfill" style="width:94%"></div></div>
+      </div>
+      <button class="upg" onclick="openWall('plan')">Upgrade</button>
+      <div class="av">G</div>
+    </div>
+
+    <div class="content">
+      <!-- TILES -->
+      <div class="tiles">
+        <div class="tile">
+          <div class="sevbar"><i style="background:var(--crit);flex:1.2"></i><i style="background:var(--high);flex:3"></i><i style="background:var(--med);flex:2.4"></i><i style="background:var(--low);flex:1.6"></i></div>
+          <div class="big">23</div><div class="top" style="margin:6px 0 0">Open findings</div>
+          <div class="legend" style="margin-top:8px"><span><i style="background:var(--crit)"></i>2 critical</span><span><i style="background:var(--high)"></i>11 high</span></div>
+        </div>
+        <div class="tile alt">
+          <div class="top"><span class="dot" style="background:rgba(255,255,255,.08)">◎</span>Auto-filtered</div>
+          <div class="big">9</div>
+          <div class="sub"><b>causal engine</b> · noise removed</div>
+        </div>
+        <div class="tile">
+          <div class="top"><span class="dot" style="background:rgba(155,140,255,.18);color:var(--violet)">＋</span>New</div>
+          <div class="big">7</div>
+          <div class="sub">in last 7 days</div>
+        </div>
+        <div class="tile">
+          <div class="top"><span class="dot" style="background:rgba(93,202,165,.18);color:var(--low)">✓</span>Contained</div>
+          <div class="big">1</div>
+          <div class="sub">in last 7 days</div>
+        </div>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="fbar">
+        <div class="search">🔍 Search findings</div>
+        <div class="toggle" style="position:relative">
+          <button id="allBtn" class="on" onclick="setRefined(false)">All findings</button>
+          <button id="refBtn" onclick="setRefined(true)" onmouseenter="showTip(true)" onmouseleave="showTip(false)">AIR refined</button>
+          <div class="tip" id="tip">
+            <div class="row"><div><div class="h">All findings</div><div class="n">28 <small>100%</small></div></div>
+              <div style="text-align:right"><div class="h">AIR refined</div><div class="n">23 <small>−18%</small></div></div></div>
+            <div class="viz"></div>
+            <div class="cap">AIR's causal engine collapsed 5 duplicate / non-load-bearing findings into their root cause.</div>
+          </div>
+        </div>
+        <div class="chip">All types ▾</div>
+        <div class="chip act">⚑ Filtered to <b>recently discovered</b></div>
+        <div class="chip" style="margin-left:auto">Actions ▾</div>
+      </div>
+
+      <!-- TABLE -->
+      <table>
+        <thead><tr><th class="ty">Type</th><th>Name</th><th>Severity</th><th>Blast radius</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="empty">No more findings to show</div>
+    </div>
+  </main>
+</div>
+
+<!-- SLIDE-OVER -->
+<div class="slide" id="slide">
+  <div class="sl-top">
+    <button class="iconbtn" onclick="closeSlide()">✕</button>
+    <button class="iconbtn">⤢</button>
+    <button class="actbtn" onclick="openInstr()">Actions ▾</button>
+  </div>
+  <div class="sl-head">
+    <div class="gauge">
+      <svg width="74" height="74"><circle cx="37" cy="37" r="31" stroke="rgba(255,255,255,.08)" stroke-width="6" fill="none"/>
+      <circle id="gArc" cx="37" cy="37" r="31" stroke="var(--crit)" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="195" stroke-dashoffset="18"/></svg>
+      <div class="val"><b id="gNum">91</b><small id="gLab">Critical</small></div>
+    </div>
+    <div class="sl-title">
+      <h3 id="dTitle">Prompt injection in tool result</h3>
+      <div class="det">We found 1 issue · last detected 6 hours ago</div>
+      <div><span class="badge new">● New</span><span class="badge cat" id="dCat">⛓ AIR-01 · Live capture</span></div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="on">Overview</button>
+    <button>Activity <span class="lk" id="actLk">🔒 Team</span></button>
+    <button>Tasks <span class="lk" id="taskLk">🔒 Pro</span></button>
+  </div>
+  <div class="sl-body">
+    <div class="sec">
+      <h4>TL;DR</h4>
+      <p id="dTldr">An untrusted tool result fed into the agent's next reasoning step contained an instruction-style payload ("ignore previous instructions and..."). The agent treated injected text as a directive. Left uncontained, this is the entry point for goal hijack and tool misuse.</p>
+    </div>
+    <div class="sec">
+      <div class="hd"><h4>How do I contain it?</h4><button class="ghostbtn" onclick="openInstr()">⧉ Agent instructions</button></div>
+      <p style="margin-bottom:14px">Add a containment rule so this pattern is blocked (or stepped-up to a human) before it reaches a tool call. AIR generates the ready snippet for your stack.</p>
+      <div class="gactions">
+        <button class="ghostbtn" onclick="openInstr()">⧉ Copy containment rule</button>
+        <button class="ghostbtn lk" data-tier="pro" onclick="gatedClick(this)">🔒 Anchor finding <span class="mono" style="font-size:9px">Pro</span></button>
+        <button class="ghostbtn lk" data-tier="team" onclick="gatedClick(this)">🔒 Engage containment <span class="mono" style="font-size:9px">Team</span></button>
+      </div>
+    </div>
+    <div class="sec">
+      <h4>Affected steps <span class="mono" style="color:var(--faint)">· causal chain</span></h4>
+      <div class="steps">
+        <div class="sh">SESSION 7f3a · LOAD-BEARING RECORDS</div>
+        <div class="it on">step 47 · tool_result <span class="mini">injection origin</span></div>
+        <div class="it">step 48 · llm_call <span class="mini">absorbed</span></div>
+        <div class="it">step 49 · tool_start(shell) <span class="mini">blast</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- UPGRADE WALL -->
+<div class="scrim" id="wall" onclick="if(event.target===this)closeWall()">
+  <div class="modal">
+    <div class="k">Upgrade to a paid plan</div>
+    <h2 id="wallTitle">This feature is available on all paid plans</h2>
+    <p id="wallBody">Upgrade now to keep anchoring, retaining, and containing findings beyond the Free viewer. View <a href="/pricing">pricing details</a>.</p>
+    <div class="btns">
+      <button class="btn-primary" onclick="closeWall()">Upgrade Now</button>
+      <button class="btn-ghost" onclick="closeWall()">Talk To A Human</button>
+    </div>
+  </div>
+</div>
+
+<!-- AGENT INSTRUCTIONS -->
+<div class="scrim" id="instr" onclick="if(event.target===this)closeInstr()">
+  <div class="modal" style="width:560px">
+    <div class="k">Agent instructions</div>
+    <h2 style="font-size:18px;margin-bottom:14px">Contain: Prompt injection in tool result</h2>
+    <div class="codebox"><span class="c"># AIR detected a prompt-injection in a tool result feeding session 7f3a (step 47).</span>
+<span class="c"># Detector: AIR-01 · Severity: Critical · Blast radius: 3 steps</span>
+
+<span class="kw">from</span> airsdk.containment <span class="kw">import</span> ContainmentPolicy
+
+policy = ContainmentPolicy(
+    deny_arg_patterns=[<span class="s">r"ignore (all )?previous instructions"</span>],
+    block_on_findings=[<span class="s">"AIR-01"</span>],
+    step_up_for_actions=[<span class="s">"shell"</span>, <span class="s">"http"</span>],
+)
+<span class="c"># Wire into your recorder: AIRRecorder(..., containment=policy)</span></div>
+    <div class="btns">
+      <button class="btn-primary" onclick="closeInstr()">⧉ Copy instructions</button>
+      <button class="btn-ghost" onclick="closeInstr()">Close</button>
+    </div>
+    <div class="note" style="margin-top:14px">Free copies the rule. <span style="color:var(--warn)">Engage containment</span> (auto-apply + fail-closed) is Team.</div>
+  </div>
+</div>
+
+<script>
+  const FINDINGS = [
+    {ty:'⛓',nm:'Prompt injection in tool result',tag:'AIR-01',loc:'session 7f3a · step 47',sev:'c',blast:'3 steps',score:91,lab:'Critical',cat:'⛓ AIR-01 · Live capture',
+      tldr:"An untrusted tool result fed into the agent's next reasoning step contained an instruction-style payload (\"ignore previous instructions and...\"). The agent treated injected text as a directive. Left uncontained, this is the entry point for goal hijack and tool misuse."},
+    {ty:'◎',nm:'Agent invoked tool outside declared scope',tag:'ASI10',loc:'billing-agent',sev:'h',blast:'1 agent',score:88,lab:'High',cat:'◎ ASI10 · Rogue agent',
+      tldr:"billing-agent called a tool that is not in its declared BehavioralScope. This is Zero-Trust scope enforcement: the agent acted outside the authorization you declared for it."},
+    {ty:'⌖',nm:'SSH key read after poisoned README',tag:'ASI01',loc:'session 7f3a · step 52',sev:'c',blast:'4 steps',score:94,lab:'Critical',cat:'⌖ ASI01 · Goal hijack',
+      tldr:"A poisoned README instruction redirected the agent's goal toward reading a private SSH key. The causal graph links the poisoned input directly to the credential read."},
+    {ty:'❖',nm:'Memory / context poisoning detected',tag:'ASI06',loc:'session a19c · step 12',sev:'m',blast:'2 steps',score:62,lab:'Medium',cat:'❖ ASI06 · Memory poisoning',
+      tldr:"A context-memory entry was mutated between write and read. Downstream reasoning consumed the poisoned entry as trusted state."},
+    {ty:'⛁',nm:'Sensitive data in model output',tag:'AIR-02',loc:'session 7f3a · step 49',sev:'m',blast:'1 step',score:58,lab:'Medium',cat:'⛁ AIR-02 · Data disclosure',
+      tldr:"The model output contained a value matching a secret pattern. Disclosure risk if this output is logged, returned to a user, or passed to another agent."},
+    {ty:'⇄',nm:'Unverified inter-agent message',tag:'ASI07',loc:'handoff A → B',sev:'m',blast:'2 agents',score:55,lab:'Medium',cat:'⇄ ASI07 · Insecure handoff',
+      tldr:"Agent B accepted a delegated task from Agent A without an issuer-signed capability token. The cross-agent chain of custody cannot be cryptographically proven."},
+    {ty:'⚿',nm:'Chain gap: missing tool_end record',tag:'AIR-04',loc:'session b204 · step 8',sev:'l',blast:'1 step',score:31,lab:'Low',cat:'⚿ AIR-04 · Untraceable action',
+      tldr:"A tool_start has no matching tool_end. There is a silent interval in the forensic chain where an action completed without being recorded."},
+  ];
+  // extra rows shown only in "All findings" (the 5 the causal engine collapses)
+  const NOISE = [
+    {ty:'⛁',nm:'Sensitive data in model output (dup)',tag:'AIR-02',loc:'session 7f3a · step 49',sev:'l',blast:'—',score:40,lab:'Low',cat:'⛁ AIR-02',tldr:"Duplicate of the step-49 disclosure; collapsed into its root cause under AIR refined."},
+  ];
+
+  let tier='free', refined=false, current=0;
+  const TIERS={free:0,pro:1,team:2};
+
+  function rowHTML(f,i){
+    return `<tr data-i="${i}" onclick="openRow(${i})">
+      <td class="ty"><div class="tyic">${f.ty}</div></td>
+      <td><div class="nm">${f.nm}<span class="tag">${f.tag}</span></div><div class="loc">${f.loc}</div></td>
+      <td><span class="sev ${f.sev}"><i></i>${f.lab}</span></td>
+      <td class="blast">${f.blast}</td><td></td></tr>`;
+  }
+  function render(){
+    const list = refined ? FINDINGS : FINDINGS.concat(NOISE);
+    document.getElementById('rows').innerHTML = list.map(rowHTML).join('');
+    const r=document.querySelector(`tr[data-i="${current}"]`); if(r&&document.getElementById('slide').classList.contains('open'))r.classList.add('sel');
+  }
+  function setRefined(v){refined=v;document.getElementById('allBtn').classList.toggle('on',!v);document.getElementById('refBtn').classList.toggle('on',v);render();}
+  function showTip(v){document.getElementById('tip').classList.toggle('show',v);}
+
+  function openRow(i){
+    current=i; const f=(refined?FINDINGS:FINDINGS.concat(NOISE))[i];
+    document.getElementById('dTitle').textContent=f.nm;
+    document.getElementById('dCat').textContent=f.cat;
+    document.getElementById('dTldr').textContent=f.tldr;
+    document.getElementById('gNum').textContent=f.score;
+    document.getElementById('gLab').textContent=f.lab;
+    const arc=document.getElementById('gArc'); const col=getComputedStyle(document.documentElement).getPropertyValue('--'+f.sev.replace('c','crit').replace('h','high').replace('m','med').replace('l','low'));
+    arc.setAttribute('stroke',col.trim()); arc.setAttribute('stroke-dashoffset',195-(195*f.score/100));
+    document.getElementById('slide').classList.add('open');
+    document.querySelectorAll('tr').forEach(t=>t.classList.remove('sel'));
+    const r=document.querySelector(`tr[data-i="${i}"]`); if(r)r.classList.add('sel');
+  }
+  function closeSlide(){document.getElementById('slide').classList.remove('open');document.querySelectorAll('tr').forEach(t=>t.classList.remove('sel'));}
+
+  function applyTier(){
+    const lvl=TIERS[tier];
+    // rail + buttons locked above tier
+    document.querySelectorAll('[data-tier]').forEach(el=>{
+      const need=TIERS[el.getAttribute('data-tier')];
+      el.classList.toggle('lk', lvl<need);
+    });
+    // tabs
+    document.getElementById('taskLk').style.display = lvl>=1?'none':'inline';
+    document.getElementById('actLk').style.display = lvl>=2?'none':'inline';
+    // meter: free shows the cap; pro/team show big headroom
+    const used=document.getElementById('used'), mfill=document.getElementById('mfill'), meter=document.getElementById('meter');
+    if(tier==='free'){used.textContent='94';meter.querySelector('.lab').innerHTML='<span>Hosted actions</span><span><b>94</b>/100</span>';mfill.style.width='94%';mfill.style.background='linear-gradient(90deg,var(--high),var(--crit))';}
+    if(tier==='pro'){meter.querySelector('.lab').innerHTML='<span>Hosted actions</span><span><b>3.1k</b>/25k</span>';mfill.style.width='12%';mfill.style.background='linear-gradient(90deg,var(--air),var(--air2))';}
+    if(tier==='team'){meter.querySelector('.lab').innerHTML='<span>Hosted actions</span><span><b>41k</b>/250k</span>';mfill.style.width='16%';mfill.style.background='linear-gradient(90deg,var(--ok),var(--cyan))';}
+  }
+  document.getElementById('seg').addEventListener('click',e=>{
+    if(e.target.dataset.t){tier=e.target.dataset.t;document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b===e.target));applyTier();}
+  });
+
+  function gatedClick(el){
+    const need=el.getAttribute('data-tier');
+    if(TIERS[tier]>=TIERS[need]){ // unlocked: pretend success
+      el.innerHTML = (need==='pro'?'✓ Anchored':'✓ Containment engaged');
+      el.classList.remove('lk'); el.style.color='var(--ok)'; el.style.borderColor='rgba(93,202,165,.4)';
+      return;
+    }
+    openWall(need);
+  }
+  function openWall(kind){
+    const t=document.getElementById('wallTitle'), b=document.getElementById('wallBody');
+    if(kind==='pro'){t.textContent='Anchoring is a paid feature';b.innerHTML='Permanently anchor this finding to public Sigstore Rekor on Pro and above. Free is a 7-day, unanchored viewer. View <a href="/pricing">pricing details</a>.';}
+    else if(kind==='team'){t.textContent='Engage containment is a Team feature';b.innerHTML='Auto-apply containment with fail-closed enforcement and dual-control on Team. Free copies the rule for you to apply yourself. View <a href="/pricing">pricing details</a>.';}
+    else{t.textContent='This feature is available on all paid plans';b.innerHTML='Upgrade now to keep anchoring, retaining, and containing findings beyond the Free viewer. View <a href="/pricing">pricing details</a>.';}
+    document.getElementById('wall').classList.add('show');
+  }
+  function closeWall(){document.getElementById('wall').classList.remove('show');}
+  function openInstr(){document.getElementById('instr').classList.add('show');}
+  function closeInstr(){document.getElementById('instr').classList.remove('show');}
+
+  render(); applyTier();
+</script>
+</body>
+</html>

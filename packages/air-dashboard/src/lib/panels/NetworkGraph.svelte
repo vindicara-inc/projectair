@@ -67,20 +67,20 @@
 			<!-- Agents left -->
 			<circle cx="120" cy="90" r="22" fill="url(#ng-red)" opacity=".5"/>
 			<circle cx="120" cy="90" r="10" fill="rgba(5,5,7,.9)" stroke="#dc2626" stroke-width="1.5"/>
-			<text x="120" y="93" text-anchor="middle" fill="#dc2626" font-family="JetBrains Mono" font-size="9" font-weight="700">A1</text>
-			<text x="120" y="125" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family="JetBrains Mono" font-size="8" letter-spacing="1">agent-7b3f</text>
+			<text x="120" y="93" text-anchor="middle" fill="#dc2626" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="9" font-weight="700">A1</text>
+			<text x="120" y="125" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="8" letter-spacing="1">agent-7b3f</text>
 
 			<circle cx="120" cy="200" r="22" fill="url(#ng-red)" opacity=".5"/>
 			<circle cx="120" cy="200" r="10" fill="rgba(5,5,7,.9)" stroke="#dc2626" stroke-width="1.5"/>
-			<text x="120" y="203" text-anchor="middle" fill="#dc2626" font-family="JetBrains Mono" font-size="9" font-weight="700">A2</text>
-			<text x="120" y="235" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family="JetBrains Mono" font-size="8" letter-spacing="1">agent-a91c</text>
+			<text x="120" y="203" text-anchor="middle" fill="#dc2626" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="9" font-weight="700">A2</text>
+			<text x="120" y="235" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="8" letter-spacing="1">agent-a91c</text>
 
 			<circle cx="120" cy="260" r="20" fill="url(#ng-alert)" opacity=".55">
 				<animate attributeName="opacity" values=".4;.7;.4" dur="1.5s" repeatCount="indefinite"/>
 			</circle>
 			<circle cx="120" cy="260" r="10" fill="rgba(5,5,7,.9)" stroke="#ff5468" stroke-width="1.5"/>
-			<text x="120" y="263" text-anchor="middle" fill="#ff5468" font-family="JetBrains Mono" font-size="9" font-weight="700">A3</text>
-			<text x="120" y="293" text-anchor="middle" fill="rgba(255,84,104,.7)" font-family="JetBrains Mono" font-size="8" letter-spacing="1">FLAG</text>
+			<text x="120" y="263" text-anchor="middle" fill="#ff5468" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="9" font-weight="700">A3</text>
+			<text x="120" y="293" text-anchor="middle" fill="rgba(255,84,104,.7)" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="8" letter-spacing="1">FLAG</text>
 
 			<!-- Central hub -->
 			<circle cx="300" cy="160" r="38" fill="url(#ng-red)" opacity=".4"/>
@@ -89,33 +89,33 @@
 				<animateTransform attributeName="transform" type="rotate" from="0 300 160" to="360 300 160" dur="12s" repeatCount="indefinite"/>
 			</circle>
 			<text x="300" y="158" text-anchor="middle" fill="#dc2626" font-family="Syncopate" font-size="9" font-weight="700">AIR</text>
-			<text x="300" y="172" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family="JetBrains Mono" font-size="7" letter-spacing="1">SDK</text>
+			<text x="300" y="172" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="7" letter-spacing="1">SDK</text>
 
 			<!-- Destinations right -->
 			<circle cx="480" cy="90" r="22" fill="url(#ng-green)" opacity=".5"/>
 			<circle cx="480" cy="90" r="10" fill="rgba(5,5,7,.9)" stroke="#6effb3" stroke-width="1.5"/>
-			<text x="480" y="93" text-anchor="middle" fill="#6effb3" font-family="JetBrains Mono" font-size="8" font-weight="700">REK</text>
-			<text x="480" y="125" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family="JetBrains Mono" font-size="8" letter-spacing="1">sigstore.rekor</text>
+			<text x="480" y="93" text-anchor="middle" fill="#6effb3" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="8" font-weight="700">REK</text>
+			<text x="480" y="125" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="8" letter-spacing="1">sigstore.rekor</text>
 
 			<circle cx="480" cy="200" r="20" fill="url(#ng-red)" opacity=".5"/>
 			<circle cx="480" cy="200" r="10" fill="rgba(5,5,7,.9)" stroke="#dc2626" stroke-width="1.5"/>
-			<text x="480" y="203" text-anchor="middle" fill="#dc2626" font-family="JetBrains Mono" font-size="8" font-weight="700">TSA</text>
-			<text x="480" y="235" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family="JetBrains Mono" font-size="8" letter-spacing="1">RFC 3161</text>
+			<text x="480" y="203" text-anchor="middle" fill="#dc2626" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="8" font-weight="700">TSA</text>
+			<text x="480" y="235" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="8" letter-spacing="1">RFC 3161</text>
 
 			<circle cx="480" cy="270" r="20" fill="url(#ng-red)" opacity=".5"/>
 			<circle cx="480" cy="270" r="10" fill="rgba(5,5,7,.9)" stroke="#dc2626" stroke-width="1.5"/>
-			<text x="480" y="273" text-anchor="middle" fill="#dc2626" font-family="JetBrains Mono" font-size="8" font-weight="700">S3</text>
-			<text x="480" y="305" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family="JetBrains Mono" font-size="8" letter-spacing="1">cold storage</text>
+			<text x="480" y="273" text-anchor="middle" fill="#dc2626" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="8" font-weight="700">S3</text>
+			<text x="480" y="305" text-anchor="middle" fill="rgba(248,246,241,.6)" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="8" letter-spacing="1">cold storage</text>
 
 			<circle cx="540" cy="155" r="14" fill="url(#ng-green)" opacity=".5"/>
 			<circle cx="540" cy="155" r="7" fill="rgba(5,5,7,.9)" stroke="#6effb3" stroke-width="1.5"/>
-			<text x="540" y="158" text-anchor="middle" fill="#6effb3" font-family="JetBrains Mono" font-size="7" font-weight="700">&#10003;</text>
+			<text x="540" y="158" text-anchor="middle" fill="#6effb3" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="7" font-weight="700">&#10003;</text>
 		</g>
 
-		<text x="20" y="20" fill="rgba(248,246,241,.3)" font-family="JetBrains Mono" font-size="9" letter-spacing="2">// AGENTS</text>
-		<text x="265" y="20" fill="rgba(248,246,241,.3)" font-family="JetBrains Mono" font-size="9" letter-spacing="2">// HUB</text>
-		<text x="450" y="20" fill="rgba(248,246,241,.3)" font-family="JetBrains Mono" font-size="9" letter-spacing="2">// CHAIN</text>
-		<text x="20" y="310" fill="rgba(248,246,241,.4)" font-family="JetBrains Mono" font-size="8" letter-spacing="1.5">CHAIN_STATUS · {verifierStore.chainStatus.toUpperCase()}</text>
+		<text x="20" y="20" fill="rgba(248,246,241,.3)" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="9" letter-spacing="2">// AGENTS</text>
+		<text x="265" y="20" fill="rgba(248,246,241,.3)" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="9" letter-spacing="2">// HUB</text>
+		<text x="450" y="20" fill="rgba(248,246,241,.3)" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="9" letter-spacing="2">// CHAIN</text>
+		<text x="20" y="310" fill="rgba(248,246,241,.4)" font-family=ui-monospace, SFMono-Regular, Menlo, Consolas, monospace font-size="8" letter-spacing="1.5">CHAIN_STATUS · {verifierStore.chainStatus.toUpperCase()}</text>
 	</svg>
 
 	<!-- Legend -->

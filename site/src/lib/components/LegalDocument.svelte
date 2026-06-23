@@ -219,7 +219,7 @@
     margin-top: 0.75rem;
   }
   .legal-content :global(code) {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace, 'Fira Code', monospace;
     font-size: 0.875em;
     background: var(--glass);
     color: var(--text-primary);
@@ -228,7 +228,7 @@
     border: 1px solid var(--glass-border);
   }
   .legal-content :global(pre) {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace, 'Fira Code', monospace;
     font-size: 0.85rem;
     background: #12121a;
     color: #e4e4e7;

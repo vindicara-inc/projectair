@@ -1,5 +1,5 @@
 /* Project AIR by Vindicara. Design system: dark navy, AIR red, white.
-   Spectral (display) / Hanken Grotesk (UI) / JetBrains Mono (data). */
+   Spectral (display) / Hanken Grotesk (UI) / SF Mono (data). */
 
 :root{
   --navy:#0A1020; --navy1:#0E1730; --navy2:#13203F; --panel:#111c38; --raise:#16264a;
@@ -7,7 +7,7 @@
   --line:rgba(255,255,255,.1); --line2:rgba(255,255,255,.06);
   --air:#E63946; --air2:#ff5763; --airbg:rgba(230,57,70,.12);
   --good:#3fd99b; --goodbg:rgba(63,217,155,.1);
-  --display:'Spectral',serif; --ui:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  --display:'Spectral',serif; --ui:'Inter',system-ui,sans-serif; --mono:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 22px 50px -28px rgba(0,0,0,.8);
 }
 *{box-sizing:border-box;margin:0;padding:0}

@@ -24,9 +24,9 @@
   --color-white-4: rgba(240, 240, 255, 0.25);
 
   --font-display: 'Syncopate', 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace, 'Fira Code', ui-monospace;
   --font-ui: 'Inter', system-ui, sans-serif;
-  --font-data: 'Fira Code', ui-monospace, monospace;
+  --font-data: 'Fira Code', ui-monospace;
 }
 
 @layer base {

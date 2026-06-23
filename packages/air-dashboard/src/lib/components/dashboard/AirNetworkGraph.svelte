@@ -106,11 +106,11 @@
       labelCanvas.width = 256;
       labelCanvas.height = 64;
       const ctx = labelCanvas.getContext('2d')!;
-      ctx.font = 'bold 22px JetBrains Mono, monospace';
+      ctx.font = 'bold 22px SF Mono, monospace';
       ctx.fillStyle = isHalted ? '#ff5468' : isFlagged ? '#ffb547' : '#22d3ee';
       ctx.textAlign = 'center';
       ctx.fillText(agent.id, 128, 24);
-      ctx.font = '16px JetBrains Mono, monospace';
+      ctx.font = '16px SF Mono, monospace';
       ctx.fillStyle = 'rgba(255,255,255,0.4)';
       ctx.fillText(`${agent.ops} ops`, 128, 48);
 

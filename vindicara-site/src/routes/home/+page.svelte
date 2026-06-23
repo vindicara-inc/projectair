@@ -34,7 +34,7 @@
   <title>Project AIR · The accountability layer for AI agents</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </svelte:head>
 
 <div class="air-home">
@@ -152,7 +152,7 @@
   .btn-red{background:var(--air);color:#fff;border:0;font:600 15px Inter,sans-serif;padding:13px 22px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-block}
   .btn-red:hover{background:var(--air2)}
   .scene{position:relative;z-index:1;margin:46px auto;max-width:760px;background:#0c1733;border:1px solid var(--line);border-left:3px solid var(--air);border-radius:14px;padding:26px 30px}
-  .scene .ts{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--air2)}
+  .scene .ts{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:13px;color:var(--air2)}
   .scene .big{font-size:21px;color:#eef3fb;line-height:1.5;margin-top:10px;font-weight:600}
   .scene .sub{font-size:15px;color:#cdd8ec;margin-top:12px;line-height:1.6}
   .sec{padding:46px 0;position:relative;z-index:1}
@@ -161,29 +161,29 @@
   .proof{position:relative;z-index:1;margin:46px auto;max-width:860px;text-align:center;background:linear-gradient(180deg,var(--airbg),transparent);border:1px solid rgba(230,57,70,.4);border-radius:16px;padding:34px}
   .proof h2{font-size:26px;color:#fff;font-weight:800}
   .proof p{color:#cdd8ec;font-size:15px;margin:10px auto 0;max-width:62ch;line-height:1.6}
-  .proof .v{margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--air2)}
+  .proof .v{margin-top:16px;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:13px;color:var(--air2)}
   .trust{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:28px 0 72px;position:relative;z-index:1}
-  .trust span{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--faint);border:1px solid var(--line);padding:7px 12px;border-radius:999px}
+  .trust span{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:11px;color:var(--faint);border:1px solid var(--line);padding:7px 12px;border-radius:999px}
   .hero2{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:64px 28px 18px;display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center}
   .hero2 h1{font-size:46px;font-weight:800;letter-spacing:-.03em;line-height:1.09;color:#fff;margin:14px 0 0}
   .hero2 .sub{font-size:17px;color:#cdd8ec;line-height:1.6;margin-top:18px;max-width:52ch}
   .hero2 .cta-row{justify-content:flex-start}
   .bookd{color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:13px 6px}
   .bookd:hover{color:var(--air2)}
-  .trustline{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--faint);margin-top:16px}
-  .looprow{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.14em;color:#fff;font-weight:600;margin-top:20px}
+  .trustline{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:11.5px;color:var(--faint);margin-top:16px}
+  .looprow{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:13px;letter-spacing:.14em;color:#fff;font-weight:600;margin-top:20px}
   .looprow .pipe{color:var(--air2);margin:0 9px;font-weight:700}
   .glow-bg{position:absolute;inset:-26px;z-index:-1;background:radial-gradient(60% 60% at 72% 26%, rgba(230,57,70,.24), transparent 70%);filter:blur(18px)}
   .ui-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#101c34;border:1px solid var(--line2);border-radius:9px;padding:9px 12px;margin-bottom:7px;color:#dbe3f2;font-size:12.5px}
   .ui-row.crit{border-color:rgba(230,57,70,.45)}
   .ui-row .tag{font-size:10px;color:#ff9a9a;border:1px solid rgba(230,57,70,.45);padding:2px 8px;border-radius:999px;white-space:nowrap}
   .ui-row .ok{font-size:11px;color:#3fd99b;white-space:nowrap}
-  .ui-foot{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--faint);margin-top:8px}
+  .ui-foot{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:10.5px;color:var(--faint);margin-top:8px}
   .ui-title2{font-weight:700;color:#fff;font-size:13px;margin-bottom:10px}
   .chainrow{background:#101c34;border:1px solid var(--line2);border-left:2px solid var(--faint);border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:6px;color:#dbe3f2;font-size:12.5px}
   .chainrow b{color:#fff}
   .chainrow.halt{border-left-color:var(--air)}
-  .verify{margin-top:8px;color:#3fd99b;font-family:'JetBrains Mono',monospace;font-size:11px}
+  .verify{margin-top:8px;color:#3fd99b;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:11px}
   .feat2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
   .fcard{background:#0c1733;border:1px solid var(--line);border-radius:18px;padding:26px 26px 0;overflow:hidden}
   .fcard h3{font-size:20px;font-weight:700;color:#fff;line-height:1.25}
@@ -195,10 +195,10 @@
   .quote .qsub{font-size:17px;color:#cdd8ec;margin-top:14px;line-height:1.55}
   .globe-wrap{position:relative;display:flex;align-items:center;justify-content:center}
   .globe{width:100%;height:440px}
-  .glabel{position:absolute;top:6px;left:0;right:0;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .glabel{position:absolute;top:6px;left:0;right:0;text-align:center;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
   .glabel .lv{color:#3fd99b}
   .statchips{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-  .sc{font-family:'JetBrains Mono',monospace;font-size:12px;color:#cdd8ec;border:1px solid var(--line);border-radius:999px;padding:7px 13px}
+  .sc{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:12px;color:#cdd8ec;border:1px solid var(--line);border-radius:999px;padding:7px 13px}
   .sc b{color:#fff}
   @media(max-width:880px){ .hero2{grid-template-columns:1fr} .feat2{grid-template-columns:1fr} }
   @media(max-width:820px){ .hero2 h1{font-size:36px} }

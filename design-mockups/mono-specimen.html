@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monospace candidates · pick one</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Mono:wght@400;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1020; --card:#101a30; --ink:#fff; --muted:rgba(255,255,255,.62); --faint:rgba(255,255,255,.42);
+    --air:#e63946; --air2:#ff5d68; --ok:#5dcaa5; --violet:#9b8cff;
+    --hair:rgba(255,255,255,.09); --sans:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(165deg,#16223f,#0b1020);color:var(--ink);font-family:var(--sans);padding:40px 24px}
+  .wrap{max-width:880px;margin:0 auto}
+  h1{font-size:24px;font-weight:700;margin:0 0 6px}
+  .lead{color:var(--muted);margin:0 0 28px;font-size:14px}
+  .grid{display:grid;gap:16px}
+  .card{background:rgba(16,26,48,.6);border:1px solid var(--hair);border-radius:14px;padding:22px 24px}
+  .name{display:flex;align-items:baseline;gap:12px;margin-bottom:18px}
+  .name .n{font-size:18px;font-weight:700;font-family:var(--sans)}
+  .name .tag{font-size:11px;color:var(--faint);font-family:var(--sans)}
+  .name .rec{font-size:10px;color:var(--ok);border:1px solid rgba(93,202,165,.4);background:rgba(93,202,165,.1);border-radius:10px;padding:2px 8px;letter-spacing:.04em}
+  .row{margin:0 0 10px}
+  .big{font-size:26px;font-weight:600;letter-spacing:.01em}
+  .label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .code{font-size:14px;color:rgba(255,255,255,.8)}
+  .code .lk{color:var(--air2)} .code .ok{color:var(--ok)} .code .dm{color:var(--faint)}
+  .nums{font-size:16px;color:var(--muted);letter-spacing:.02em}
+  .fine{font-size:13px;color:var(--muted)}
+
+  .plex{font-family:'IBM Plex Mono',monospace}
+  .space{font-family:'Space Mono',monospace}
+  .geist{font-family:'Geist Mono',monospace}
+  .sys{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pick the monospace</h1>
+  <p class="lead">Same text in each candidate. They replace SF Mono everywhere a mono font is used (labels, code, the FlightDeck terminal, finding IDs). Tell me the name under the one you want.</p>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="name"><span class="n">IBM Plex Mono</span><span class="rec">my pick</span><span class="tag">engineered · authoritative</span></div>
+      <div class="row big plex">Deep Chain Audit</div>
+      <div class="row label plex">ENTRA · OKTA · PING</div>
+      <div class="row code plex"><span class="dm">›</span> session_7f3a <span class="dm">·</span> step 47 <span class="lk">AIR-01</span> <span class="ok">✓ signed</span></div>
+      <div class="row nums plex">0123456789 · 91,546 records · #1465403522</div>
+      <div class="row fine plex">Local-first · read-only · your agent data never leaves your machine</div>
+    </div>
+
+    <div class="card">
+      <div class="name"><span class="n">Space Mono</span><span class="tag">bold · geometric · distinctive</span></div>
+      <div class="row big space">Deep Chain Audit</div>
+      <div class="row label space">ENTRA · OKTA · PING</div>
+      <div class="row code space"><span class="dm">›</span> session_7f3a <span class="dm">·</span> step 47 <span class="lk">AIR-01</span> <span class="ok">✓ signed</span></div>
+      <div class="row nums space">0123456789 · 91,546 records · #1465403522</div>
+      <div class="row fine space">Local-first · read-only · your agent data never leaves your machine</div>
+    </div>
+
+    <div class="card">
+      <div class="name"><span class="n">Geist Mono</span><span class="tag">sharp · modern · minimal</span></div>
+      <div class="row big geist">Deep Chain Audit</div>
+      <div class="row label geist">ENTRA · OKTA · PING</div>
+      <div class="row code geist"><span class="dm">›</span> session_7f3a <span class="dm">·</span> step 47 <span class="lk">AIR-01</span> <span class="ok">✓ signed</span></div>
+      <div class="row nums geist">0123456789 · 91,546 records · #1465403522</div>
+      <div class="row fine geist">Local-first · read-only · your agent data never leaves your machine</div>
+    </div>
+
+    <div class="card">
+      <div class="name"><span class="n">System mono (SF Mono)</span><span class="tag">native · crisp · zero load</span></div>
+      <div class="row big sys">Deep Chain Audit</div>
+      <div class="row label sys">ENTRA · OKTA · PING</div>
+      <div class="row code sys"><span class="dm">›</span> session_7f3a <span class="dm">·</span> step 47 <span class="lk">AIR-01</span> <span class="ok">✓ signed</span></div>
+      <div class="row nums sys">0123456789 · 91,546 records · #1465403522</div>
+      <div class="row fine sys">Local-first · read-only · your agent data never leaves your machine</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
