@@ -63,7 +63,11 @@ try:
     from projectair.anchor_cli import register as _register_anchor_cli
 
     _register_anchor_cli(app)
-except ModuleNotFoundError:
+except ImportError:
+    # Anchoring is an optional extra. Catch ImportError broadly (not just
+    # ModuleNotFoundError) so an absent OR version-incompatible sigstore
+    # (e.g. a moved/renamed symbol) skips these commands instead of crashing
+    # the entire CLI, including commands that never touch anchoring.
     pass
 
 # Layer 2 causal explain command: `air explain`.
@@ -195,8 +199,16 @@ def config_list_cmd() -> None:
 
 @app.callback(invoke_without_command=True)
 def _app_callback(ctx: typer.Context) -> None:
-    """Global pre-command hook: run the update checker before any subcommand."""
-    if ctx.invoked_subcommand is not None:
+    """Global pre-command hook: require an activation email, then check updates.
+
+    ``config`` is exempt so the email can always be set non-interactively
+    (``air config set identity.email ...``) without being gated behind itself.
+    """
+    if ctx.invoked_subcommand is None:
+        return
+    if ctx.invoked_subcommand != "config":
+        from projectair.firstrun import ensure_identity
+        ensure_identity()
         from projectair.update_check import maybe_check_update
         maybe_check_update()
 
@@ -1331,6 +1343,21 @@ def report_soc2_ai(
 
 
 def main() -> None:
+    app()
+
+
+def results_main() -> None:
+    """Entry point for the bare ``projectair`` command.
+
+    Typing ``projectair`` with no arguments runs the demo scan and shows the
+    results (after the first-run email gate), so a fresh ``pip install`` user can
+    go from install to results in one word. With arguments it behaves like
+    ``air`` (``projectair trace <chain>``, etc.).
+    """
+    import sys
+
+    if len(sys.argv) == 1:
+        sys.argv.append("demo")
     app()
 
 

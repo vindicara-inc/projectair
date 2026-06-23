@@ -5,8 +5,13 @@ from pathlib import Path
 
 import pytest
 
-from airsdk.agdr import Signer, export_private_key_pem, load_chain, verify_chain, verify_record
+from airsdk.agdr import _HAS_MLDSA, Signer, export_private_key_pem, load_chain, verify_chain, verify_record
 from airsdk.types import AgDRPayload, SigningAlgorithm, StepKind, VerificationStatus
+
+pytestmark = pytest.mark.skipif(
+    not _HAS_MLDSA,
+    reason="ML-DSA-65 requires cryptography>=48; install the projectair[pqc] extra",
+)
 
 
 @pytest.fixture

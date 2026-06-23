@@ -91,6 +91,101 @@ def _epoch_to_iso(epoch_seconds: int) -> str:
     )
 
 
+@dataclass(frozen=True)
+class ResultsEmail:
+    """Inputs to the post-scan results email (Free-tier first-run delivery).
+
+    Privacy: carries only a findings *summary* (detector id, title, severity),
+    never raw payloads or chain contents. The CLI builds this from the
+    ForensicReport after a scan and POSTs it; the API sends it here.
+    """
+
+    recipient: str
+    records: int
+    verification_status: str
+    findings: tuple[tuple[str, str, str], ...]  # (detector_id, title, severity)
+    report_url: str = "https://vindicara.io"
+
+
+def _render_results_text(payload: ResultsEmail) -> str:
+    sev_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+    counts: dict[str, int] = {}
+    for _id, _title, sev in payload.findings:
+        counts[sev] = counts.get(sev, 0) + 1
+    by_sev = ", ".join(f"{n} {s}" for s, n in sorted(counts.items(), key=lambda kv: sev_order.get(kv[0], 9))) or "no findings"
+    lines = "\n".join(
+        f"  - [{sev.upper()}] {fid}  {title}"
+        for fid, title, sev in sorted(payload.findings, key=lambda f: sev_order.get(f[2], 9))
+    ) or "  (none)"
+    return dedent(
+        f"""
+        Your Project AIR scan is done.
+
+        Records analyzed: {payload.records}
+        Chain integrity:  {payload.verification_status}
+        Findings:         {by_sev}
+
+        ---
+        Findings
+        ---
+        {lines}
+
+        This is a summary. The full signed, anchored record stays on your machine;
+        nothing here contains your agents' payloads.
+
+        See what each finding means and how to act on it:
+        {payload.report_url}
+
+        Reply to this email and a human responds inside business hours.
+
+        Vindicara, Inc.
+        https://vindicara.io
+        """
+    ).strip()
+
+
+def _render_results_html(payload: ResultsEmail) -> str:
+    text = _render_results_text(payload)
+    escaped = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return f"<pre style=\"font-family: ui-monospace, SF Mono, Menlo, monospace; font-size: 13px; line-height: 1.5;\">{escaped}</pre>"
+
+
+def send_results_email(
+    payload: ResultsEmail,
+    *,
+    resend_api_key: str,
+    sender: str = _DEFAULT_SENDER,
+) -> str:
+    """Deliver the post-scan results summary; return the Resend message id.
+
+    Raises ``EmailDeliveryError`` if the key is unset or the send fails. The
+    results route treats this as best-effort (logs and returns 202) so a user's
+    scan is never blocked on email delivery.
+    """
+    if not resend_api_key:
+        raise EmailDeliveryError("RESEND_API_KEY is not configured")
+
+    resend.api_key = resend_api_key
+    params: dict[str, object] = {
+        "from": sender,
+        "to": [payload.recipient],
+        "subject": "Your Project AIR scan results",
+        "text": _render_results_text(payload),
+        "html": _render_results_html(payload),
+    }
+    try:
+        result = resend.Emails.send(params)
+    except Exception as exc:
+        logger.error("resend.results_send_failed", recipient=payload.recipient, error=str(exc))
+        raise EmailDeliveryError(f"Resend send failed: {exc}") from exc
+
+    message_id = str(result.get("id", "")) if isinstance(result, dict) else ""
+    if not message_id:
+        raise EmailDeliveryError(f"Resend returned no message id: {result!r}")
+    logger.info("resend.results_send_ok", recipient=payload.recipient, message_id=message_id)
+    return message_id
+
+
 def send_license_email(
     payload: LicenseEmail,
     *,

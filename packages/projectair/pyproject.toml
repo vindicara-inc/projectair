@@ -95,6 +95,9 @@ dev = [
 
 [project.scripts]
 air = "projectair.cli:main"
+# Bare `projectair` runs the demo scan and shows results (first-run friendly);
+# with args it behaves like `air`.
+projectair = "projectair.cli:results_main"
 
 [project.urls]
 Homepage = "https://vindicara.io"

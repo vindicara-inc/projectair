@@ -18,6 +18,12 @@ from dataclasses import dataclass
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
+# Single source of truth for feature strings (OSS base package). The same
+# constants are imported by the airsdk_pro @requires_pro gates, so a granted
+# feature here can never drift from the checked feature there. A contract test
+# enforces it. Never type a bare feature string in this module.
+from airsdk import features as F
+
 TOKEN_VERSION = 1
 
 # Feature bundles per tier. Mirror these in the pricing-page copy when changes
@@ -25,14 +31,14 @@ TOKEN_VERSION = 1
 # Pro AIR (individual). Locked bundle: see docs/pro-tier-spec.md.
 # report-soc2-ai is Enterprise-only; Monitor/Protect, SIEM, multi-seat are Team+.
 _INDIVIDUAL_FEATURES: tuple[str, ...] = (
-    "air-cloud-client",
-    "premium-detectors",
-    "anchor",            # BLAKE3 + Ed25519 + RFC 3161 + Sigstore Rekor
-    "audit",             # APPM pillar 1
-    "prove",             # APPM pillar 2
-    "evidence-packs",    # exportable, third-party verifiable
-    "report-nist-ai-rmf",
-    "flightdeck-hosted", # single-operator scope
+    F.AIR_CLOUD_CLIENT,
+    F.PREMIUM_DETECTORS,
+    F.ANCHOR,            # BLAKE3 + Ed25519 + RFC 3161 + Sigstore Rekor
+    F.AUDIT,             # APPM pillar 1
+    F.PROVE,             # APPM pillar 2
+    F.EVIDENCE_PACKS,    # exportable, third-party verifiable
+    F.REPORT_NIST_AI_RMF,
+    F.FLIGHTDECK_HOSTED,  # single-operator scope
 )
 # Team (locked spec). Everything in Pro plus the second half of APPM (Monitor +
 # Protect), the collaboration/integration layer, and certified admissibility.
@@ -41,16 +47,16 @@ _INDIVIDUAL_FEATURES: tuple[str, ...] = (
 # dedicated/on-prem/IR stay Enterprise+ — that boundary is the moat.
 _TEAM_FEATURES: tuple[str, ...] = (
     *_INDIVIDUAL_FEATURES,
-    "monitor",               # APPM Monitor — continuous fleet-wide watch (L2)
-    "protect",               # APPM Protect — real-time containment, fail-closed (L3)
-    "dual-control",          # FlightDeck dual-control on the Engage cascade
-    "cohort-scope",
-    "fleet-scope",
-    "siem",                  # Datadog, Splunk, Sumo Logic, Sentinel, Slack
-    "multi-seat",            # shared workspace, operators, roles
-    "alerting",
-    "admissibility",         # certified legal-hold packs; customer signs FRE 902
-    "report-fleet-posture",  # operational fleet/incident report (non-attestation)
+    F.MONITOR,            # APPM Monitor — continuous fleet-wide watch (L2)
+    F.PROTECT,            # APPM Protect — real-time containment, fail-closed (L3)
+    F.DUAL_CONTROL,       # FlightDeck dual-control on the Engage cascade
+    F.COHORT_SCOPE,
+    F.FLEET_SCOPE,
+    F.SIEM_INTEGRATIONS,  # Datadog/Splunk/Sumo/Sentinel/Slack
+    F.MULTI_SEAT,         # shared workspace, operators, roles
+    F.INCIDENT_WORKFLOWS,  # routed alerts/notifications
+    F.ADMISSIBILITY,      # certified legal-hold packs; customer signs FRE 902
+    F.REPORT_FLEET_POSTURE,  # operational fleet/incident report (non-attestation)
 )
 
 

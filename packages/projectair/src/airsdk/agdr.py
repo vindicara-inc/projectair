@@ -67,6 +67,14 @@ def _require_mldsa() -> None:
         raise RuntimeError(_MLDSA_UNAVAILABLE)
 
 
+# Accepted private-key instance types. On cryptography <48 (no ML-DSA),
+# MLDSA65PrivateKey is None, so it must be excluded from isinstance checks
+# (isinstance(x, None) raises TypeError).
+_PRIVATE_KEY_TYPES: tuple[type, ...] = (
+    (Ed25519PrivateKey, MLDSA65PrivateKey) if _HAS_MLDSA else (Ed25519PrivateKey,)
+)
+
+
 def _canonical_json(obj: Any) -> bytes:
     """Stable JSON encoding: sorted keys, no extraneous whitespace, UTF-8."""
     return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
@@ -137,7 +145,7 @@ class Signer:
         self._pub = private_key.public_key()
         self._prev_hash = prev_hash
         self._signer_key_hex = self._pub.public_bytes(Encoding.Raw, PublicFormat.Raw).hex()
-        if isinstance(private_key, MLDSA65PrivateKey):
+        if _HAS_MLDSA and isinstance(private_key, MLDSA65PrivateKey):
             self._algorithm = SigningAlgorithm.ML_DSA_65
         else:
             self._algorithm = SigningAlgorithm.ED25519
@@ -168,7 +176,7 @@ class Signer:
         data = raw.strip()
         if data.startswith("-----BEGIN"):
             priv = load_pem_private_key(data.encode(), password=None)
-            if isinstance(priv, (Ed25519PrivateKey, MLDSA65PrivateKey)):
+            if isinstance(priv, _PRIVATE_KEY_TYPES):
                 return cls(priv)
             raise ValueError(f"{env_var} must hold an Ed25519 or ML-DSA-65 key, got {type(priv).__name__}")
         try:
