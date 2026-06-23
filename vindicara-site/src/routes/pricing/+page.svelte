@@ -26,10 +26,10 @@
       <div class="price">$0</div>
       <ul>
         <li>Unlimited local capture (open-source CLI)</li>
-        <li>10,000 hosted actions / mo</li>
-        <li>7-day hosted history</li>
-        <li>Read-only viewer · watermarked</li>
-        <li>No hosted console</li>
+        <li>100 hosted actions / mo</li>
+        <li>7-day hosted history, then expires</li>
+        <li>Watermarked, no Rekor anchor</li>
+        <li>Read-only viewer, no hosted console</li>
       </ul>
       <button class="pb" onclick={() => goto('/get-started')}>pip install projectair</button>
     </div>
@@ -37,11 +37,11 @@
     <div class="tier feat">
       <div class="tn">Pro</div><div class="tl">individual · self-serve</div>
       <div class="price">$99<span>/mo</span></div>
+      <div class="appm"><span class="p on">Audit</span><span class="p on">Prove</span><span class="p">Protect</span><span class="p">Monitor</span></div>
       <ul>
         <li>25,000 signed actions / mo · then $1.50 / 1k</li>
         <li>30-day hosted history · anchor is permanent</li>
         <li>Hosted FlightDeck · single operator (1 seat)</li>
-        <li>Audit + Prove</li>
         <li>Anchoring · RFC 3161 + Sigstore Rekor</li>
         <li>Premium detectors</li>
         <li>Evidence packs · yours to keep</li>
@@ -55,10 +55,11 @@
       <div class="tn">Team</div><div class="tl">prove · watch · intervene</div>
       <div class="price">$599<span>/mo base</span></div>
       <div class="subprice">5 seats + 250k actions / mo · overage $1.50 / 1k · +$99 / seat to 15</div>
+      <div class="appm"><span class="p on">Audit</span><span class="p on">Prove</span><span class="p on">Protect</span><span class="p on">Monitor</span></div>
       <ul>
         <li class="plus">Everything in Pro, plus the rest of APPM</li>
-        <li>Monitor · continuous fleet-wide watch</li>
         <li>Protect · real-time containment (revoke / quarantine / renew), each sealed as evidence</li>
+        <li>Monitor · continuous fleet-wide watch</li>
         <li>Dual-control on the Engage cascade</li>
         <li>Cohort + full-fleet scope</li>
         <li>SIEM · Datadog, Splunk, Sumo Logic, Sentinel, Slack</li>
@@ -96,6 +97,9 @@
   .subprice{font-family:var(--mono);font-size:10px;color:var(--faint);margin:-8px 0 12px;line-height:1.4}
   .seclink{display:block;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--faint);text-decoration:none;margin-top:8px}
   .seclink:hover{color:var(--soft)}
+  .appm{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
+  .appm .p{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);color:var(--faint)}
+  .appm .p.on{color:var(--white);border-color:var(--air);background:var(--airbg)}
   ul{list-style:none;margin:0 0 4px;padding:0;display:flex;flex-direction:column;gap:9px;flex:1}
   li{font-size:12px;color:var(--soft);display:flex;gap:8px;line-height:1.4}
   li::before{content:'›';color:var(--air2);font-weight:700}

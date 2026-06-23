@@ -77,7 +77,7 @@
 <style>
   .back{color:var(--air2);text-decoration:none}
   .back:hover{text-decoration:underline}
-  .tiers{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:760px}
+  .tiers{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:760px;margin:0 auto}
   .tier{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column}
   .tier.feat{border-color:var(--air);box-shadow:0 18px 46px -22px rgba(230,57,70,.5)}
   .tn{font-family:var(--display);font-size:20px;font-weight:600}
