@@ -103,6 +103,7 @@
       <div class="col">
         <h4>Company</h4>
         <a class="mi" href="/about"><span class="ic"></span><span><span class="mt">About</span><span class="md">Why we build the record</span></span></a>
+        <a class="mi" href="/axiisium"><span class="ic"></span><span><span class="mt">Axiisium</span><span class="md">Our healthcare AI initiative</span></span></a>
         <a class="mi" href="/contact"><span class="ic"></span><span><span class="mt">Contact</span><span class="md">Talk to us</span></span></a>
         <a class="mi" href="/policy"><span class="ic"></span><span><span class="mt">Policy</span><span class="md">Evidence-based agent governance</span></span></a>
       </div>
@@ -120,8 +121,8 @@
       </div>
       <div class="col hl">
         <h4>Highlights</h4>
-        <a class="hcard feat" href="https://github.com/vindicara-inc/projectair" target="_blank" rel="noopener"><div class="ht">Open source on PyPI</div><div class="hd">MIT-licensed. Install projectair and verify every line.</div></a>
-        <a class="hcard" href="/design-partner"><div class="ht">Become a design partner</div><div class="hd">Shape the roadmap, founder-led integration.</div></a>
+        <a class="hcard feat" href="/axiisium"><div class="ht">Axiisium</div><div class="hd">Our healthcare initiative: multimodal AI for blood cancer, built to be provable.</div></a>
+        <a class="hcard" href="https://github.com/vindicara-inc/projectair" target="_blank" rel="noopener"><div class="ht">Open source on PyPI</div><div class="hd">MIT-licensed. Install projectair and verify every line.</div></a>
       </div>
     </div>
   </div>

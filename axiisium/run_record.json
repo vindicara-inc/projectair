@@ -1,0 +1,84 @@
+{
+  "pubkey": "98e1a54629988f43ef89b786e3cad69daef8b48f46f1292b52a5582b3cb8f0d1",
+  "fused_auc": 0.7681623931623932,
+  "per_modality_auc": {
+    "pathology": 0.74,
+    "flow": 0.589,
+    "cytogenetics": 0.583,
+    "clinical": 0.571
+  },
+  "records": [
+    {
+      "ordinal": 0,
+      "timestamp": "2026-06-26T09:52:38.261076+00:00",
+      "kind": "cohort_loaded",
+      "payload": {
+        "n": 1200,
+        "modalities": {
+          "pathology": 32,
+          "flow": 16,
+          "cytogenetics": 8,
+          "clinical": 4
+        },
+        "target": "NPM1 mutation status (synthetic)",
+        "data_sha256": "fd2490ed84d53a48eefbe48c38ba66ef6d049a4737ca10c085406c605340069d",
+        "source": "SYNTHETIC (prod: aligned path+flow+cyto+molecular cohort via FLARE)"
+      },
+      "human_authority": null,
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "content_hash": "adc4f66d26892000376e59296f5c515e8243cb9c96c8344fd2589aa82a2bd15d",
+      "signature": "6292e249935b17cf801497471e8a77bbbdd756088a2e1aa5c3aba32c57906c0aaa5f2c8a65782d43f4cf4154b53ada50ba1dd5ba5ff7ac1cff645c19e9f06108",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 1,
+      "timestamp": "2026-06-26T09:52:38.286720+00:00",
+      "kind": "model_trained",
+      "payload": {
+        "arch": "late-fusion logistic (prod: MONAI/torch per-modality encoders on GPU)",
+        "weights_sha256": "5fdc2a71d3620d35e4a234b195675fd3f4b4177ccf3965a495eaeff46d947152",
+        "n_train": 900
+      },
+      "human_authority": "Dr. M. Osei, MD  (hematopathology, NPI 1987654320)",
+      "prev_hash": "adc4f66d26892000376e59296f5c515e8243cb9c96c8344fd2589aa82a2bd15d",
+      "content_hash": "13d0c99c54d03bbbb0f4cb47e6b1a7eada0352cd7957f81202a56506a105bd59",
+      "signature": "f0ea5146832cb9dc537a44b26a650044ac34bcd24aeccf99af982e669b3ad90d896af1e1d289f033c8be4d0ed7903d47f1d58ea11e78b572102b70b868d1ad04",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 2,
+      "timestamp": "2026-06-26T09:52:38.308461+00:00",
+      "kind": "evaluated",
+      "payload": {
+        "n_test": 300,
+        "fused_auc": 0.768,
+        "per_modality_auc": {
+          "pathology": 0.74,
+          "flow": 0.589,
+          "cytogenetics": 0.583,
+          "clinical": 0.571
+        },
+        "fusion_lift_over_best_single": 0.028
+      },
+      "human_authority": "Dr. M. Osei, MD  (hematopathology, NPI 1987654320)",
+      "prev_hash": "13d0c99c54d03bbbb0f4cb47e6b1a7eada0352cd7957f81202a56506a105bd59",
+      "content_hash": "b95548961e2f5ce95d076f511124ada3b93b14da8f81e8507eee2cd7ff42dd06",
+      "signature": "49194f4b6d35000fe922c2e71685a80531580a62d1096cd26fe8fd631df6ea375cb5af2cc3d0784e9968e8e9b33ed66213739b26b753bc59b49bc00972728a0f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 3,
+      "timestamp": "2026-06-26T09:52:38.308506+00:00",
+      "kind": "sealed",
+      "payload": {
+        "anchor": "Sigstore Rekor (simulated)",
+        "records": 4
+      },
+      "human_authority": null,
+      "prev_hash": "b95548961e2f5ce95d076f511124ada3b93b14da8f81e8507eee2cd7ff42dd06",
+      "content_hash": "fa2ed2d2d3ec80c6fadbb8dec86c6fa767f024550c864009b19bf3807338b57d",
+      "signature": "44586bae3716f0635d3e51dfa769afea0ca153dba8ffc091ffd2c8d0552d8e6b61117cd1b3cac2bbd1cedb5145e544a52022cc247f1001922ac0e7c2b45fc20a",
+      "algorithm": "Ed25519"
+    }
+  ]
+}

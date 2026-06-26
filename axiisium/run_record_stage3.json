@@ -1,0 +1,926 @@
+{
+  "pubkeys": {
+    "server": "96c7e0fd90958c8759ee70ccdbd93d03cfe1608d3987e46749f8ee01b3fe296e",
+    "site_A_transplant": "0b03fafe9aab6396f44e9743fb1ccc56b4b670befba33f872d0475e002608d2d",
+    "site_B_community": "94018df43380c5d6aa9dbbd3659ab551840e8514e5688e1d11095a0322676c2f",
+    "site_C_pediatric": "79cd823966bf0b248245731f3cf2dcb15e600c374fd912acb3d5ab872139860b"
+  },
+  "federated_auc": 0.9530738662926601,
+  "centralized_auc": 0.960203366058906,
+  "single_site_auc": {
+    "site_A_transplant": 0.9414446002805049,
+    "site_B_community": 0.9171341748480598,
+    "site_C_pediatric": 0.9041316035530622
+  },
+  "records": [
+    {
+      "ordinal": 0,
+      "timestamp": "2026-06-26T09:52:39.842763+00:00",
+      "signer_id": "server",
+      "kind": "federation_initialized",
+      "payload": {
+        "task": "NPM1 mutation (morphology)",
+        "sites": [
+          "site_A_transplant",
+          "site_B_community",
+          "site_C_pediatric"
+        ],
+        "rounds": 12
+      },
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "content_hash": "95a5791df6a1ffcd9c1073d111426cdf19b7e26d9b5a48fea07f7b20064e357f",
+      "signature": "96382a4474c5f94cc6d37c6e52eb7f3e07fd2c73073d0c34017f136f736879eb7bdb1f33de18e8bb1c6a71372b31bfdad4f3803a939e4bbeab3bcb9863b7ec06",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 1,
+      "timestamp": "2026-06-26T09:52:39.845293+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 0,
+        "n_samples": 300,
+        "weights_sha256": "9e389a766452e658167c1544f639f6097d7f5d7bce5bf13b30c81b96a906e0fa"
+      },
+      "prev_hash": "95a5791df6a1ffcd9c1073d111426cdf19b7e26d9b5a48fea07f7b20064e357f",
+      "content_hash": "c4ccf1c7811f479181209fd2564248d1beb33bfc77b57f304d3e8be11f076e5e",
+      "signature": "d2b168acd60e63efc042cc41cd76c44bc28749cc0be122d36267a79105abfaaf620d1ca8d8e6371eeaa5399c6eb56bda912f1eec0bc55fd11282e29cfb47710b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 2,
+      "timestamp": "2026-06-26T09:52:39.845324+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 0,
+        "n_samples": 300,
+        "weights_sha256": "47390bacac723e2662374fd45bfb868c16fcf3c07057622eda0beafb771e1878"
+      },
+      "prev_hash": "c4ccf1c7811f479181209fd2564248d1beb33bfc77b57f304d3e8be11f076e5e",
+      "content_hash": "dbac9b60a005aae218a702f72d3a55e2fe9dc7abf9a56c1760528777dae16d2d",
+      "signature": "4e3cc5bdbc56bfce8a260c6aa7803a2ff0027eeb7714079b86fcb27b3a60babd076b9256adda352d0b0c817f97f3a87520c76ae379cfe79872d3e82dac95e605",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 3,
+      "timestamp": "2026-06-26T09:52:39.845348+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 0,
+        "n_samples": 243,
+        "weights_sha256": "415fa0f16c8fda8d36ef285deafff77542b02209b684426c3016e347eea00743"
+      },
+      "prev_hash": "dbac9b60a005aae218a702f72d3a55e2fe9dc7abf9a56c1760528777dae16d2d",
+      "content_hash": "06c1bf6c845dc12d0409dc9c89313df68069e9fe296094847803a5a12069468d",
+      "signature": "3b7fd4373aee6ce24ce2fa17bde2ebe0b203b1283fc3630bd1a71e7fc39d73c399152031593046b3f0bee95aa868e93e000b2ee6701374db1bed6d4c110b1f01",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 4,
+      "timestamp": "2026-06-26T09:52:39.845369+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 0,
+        "global_weights_sha256": "3f66a48add5b28400f6b718c1ab80dc0a4f628b76277a3ab84722a1af4d0118a",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "9e389a766452e658167c1544f639f6097d7f5d7bce5bf13b30c81b96a906e0fa"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "47390bacac723e2662374fd45bfb868c16fcf3c07057622eda0beafb771e1878"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "415fa0f16c8fda8d36ef285deafff77542b02209b684426c3016e347eea00743"
+          }
+        }
+      },
+      "prev_hash": "06c1bf6c845dc12d0409dc9c89313df68069e9fe296094847803a5a12069468d",
+      "content_hash": "c87e5dfb648c7c98c0b6636438720c4d82a29d8c33c2af65a03d538e11d91519",
+      "signature": "bc9b5d68ff93584ec2de50e76d2ebc62ce0be7e9f3638cc49e54170052544e124b3d00f128fb20c5c3e2b5ba8fc4cd97ed545edd83aeb0713c5db9c3da3d7803",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 5,
+      "timestamp": "2026-06-26T09:52:39.847725+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 1,
+        "n_samples": 300,
+        "weights_sha256": "68d731e2bb961fb8d5029385d9644bf74866259a72a028f20e906d01cc8f7edf"
+      },
+      "prev_hash": "c87e5dfb648c7c98c0b6636438720c4d82a29d8c33c2af65a03d538e11d91519",
+      "content_hash": "0a2a7de868ef44c9c4fd0b2af22ab44e7a80b80216974e1be24ff227c292af12",
+      "signature": "67b5a226091200ae6cd22bb3f1b06bfd7e4231f9d0b05f8cf8fe84732acb529aa6048cd751b4be5d78a09b107b3b5d3f5a8f054b66bc637c58948ad400de840f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 6,
+      "timestamp": "2026-06-26T09:52:39.847750+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 1,
+        "n_samples": 300,
+        "weights_sha256": "fa14ce4ec151e64a23dd648010ee4cadfb1e38a6faa0bc74ddb9b629037bbbcf"
+      },
+      "prev_hash": "0a2a7de868ef44c9c4fd0b2af22ab44e7a80b80216974e1be24ff227c292af12",
+      "content_hash": "6b6291fd0436d08f849dc040b2dcfb39e6233dcc84fcee81f5ba29532850496a",
+      "signature": "348f8a4a6f4f6b6d54631ec6ef276587033d9e557d364cfbba108dbf41e46f63d9c4ff4f284b9ce0799a9951906e4ccb5425bc8b4432f90537e2a360772d2007",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 7,
+      "timestamp": "2026-06-26T09:52:39.847770+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 1,
+        "n_samples": 243,
+        "weights_sha256": "9df2917bc565f89f45246116c72ff61cb9dc0ecaf6a2dbbb52ec23acaccd3731"
+      },
+      "prev_hash": "6b6291fd0436d08f849dc040b2dcfb39e6233dcc84fcee81f5ba29532850496a",
+      "content_hash": "a11a6ffc9836687483841ec64165a2d4cf81a824542064d352caf6897de91fb6",
+      "signature": "fa70148662839b644fa6192877c88d982aeef283738f68c197ed03223ab4a45a5ee409de0e19d5cd29e7027edcfc31cac42f0de810a9719d50319e794334fb05",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 8,
+      "timestamp": "2026-06-26T09:52:39.847790+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 1,
+        "global_weights_sha256": "073deb213bcbf5f78d3f6c99c067561272b57a16ba784b5c40730f6c3984ccb7",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "68d731e2bb961fb8d5029385d9644bf74866259a72a028f20e906d01cc8f7edf"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "fa14ce4ec151e64a23dd648010ee4cadfb1e38a6faa0bc74ddb9b629037bbbcf"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "9df2917bc565f89f45246116c72ff61cb9dc0ecaf6a2dbbb52ec23acaccd3731"
+          }
+        }
+      },
+      "prev_hash": "a11a6ffc9836687483841ec64165a2d4cf81a824542064d352caf6897de91fb6",
+      "content_hash": "6f3ad5e2e805f763be94cc0dd755f85b630e46f7b30f49864b55f16407e8f140",
+      "signature": "c8959fdcc7166f24cf4a92cd114fc97a50df5b68407b14b7152076b3f612f7f318bab63e8f53047a7c70fe57bf23af90289ed47fd567a2ba99cd7ca206ca250e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 9,
+      "timestamp": "2026-06-26T09:52:39.850095+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 2,
+        "n_samples": 300,
+        "weights_sha256": "84ad46e351cea67e9c6d6926eeead7563d53f1842aff4483c1715ad1fa16354c"
+      },
+      "prev_hash": "6f3ad5e2e805f763be94cc0dd755f85b630e46f7b30f49864b55f16407e8f140",
+      "content_hash": "f5692bbf88e927e6f6b0dc57e8596a4ec57db4c6c5bcf6569e32bf1267c1a543",
+      "signature": "459fdb336630e8f0b323d78bcbc5844f6bf34037e39fc5dda2f1066bb9b98455dbbd3d162c1b6de9546e4dce86893dac98ecfed306beedf64bf407c99b610505",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 10,
+      "timestamp": "2026-06-26T09:52:39.850115+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 2,
+        "n_samples": 300,
+        "weights_sha256": "2d7aa19ba11be352a03a0912a913dc08e570eaa07b3f97e4fd6304ac3e6a0d14"
+      },
+      "prev_hash": "f5692bbf88e927e6f6b0dc57e8596a4ec57db4c6c5bcf6569e32bf1267c1a543",
+      "content_hash": "3bfb64838f41f4f727db4d2a3292d0e3e0d5482ea04214787a76f9830d1da082",
+      "signature": "e021764ea3e3e70783012ed150c3a3f37e5c7323aac74e64c08a65dd95826fd3531987d5e8f0a2ba2fb985c059344d8b0b220602d0b9272a0f2e6f9da503eb07",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 11,
+      "timestamp": "2026-06-26T09:52:39.850135+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 2,
+        "n_samples": 243,
+        "weights_sha256": "8d37d4c8e2aba7b6ca6d2c209ae6ef6ed520e843b1e9a6a2d06a33d30d39e5c2"
+      },
+      "prev_hash": "3bfb64838f41f4f727db4d2a3292d0e3e0d5482ea04214787a76f9830d1da082",
+      "content_hash": "9db94c1c228674d6bdfbb8aa6cb6badeb7a8253d331ba8015b1d30bd2a2bcf2c",
+      "signature": "665e4169b65efee8bfec888456ccc3af388aa7e0b2aac61e744f4644137ed2f20f643b8633d9d2a9a598f075ff6bcc401650255d2ca6fc3558673aa33c486a05",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 12,
+      "timestamp": "2026-06-26T09:52:39.850164+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 2,
+        "global_weights_sha256": "cc28988965adb671c77468e589166a6865bbfc12fe2a9d5b80ed765c29ff261c",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "84ad46e351cea67e9c6d6926eeead7563d53f1842aff4483c1715ad1fa16354c"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "2d7aa19ba11be352a03a0912a913dc08e570eaa07b3f97e4fd6304ac3e6a0d14"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "8d37d4c8e2aba7b6ca6d2c209ae6ef6ed520e843b1e9a6a2d06a33d30d39e5c2"
+          }
+        }
+      },
+      "prev_hash": "9db94c1c228674d6bdfbb8aa6cb6badeb7a8253d331ba8015b1d30bd2a2bcf2c",
+      "content_hash": "bf7a7fe1c9d35696c56510993d380828d863624a5a27e903dc9ffddc1aaf1f14",
+      "signature": "a1500cabf188fe5fb22c191065454e277fb9841ce0defdcb516741fd94131ad81a0484ab550fe2af77e32dba968eeb54508d5936a8a6931541755d8947821106",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 13,
+      "timestamp": "2026-06-26T09:52:39.852468+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 3,
+        "n_samples": 300,
+        "weights_sha256": "0b0ae0f059b7fed8b7f0d743dbb157095fe4e655c8c0100bfb2d052b76fa3efa"
+      },
+      "prev_hash": "bf7a7fe1c9d35696c56510993d380828d863624a5a27e903dc9ffddc1aaf1f14",
+      "content_hash": "efd34c09d450c905911bf8558ec1cd0834f2c678ccad216a39b686eeaf7c37fb",
+      "signature": "f9c4e92a404f2f86411b5c9f6d61caef1d95cfc72ca1e9be7abf10ae69c363172c1acc5b7f82d2a94673eae3c79449d0c1065eb6e6568aaef7c429920e464d0e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 14,
+      "timestamp": "2026-06-26T09:52:39.852488+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 3,
+        "n_samples": 300,
+        "weights_sha256": "c57645c5d52598367f0f2fddc664a901e858b31154e478617bb2f4b9c18c72c2"
+      },
+      "prev_hash": "efd34c09d450c905911bf8558ec1cd0834f2c678ccad216a39b686eeaf7c37fb",
+      "content_hash": "b2732f53f09ef2855963b60c5dd49dfff30bf975f7b708d738992bd84b420695",
+      "signature": "ded21467b62c3c56007489932624c0c5941cd17bd8df4ced6c3781d35123185f9026416d1e5a71b6122b843f172cb2647e4451de03bf5ee36e9c8d5229ba5f09",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 15,
+      "timestamp": "2026-06-26T09:52:39.852509+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 3,
+        "n_samples": 243,
+        "weights_sha256": "56e443a5229302fcc852c908ffc68f90456fa34c5b0266667f0582559994669d"
+      },
+      "prev_hash": "b2732f53f09ef2855963b60c5dd49dfff30bf975f7b708d738992bd84b420695",
+      "content_hash": "e39986fd5c38d109efd0f471b900d4032e5cca03bb79bfcfa06ff166c136956d",
+      "signature": "d6ab03999f8cd1d4edd93c2e124ad1a6ff47aae95358e75c97e1048dfefbd4397dc4ef4df40f1e3deae6e9166e7ff0a0f27d0a17811ee55f03c2b3066ae91501",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 16,
+      "timestamp": "2026-06-26T09:52:39.852528+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 3,
+        "global_weights_sha256": "87e676c47912d0bbd51c9b10425aecb31ae85337333c638bc811f15f432acb45",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "0b0ae0f059b7fed8b7f0d743dbb157095fe4e655c8c0100bfb2d052b76fa3efa"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "c57645c5d52598367f0f2fddc664a901e858b31154e478617bb2f4b9c18c72c2"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "56e443a5229302fcc852c908ffc68f90456fa34c5b0266667f0582559994669d"
+          }
+        }
+      },
+      "prev_hash": "e39986fd5c38d109efd0f471b900d4032e5cca03bb79bfcfa06ff166c136956d",
+      "content_hash": "ee1e1c28be7689143e26fcbf719b262c0f4bdec012aab8a7071fd7f0302d6ac3",
+      "signature": "b6cc8427bd88af3274015d4ada4ea1fdcd001e3096d8386e7e5bbbc8c9f24c4435de84beaa02f591fa21224239d806908247318d00231f881e68b9293be04c0c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 17,
+      "timestamp": "2026-06-26T09:52:39.854796+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 4,
+        "n_samples": 300,
+        "weights_sha256": "46cbc48058a637a6d4c26a8a4ae0a41205b578a1c6d4f3852fcba5e754d82321"
+      },
+      "prev_hash": "ee1e1c28be7689143e26fcbf719b262c0f4bdec012aab8a7071fd7f0302d6ac3",
+      "content_hash": "21343ff74629f51bb8ca08d93cd6961c635f41c26275e03132ec186b27bb3dc7",
+      "signature": "79fcc0a11cf1af0b59bb760e9918612d90dc00a4a7f6538a9058faa0065f90ca62fae63cf1123a33834d2d7ff9e5e167999882d57690bef621c299d12fd4f007",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 18,
+      "timestamp": "2026-06-26T09:52:39.854816+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 4,
+        "n_samples": 300,
+        "weights_sha256": "9a90b9d75a4539d58471637ef469448de5daf99a8bbad2ce3aa6f782ef25c21f"
+      },
+      "prev_hash": "21343ff74629f51bb8ca08d93cd6961c635f41c26275e03132ec186b27bb3dc7",
+      "content_hash": "710abedeb93fdaa0cda564efdc149949e149748b011382918ecb19c1c507a87d",
+      "signature": "a4654ced257749786cb4453eee2a491236d08243a852db7f923bdd0c268737a24b288a6582c33169c4b82142df831fabb1cf7ba6533ed18d7fc827d81824cb00",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 19,
+      "timestamp": "2026-06-26T09:52:39.854835+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 4,
+        "n_samples": 243,
+        "weights_sha256": "b8a347fd11b79e725f053f1ad46ff1d405cdde84b387adac3cd9de2e6416da0e"
+      },
+      "prev_hash": "710abedeb93fdaa0cda564efdc149949e149748b011382918ecb19c1c507a87d",
+      "content_hash": "5674482b7089f6bfdfc94320431e7c671989742588f754e22a827bff2ec46a74",
+      "signature": "3648e500ca2e78f70cde54a625ec3f5b198b74c09b1d6d6c329ec519e4b3ff56f6170c62c63ab7156e3c25ba88a826a6dec2b296467a3d743b40bc07f1565a0b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 20,
+      "timestamp": "2026-06-26T09:52:39.854855+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 4,
+        "global_weights_sha256": "01ecb3400313ae519774f339323dccfc2ac4442eb671c411d2fd400be26a431d",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "46cbc48058a637a6d4c26a8a4ae0a41205b578a1c6d4f3852fcba5e754d82321"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "9a90b9d75a4539d58471637ef469448de5daf99a8bbad2ce3aa6f782ef25c21f"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "b8a347fd11b79e725f053f1ad46ff1d405cdde84b387adac3cd9de2e6416da0e"
+          }
+        }
+      },
+      "prev_hash": "5674482b7089f6bfdfc94320431e7c671989742588f754e22a827bff2ec46a74",
+      "content_hash": "61da786621a8350c52acf5d5a4d5b38ef49ffad610e2619bef77138e86fe0a48",
+      "signature": "5f2ffd0287f51957a82fc8bbfd68051cd33c5b662990bdf33391308083c5b1e36e7a9a69228936f54580f051f006b2d0e408344502506306fff48ac883056406",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 21,
+      "timestamp": "2026-06-26T09:52:39.857097+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 5,
+        "n_samples": 300,
+        "weights_sha256": "caa067572bc70002c97e7a29cb5f07df09b5f7215a52911b2bcecbf3a52e8a75"
+      },
+      "prev_hash": "61da786621a8350c52acf5d5a4d5b38ef49ffad610e2619bef77138e86fe0a48",
+      "content_hash": "73a88bd399b3d347a6bba50d126a10a43cc0ff76aec1f05526de3d546e96cc1d",
+      "signature": "39d7cc155670a2c535a8670231c657a566920cb61aebe00ef242fac56753261ce93163a6dca0f3396eae807557939f19af4c2250c18cad3672d010567761ab0e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 22,
+      "timestamp": "2026-06-26T09:52:39.857117+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 5,
+        "n_samples": 300,
+        "weights_sha256": "1dadbdfb22cfd32bcdc06297f959ebf44f1bd2965b151238b2f691ad64cd901f"
+      },
+      "prev_hash": "73a88bd399b3d347a6bba50d126a10a43cc0ff76aec1f05526de3d546e96cc1d",
+      "content_hash": "307dd67f706b92172c294541c7f6c3396d3522696f188cc1cebec31faefd4ba8",
+      "signature": "f85b197fbd192a971abef80408507d07aded222b4a4e7bf976cf0bfebb9dc05300e9331e6ff14b088a1c09ae4dfb303bdb68c41d14bb3e720bd0b2977320620a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 23,
+      "timestamp": "2026-06-26T09:52:39.857136+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 5,
+        "n_samples": 243,
+        "weights_sha256": "586f51d4c9b04ca5ba3e5a26ee89214d8c35db77fe589a01f6ee07e91aad9f32"
+      },
+      "prev_hash": "307dd67f706b92172c294541c7f6c3396d3522696f188cc1cebec31faefd4ba8",
+      "content_hash": "b9592d3bdbfb1551bb85e8743fc7483c5c279f25d00ed549e34c9c1c6e04ef16",
+      "signature": "62ff5d76c2e24eb3b6ae51c08791b985a2e5a714cae9dfaeb659d2fac802b0d400e6f7d9689a40c74de1ac63a8afdc24027f1199c06e8fae85298aa01b608800",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 24,
+      "timestamp": "2026-06-26T09:52:39.857155+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 5,
+        "global_weights_sha256": "842f7987fc0e03449b3d30da80d24ec2f8d7cd1b06b8ed69a54994a856b41ead",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "caa067572bc70002c97e7a29cb5f07df09b5f7215a52911b2bcecbf3a52e8a75"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "1dadbdfb22cfd32bcdc06297f959ebf44f1bd2965b151238b2f691ad64cd901f"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "586f51d4c9b04ca5ba3e5a26ee89214d8c35db77fe589a01f6ee07e91aad9f32"
+          }
+        }
+      },
+      "prev_hash": "b9592d3bdbfb1551bb85e8743fc7483c5c279f25d00ed549e34c9c1c6e04ef16",
+      "content_hash": "58706bf5db6a3312b621936be8c9d3ea498006fa66986acf85d4a8055fc95ea4",
+      "signature": "6158eb3f61eabad3a44a8535ad45e5b0c808bd12bb45d12a89c3f18c4f13d72ed92c0702b7924b4432eb8178bedbff4ec215ee403bd0418fbad84e9f51adb701",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 25,
+      "timestamp": "2026-06-26T09:52:39.859454+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 6,
+        "n_samples": 300,
+        "weights_sha256": "76c56b621c4f107e610cc8bebaec102106dc4b7ba999a7f87ecdbbc37acd7d6a"
+      },
+      "prev_hash": "58706bf5db6a3312b621936be8c9d3ea498006fa66986acf85d4a8055fc95ea4",
+      "content_hash": "b442ce5525078c97691458b0820c616633aabbf0b3c3d0441346944a288d0d11",
+      "signature": "860e09d6e1b66f09f1d6d47f78e30caaac72ee18b7fffb7ab9b4853d54e6a0659ce7f3461af8ec88857d7c66a3cfc87c115b32c23635bd52826ce68ed6977800",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 26,
+      "timestamp": "2026-06-26T09:52:39.859474+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 6,
+        "n_samples": 300,
+        "weights_sha256": "efd8b28821773bc28c2d52ae067993400ba0a59cd751182630d9f18c5732ef99"
+      },
+      "prev_hash": "b442ce5525078c97691458b0820c616633aabbf0b3c3d0441346944a288d0d11",
+      "content_hash": "edcbfe01d494049f5de7bcec897ec2ab00014fb595a70b900ec80066b89d251d",
+      "signature": "8fa9923a94c3c17f8907359033e10fed7e7fb276bf007ffdca1cc83fbcde609a095e2fb1a5a7cf178add53203fcd69a8861ad8d7125e5e4187ef3e640243c60a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 27,
+      "timestamp": "2026-06-26T09:52:39.859494+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 6,
+        "n_samples": 243,
+        "weights_sha256": "eb98f01b4215299cdcab37975af887e3d08650c90e5ce45d379e48f62eb77066"
+      },
+      "prev_hash": "edcbfe01d494049f5de7bcec897ec2ab00014fb595a70b900ec80066b89d251d",
+      "content_hash": "2fe89dab295296e6c386ec5e074725f0332d760e033b342afdeac7544d9f3a98",
+      "signature": "bb22c7bbeb17b9a2d685a2c1d0c6485c6dd6628164f70bf90401afd385177609006c619c752c13e408ef3a47d9e76f943f2a6b3ba3bc5063a37c17861ab30f0c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 28,
+      "timestamp": "2026-06-26T09:52:39.859514+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 6,
+        "global_weights_sha256": "6db4114fe06795b74ff11aa746687c8fdc2cfe9678209861dbe766a69424d512",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "76c56b621c4f107e610cc8bebaec102106dc4b7ba999a7f87ecdbbc37acd7d6a"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "efd8b28821773bc28c2d52ae067993400ba0a59cd751182630d9f18c5732ef99"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "eb98f01b4215299cdcab37975af887e3d08650c90e5ce45d379e48f62eb77066"
+          }
+        }
+      },
+      "prev_hash": "2fe89dab295296e6c386ec5e074725f0332d760e033b342afdeac7544d9f3a98",
+      "content_hash": "d387734a6a3153b15ea6330699e8a6a04c4fd66dc9485a4763fcfb2f5e1dcfcc",
+      "signature": "0c53db4f1180b8e085b70167fd3d3bd61ca0ac689740afeedaf81de92986de777aa4d42880ca85262564ea9c4a027ed73585800ae9d852c9231fccdca0147004",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 29,
+      "timestamp": "2026-06-26T09:52:39.861761+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 7,
+        "n_samples": 300,
+        "weights_sha256": "9af90a19df3ab5ec6a09f09af50b3dd8a97a8b2eaddfe71d6f6a3b8fa52bc8f2"
+      },
+      "prev_hash": "d387734a6a3153b15ea6330699e8a6a04c4fd66dc9485a4763fcfb2f5e1dcfcc",
+      "content_hash": "850a35f24a4f01ec3b02a488502b9d8f66f4fc8f1d9111e0039998e4f978a5ad",
+      "signature": "9589ea974c97f32564cb0d20e9e24fe090a650ad800e9c8a24898911fde011ccf95b8b96b1bc7adb468414dc6c1170a70cb5b8f35b061d113449178254f27704",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 30,
+      "timestamp": "2026-06-26T09:52:39.861782+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 7,
+        "n_samples": 300,
+        "weights_sha256": "e4a1be6c7ffd20a6a91acfe0dfd070dd5e4c5ee74e13a970d413adf1c91b5c14"
+      },
+      "prev_hash": "850a35f24a4f01ec3b02a488502b9d8f66f4fc8f1d9111e0039998e4f978a5ad",
+      "content_hash": "daf3acc456af2554235678e59e9ad1905f31583c413fb54afd36bca4e16501ea",
+      "signature": "10b8a7753c68f2ed570c57fcd47c0075390a25929941880f103d170c4ec35e7e5745fbd2cbb65207e2049c1fea03a05eb9a41b3e87550b241241fadf1baccf0d",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 31,
+      "timestamp": "2026-06-26T09:52:39.861801+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 7,
+        "n_samples": 243,
+        "weights_sha256": "f3f05bf77ce519c72ea7e35eee97c6934b641cda7a40b95512a9a0f63af6e3ed"
+      },
+      "prev_hash": "daf3acc456af2554235678e59e9ad1905f31583c413fb54afd36bca4e16501ea",
+      "content_hash": "e4e198b2e1a48c6697e449370710470546439d650e625653518d96534b2b010b",
+      "signature": "5144f97aa67c6d9bd7bb40fd1ce6b07197d8a63d703f09bca75f145d18cd1c7c775cf25f05bd969da946ec90c80856701d98049e8f8b7acf716281e1a53bcb06",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 32,
+      "timestamp": "2026-06-26T09:52:39.861820+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 7,
+        "global_weights_sha256": "9151f78c04acb4d26651eab8accab2658ae1ab14eff8765aa920409a8f11571e",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "9af90a19df3ab5ec6a09f09af50b3dd8a97a8b2eaddfe71d6f6a3b8fa52bc8f2"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "e4a1be6c7ffd20a6a91acfe0dfd070dd5e4c5ee74e13a970d413adf1c91b5c14"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "f3f05bf77ce519c72ea7e35eee97c6934b641cda7a40b95512a9a0f63af6e3ed"
+          }
+        }
+      },
+      "prev_hash": "e4e198b2e1a48c6697e449370710470546439d650e625653518d96534b2b010b",
+      "content_hash": "7edce6d14d2d9d8a7d3fff90b7e31bb9fba575bad9a5adf529ba81b8121b9456",
+      "signature": "3ed62769acf0e55d9da7cc9e43ac956bd174c68d6013ffc4ee098963cfd74bf8f8fb9159780414e596af2d09ffc3c77dcb150152b486388003de68d8c7f18202",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 33,
+      "timestamp": "2026-06-26T09:52:39.864054+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 8,
+        "n_samples": 300,
+        "weights_sha256": "62559a89d14d892f2f1971823af4305c04dcb32841a62f895ccce55c9568581c"
+      },
+      "prev_hash": "7edce6d14d2d9d8a7d3fff90b7e31bb9fba575bad9a5adf529ba81b8121b9456",
+      "content_hash": "deed91f87f09fd2e8b2a308672c51ef906516ba90e85b0fabd6f6e4495dcb928",
+      "signature": "3ce4f204c91c6ddabfe98ac392735a54ef7a0720e2aab7c28497f6a8d7a42f2184a1f3019efc0eec471122c5f0f2c9bdcbd1859fde5e7107211cbebde3e37c0e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 34,
+      "timestamp": "2026-06-26T09:52:39.864074+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 8,
+        "n_samples": 300,
+        "weights_sha256": "f524865525c73020ba53f6bd3a4233a374dd58b575d0c62d75a8ab544ed87b0b"
+      },
+      "prev_hash": "deed91f87f09fd2e8b2a308672c51ef906516ba90e85b0fabd6f6e4495dcb928",
+      "content_hash": "7cc39b2bcca730efd4c8986c5161d2fabe70e83ec5a5acd0fe197ca356e53b72",
+      "signature": "5d6bafe881b0b018ccdc0d0780eff7b7b257273fdd8cb098b00d8e37d9fc98d563380f11488577f678f29f7877029b7266e7228ff98cf3efe0ef9797ea069400",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 35,
+      "timestamp": "2026-06-26T09:52:39.864093+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 8,
+        "n_samples": 243,
+        "weights_sha256": "2a992e9084929fe9d46c4d0e75b07107e97b9ef3fe33dee95d0fa292368f9b68"
+      },
+      "prev_hash": "7cc39b2bcca730efd4c8986c5161d2fabe70e83ec5a5acd0fe197ca356e53b72",
+      "content_hash": "b4f78f292156918111e2dcece4ffafe327ee5dea6225a6719badce6054f64b7f",
+      "signature": "aaaed9d0493e6a1eb0137f691d978effe37714cf71fda5c2255d97c30b0c41399fe3297886dfafaba1e934d0e61871478e6b8901ede8e5020cb1b58560dbc60d",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 36,
+      "timestamp": "2026-06-26T09:52:39.864113+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 8,
+        "global_weights_sha256": "f3677fc3585e243ca9f4cc7dbeb48ebfcaed83a49a6ae2bd6b94de8b4d7dc1e0",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "62559a89d14d892f2f1971823af4305c04dcb32841a62f895ccce55c9568581c"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "f524865525c73020ba53f6bd3a4233a374dd58b575d0c62d75a8ab544ed87b0b"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "2a992e9084929fe9d46c4d0e75b07107e97b9ef3fe33dee95d0fa292368f9b68"
+          }
+        }
+      },
+      "prev_hash": "b4f78f292156918111e2dcece4ffafe327ee5dea6225a6719badce6054f64b7f",
+      "content_hash": "9561dc18a7786a6c49b6cea48cecf283d100bb6a38b44dac908a27036aa21a36",
+      "signature": "72323e87b2ab8237bfa0f6d488367325d2b44224fb9a52459e91ac94bd2ad3447a8da825d4bbc0ea8ce8b18954787844153b22064ad34bcbfebd02aafccbc60d",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 37,
+      "timestamp": "2026-06-26T09:52:39.866347+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 9,
+        "n_samples": 300,
+        "weights_sha256": "57774bba3c27a872689366927ba53cf7840c7130a9881cabda8ad8a163333b9a"
+      },
+      "prev_hash": "9561dc18a7786a6c49b6cea48cecf283d100bb6a38b44dac908a27036aa21a36",
+      "content_hash": "6867df966bba00e68393e9ba9595c4b4e8a04d29df0d7ced58eb64598f9190da",
+      "signature": "0aa3decbd76ff0c3d5126947d97e4f103d410286ded1ac66383f841958a6b3e85958d950dde9d8d41c0b738839edb0a480a3917d14d89a337a145a019cfbb306",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 38,
+      "timestamp": "2026-06-26T09:52:39.866366+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 9,
+        "n_samples": 300,
+        "weights_sha256": "91589869cf719038dbf42deb3fe4a4d50fdeb31da418ac87c0191da2e88df452"
+      },
+      "prev_hash": "6867df966bba00e68393e9ba9595c4b4e8a04d29df0d7ced58eb64598f9190da",
+      "content_hash": "fc5eda593e3868abf4af23d431171dc38f20ae9eff23ce91ae6f409e85c0b6d7",
+      "signature": "fddcfa013a49f23da140fdaa2c3131fd115864969314efcfba7de7faf548ea307d1316b3519e5566257b1e99cb0c9297a731c736f85dcf25689f0d8123d79a06",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 39,
+      "timestamp": "2026-06-26T09:52:39.866385+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 9,
+        "n_samples": 243,
+        "weights_sha256": "618f15751f16b5e762fb07c776849d206a9b9a8f26db88a857e89f4e15b386aa"
+      },
+      "prev_hash": "fc5eda593e3868abf4af23d431171dc38f20ae9eff23ce91ae6f409e85c0b6d7",
+      "content_hash": "8004048e61b78b6a5a8c18a1a0c2acaa8394c975a0f5febe6ffe4bde3b335cd3",
+      "signature": "12dd4e820827659586a9764d6729c541803502d28c8ed3d646f1d57fb1a01854abf5290d3c63d371593cf1aa70049ef3ac25543d8e3978d4c1b592399a55e600",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 40,
+      "timestamp": "2026-06-26T09:52:39.866404+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 9,
+        "global_weights_sha256": "e9d6d482129f02955b74f8dcd5f8916952a2ac49d41706442a6ec4bac113bb7c",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "57774bba3c27a872689366927ba53cf7840c7130a9881cabda8ad8a163333b9a"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "91589869cf719038dbf42deb3fe4a4d50fdeb31da418ac87c0191da2e88df452"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "618f15751f16b5e762fb07c776849d206a9b9a8f26db88a857e89f4e15b386aa"
+          }
+        }
+      },
+      "prev_hash": "8004048e61b78b6a5a8c18a1a0c2acaa8394c975a0f5febe6ffe4bde3b335cd3",
+      "content_hash": "6cd305564efdeb3ee6ae80cb8a950a89bea3f4a8f2f9ca3bef76112d32b8d6ae",
+      "signature": "2537dd4dad8851d5c05aeab034c359d2f0d4ec812757caf78ccc57a48dfc9eaff5a711e36ce6a8fa0b02e15a581742bd7597191339dc74736cba45bafe02af0b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 41,
+      "timestamp": "2026-06-26T09:52:39.868665+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 10,
+        "n_samples": 300,
+        "weights_sha256": "a689e92626a1cbcad6b3eb04f20de1adf162b43f04148aa316046608b3b27374"
+      },
+      "prev_hash": "6cd305564efdeb3ee6ae80cb8a950a89bea3f4a8f2f9ca3bef76112d32b8d6ae",
+      "content_hash": "1555a6ea7010fb9a922288fb61b6c4666e5b0dc5e35392a9513a61d3b80dccc7",
+      "signature": "49452927553cffcd66045aced8593478b7f3df0cb94c0d65df5a415bb1454495114665efbbea777dba237f83d975e9f8455db422506e470928937270418d5f02",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 42,
+      "timestamp": "2026-06-26T09:52:39.868685+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 10,
+        "n_samples": 300,
+        "weights_sha256": "447373e8b43577d8130a4c1071ab502d47339a19e795b6d2090a0be9f7cf1837"
+      },
+      "prev_hash": "1555a6ea7010fb9a922288fb61b6c4666e5b0dc5e35392a9513a61d3b80dccc7",
+      "content_hash": "bfd2a251d7f5af1f62883be27512b8bfe1b1aac2ab69597f370f5093058c90bd",
+      "signature": "c4308f615196f563ccf14329402c520dd5498b61790e215c42d477188c05f7bd21cab4a608ee932f80adb5e7e077bd3ed4b6a59ec30dcf6910e658defa4bdc0a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 43,
+      "timestamp": "2026-06-26T09:52:39.868705+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 10,
+        "n_samples": 243,
+        "weights_sha256": "0afc1bd931aa851cd8ab28b7f8806ecbedee8eb15ec11d12a17086d0409f63f3"
+      },
+      "prev_hash": "bfd2a251d7f5af1f62883be27512b8bfe1b1aac2ab69597f370f5093058c90bd",
+      "content_hash": "7aebcd02ac98513b82b1ded0eb02407bed9b812c990e73ec943098890bf0f90e",
+      "signature": "e1ae7955958315ad46604c90ab9faf0dd8092298b31313c6481b3a10cc9f233847e8758e525efcf9061e92bf82af8d844c688ca279154f6e2761e9986204960a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 44,
+      "timestamp": "2026-06-26T09:52:39.868724+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 10,
+        "global_weights_sha256": "b1e38179c97a999f400a43aab8c48b707dfa5c0e5b562b19d74ff2d5d59abf37",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "a689e92626a1cbcad6b3eb04f20de1adf162b43f04148aa316046608b3b27374"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "447373e8b43577d8130a4c1071ab502d47339a19e795b6d2090a0be9f7cf1837"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "0afc1bd931aa851cd8ab28b7f8806ecbedee8eb15ec11d12a17086d0409f63f3"
+          }
+        }
+      },
+      "prev_hash": "7aebcd02ac98513b82b1ded0eb02407bed9b812c990e73ec943098890bf0f90e",
+      "content_hash": "b0c974080b87dc3b930d2588de35053a16cb90ed48045f149e17ac7ad2e22ea6",
+      "signature": "3b61cf7629d45bdc8530e93019d6b0a1100eda2cf287c63b21062facfbeec98542d66762f6cda8af968e38ac0ac2639b21902a61866e46b2d48728f782383807",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 45,
+      "timestamp": "2026-06-26T09:52:39.870965+00:00",
+      "signer_id": "site_A_transplant",
+      "kind": "local_update",
+      "payload": {
+        "round": 11,
+        "n_samples": 300,
+        "weights_sha256": "3542d596530a5f75e2077683d486fa03928f71227c6e73ead427aeb0e46c5114"
+      },
+      "prev_hash": "b0c974080b87dc3b930d2588de35053a16cb90ed48045f149e17ac7ad2e22ea6",
+      "content_hash": "f34f61b418a931792094659edb760b2ae7cfe7b92e68951465db452156d34ef9",
+      "signature": "dd2173a601fc33baf0f13d40553846afe0ba4d0d073887c3f6ee36addd21d6592790733e1193dab47ca19407bdeaa8c7a942496f7b27bcb7e3a98dca4e236b0a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 46,
+      "timestamp": "2026-06-26T09:52:39.870985+00:00",
+      "signer_id": "site_B_community",
+      "kind": "local_update",
+      "payload": {
+        "round": 11,
+        "n_samples": 300,
+        "weights_sha256": "0b0e5a2247fa9dfacb929a4abc5198513d6368d609a63022225df997e14dcaca"
+      },
+      "prev_hash": "f34f61b418a931792094659edb760b2ae7cfe7b92e68951465db452156d34ef9",
+      "content_hash": "707b0f558d5a0e13893f9c3d1659cd21d4db45a227ddce3c854ea6a4c9419227",
+      "signature": "0edf142a3bec6f45da3b2a88fbdf5c64bb1c4291d43dd8923453fc5020d815c8af06418b8a116858fd86aa794ca31a3052917d6eabd2fbb654bc8b9e2c268f0f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 47,
+      "timestamp": "2026-06-26T09:52:39.871004+00:00",
+      "signer_id": "site_C_pediatric",
+      "kind": "local_update",
+      "payload": {
+        "round": 11,
+        "n_samples": 243,
+        "weights_sha256": "5dc46a390191d703647a14848a2d65e6162ff8d75ecf2d93c7b82e6a70cf0598"
+      },
+      "prev_hash": "707b0f558d5a0e13893f9c3d1659cd21d4db45a227ddce3c854ea6a4c9419227",
+      "content_hash": "568f13760126b6847296ab3d9ce48b53389f2c3906871a828c9017e276e6945f",
+      "signature": "4fac4ec260f16602c09310063833e63b6c1de85e9927c52902709a759f410e0a011aea85aa3e1d573114980691b8cdc3585c4bcf0b60bfbfe7fd52d4075aa30f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 48,
+      "timestamp": "2026-06-26T09:52:39.871023+00:00",
+      "signer_id": "server",
+      "kind": "aggregation",
+      "payload": {
+        "round": 11,
+        "global_weights_sha256": "741bfefa30612f891369fe03e10b2e6b4e7dc090af4d3c83540ccc4f4560ba83",
+        "contributions": {
+          "site_A_transplant": {
+            "n": 300,
+            "weights_sha256": "3542d596530a5f75e2077683d486fa03928f71227c6e73ead427aeb0e46c5114"
+          },
+          "site_B_community": {
+            "n": 300,
+            "weights_sha256": "0b0e5a2247fa9dfacb929a4abc5198513d6368d609a63022225df997e14dcaca"
+          },
+          "site_C_pediatric": {
+            "n": 243,
+            "weights_sha256": "5dc46a390191d703647a14848a2d65e6162ff8d75ecf2d93c7b82e6a70cf0598"
+          }
+        }
+      },
+      "prev_hash": "568f13760126b6847296ab3d9ce48b53389f2c3906871a828c9017e276e6945f",
+      "content_hash": "826dd04390bc5c561f7fce41ce4626958d9db492914d8c9aa569253aa1e87f99",
+      "signature": "892fad6acd17bbfda9a1d0ab1efc85b6712a8cab9762577b861632fbf7a5bb52ddcea3a2c478df58e4329b23a5abac48bdc0069d0b5f045c2edc9167185e1d00",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 49,
+      "timestamp": "2026-06-26T09:52:39.871165+00:00",
+      "signer_id": "server",
+      "kind": "sealed",
+      "payload": {
+        "final_auc": 0.953,
+        "anchor": "Sigstore Rekor (simulated)"
+      },
+      "prev_hash": "826dd04390bc5c561f7fce41ce4626958d9db492914d8c9aa569253aa1e87f99",
+      "content_hash": "7721fa0b10920057b488444dda446e0e89f684638b155656abb7997649545fb0",
+      "signature": "6977be44e8b5e5f8d704afba3ce73ac2529a8b436fde6dcfbc00ea0fbd1a328a7f76a88a66ee91338dd4b5e54ad94b9036d290f28fdfe6304e723a9255923308",
+      "algorithm": "Ed25519"
+    }
+  ]
+}

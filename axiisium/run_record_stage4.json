@@ -1,0 +1,2074 @@
+{
+  "pubkey": "c53d2b585fb61451de1b9ff115b0d522f0028c5fe7d2ad733420312fda3ac5b9",
+  "criteria": "AML-NPM1m / FLT3-ITD-neg (menin-inhibitor-style)",
+  "economics": {
+    "trial_target": 30,
+    "base_eligible_rate": 0.17,
+    "axiisium_sequenced_to_fill": 125,
+    "axiisium_enrolled": 30,
+    "naive_sequenced_to_fill": 176,
+    "ngs_tests_saved": 51,
+    "enrichment_factor": 1.41
+  },
+  "bands": {
+    "likely_eligible": 16,
+    "confirm_with_ngs": 275,
+    "likely_ineligible": 421,
+    "excluded_hard_filter": 88
+  },
+  "records": [
+    {
+      "ordinal": 0,
+      "timestamp": "2026-06-26T09:52:40.181366+00:00",
+      "kind": "trial_defined",
+      "payload": {
+        "criteria": "AML-NPM1m / FLT3-ITD-neg (menin-inhibitor-style)",
+        "require": [
+          "NPM1"
+        ],
+        "exclude": [
+          "FLT3_ITD"
+        ],
+        "min_age": 18,
+        "min_blast_pct": 20.0
+      },
+      "human_authority": null,
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "content_hash": "da7bc260adcb0c60a8255bfcfb5ff9c6b5563e2ab33fa378471c11318acfc206",
+      "signature": "3ad8b9914b031439e7d9481d7b3bf045b5723e490327b714538700f27974b3aba2a6899687203c6518b7ce305f8bda8e0cb9f988960dfc26387d0004a034470e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 1,
+      "timestamp": "2026-06-26T09:52:40.181521+00:00",
+      "kind": "model_bound",
+      "payload": {
+        "model_version_sha256": "8dc9239bdf7c9975f511d52a81c9994f56ad02582c2611fa39e4e55c4901c2c1",
+        "panel": [
+          "NPM1",
+          "FLT3_ITD"
+        ],
+        "candidates": 800
+      },
+      "human_authority": null,
+      "prev_hash": "da7bc260adcb0c60a8255bfcfb5ff9c6b5563e2ab33fa378471c11318acfc206",
+      "content_hash": "d81519410fea39d55eb23d10bbd8f5f99dfc3660b168a37a038dd82994710510",
+      "signature": "64107b24e188807d3059487e5a48e75dbaf134d46b79e95e2edad6e53c4c7053ba6531964a2a83ef5d43e2a86668dea3e2ef032b351eff0e237178f3e37d7b0d",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 2,
+      "timestamp": "2026-06-26T09:52:40.181575+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 164,
+        "eligibility_score": 0.983,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "d81519410fea39d55eb23d10bbd8f5f99dfc3660b168a37a038dd82994710510",
+      "content_hash": "7ba358e5b405cf3b5dda1659c9fc263afbb26028057990ed0a9515b14850aa97",
+      "signature": "de3dcfc1c5e606e79dc3eeadc21266930d94d875d038cea704e1b7a8dade2aed1252eb2cbec321f4e8c9a69d229dfd584dc46fe3407155a033fa40f52b20b301",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 3,
+      "timestamp": "2026-06-26T09:52:40.181599+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 794,
+        "eligibility_score": 0.959,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "7ba358e5b405cf3b5dda1659c9fc263afbb26028057990ed0a9515b14850aa97",
+      "content_hash": "4754ba74484b3661f1c963648a93e78a286fd1ae217372001b6775cec4c221a7",
+      "signature": "3a49243f4e21a2cec1b2478bab0541f58e732fbbd5ea52930e975ca71f1c11613fdcd17168bd40335865840bb8b13a7c68a10ce7e9cdf99441ceaf1d2ada1b04",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 4,
+      "timestamp": "2026-06-26T09:52:40.181618+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 233,
+        "eligibility_score": 0.952,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "4754ba74484b3661f1c963648a93e78a286fd1ae217372001b6775cec4c221a7",
+      "content_hash": "62ac9a3034ecc92f44027673e697623656cfe41f929e469fbffd3c6e7fbee845",
+      "signature": "27bd61ac9db287f55eb41bf2cc6f8f2287c73d0a5fb29dfab7eaeff6cd09b7b5a06cc59fb70dd38a585cab561872d0c978dc0ac1d3200d5f5ba20274cf5c4307",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 5,
+      "timestamp": "2026-06-26T09:52:40.181637+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 324,
+        "eligibility_score": 0.935,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "62ac9a3034ecc92f44027673e697623656cfe41f929e469fbffd3c6e7fbee845",
+      "content_hash": "b8bc3be78c48f02e6e750f1499b60bc5f84f3b2723a64fea277ca141c981eb76",
+      "signature": "9a71f6862c584552809c466e16b6639567a0a391c5962b42e841955c881e75020646e4880543a89f64e2d22cd1f7d39c9b560effd7e51e229b772141cf68de07",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 6,
+      "timestamp": "2026-06-26T09:52:40.181655+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 231,
+        "eligibility_score": 0.929,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "b8bc3be78c48f02e6e750f1499b60bc5f84f3b2723a64fea277ca141c981eb76",
+      "content_hash": "58eec08c050ba83b75acd252655d01b5739a7fe5f5f01a6876c4f7b7a1b57dda",
+      "signature": "e8f2539c15883fc4e99e75ec24849be0214b6e1e3693dd2eb2fb94d74c91978493f1c14bc47b4eb7d10ad8924be2d1eac613f7a3795d256f20eb09b34590c60e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 7,
+      "timestamp": "2026-06-26T09:52:40.181673+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 594,
+        "eligibility_score": 0.928,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "58eec08c050ba83b75acd252655d01b5739a7fe5f5f01a6876c4f7b7a1b57dda",
+      "content_hash": "e98b8481fda7a9d0fea5ba8323644dc1df82bac403f1b7838dbca33093b99f20",
+      "signature": "57136afd29667d1a1f3e8b9b553976ebfc532e0ef1b1d8edb3945f04aee9b395f943cbd937c25261e4773faa471eef1c3d31bd986c194071e718e87001e11b09",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 8,
+      "timestamp": "2026-06-26T09:52:40.181691+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 292,
+        "eligibility_score": 0.915,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "e98b8481fda7a9d0fea5ba8323644dc1df82bac403f1b7838dbca33093b99f20",
+      "content_hash": "d5d83c5aa60dfe0d849d9512cbfe107508146ec47d23c40b52b229552252ed3f",
+      "signature": "236bfb50d5c3395e1ba69e550b7885706568118c14c16e24b855e0fb7b83565df04312ea960f07003f3dac27816e29a138e59997602574a3094a58542d6e4e09",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 9,
+      "timestamp": "2026-06-26T09:52:40.181710+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 525,
+        "eligibility_score": 0.914,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "d5d83c5aa60dfe0d849d9512cbfe107508146ec47d23c40b52b229552252ed3f",
+      "content_hash": "233433472675e1e3baae35ca2bccf36733fc033bf64bb2e14d1fff47d8cf852a",
+      "signature": "424060de62681af425377cdbc3e402fe9ef4cb0fbc3f76c1853d712420a2f15828d7e5c5e97495c8f0c1e1e4c2db904857d9000015a9bf0e6eff7bc7d9caf001",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 10,
+      "timestamp": "2026-06-26T09:52:40.181728+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 41,
+        "eligibility_score": 0.905,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "233433472675e1e3baae35ca2bccf36733fc033bf64bb2e14d1fff47d8cf852a",
+      "content_hash": "9d58e2b4e5e7b780c47b17544f6380690855df9492113f3a69ac8cf6c4df99b8",
+      "signature": "2e9daeb8185f4373c9fafd89f7d7b22d38d370c0f6a0d1df77c1ef7a2e66159e984b0ad14effea573621c2c976d5f830826ef1e95dd1925580df424116aad909",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 11,
+      "timestamp": "2026-06-26T09:52:40.181745+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 677,
+        "eligibility_score": 0.902,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "9d58e2b4e5e7b780c47b17544f6380690855df9492113f3a69ac8cf6c4df99b8",
+      "content_hash": "15a37ac87140a3a6fa01bead439cb9e75a66fc0be5443a54f2f0f3c4e6b7fa61",
+      "signature": "fbbeddc17f264293ac0d6769f7691c596672e18766aec2edb1e2693f884fbb3b3bb86abf19c82de7f9b405b2a15d4bf23906b137baf2e3d2817673f728123003",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 12,
+      "timestamp": "2026-06-26T09:52:40.181763+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 158,
+        "eligibility_score": 0.9,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "15a37ac87140a3a6fa01bead439cb9e75a66fc0be5443a54f2f0f3c4e6b7fa61",
+      "content_hash": "fcdcdd67a36e74fa62c43504d47e3486c6bb4eab98af91247d0e61a67776bed9",
+      "signature": "0fdb059c8787d4479f0276f964c2677ab21d0f85b83db369e77451fe7527a45adf60342ec9729c8fb9a8b6dcf2c8b8ede4da3118d2326a41260203ad2bc86004",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 13,
+      "timestamp": "2026-06-26T09:52:40.181782+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 246,
+        "eligibility_score": 0.887,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "fcdcdd67a36e74fa62c43504d47e3486c6bb4eab98af91247d0e61a67776bed9",
+      "content_hash": "91660dd1462393e3e7e3f4254232b95985d639d361aa8150422d5515eb47f287",
+      "signature": "86ff066e9941344f01bed383ec7370e0bac147b16832bbdcd9dcc4fb0c52784a231e7adf6c8aad0128c166fac1b61e95914b75b5f1191a1f9813c474736a2801",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 14,
+      "timestamp": "2026-06-26T09:52:40.181800+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 146,
+        "eligibility_score": 0.868,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "91660dd1462393e3e7e3f4254232b95985d639d361aa8150422d5515eb47f287",
+      "content_hash": "899449106083938cf624f1922d2124d13f200ee63cd26c16341d7f07df257621",
+      "signature": "347ac763698d1d42d930c9bac018ab7e322cfc0c07641cde8b729cf4efe46a67d0ef4840c5ffb03741a4c376a4a3a4274f4488449a9dce37852608ae0a644402",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 15,
+      "timestamp": "2026-06-26T09:52:40.181818+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 15,
+        "eligibility_score": 0.866,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "899449106083938cf624f1922d2124d13f200ee63cd26c16341d7f07df257621",
+      "content_hash": "6a10970d490c36120dfb96c18f10e50fe29b7c521a208f5dd6b6ce2274c39b65",
+      "signature": "a4f7c2b190054fcc4e482320d999af6375bee7e8384a34ea1a92bb88831ea4dec93bd6cd0545807801ba2aee4d24a9e03d8c8f1e842c8cc947b1e59421e1c40a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 16,
+      "timestamp": "2026-06-26T09:52:40.181836+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 36,
+        "eligibility_score": 0.863,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "6a10970d490c36120dfb96c18f10e50fe29b7c521a208f5dd6b6ce2274c39b65",
+      "content_hash": "8a36c4f9cb577ee7d21837ca86eede8da51b3894567bc76e87b2595dd561a82f",
+      "signature": "ea6463155af8eb378134a47610ca6abde1555f3ad919284cba1ca4e7770bc50f1ed2b94c24c95e57b845e19d618805ef14d60e81dd153e4159dda9462be40304",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 17,
+      "timestamp": "2026-06-26T09:52:40.181854+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 790,
+        "eligibility_score": 0.862,
+        "band": "likely_eligible",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "8a36c4f9cb577ee7d21837ca86eede8da51b3894567bc76e87b2595dd561a82f",
+      "content_hash": "4e6d270b03888421515ebd80302dfbd408b09f9d9e034d059099cb06f4950a39",
+      "signature": "6b6f067a8cd062518132542004c0ea36441f74e7696fa72ea19aff499f2637d0fa9562c2a345f7edc9967eeaf88340da41c00986b051953be00d9c3b928f0102",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 18,
+      "timestamp": "2026-06-26T09:52:40.181871+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 414,
+        "eligibility_score": 0.837,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "4e6d270b03888421515ebd80302dfbd408b09f9d9e034d059099cb06f4950a39",
+      "content_hash": "2d390552ae3d9aacdab78e978f3ad4bdb373f5337112141c1321467e0dee03fd",
+      "signature": "0ad1c8ce93091deef59832e2355bef1dd1f3a7bf254e1dc122d95f58ae37437676bc2064a811532d3f73ce2b7746873975c7cd0d42671b22f722e68171612300",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 19,
+      "timestamp": "2026-06-26T09:52:40.181888+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 775,
+        "eligibility_score": 0.837,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "2d390552ae3d9aacdab78e978f3ad4bdb373f5337112141c1321467e0dee03fd",
+      "content_hash": "c893df5f64a3e7ed69523c287d12d7c74f9be3c0af3ebc4cf757893fb1a76068",
+      "signature": "04ec0518f28960be71aed4a4946e6229b35aaf1a51ea25c5a0e61d1f62626ee1593af7e1bb5a76dfacca2be2c0d596f1978091516e0cbe5da69896ce1ad74c02",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 20,
+      "timestamp": "2026-06-26T09:52:40.181905+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 446,
+        "eligibility_score": 0.831,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "c893df5f64a3e7ed69523c287d12d7c74f9be3c0af3ebc4cf757893fb1a76068",
+      "content_hash": "4dbe511e7906584ed840297c30a51855058c1dbb1ee963a74c0e4b446cf41073",
+      "signature": "c7201d90e5ecba496ca8b843d9a28df6dc2ae836be91d66546234bfd502ac6760701fb4dc54e362bf94b01e0b63f3385cbbc11c4d0579caf8f003ba11c198b05",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 21,
+      "timestamp": "2026-06-26T09:52:40.181923+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 678,
+        "eligibility_score": 0.813,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "4dbe511e7906584ed840297c30a51855058c1dbb1ee963a74c0e4b446cf41073",
+      "content_hash": "1e374a0fe4b0c0f9c0ab91297af9e1f756c4780b5a86fa65e2ebd3c2791bc7ef",
+      "signature": "0cbded00b66e388ec228ba730b6a499ba94d283a38b1ca82700c712c20a66d40e8f8a96f986563cbfca3c47a8e52ad6067e52a5723160b3e833fe827664b5a0e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 22,
+      "timestamp": "2026-06-26T09:52:40.181940+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 305,
+        "eligibility_score": 0.811,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "1e374a0fe4b0c0f9c0ab91297af9e1f756c4780b5a86fa65e2ebd3c2791bc7ef",
+      "content_hash": "3cb97f81ff8898d1166c00fa0d59b7d41d700e2b478511dc4128556816c0a710",
+      "signature": "2f8204b97aac8e854d0e1296c4926d098a48a5da2a9e144bf2bee4b15b637d0eef7b6f4b32de3c17a585a0a4c7b253d5e2dca8c708611a2babea05b7a1ddc409",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 23,
+      "timestamp": "2026-06-26T09:52:40.181961+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 671,
+        "eligibility_score": 0.81,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "3cb97f81ff8898d1166c00fa0d59b7d41d700e2b478511dc4128556816c0a710",
+      "content_hash": "0ad280f5ee79fd5322ed9021b7cfbb343a17755b3b1391976bdef5f1cb3fbbbb",
+      "signature": "31c16fb564c477865c0b2ceeade6f9e1e62c6a3c8f1e1d03740af2ae6af6647de9049a62289fa1ff33452be82f6cd489faea238924f3a5778b2c2b9981062701",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 24,
+      "timestamp": "2026-06-26T09:52:40.181980+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 683,
+        "eligibility_score": 0.806,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "0ad280f5ee79fd5322ed9021b7cfbb343a17755b3b1391976bdef5f1cb3fbbbb",
+      "content_hash": "e41769dbea3738dd1fc7d3452db7ef73de8be6e08c224bae68c2f190bfd05581",
+      "signature": "69f8f0eb2c9a086ff970ade3c076a199b4683b3ec98794941662174ea62f28bfcba5e1bf4e89a5c216a5f93a4547e65fab5425c7e86971c06a50fccd6488d902",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 25,
+      "timestamp": "2026-06-26T09:52:40.181997+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 304,
+        "eligibility_score": 0.803,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "e41769dbea3738dd1fc7d3452db7ef73de8be6e08c224bae68c2f190bfd05581",
+      "content_hash": "044f6d9579c66b1cd64f4fce309ba5e27b55a5f7ef9d3d6e000e206c0788107d",
+      "signature": "06794fdc3bee1b0aadcc43edd9febc4967776e226f523e45fbe1047f5f93d8f24d9812af3712cd914dbe9720cb6935dc422c9bbb05d6047ce29eb78bb3af880c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 26,
+      "timestamp": "2026-06-26T09:52:40.182014+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 776,
+        "eligibility_score": 0.803,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "044f6d9579c66b1cd64f4fce309ba5e27b55a5f7ef9d3d6e000e206c0788107d",
+      "content_hash": "8575549485728df6bfd18c064a37776130107c3a8e2f806439a4e4deb8ae7f26",
+      "signature": "fa84f7d0527074fea8e5d7216b8612fc359bbbefff019b4c3f930232353f84c2bedb8872f4b7cfd7bb0750f0ae5cba8e01fc5502ad7cdd9415e739be8f4e4700",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 27,
+      "timestamp": "2026-06-26T09:52:40.182032+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 523,
+        "eligibility_score": 0.802,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "8575549485728df6bfd18c064a37776130107c3a8e2f806439a4e4deb8ae7f26",
+      "content_hash": "39afef3f4906c143e4ae9cee08992836278e189f22995a39424a6227dc6f73bc",
+      "signature": "57cc254adfcd4ca166d78cfdb0beb8b15eeeeecc7adf34e3684d422baa21ab57c526a7ef1edec4a6a0e4df39aaf3916524b864fc3d351d7e88aee327d5e88a08",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 28,
+      "timestamp": "2026-06-26T09:52:40.182056+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 159,
+        "eligibility_score": 0.793,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "39afef3f4906c143e4ae9cee08992836278e189f22995a39424a6227dc6f73bc",
+      "content_hash": "47dabd7e706e35670669a9bea0ddbf71e4d39112a09e13b4dd85636d73d4f93d",
+      "signature": "5ed100a3c4a2d77b8a1e608ff57e5646f27eaaabd5476818f3e3dba2531c258234604221506208d6df3ccb039b0087c919ebb45997da5abf7e34e31ee1928f01",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 29,
+      "timestamp": "2026-06-26T09:52:40.182078+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 168,
+        "eligibility_score": 0.793,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "47dabd7e706e35670669a9bea0ddbf71e4d39112a09e13b4dd85636d73d4f93d",
+      "content_hash": "250b3a4cfb4c4ece066cd56184dd32360055e4d704d4fb21fde34b476caedc41",
+      "signature": "e2da1690da03474c673f499ab5a5d9a4713d54bc5adc63bf010285ace5de5d0b8895edb300705edf698ae6b5519ee9f265b4b882a17b3bc5f2c01f42f05d3e0f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 30,
+      "timestamp": "2026-06-26T09:52:40.182095+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 289,
+        "eligibility_score": 0.793,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "250b3a4cfb4c4ece066cd56184dd32360055e4d704d4fb21fde34b476caedc41",
+      "content_hash": "f02672684451f10fb52a65c51ade4be3946f6a5d019f9852b7bccef1924241ef",
+      "signature": "4d9d37bfc25b8346f6aed59f0df709a789623519400179488261f6c27ba2446bf1f08113793db754635b16517691044c2f4cb8b4430b933c90734c7d00dfec00",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 31,
+      "timestamp": "2026-06-26T09:52:40.182114+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 766,
+        "eligibility_score": 0.787,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "f02672684451f10fb52a65c51ade4be3946f6a5d019f9852b7bccef1924241ef",
+      "content_hash": "d42be87a96c160e70ba958a5ca0d0c92f041304ac2089cd2c5028563e6f5f49f",
+      "signature": "4ccc15b76f776889eb4ba5b60943fcf75e378c9f6539ceeec413851504d1417a4877f9c109b6d37f21d04a4b700e13e0f9bd0fcfd6817c8d064525771a4f0107",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 32,
+      "timestamp": "2026-06-26T09:52:40.182131+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 518,
+        "eligibility_score": 0.781,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "d42be87a96c160e70ba958a5ca0d0c92f041304ac2089cd2c5028563e6f5f49f",
+      "content_hash": "d7017f30ad3f3e43e00c67da84452bfcad23880edc35931256bb0138f97f6d42",
+      "signature": "0de8af37280c99f22eada907f0fe99cc833e6b3e7fbcc65448baa20af8eeecb1ff0674d0ea658271632ea483ec2ba601a4a0dfac87bacece750aadc4f9461102",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 33,
+      "timestamp": "2026-06-26T09:52:40.182148+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 496,
+        "eligibility_score": 0.78,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "d7017f30ad3f3e43e00c67da84452bfcad23880edc35931256bb0138f97f6d42",
+      "content_hash": "b7d8e642cdb52d913a7918e56e973d46adcb75eb47dda8c2f30fd825c3ede074",
+      "signature": "a740865e4c58bea77256de3620c8b9d9cfde2d2f65b3512a08ea0c72bb0d7f206fded0c740dab47debe79d3958dad59e267dd15c4d51967f76e7e86474519c0b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 34,
+      "timestamp": "2026-06-26T09:52:40.182166+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 112,
+        "eligibility_score": 0.772,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "b7d8e642cdb52d913a7918e56e973d46adcb75eb47dda8c2f30fd825c3ede074",
+      "content_hash": "2ede5299add786e75f716ddec78e551331e42fd6ec2edab22b60c5260ed46c2b",
+      "signature": "a8731410b80048701761f285b4fa9798c2d65de9d0bf580c1fb1d78ab0869c1b3ea8f3ef6d51d2390baa981e452ec35bbb0ef7d5c56b59b841b229170b86320d",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 35,
+      "timestamp": "2026-06-26T09:52:40.182183+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 142,
+        "eligibility_score": 0.772,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "2ede5299add786e75f716ddec78e551331e42fd6ec2edab22b60c5260ed46c2b",
+      "content_hash": "dbc14de32812893d95b778c017b2bc72a648529a4a1bf7c19dd7925443da1e0b",
+      "signature": "301d33e004e4b6a3a1fc4a75f657c52a2f38e10f5ef0f0d9fdf23455d722438c5076571629ad3da19fdc27e876c8e6e651411f5999b87d52e240a1a36be44c0b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 36,
+      "timestamp": "2026-06-26T09:52:40.182200+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 115,
+        "eligibility_score": 0.765,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "dbc14de32812893d95b778c017b2bc72a648529a4a1bf7c19dd7925443da1e0b",
+      "content_hash": "a125ac3d521b05b20241002dfc30c996f573ee3995a205c50a4e9d98e37a03ba",
+      "signature": "474815f9df20974e60139ab58f30fba3e3f7ac5df4f3d18aca4337c4c12e67dd29bcc0517bba39d8e8c25464ec58b15dc6a528cd2b8bd6c497087abb0751e10d",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 37,
+      "timestamp": "2026-06-26T09:52:40.182217+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 229,
+        "eligibility_score": 0.762,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "a125ac3d521b05b20241002dfc30c996f573ee3995a205c50a4e9d98e37a03ba",
+      "content_hash": "fc5e14317ec2dc699cb46d230db3d052194c1c60a005aa5cc07da901042f8ac0",
+      "signature": "17f0949f9e906ac7413172ea2b237fe054972ff43368cf33b80e9f6c4e368e2bd1387172eb6d1148aa6e625b538ac098280165ce2a90c6448567786035601605",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 38,
+      "timestamp": "2026-06-26T09:52:40.182235+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 104,
+        "eligibility_score": 0.761,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "fc5e14317ec2dc699cb46d230db3d052194c1c60a005aa5cc07da901042f8ac0",
+      "content_hash": "ca57eb05f56ceb4b9aed54a8fb410c2cf917e68637807dd3f9555475c686a234",
+      "signature": "19895b4398ffe4e807e9258947f1a1ccafcc4aa2633804643a60f8d5a004a1e12383c9337d114f92e0e0c73fc782c50209e2cac441ae762485f51d9b73feb205",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 39,
+      "timestamp": "2026-06-26T09:52:40.182252+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 293,
+        "eligibility_score": 0.747,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "ca57eb05f56ceb4b9aed54a8fb410c2cf917e68637807dd3f9555475c686a234",
+      "content_hash": "875128fe063ec44d9a48ec42781cb152cf468251a2637180c9129147e6cf7909",
+      "signature": "b8ededa07b3297f5be347f9cf59df4bec770e87426c980bc6dfd8450443e30441131f6cebb0ce3151b6102c20cd3fd92d8c0b56ffdb49341ae433455d0b04800",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 40,
+      "timestamp": "2026-06-26T09:52:40.182269+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 86,
+        "eligibility_score": 0.746,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "875128fe063ec44d9a48ec42781cb152cf468251a2637180c9129147e6cf7909",
+      "content_hash": "c9a414c5e4c4facb3732f7c51d29cbeece686478da97fc4dcdc786c3aab5d083",
+      "signature": "1f962e96bb1f6760ae74e4f7d6ba225c418d029a277c0f71858686bb3ae48740a62a2a58ba939bc504e5f6948b893270f143274c553e55436f91371f20a9680a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 41,
+      "timestamp": "2026-06-26T09:52:40.182287+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 753,
+        "eligibility_score": 0.743,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "c9a414c5e4c4facb3732f7c51d29cbeece686478da97fc4dcdc786c3aab5d083",
+      "content_hash": "79d4979d2feab2a4bb2215924294b75ae9134a7275f4b72146876f8c92e6843a",
+      "signature": "7a2c8c12f4946921cf59f1cbeb5e9b7f53f0bff6b7f7a34b5d39c5d593825848133020f3806584fefdd98e596f25ebefa331893abc8207007af07e3f11b2100e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 42,
+      "timestamp": "2026-06-26T09:52:40.182304+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 479,
+        "eligibility_score": 0.742,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "79d4979d2feab2a4bb2215924294b75ae9134a7275f4b72146876f8c92e6843a",
+      "content_hash": "42ed50351d170332f946b97103224043f4ef7a17e0a618d419216a54a7cc21a7",
+      "signature": "c9d02ebd39bdc3ff164709e21c2f426bca8c5206bb6d1eb76c255a9470a49812779341d294c7b45bc70168b2cda359167c3756ad307689befaf82ae23a020f02",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 43,
+      "timestamp": "2026-06-26T09:52:40.182322+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 249,
+        "eligibility_score": 0.732,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "42ed50351d170332f946b97103224043f4ef7a17e0a618d419216a54a7cc21a7",
+      "content_hash": "833f9671feb6e5af5104ea321f136ea5a7b144d0fdfae4bcfbf85e8a54ffd288",
+      "signature": "7bbffea045381ad0ef13bd9ea5bb4bd18e958668e79ea5bd8306fcf30818445a363e47c3f491e39c51938ac0ad3588817527c27d2b1f2a70467554526ad9fd07",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 44,
+      "timestamp": "2026-06-26T09:52:40.182339+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 628,
+        "eligibility_score": 0.726,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "833f9671feb6e5af5104ea321f136ea5a7b144d0fdfae4bcfbf85e8a54ffd288",
+      "content_hash": "7f43e1af7c733e61650aee16fab8ad8f33e107524d494223b26f4b37c3f10adb",
+      "signature": "1b11d13d53d26eabcac7cfb68cfe246098430e46fa68c273af33728e1e3644b655e6a48fa3d849c82b4b305d0cb3c394d2bbeee3bd85c23ab4d71b039f74f705",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 45,
+      "timestamp": "2026-06-26T09:52:40.182356+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 98,
+        "eligibility_score": 0.722,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "7f43e1af7c733e61650aee16fab8ad8f33e107524d494223b26f4b37c3f10adb",
+      "content_hash": "7064386f5898cb0748abaed29a937dff75dfe804ffb7249df3694e1d247767bc",
+      "signature": "e39e26a6493068766ffc080380a5c8072b041348be93397e4f8420e74d3519e4c82a1bcb9c2da804d4ebb79934fc2fac0057a3ef4f2204e0352a3ab780286c0f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 46,
+      "timestamp": "2026-06-26T09:52:40.182375+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 461,
+        "eligibility_score": 0.722,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "7064386f5898cb0748abaed29a937dff75dfe804ffb7249df3694e1d247767bc",
+      "content_hash": "93cb0c800a7d0420748cfe2da57f3c9a0bc689ff15e934c4e3f5075f1fdb40ee",
+      "signature": "4d3ceb9501de6815ad03c3a3690273ba542fc75ed25d702fa560b3410d09b415bb0963bf1b5e2b589bd7ebca09460d5e9e91d598b4c16af2ed52b30693804d0c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 47,
+      "timestamp": "2026-06-26T09:52:40.182393+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 796,
+        "eligibility_score": 0.722,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "93cb0c800a7d0420748cfe2da57f3c9a0bc689ff15e934c4e3f5075f1fdb40ee",
+      "content_hash": "a97bbb728214a856a6c1a15cd1cd66e653dbc99afd3d0c739e4e1c20607cf549",
+      "signature": "c030446fd1f7c0be2a6cfa8a7f89639d0bf9d669309c5b5dbb4476d4c7a3e52416ba432a43cc965bdfe1682c07e287d9d9becd796363569068d89edc26fe7d01",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 48,
+      "timestamp": "2026-06-26T09:52:40.182410+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 80,
+        "eligibility_score": 0.721,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "a97bbb728214a856a6c1a15cd1cd66e653dbc99afd3d0c739e4e1c20607cf549",
+      "content_hash": "57ec952a6fd950e329380413b494a979b30d64dc49231aacc78c5a4aa244cc03",
+      "signature": "594e473d7aed0a15b6844f64fbc9d65de94567b1af3eb56f69538c52e47c3cb475be214f7701ab54e916f5374b6b8227112cbe3929bf8692b87dd89c91e08e0e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 49,
+      "timestamp": "2026-06-26T09:52:40.182427+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 298,
+        "eligibility_score": 0.72,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "57ec952a6fd950e329380413b494a979b30d64dc49231aacc78c5a4aa244cc03",
+      "content_hash": "0e261ebd67b0d91b9569c4e7693997a2df8d6c9175a92483e1ba947c264bde3b",
+      "signature": "2f73c29375d4ad947a1c3d13af4238650094c5896b5d49d8e9106dd0f9ebe55a88d24c3758a8c85a27827f5b8ebc4a8f345eb2594c6c578aacbccf611cf94b00",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 50,
+      "timestamp": "2026-06-26T09:52:40.182445+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 788,
+        "eligibility_score": 0.719,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "0e261ebd67b0d91b9569c4e7693997a2df8d6c9175a92483e1ba947c264bde3b",
+      "content_hash": "d27cd103280be74a69c6d481b7d5a7d289c5e3f9db43e2b84ab477aa2180ac82",
+      "signature": "8d82a34d632c5699dba16968bda86f1ba145a68305d9f6bc590ca4e1d3b173e3a4b8dccb3a91df14acdd9a9ce91d8e23e5563a660a3c2b65de2a830d05bd7903",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 51,
+      "timestamp": "2026-06-26T09:52:40.182461+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 658,
+        "eligibility_score": 0.718,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "d27cd103280be74a69c6d481b7d5a7d289c5e3f9db43e2b84ab477aa2180ac82",
+      "content_hash": "b8fa0262f20078b2a67ae6e24dff2c6c9d5bb2b6a8e8fec7a777b4b5ac43bb09",
+      "signature": "2251f50ed9f4ca648998e26d73b4f20345861f9809ad0652afd86abea66413cdcd8aeb7bf6cd2c67afd6f78cb075e91bdddacbf87709851aec214227e1c8010b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 52,
+      "timestamp": "2026-06-26T09:52:40.182479+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 111,
+        "eligibility_score": 0.716,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "b8fa0262f20078b2a67ae6e24dff2c6c9d5bb2b6a8e8fec7a777b4b5ac43bb09",
+      "content_hash": "660bfb7bce5484e0f9d1b2a94dc81a9b618bba72cd105cdeb802e762bf4c596a",
+      "signature": "9c99aa9d09ab6884eae12fb3ba974fc17dbbb03568c55b89ed5054dddd14e210de6d5de4c22d761eb468805e80d932958cc72e1ea908b5e9732be6952673420e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 53,
+      "timestamp": "2026-06-26T09:52:40.182497+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 422,
+        "eligibility_score": 0.716,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "660bfb7bce5484e0f9d1b2a94dc81a9b618bba72cd105cdeb802e762bf4c596a",
+      "content_hash": "b2297337a3fc71fedabecbc75d3619cc189eeb2099a439a8a70d6922898415e4",
+      "signature": "5df5e707acd197e99f4aab3fcbb330367ba754c62b3926285778423321b729210dcfc5e38654da527d08b18fa43fb3ce34dd7ec4605099414d8deaadd0c04900",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 54,
+      "timestamp": "2026-06-26T09:52:40.182514+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 271,
+        "eligibility_score": 0.715,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "b2297337a3fc71fedabecbc75d3619cc189eeb2099a439a8a70d6922898415e4",
+      "content_hash": "dc1834fdeac5fbcf7ae455f25dc738f040427ffe473deb1e543c46cd7cd98f0f",
+      "signature": "0725c959e4a95d456f3c65fb40ab868d7ec147aec46aa96aa8ea9978f52ea5c3d9f053ff191ca0b138d87eaee2af8e93959528be20227a7e2840e8a848bdbd04",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 55,
+      "timestamp": "2026-06-26T09:52:40.182531+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 232,
+        "eligibility_score": 0.71,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "dc1834fdeac5fbcf7ae455f25dc738f040427ffe473deb1e543c46cd7cd98f0f",
+      "content_hash": "be235e823aea6ffa498e6a5e1ca130cf057d4d64ab234b98889813625c562563",
+      "signature": "cd43e9a13b4f2ad0b7186d802757d65ea1a264df6ad074b6eb4b1788b115b15cb3f9e0e5d4388c12f61776397774ffe568081c4525683b28da9bb7c46b81bb06",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 56,
+      "timestamp": "2026-06-26T09:52:40.182549+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 265,
+        "eligibility_score": 0.71,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "be235e823aea6ffa498e6a5e1ca130cf057d4d64ab234b98889813625c562563",
+      "content_hash": "984e0f4ffb870dbd494d5a8243e3a01074793fc3674e6784a02fe94e489ce123",
+      "signature": "c4aba35e23527136823e59fb754118f82c4d9090f1f3e50e1b5dc18c3dd9b272d4e96a590f25dfab6d1541a98d81aa1ce65f6126f926fd13a2070abec41d070d",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 57,
+      "timestamp": "2026-06-26T09:52:40.182567+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 736,
+        "eligibility_score": 0.707,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "984e0f4ffb870dbd494d5a8243e3a01074793fc3674e6784a02fe94e489ce123",
+      "content_hash": "46acebe452720ce69a73c20ede25dcfcd6ae897a1b975adc9e95cd957e30b2e8",
+      "signature": "99b19f718021f6648e323982c7e4880d57bfb635d92a877c1f22acb9a8401e000267d9ddd469b668334e690cbe57cdfbd0850b4472094de286861e2579d4e403",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 58,
+      "timestamp": "2026-06-26T09:52:40.182585+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 526,
+        "eligibility_score": 0.703,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "46acebe452720ce69a73c20ede25dcfcd6ae897a1b975adc9e95cd957e30b2e8",
+      "content_hash": "f8f3f392e9f67d2f83042a884390188a926e5c1854198cd5867b7543e2f91afa",
+      "signature": "b67eedf18b9cab1da83057490d5c9ba22acaec2bedb648bf5dc304219456d5289402be4a5fc6c28f8935695a17a173edb12b68bdeac5b3a282995d19ece78806",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 59,
+      "timestamp": "2026-06-26T09:52:40.182602+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 410,
+        "eligibility_score": 0.685,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "f8f3f392e9f67d2f83042a884390188a926e5c1854198cd5867b7543e2f91afa",
+      "content_hash": "c7999781802c78cebe812536818d22a4bc3304bbb64d98009e0935352289dae3",
+      "signature": "1c3ba132d938da1688e8c7bad35dae805504f7c9c157588cd836bbb239cd84ff24157086532b560a6d8c43317d82c98e07443cd8c4c9441042dd42169eb2ae0c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 60,
+      "timestamp": "2026-06-26T09:52:40.182619+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 192,
+        "eligibility_score": 0.669,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "c7999781802c78cebe812536818d22a4bc3304bbb64d98009e0935352289dae3",
+      "content_hash": "c0b1b2c2847b09c5d53470801d3d57a111579825b0485fd749cdd6b7c203f0f5",
+      "signature": "0e204a08dc0543d2a26df466c05eb0e76b67e553093f802ea65a0d3e45711d808c9ee638231b31921794cb072d323f3924740134059ca6ca6ec21f4813ba250d",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 61,
+      "timestamp": "2026-06-26T09:52:40.182636+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 127,
+        "eligibility_score": 0.665,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "c0b1b2c2847b09c5d53470801d3d57a111579825b0485fd749cdd6b7c203f0f5",
+      "content_hash": "4b6672e28414f9dc285ca1140779fe5d9b028abd02f23ec1ea51805bd67961a3",
+      "signature": "6faf3adcf438b7abd381620eab224184c7993c090fa1f0d4d6c64f3fd47814eea7ede22710d8038481b80bde991429c4953c4a6a9e5ff86440b57703d280d104",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 62,
+      "timestamp": "2026-06-26T09:52:40.182654+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 173,
+        "eligibility_score": 0.662,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "4b6672e28414f9dc285ca1140779fe5d9b028abd02f23ec1ea51805bd67961a3",
+      "content_hash": "7d4c8a858914daf1115d897ce0e27de75639ffbe182ad33e0d9e156e4489224d",
+      "signature": "ae92df673e89472d8f9d3688b6fe23c6ec229687397071bec84f6108feac34c5261706bc348fe4cc10a90e39146d903f5fd0860dd1ba7fda33f26fb5510cb50e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 63,
+      "timestamp": "2026-06-26T09:52:40.182671+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 209,
+        "eligibility_score": 0.66,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "7d4c8a858914daf1115d897ce0e27de75639ffbe182ad33e0d9e156e4489224d",
+      "content_hash": "da212b9b0f91ad5f56e4b5be3b1ad10f9f537561bd7dbe213d2f76330b1e5b2e",
+      "signature": "8c0b3fd6fe8c94259d690907e6dae8cd48d2bdf1130c98226aacbbb689f5d205a86096ba5be3ed76bf10e7dd45a2777af15bf20e650a3ca0c818abe28601390a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 64,
+      "timestamp": "2026-06-26T09:52:40.182697+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 708,
+        "eligibility_score": 0.648,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "da212b9b0f91ad5f56e4b5be3b1ad10f9f537561bd7dbe213d2f76330b1e5b2e",
+      "content_hash": "471b43b6b3073cb829de587ec7466cf8cee3ac6812517898a441be870fa28a7c",
+      "signature": "e304ea1c179d2499d5975150d980ba33e44e93bf853ce0619eba211b1c52fb4eb37fa3bad737d2cbf0b013767f8154821a5d71b19edd9d6e544fff06aeb8fb0c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 65,
+      "timestamp": "2026-06-26T09:52:40.182715+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 797,
+        "eligibility_score": 0.643,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "471b43b6b3073cb829de587ec7466cf8cee3ac6812517898a441be870fa28a7c",
+      "content_hash": "42d95f7ce0b19b8e070c4c9e7fdab843f40286c04f54fcf6a37b5d9a5c7b9405",
+      "signature": "2194a7eb51bc3b95b323bd82b9de00637ce6aa0489b458799cb7e816b40f70bc180e429fc5061663783a36b65441817ceb6fcfb3fd718752e787566d725edf08",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 66,
+      "timestamp": "2026-06-26T09:52:40.182733+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 483,
+        "eligibility_score": 0.642,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "42d95f7ce0b19b8e070c4c9e7fdab843f40286c04f54fcf6a37b5d9a5c7b9405",
+      "content_hash": "e4a5dd72aa0dd44384c035ab9f914e3a8e88a97035dd4a1dee03fb2c2c08cbd5",
+      "signature": "51b1f65e2407840443c71cdeda9277cf8484626b1de3b89eeacaf0df9915bac5fc280fa8dc7afafb17968570902bea387547ff459f99c4c52ada922053b8dc04",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 67,
+      "timestamp": "2026-06-26T09:52:40.182750+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 576,
+        "eligibility_score": 0.638,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "e4a5dd72aa0dd44384c035ab9f914e3a8e88a97035dd4a1dee03fb2c2c08cbd5",
+      "content_hash": "fe8e3db03c742c713038dabfd4375397517da0a5d3052e8ff9c611f9d241174d",
+      "signature": "5ca2aea5a4cfc9ab2df0e7a908d269a5e92af733d67c9fdc662bd3788bad251ceedcc0a6496da549d8e243c3137a63694f243b8934a55e87bf1bed95817f4f03",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 68,
+      "timestamp": "2026-06-26T09:52:40.182768+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 270,
+        "eligibility_score": 0.637,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "fe8e3db03c742c713038dabfd4375397517da0a5d3052e8ff9c611f9d241174d",
+      "content_hash": "0e924440a61b2b76632f73bdd8b3c809537b33a2ad4a08a46949537bae881b4e",
+      "signature": "eeafaed2f75049ac47243c0c70543e033023e30726e8436f27e3c851881c324c7cdfc53a4fbc4ae980ebdc8548fe9b222e42ae8c48c2624d112817dc682a6103",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 69,
+      "timestamp": "2026-06-26T09:52:40.182786+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 437,
+        "eligibility_score": 0.625,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "0e924440a61b2b76632f73bdd8b3c809537b33a2ad4a08a46949537bae881b4e",
+      "content_hash": "d29490b3c6c92bc3401f920efa4ee6503c0d2063b849cf84d8b920244d3c1457",
+      "signature": "d69dea4fa519e99625dd6a3ba8f1b1e769bbbc390f8fc86f67c6855bbe7f9db632d0e84c55f89523f71b9e22d71105bc0141d3e6ef1a646c9b236900a9316e0a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 70,
+      "timestamp": "2026-06-26T09:52:40.182804+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 5,
+        "eligibility_score": 0.621,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "d29490b3c6c92bc3401f920efa4ee6503c0d2063b849cf84d8b920244d3c1457",
+      "content_hash": "b56a320e41d4fead5580d2bdddd04cda7be427ffc639b71b800485c63f2c26a5",
+      "signature": "39e94e3b89a52a7c36be51a1ca1ad6fec7393f27ee92c04c80ddefed2a28f11cfc00bd0198911e8ce126a8a48f2e43aa923cefc5d992e40bff9b0842d5807801",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 71,
+      "timestamp": "2026-06-26T09:52:40.182821+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 684,
+        "eligibility_score": 0.62,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "b56a320e41d4fead5580d2bdddd04cda7be427ffc639b71b800485c63f2c26a5",
+      "content_hash": "d28dd8caec723e0fcae1ffc7d6ae4ae3fff8a9028b0ab5b8c5872a493ea6a92f",
+      "signature": "b0d6b0eebfa7ed0d6fe67561f1198822b20264c572eda7ec91ff2b8eeb8da636d6971cf62a9deefb8a7376cc5df20b710fb59423e097cb0b709853ed7115280c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 72,
+      "timestamp": "2026-06-26T09:52:40.182838+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 751,
+        "eligibility_score": 0.619,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "d28dd8caec723e0fcae1ffc7d6ae4ae3fff8a9028b0ab5b8c5872a493ea6a92f",
+      "content_hash": "6e5fe67fdd46477456cb366f288bcea579ebbc6a76ba10538cfe36b8acfe3a7c",
+      "signature": "f7a48db94d054614080150f0488bbd8c61ac2bd1bd969c60b8a32b3bf2a58aee87e7e6aabc3cba4280fb9c340f173427ed1ca8e177d74837f21b710c73b4980b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 73,
+      "timestamp": "2026-06-26T09:52:40.182856+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 421,
+        "eligibility_score": 0.618,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "6e5fe67fdd46477456cb366f288bcea579ebbc6a76ba10538cfe36b8acfe3a7c",
+      "content_hash": "5f2b1e06c555c47f928d9988e5a262ee849acfff796aaf497085f27fc41d86d9",
+      "signature": "aaa98512d52aea2cba1dae8f63255544fd23c4573562015156cc5df9a1f04fd81d7d03002ab4a94ee81187bc22278e0707a70c4ca6fa654e8fb1019e7eb7480f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 74,
+      "timestamp": "2026-06-26T09:52:40.182873+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 351,
+        "eligibility_score": 0.611,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "5f2b1e06c555c47f928d9988e5a262ee849acfff796aaf497085f27fc41d86d9",
+      "content_hash": "e9cc29e767201f973db941346a9f38c7f0dfe9f6261387ad4f8e37a70da343f3",
+      "signature": "749c719460dae2e93aaddc8e1e438a8f55aac00ee780087452e4d81d85e9b99e063022eec0e600e765bfdf9d15dcf04421821c46845b622a7bceba014111eb00",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 75,
+      "timestamp": "2026-06-26T09:52:40.182890+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 631,
+        "eligibility_score": 0.609,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "e9cc29e767201f973db941346a9f38c7f0dfe9f6261387ad4f8e37a70da343f3",
+      "content_hash": "f9c41eb48ac3ff7b4c26eb02573de93b245746e20d19b4748ef94a9706dfbd15",
+      "signature": "83886b9c4ff3c6c831ccd180c24c86539c6b66e6d798edcdeb1ed56b7efb4e21ec64543c89f0738860e8c04d75d56b2bc99182335da69e7a4a69d8b3154d9d08",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 76,
+      "timestamp": "2026-06-26T09:52:40.182907+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 92,
+        "eligibility_score": 0.607,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "f9c41eb48ac3ff7b4c26eb02573de93b245746e20d19b4748ef94a9706dfbd15",
+      "content_hash": "1229671d30a44ac7741869a3fa110eb37e5a73d4e5af8af50b4cd209f3bb0d29",
+      "signature": "9ca4198a7195eebabca219d96f3176a8c82c4b45f3918ad746ccd8d30772d58f9928e244efa8a46f4144ee9d004fa9b13c2ab9caeffb23d51d94afb488fb1d09",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 77,
+      "timestamp": "2026-06-26T09:52:40.182925+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 362,
+        "eligibility_score": 0.607,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "1229671d30a44ac7741869a3fa110eb37e5a73d4e5af8af50b4cd209f3bb0d29",
+      "content_hash": "a3e55e9aa310232db5298e5fc400e57a99d9fe1b019733593224d5194c700c7b",
+      "signature": "c86ef9edf80f80f967fbfe07078d216e68ad3d14bf065300ae3473ca75bfe1f2c2b2a0d47c9528c4cdb2f29c8707b0b790a8b4afc3c95fffb072033ac919070e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 78,
+      "timestamp": "2026-06-26T09:52:40.182943+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 267,
+        "eligibility_score": 0.604,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "a3e55e9aa310232db5298e5fc400e57a99d9fe1b019733593224d5194c700c7b",
+      "content_hash": "a13fd8fd51fa546422801d2b37ec6f13531353dba88927cd71f154caf723740a",
+      "signature": "d8e50bd58c8ef2c6faf6e274cb59a755032130e4a4a1e700dd28b944891c1a6bef84c12567d1e5107cc959ae1a13e3788cfa8e314d53fcf89659eb2ce0e7c801",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 79,
+      "timestamp": "2026-06-26T09:52:40.182960+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 310,
+        "eligibility_score": 0.6,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "a13fd8fd51fa546422801d2b37ec6f13531353dba88927cd71f154caf723740a",
+      "content_hash": "7143d2937f087dfbff149f7d9877afdfcd95dbcc44aa9cfa74d902d9bd1334bb",
+      "signature": "8051d3356f3fb88942ec045d8d42127e4e35f27d02b890f20d8c94aaa2fe302775c662ce92b0d0cbf4dd58c6c3b14ef33ff305274269189127fc832f8c324f0a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 80,
+      "timestamp": "2026-06-26T09:52:40.182977+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 727,
+        "eligibility_score": 0.598,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "7143d2937f087dfbff149f7d9877afdfcd95dbcc44aa9cfa74d902d9bd1334bb",
+      "content_hash": "9bc2dc8cd789439930ea7b8a8904fd2f15013c0737af644ae01a334e1354d376",
+      "signature": "a35d94ac2c9e96a457e2cad49a74422463bba7ae29056b78224fd7d562b8008af9e284e91b09a81e478ad5003bbf30a2964f5cec11dfe25c71f88a233e76120a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 81,
+      "timestamp": "2026-06-26T09:52:40.182996+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 517,
+        "eligibility_score": 0.594,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "9bc2dc8cd789439930ea7b8a8904fd2f15013c0737af644ae01a334e1354d376",
+      "content_hash": "eaa423541976f43cd49c733fa8581c4c8f8934eb0eb4fc9d7ec6070e5f7058f3",
+      "signature": "659bd75d0e292a159bc7a0d0e080f549bae0baec01bd2a996a7cd3e9bc75fc4ef726e09f18c22239bf8bfa5601c084e4f473a26d6ff0d8a4335dae23d868360e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 82,
+      "timestamp": "2026-06-26T09:52:40.183016+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 550,
+        "eligibility_score": 0.592,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "eaa423541976f43cd49c733fa8581c4c8f8934eb0eb4fc9d7ec6070e5f7058f3",
+      "content_hash": "70afd1739e5977edc5b01cde90141eb6a96c667a3fce112d488d33b46d5a87f6",
+      "signature": "ee81311b9b206cefcb5481aae2737b293b75b9109eed3db152d882cb60f72cc6b0fb064b81041995ab55391afc3592057298f7d85241f9eac4b78b9cced0050b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 83,
+      "timestamp": "2026-06-26T09:52:40.183033+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 592,
+        "eligibility_score": 0.592,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "70afd1739e5977edc5b01cde90141eb6a96c667a3fce112d488d33b46d5a87f6",
+      "content_hash": "ae40c7fc4d9e0b79cb5c26bac45e0701508de162925eaae9ebdcda03e5467353",
+      "signature": "a841f625237f3789b0f587b39eaba90280044b61721aec25d284ced496669d2d5ef6dee5d4832eacf2faeba9406dbd117793301aaec96e6d04ff2a0fecb9f80c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 84,
+      "timestamp": "2026-06-26T09:52:40.183059+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 778,
+        "eligibility_score": 0.583,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "ae40c7fc4d9e0b79cb5c26bac45e0701508de162925eaae9ebdcda03e5467353",
+      "content_hash": "4afd6f6f9b95cc1262c22d2f0d0498eb86a75c21eb19cc545322dada61d451cd",
+      "signature": "06bba045e72feb03e363f4ac665cd65bfcf2a0edde561ca66a2ae1d52196d5351dea37680ce3defdac9064dafaaf51cf43604d6842b2673ecfc7faa709ff220f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 85,
+      "timestamp": "2026-06-26T09:52:40.183077+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 162,
+        "eligibility_score": 0.578,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "4afd6f6f9b95cc1262c22d2f0d0498eb86a75c21eb19cc545322dada61d451cd",
+      "content_hash": "29f0217730f986b0a96f9c55caedcbb2a80f16dbb05a05d3b7dc2586a3134b9c",
+      "signature": "f840cf49ce936ab3e8a51878db88e6f3b56b5d791efa6d5b52ebeb1f06ca2df94c16a9fc9cc2a59ae5b2954b7c95f5a4da1e77b37cce5acc5f42ecb461c5fa0b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 86,
+      "timestamp": "2026-06-26T09:52:40.183097+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 757,
+        "eligibility_score": 0.57,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "29f0217730f986b0a96f9c55caedcbb2a80f16dbb05a05d3b7dc2586a3134b9c",
+      "content_hash": "ed9d7a21a1b9c007954a8d8b8218eb04e18694b89982c623c8dec7202038059a",
+      "signature": "f8b0c9f4eebf7dac210b486c17284dcb5c614d9787af80ea167072848ffb431eafd5e0b4768f88e4950e94886d1b3b5df11c76d57782c42cbcb9695121c8fc07",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 87,
+      "timestamp": "2026-06-26T09:52:40.183115+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 622,
+        "eligibility_score": 0.569,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "ed9d7a21a1b9c007954a8d8b8218eb04e18694b89982c623c8dec7202038059a",
+      "content_hash": "c1ca96d818568ae6e9cb8c7d021c519cb8196f9927319f8751391399c5272567",
+      "signature": "c5b43ce00bc8e3bd683508c12acc1cb86cfab48866fbcb5d4e8d5767e8871596ced28add655e79badb0b5b36cc940d71115623a846ea4dd664a2a481f9b3050d",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 88,
+      "timestamp": "2026-06-26T09:52:40.183133+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 515,
+        "eligibility_score": 0.562,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "c1ca96d818568ae6e9cb8c7d021c519cb8196f9927319f8751391399c5272567",
+      "content_hash": "b5fcf0686d78f5b327afeb25e1403324fa9cc394a09b8acbbf3a78c4a10f56e8",
+      "signature": "e925eb172f5925103ff6ffd5737deb7dd904c2a5f5e6716849eba22c068d9f972a3ebd3cc1e33772d9618b6de9b855c4aaf1c10cb1bc1ceb8327e2d0874ecd06",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 89,
+      "timestamp": "2026-06-26T09:52:40.183151+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 103,
+        "eligibility_score": 0.556,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "b5fcf0686d78f5b327afeb25e1403324fa9cc394a09b8acbbf3a78c4a10f56e8",
+      "content_hash": "3e47efc5a452d4a17bd734db21096fde72f30c896a3f6b062d5ae92d5ef9516d",
+      "signature": "e84fa1d239fb512d5e15c01b2e159a262f51918803768592b3b27bb3c28355eb1851937b97fdeead342d7504af61682ad19136892ca373cc49b3606dc3b8a503",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 90,
+      "timestamp": "2026-06-26T09:52:40.183168+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 45,
+        "eligibility_score": 0.551,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "3e47efc5a452d4a17bd734db21096fde72f30c896a3f6b062d5ae92d5ef9516d",
+      "content_hash": "49dd694742e5794f0ee8c25a07d8670df3cabe2d04cc75ca557d92e3aff62b73",
+      "signature": "92d355988fcee4437016501a1634cdb12fc0efd47c33b53810d6b29e5e3004387f0d48ac7ba172dacb1ac5fca251abeddfe28d4f3bfcee5ed1e49a61dbc1a402",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 91,
+      "timestamp": "2026-06-26T09:52:40.183186+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 418,
+        "eligibility_score": 0.548,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "49dd694742e5794f0ee8c25a07d8670df3cabe2d04cc75ca557d92e3aff62b73",
+      "content_hash": "c169c19670fd5b762f1e17acfecc583140ea914956ed59441105a8ba1882da76",
+      "signature": "d5de5dda40f57b7eac9184e2102357af765489d1d0fd04a49497fd9ef3bb86a3a953fbfb3b2ad4921f301c81aad1add768f58afaf2b19ec03ac1ea9ad97bee07",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 92,
+      "timestamp": "2026-06-26T09:52:40.183203+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 740,
+        "eligibility_score": 0.547,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "c169c19670fd5b762f1e17acfecc583140ea914956ed59441105a8ba1882da76",
+      "content_hash": "4c8e68e40a2e7595b0ab8f578a5cb442180f6ca36462b884c64ae8c052477e8a",
+      "signature": "60a871a65da6ae8bf9df8b9f87d3b558c65972e2fcc23268a4a3c680e5eb28f2b73b6a01a458f0b305775dbb94c8e378093790d444a3fbaf16a47b83ce969205",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 93,
+      "timestamp": "2026-06-26T09:52:40.183221+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 608,
+        "eligibility_score": 0.546,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "4c8e68e40a2e7595b0ab8f578a5cb442180f6ca36462b884c64ae8c052477e8a",
+      "content_hash": "e39d57750d1a92823b19124bf48915acddd6af5bffb5da03bc4b755211c4a092",
+      "signature": "11443d107e597d2c690517632991cdaac54212fb4abc34d2b44b880b286d82e9702a3fa5da75994d7abd6a21e56bdd442c3f75d22feb8d2fef20179fb2c6100f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 94,
+      "timestamp": "2026-06-26T09:52:40.183239+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 207,
+        "eligibility_score": 0.544,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "e39d57750d1a92823b19124bf48915acddd6af5bffb5da03bc4b755211c4a092",
+      "content_hash": "45ca0e787b76857d678c61a5f9b06d68869b236793f35336064f9c3c92ef3419",
+      "signature": "f7ae47a17ba171cb29afbb20a3ceca5cd8ac2635998919e806dc4568597c977e1185d3d29ba633b443ae47dd0a0046e29d417a1e9b9306f27a0a39cd601d9b04",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 95,
+      "timestamp": "2026-06-26T09:52:40.183256+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 568,
+        "eligibility_score": 0.541,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "45ca0e787b76857d678c61a5f9b06d68869b236793f35336064f9c3c92ef3419",
+      "content_hash": "e525106191eaf16ac22ccffb1290409acfecbef15d3d51dbdf4c1b1dc496fe8b",
+      "signature": "cad2a5edbea9f35ad56d127c70eb84a2a75ef677101b15745389db55a585987bde39b8f73e48c033f69ad4514b5a31be679e65009997be0e465908d31e18970b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 96,
+      "timestamp": "2026-06-26T09:52:40.183274+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 253,
+        "eligibility_score": 0.537,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "e525106191eaf16ac22ccffb1290409acfecbef15d3d51dbdf4c1b1dc496fe8b",
+      "content_hash": "cd8865b6d567a4013e283ce71545156ed1e529c625e6830443a7f0ffdb857700",
+      "signature": "d606482e38d970ab6b08493a15aa9f5c7bf4e0fb074766af8ed31a93b41084f7ecd8fb2f12a7abed6563483cb6ef690293212cb5e4411691ec9b00b9949b7d0b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 97,
+      "timestamp": "2026-06-26T09:52:40.183291+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 31,
+        "eligibility_score": 0.53,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "cd8865b6d567a4013e283ce71545156ed1e529c625e6830443a7f0ffdb857700",
+      "content_hash": "3f800c763ca68207ac178b9689036e475ddf6f5b2c3f8f4ad0eebe4609b21399",
+      "signature": "ef5203929799f6bfc2639d3bb6ee251c14e5c1945b0853f119d3f1f0fb47acb7da58c05be96489dba1fb837763fe00f32191f7e2c9a20095afc5e485d130f508",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 98,
+      "timestamp": "2026-06-26T09:52:40.183308+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 190,
+        "eligibility_score": 0.529,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "3f800c763ca68207ac178b9689036e475ddf6f5b2c3f8f4ad0eebe4609b21399",
+      "content_hash": "176d2f6e2b87054d5d6f1fac6b5caa907fbe62f5e816586054e3e312f406bb6b",
+      "signature": "8824aad7eaf4a5948907842250770d75d0999cebd8a6095ee9a7d1abb65729279dd3814bf0ffa8bfa42f0e96e50ae97fdf1d42c859a73ffe0a9d614cc999aa0e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 99,
+      "timestamp": "2026-06-26T09:52:40.183325+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 620,
+        "eligibility_score": 0.528,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "176d2f6e2b87054d5d6f1fac6b5caa907fbe62f5e816586054e3e312f406bb6b",
+      "content_hash": "b3bbc69898df08ac338a2900de521a69d3309f0b790eb8455387a7c61a8f1c05",
+      "signature": "2352518d8d1a1aaf442ec2bb5f2a74029c1fb73db2c5061c5787360fed6f96fb4ef2251ba46f35dec605ff9fab2dd7a0153b7b16a4ebdb367311cdd9cb9bf808",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 100,
+      "timestamp": "2026-06-26T09:52:40.183344+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 447,
+        "eligibility_score": 0.524,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "b3bbc69898df08ac338a2900de521a69d3309f0b790eb8455387a7c61a8f1c05",
+      "content_hash": "a4309ae6b1c40e405bdba46d943f772a820c498b413b4fdc4291206b7aa9f7a6",
+      "signature": "f0400f118b18b9e3805c826f4aa4e146d50dcbea7a984c68b308e6b99e9a56b6d7fe404744260395003c3025802e4cbd8bc4e6cc3b3c47d3617ea3a05a8d2705",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 101,
+      "timestamp": "2026-06-26T09:52:40.183361+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 481,
+        "eligibility_score": 0.521,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "a4309ae6b1c40e405bdba46d943f772a820c498b413b4fdc4291206b7aa9f7a6",
+      "content_hash": "3d8aff1362118a7ac84865ddf355e93fe2b9095b4cdbc08b119082974aa1ffde",
+      "signature": "f3fe6464cc6a46d1870e20f22cd9a2d7d5f831d5393f2b4d7351b1144742abcafb8cab45d5ba3eaae809b267625934ea9aedd93e7094b6b6558a510acd73ec0c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 102,
+      "timestamp": "2026-06-26T09:52:40.183379+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 659,
+        "eligibility_score": 0.52,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "3d8aff1362118a7ac84865ddf355e93fe2b9095b4cdbc08b119082974aa1ffde",
+      "content_hash": "fad9cf0790fb23b5d05df9fab1305493835d903429635ecb3890f6c3a9891167",
+      "signature": "68c081273268831bc7feea9e11e7d7a86814ae76eff759fe98f3413dc7066b5cc5d71d9b21251b040f92a0b6684a51bbfbba263c39904f4d99e53699c7182c0b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 103,
+      "timestamp": "2026-06-26T09:52:40.183408+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 299,
+        "eligibility_score": 0.515,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "fad9cf0790fb23b5d05df9fab1305493835d903429635ecb3890f6c3a9891167",
+      "content_hash": "f94dd65a7d69e5687be3a905f38167cae9e534e83fbd0551dd8228187a31935f",
+      "signature": "ad1fc25108a4cede66063d45f42cdd5d58b2aba95764c7605c47d3afb280d9316c4702642b09415e345300f54b4bc0c0f76d72fc7fe61cc92f39331a00b09008",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 104,
+      "timestamp": "2026-06-26T09:52:40.183425+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 508,
+        "eligibility_score": 0.507,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "f94dd65a7d69e5687be3a905f38167cae9e534e83fbd0551dd8228187a31935f",
+      "content_hash": "ced0b5ba98b4136cb5e7cc5058324e8cbd89208ed65496019db0167a97f8c62f",
+      "signature": "4b6771ea1ea6baed2d7b31f81b114f85b79ea091d48f37def8f62243558ea2bd928bfd731406f39e1d36325fcbf66c5e8740e1d054881bb6879310a15f597402",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 105,
+      "timestamp": "2026-06-26T09:52:40.183443+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 269,
+        "eligibility_score": 0.502,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "ced0b5ba98b4136cb5e7cc5058324e8cbd89208ed65496019db0167a97f8c62f",
+      "content_hash": "f94b01f480ce7cc0c1fb50e7d39e7395c0458bfac06b6165ae3f65e1956307ce",
+      "signature": "c3523f74f17bfcb080e135ff07fafe1c1cb17ecc28612bf5478858af7225e0775a45665a74f7c10ca151559153081763600e263c797be4644ebca2412dbe130c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 106,
+      "timestamp": "2026-06-26T09:52:40.183460+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 257,
+        "eligibility_score": 0.497,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "f94b01f480ce7cc0c1fb50e7d39e7395c0458bfac06b6165ae3f65e1956307ce",
+      "content_hash": "0a7a3b90cf8156af7b61f111a9593b4ec7d0194bc34d348f4436026ec23e2498",
+      "signature": "1c635e5f9035f7a9f3b42fc0159a8a6703509ed72ba0b600fe4d7c12f03e9b0d94c7a718bfebc55e39dbc837456f652269f4bfcda92e9c6da5f81aaf3e6a2f08",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 107,
+      "timestamp": "2026-06-26T09:52:40.183477+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 759,
+        "eligibility_score": 0.493,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "0a7a3b90cf8156af7b61f111a9593b4ec7d0194bc34d348f4436026ec23e2498",
+      "content_hash": "e45046144d904ef2194af0a8ad1e611cac68e02e5fd8aefa5c5044518fc0b613",
+      "signature": "79325876ab5724e5d60b9be1414d2ed0577826ff8c9013e92a58f8479d6e8cc425a503d7858d6731a952e4ee9927fcd1c98e81c76bf22e7ab501b93e7a8c300f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 108,
+      "timestamp": "2026-06-26T09:52:40.183494+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 588,
+        "eligibility_score": 0.492,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "e45046144d904ef2194af0a8ad1e611cac68e02e5fd8aefa5c5044518fc0b613",
+      "content_hash": "cd7a6681ed158f309aa6527af91560106bed6c4a3dc12e087202168f6e0d2c5a",
+      "signature": "4796604d1777c1d184e9af50bb35e530bbd239e248aa8cdc0538d9c3042c7fbd4a8f528bf7657cad210ad3f292dbfc1e3023b67e6472a2f8fe389126c4a64409",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 109,
+      "timestamp": "2026-06-26T09:52:40.183512+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 243,
+        "eligibility_score": 0.482,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "cd7a6681ed158f309aa6527af91560106bed6c4a3dc12e087202168f6e0d2c5a",
+      "content_hash": "5c1237324f7f3565f896eb2d37f48f287afe9ee294b8f88f52d6a9d61d04a82c",
+      "signature": "91bcfd07c937af5b862b23c7b1fa7b1c7c646f65741e9e761f3884f1ea1ca80871edda3ab29bea0c7ed42f23633d6882932df499bfddf8f6727331aaeb323405",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 110,
+      "timestamp": "2026-06-26T09:52:40.183530+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 737,
+        "eligibility_score": 0.479,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "5c1237324f7f3565f896eb2d37f48f287afe9ee294b8f88f52d6a9d61d04a82c",
+      "content_hash": "14421f1036ed36155d6b1da3ad0573346c6bc402a51d7c0ce5aac0368d3d671f",
+      "signature": "17474d0fecf87a8ac83a1b853eff8a42b829a8f3ac212495874d5235b8973b4871a5fb2366f5419717e528469aae92459f6346ba9bc2cfcdac0d92619314a50b",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 111,
+      "timestamp": "2026-06-26T09:52:40.183547+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 581,
+        "eligibility_score": 0.471,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "14421f1036ed36155d6b1da3ad0573346c6bc402a51d7c0ce5aac0368d3d671f",
+      "content_hash": "41fc8074dbd1ad7ea682d2f6f1d57184c9889179edc5b901acc67d8d9fa21c76",
+      "signature": "3f9812ec4559fefefe0c0fe9e2d477a3e616d673aa3e2e18253b7465d0888293952100fbec58895afce03d003abc9976992c8542f03f96952f53cdf68758ec0f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 112,
+      "timestamp": "2026-06-26T09:52:40.183565+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 46,
+        "eligibility_score": 0.47,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "41fc8074dbd1ad7ea682d2f6f1d57184c9889179edc5b901acc67d8d9fa21c76",
+      "content_hash": "c39c05c0703cd4f2d3de800d04c998110c064bca94725feedc95a6ddc2ff0ba2",
+      "signature": "f67667e0e4eb41f42fe517f8e4eb06b0169c06be56d48f61c03d3ac4937a6e6149434c9127e89a983760a7bedc08646628d356ae6db24dda28d7410fde65f108",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 113,
+      "timestamp": "2026-06-26T09:52:40.183582+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 511,
+        "eligibility_score": 0.467,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "c39c05c0703cd4f2d3de800d04c998110c064bca94725feedc95a6ddc2ff0ba2",
+      "content_hash": "3e393e6df83820c78a68f0e98a9dfc5e7420990472db858e98acdc868e7d5256",
+      "signature": "dc9db7e37d95660ea10d3096e2fdf7e08150502c8964f62c6db3c12be11ad8da8df64af8bd42bfa392a1f20a496fec3e606eee537595119e82dbb100e1e56f0c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 114,
+      "timestamp": "2026-06-26T09:52:40.183599+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 145,
+        "eligibility_score": 0.462,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "3e393e6df83820c78a68f0e98a9dfc5e7420990472db858e98acdc868e7d5256",
+      "content_hash": "03cfb6f31b8ec3861897c699ef82bf74495ebe7a8bc68a7d4cb789aa144c3e4b",
+      "signature": "69e9413486d8adbd189f465b0c84c49c0f76debee553eac561e4b8c5b322783b9c8a6fb176687b9a29f66478bd516214fb176b4e7f70dc5c3425b65903fc8e0d",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 115,
+      "timestamp": "2026-06-26T09:52:40.183616+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 59,
+        "eligibility_score": 0.461,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "03cfb6f31b8ec3861897c699ef82bf74495ebe7a8bc68a7d4cb789aa144c3e4b",
+      "content_hash": "94676d728af2986ed3d91c6e44b7a030b2961269ad2478073ed83227f550f109",
+      "signature": "27bc53395d6392e809c76f2c8b5ee4ec600b324cba71dea5e787d33766cb0026bcefe40a7812df53316cdf449e6e223678cab5c8e740b11f115e936aaf20f203",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 116,
+      "timestamp": "2026-06-26T09:52:40.183635+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 491,
+        "eligibility_score": 0.459,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "94676d728af2986ed3d91c6e44b7a030b2961269ad2478073ed83227f550f109",
+      "content_hash": "c8ed8532ac52445c1ecff1a0d0bc14baa0effd8fbb37295bbf4e2bb19bfaa7b0",
+      "signature": "c7619195ae5a599bd35ed6701e6ff3ae744963e3114ee28a1882a29153fe5e4e2ae412dacdd60cd3e084b4299ca5ef801f94d9f4ddcf5c82ade428179e815a07",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 117,
+      "timestamp": "2026-06-26T09:52:40.183652+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 77,
+        "eligibility_score": 0.457,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "c8ed8532ac52445c1ecff1a0d0bc14baa0effd8fbb37295bbf4e2bb19bfaa7b0",
+      "content_hash": "a5915ce60f666d3cb1f61792bdc366cf1785c2ac58f6093de4e9331b5014bf56",
+      "signature": "333af4ea0b528132979d5a19fb7c64cb21421c10145fea01d5461337a0f34e6bfca540742d99e257b68c99367e5cac6e733127d74bf41ce7b1f0f6404b51d401",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 118,
+      "timestamp": "2026-06-26T09:52:40.183669+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 147,
+        "eligibility_score": 0.455,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "a5915ce60f666d3cb1f61792bdc366cf1785c2ac58f6093de4e9331b5014bf56",
+      "content_hash": "8f62a0d4f927a5d932fd30cffc62d3439caff4839d55336b8644e543bc7943cc",
+      "signature": "7468a644b5d3d41b2b6ded4b0a67cf3acaf2cab4ac612aaaf460f4c7a3df9fa0d8528729cca4728e58a99c9dc961d113d9883a36e46b6294d7a53aa3bbf53705",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 119,
+      "timestamp": "2026-06-26T09:52:40.183686+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 606,
+        "eligibility_score": 0.454,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "8f62a0d4f927a5d932fd30cffc62d3439caff4839d55336b8644e543bc7943cc",
+      "content_hash": "c555239c535162550557b3fa40c79ac04cf5e6707a732a85ed7f6ec5dd699d06",
+      "signature": "62b3410f853234f13bf69ca5f77719d2428d1a40c41cda7db4e303229f39ec878ca80812d6cfbfae43d6cc5c84b7a937559850c38d62bc9dd659fc9e37257609",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 120,
+      "timestamp": "2026-06-26T09:52:40.183703+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 337,
+        "eligibility_score": 0.453,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "c555239c535162550557b3fa40c79ac04cf5e6707a732a85ed7f6ec5dd699d06",
+      "content_hash": "d1e42626373cb32c1e8be28afc17b9535303d7d8e321b863c62259ad269690fa",
+      "signature": "9545bfb66b5c56ae499316f92c107091b69af25e20ef88550ff75654b7c8fb1907298148cf5b29515ff2f860800289dfe269d34c8d94a6987d68308397022c08",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 121,
+      "timestamp": "2026-06-26T09:52:40.183720+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 409,
+        "eligibility_score": 0.449,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "d1e42626373cb32c1e8be28afc17b9535303d7d8e321b863c62259ad269690fa",
+      "content_hash": "a1e06f6bc05d542aca5ddd444489accf1fa0ff14c0cde42533b2e2941d8a988c",
+      "signature": "10055975a8472648652ff99e3321b569be9c1d30e1856c29411d58486d08c577139eda8ea13e004b4082bebe0d5b34e0f40c892e0741b1e32468ab496068b808",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 122,
+      "timestamp": "2026-06-26T09:52:40.183738+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 144,
+        "eligibility_score": 0.448,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "a1e06f6bc05d542aca5ddd444489accf1fa0ff14c0cde42533b2e2941d8a988c",
+      "content_hash": "839317213eb735eaffe5bf8eb5b595f1aef81747c7f8144e2dfa87b727c883f6",
+      "signature": "a748046d90d9be4cdbc0aed98a2cdb126b9e9142cfaa5868259a00115432726a85ba3a2283eb8c34c9209059fbf754f2f620690277d88caa1f7cdf061c27cc0c",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 123,
+      "timestamp": "2026-06-26T09:52:40.183755+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 191,
+        "eligibility_score": 0.444,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "839317213eb735eaffe5bf8eb5b595f1aef81747c7f8144e2dfa87b727c883f6",
+      "content_hash": "bac3c5db582aa90bb944ac4efee18b7a8049b5dbe628bcd6a33dedbaabeca643",
+      "signature": "1bfb148a53e2e6e6c5e3891d3493282d147fa40cc5939a11a912fd1bb694f8e8bccb8b10380257853e74b59cf598563cf7910fe6b20bdd4e1e929fd3b8a5f10f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 124,
+      "timestamp": "2026-06-26T09:52:40.183773+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 204,
+        "eligibility_score": 0.444,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "bac3c5db582aa90bb944ac4efee18b7a8049b5dbe628bcd6a33dedbaabeca643",
+      "content_hash": "893e3ca613479670cbb6a492553c2b63ccf2bba428f1efa4ffd0d795b697b0ff",
+      "signature": "afa89dffb25edd4d34173b2c8b3637daa9135331828397b6b143a7ce69c16fff997cc71080df6d79316148ca3ee76c5d385f2f856dd6a803afbc671c6814f707",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 125,
+      "timestamp": "2026-06-26T09:52:40.183790+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 389,
+        "eligibility_score": 0.443,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": false
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "893e3ca613479670cbb6a492553c2b63ccf2bba428f1efa4ffd0d795b697b0ff",
+      "content_hash": "3c0b9292a9b5ac28eda9491e1b920caf52e60a17fd2d0801fc3a99677c6b523f",
+      "signature": "abad9b84a5753131783fc0d5ddce9e554af5e0c2570fa0fb417b93ce8fd452c97f355079972d3cc2ebd76314c69915e812c05ebac831f7f18dae8891716bc50e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 126,
+      "timestamp": "2026-06-26T09:52:40.183807+00:00",
+      "kind": "candidate_screened",
+      "payload": {
+        "candidate": 429,
+        "eligibility_score": 0.442,
+        "band": "confirm_with_ngs",
+        "ngs_confirmed_eligible": true
+      },
+      "human_authority": "Dr. R. Nakamura, MD  (trial PI / molecular hematology, NPI 1678901234)",
+      "prev_hash": "3c0b9292a9b5ac28eda9491e1b920caf52e60a17fd2d0801fc3a99677c6b523f",
+      "content_hash": "e6ea81ca6e3781057a933d65236db7841efd76d61e060ffa1515a003dfd90812",
+      "signature": "932ec9ed0fbbb9861a0debfa2eb5e92973450845ea856696f0d9e14f76807a1d0bb2f4081c4f2f058fe6e0c30f1e4adfab464144c5636d605bec9b658ab94a01",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 127,
+      "timestamp": "2026-06-26T09:52:40.183824+00:00",
+      "kind": "sealed",
+      "payload": {
+        "enrolled": 30,
+        "anchor": "Sigstore Rekor (simulated)"
+      },
+      "human_authority": null,
+      "prev_hash": "e6ea81ca6e3781057a933d65236db7841efd76d61e060ffa1515a003dfd90812",
+      "content_hash": "9f5b74b0005e130079f3244a01caa2b23faf42d26574711ea098c907af7b3f13",
+      "signature": "af907fb88810aa864e001c1d6ced769b9bf129bc557e64493b6af6596027a62f6b3889d8045d9c18236eb5db73d1363971ef95eabb323ddaec44a391b7a5ec01",
+      "algorithm": "Ed25519"
+    }
+  ]
+}

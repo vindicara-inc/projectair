@@ -1,0 +1,83 @@
+{
+  "pubkey": "bd19249701b221489dc1b28542b4190a6a45c23534d8978eda366ad2ac2e1bb9",
+  "classes": [
+    "EOS",
+    "LYT",
+    "MON",
+    "MYB",
+    "NGS"
+  ],
+  "records": [
+    {
+      "ordinal": 0,
+      "timestamp": "2026-06-26T09:52:39.001022+00:00",
+      "kind": "dataset_indexed",
+      "payload": {
+        "source": "SYNTHETIC smoke set",
+        "n_images": 200,
+        "n_classes": 5,
+        "classes": [
+          "EOS",
+          "LYT",
+          "MON",
+          "MYB",
+          "NGS"
+        ],
+        "blast_classes": [
+          "MYB"
+        ],
+        "index_sha256": "d6cf9fd5eee6568b73a7c776176e75ded975030161420b8811a9a507ebb94bc3"
+      },
+      "human_authority": null,
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "content_hash": "64e081bd36b2211c2a1fcad5316d70d2ed92ee3339cad73c3d614547571beb7b",
+      "signature": "a4c59361684540e87c158afb02f993f8285a2dae361b74c5432739f85aaf6469f139b6273bd47e23cc52c35fb4536cbf67c1b256df5a46fe0b197e49359fb20f",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 1,
+      "timestamp": "2026-06-26T09:52:39.196730+00:00",
+      "kind": "images_embedded",
+      "payload": {
+        "encoder": "smoke-numpy-colorstats",
+        "embedding_dim": 54,
+        "n": 200
+      },
+      "human_authority": null,
+      "prev_hash": "64e081bd36b2211c2a1fcad5316d70d2ed92ee3339cad73c3d614547571beb7b",
+      "content_hash": "6fa025153e8ffc0b45abcb6f99674f8881644980782beffc29b242fd98b251d8",
+      "signature": "ef4dece616476f7aeb258bf55e1356e5db228dee6c2d4883bcca3b0380274cdf05cccd1cd76d0742d015f96c0e907e5a9ce7e6a05f1baebe01ccce893159c80a",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 2,
+      "timestamp": "2026-06-26T09:52:39.226133+00:00",
+      "kind": "evaluated",
+      "payload": {
+        "blast_detection_auc": 1.0,
+        "morphology_balanced_accuracy": 1.0,
+        "n_train": 150,
+        "n_test": 50
+      },
+      "human_authority": "Dr. M. Osei, MD  (hematopathology, NPI 1987654320)",
+      "prev_hash": "6fa025153e8ffc0b45abcb6f99674f8881644980782beffc29b242fd98b251d8",
+      "content_hash": "34d432cffddccd3dc745235f2f57f4048a37a3d6e472e0285b26ecdbf9f0a484",
+      "signature": "2db64693eee16960ebc443ed19021c7a26e8f19a81e38de199ff13ce247250aefb6a6f7fd8107b1713c0f9a24d1eed7b6960a3b13af55075efa957aa880d6b0d",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 3,
+      "timestamp": "2026-06-26T09:52:39.226185+00:00",
+      "kind": "sealed",
+      "payload": {
+        "anchor": "Sigstore Rekor (simulated)",
+        "records": 4
+      },
+      "human_authority": null,
+      "prev_hash": "34d432cffddccd3dc745235f2f57f4048a37a3d6e472e0285b26ecdbf9f0a484",
+      "content_hash": "6f628a5a28a66d2e58c4682513afcb7551e325b19aca92aa604640be6b819e4c",
+      "signature": "1f88f60a795499c2c81c3b44cab954b44d4f3755e7b311363ac738b99c75151a4df2d55e0fc403b7f9dc28f4a6839168a79e6587a618f030efbc422b65d72105",
+      "algorithm": "Ed25519"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "pubkey": "b839e0f0a52bfb71579d4ddebf3b8fe9ae7377682f8add99812bc56e044d976a",
+  "results": {
+    "NPM1": {
+      "image_only_auc": 0.913,
+      "fused_auc": 0.932,
+      "lift": 0.019,
+      "n_pos_test": 126
+    },
+    "FLT3_ITD": {
+      "image_only_auc": 0.583,
+      "fused_auc": 0.855,
+      "lift": 0.273,
+      "n_pos_test": 96
+    },
+    "CEBPA": {
+      "image_only_auc": 0.741,
+      "fused_auc": 0.749,
+      "lift": 0.008,
+      "n_pos_test": 30
+    },
+    "RUNX1": {
+      "image_only_auc": 0.606,
+      "fused_auc": 0.749,
+      "lift": 0.142,
+      "n_pos_test": 42
+    },
+    "TP53": {
+      "image_only_auc": 0.603,
+      "fused_auc": 0.909,
+      "lift": 0.306,
+      "n_pos_test": 29
+    },
+    "IDH2": {
+      "image_only_auc": 0.8,
+      "fused_auc": 0.867,
+      "lift": 0.067,
+      "n_pos_test": 57
+    }
+  },
+  "records": [
+    {
+      "ordinal": 0,
+      "timestamp": "2026-06-26T09:52:39.340982+00:00",
+      "kind": "paired_cohort_loaded",
+      "payload": {
+        "n": 1500,
+        "modalities": {
+          "morphology": 64,
+          "flow": 24,
+          "clinical": 6
+        },
+        "mutation_panel": [
+          "NPM1",
+          "FLT3_ITD",
+          "CEBPA",
+          "RUNX1",
+          "TP53",
+          "IDH2"
+        ],
+        "source": "SYNTHETIC (prod: paired image+genomic AML cohort)"
+      },
+      "human_authority": null,
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "content_hash": "05b06da43d00b8753747e5fd52832759613033d13c352c4ef4f0aa325d1f3759",
+      "signature": "14fa9c9fc23db2a1228ea60163653a83769de023a083cf239a2548ff753ab7a5ccd520707a65d187ec93ef66c57a14684e4d59c77b3a06f83b602b9b2807f909",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 1,
+      "timestamp": "2026-06-26T09:52:39.736752+00:00",
+      "kind": "evaluated",
+      "payload": {
+        "per_mutation": {
+          "NPM1": {
+            "image_only_auc": 0.913,
+            "fused_auc": 0.932,
+            "lift": 0.019,
+            "n_pos_test": 126
+          },
+          "FLT3_ITD": {
+            "image_only_auc": 0.583,
+            "fused_auc": 0.855,
+            "lift": 0.273,
+            "n_pos_test": 96
+          },
+          "CEBPA": {
+            "image_only_auc": 0.741,
+            "fused_auc": 0.749,
+            "lift": 0.008,
+            "n_pos_test": 30
+          },
+          "RUNX1": {
+            "image_only_auc": 0.606,
+            "fused_auc": 0.749,
+            "lift": 0.142,
+            "n_pos_test": 42
+          },
+          "TP53": {
+            "image_only_auc": 0.603,
+            "fused_auc": 0.909,
+            "lift": 0.306,
+            "n_pos_test": 29
+          },
+          "IDH2": {
+            "image_only_auc": 0.8,
+            "fused_auc": 0.867,
+            "lift": 0.067,
+            "n_pos_test": 57
+          }
+        }
+      },
+      "human_authority": "Dr. L. Haddad, MD PhD  (molecular hematopathology, NPI 1456789023)",
+      "prev_hash": "05b06da43d00b8753747e5fd52832759613033d13c352c4ef4f0aa325d1f3759",
+      "content_hash": "8d6a3f301b9f4f4e200f6131c2706e2495abd994239a86e2b13fffe84824e5c7",
+      "signature": "c95b203de91ce75dd8519ab39d7f1592f030c1f23561f349c6a4f5f507f2a0028459fe47ce6a81baa45d9d6664c210af56330bb9828bee7b0c47980eedff320e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 2,
+      "timestamp": "2026-06-26T09:52:39.736848+00:00",
+      "kind": "sealed",
+      "payload": {
+        "anchor": "Sigstore Rekor (simulated)",
+        "records": 3
+      },
+      "human_authority": null,
+      "prev_hash": "8d6a3f301b9f4f4e200f6131c2706e2495abd994239a86e2b13fffe84824e5c7",
+      "content_hash": "5bb085967e5848d08a86ad8a825f671aea3f83500ec1b5726a543111cf3ccf5a",
+      "signature": "190b89480270128d20b07dbf39fb2e20741034688f75fe895be800e41276a7da7c732c5ae5f1ff3ec286e8b910cc296e8bba2085c0e2ff4ad58ed14603882e09",
+      "algorithm": "Ed25519"
+    }
+  ]
+}

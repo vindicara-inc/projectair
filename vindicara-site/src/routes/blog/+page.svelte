@@ -1,6 +1,7 @@
 <script>
   import AppShell from '$components/AppShell.svelte';
   const posts = [
+    { t: 'Introducing Axiisium', d: "Vindicara's healthcare initiative: multimodal AI for acute myeloid leukemia that fuses pathology, flow, cytogenetics, molecular, and clinical data, built on the NVIDIA stack, with every decision a signed, audit-ready record.", tag: 'Initiative', href: '/blog/introducing-axiisium', date: 'June 26, 2026' },
     { t: 'An NVIDIA-backed second opinion, signed', d: 'How NemoGuard NIM classifier verdicts become signed detector findings in the AIR evidence chain.', tag: 'Engineering', href: '/blog/nvidia-inception-nemoguard-second-opinion', date: '2026-06-10' },
     { t: '88% of AI Agent Deployments Had a Security Incident. 6% Have a Budget to Fix It.', d: 'The state of AI agent accountability in 2026: the incidents, the converging regulatory deadlines, and the evidence infrastructure gap.', tag: 'Strategy', href: '/blog/ai-agent-accountability-crisis-2026', date: 'May 27, 2026' },
     { t: 'Introducing Project AIR', d: 'Evidence-grade infrastructure for accountable AI agents: signed intent capsules, 16 OWASP-mapped detectors, causal explanation, Auth0 containment, and cross-agent chain of custody.', tag: 'Launch', href: '/blog/introducing-project-air', date: 'May 26, 2026' },

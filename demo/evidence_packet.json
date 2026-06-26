@@ -1,0 +1,103 @@
+{
+  "appeal": "RE: Appeal of denial - MRI lumbar spine without contrast (CPT 72148)\nPayer: Sample MA Plan   Criteria: MCG / InterQual - imaging for low back pain\n\nThe denial cites insufficient documentation of failed conservative treatment. The clinical\nrecord submitted herewith demonstrates that every required criterion was, in fact, met at the\ntime of the request. The documentation was present in the chart and is itemized below:\n\n  - Documented conservative therapy >= 6 weeks: 8wk PT + 6wk NSAIDs = exceeds 6 weeks\n  - Documented neurologic deficit: L5 sensory loss, 4/5 EHL, +SLR\n  - Prior plain imaging: XR lumbar 02/2026\n\nThis satisfies the MCG/InterQual threshold for advanced lumbar imaging. We respectfully\nrequest the denial be overturned and the MRI authorized.",
+  "pubkey": "64c4eb8b0a7ef072b705a1a167ae9cdab61d092022abbc0b03323468e0935a8b",
+  "records": [
+    {
+      "ordinal": 0,
+      "timestamp": "2026-06-26T01:48:21.579579+00:00",
+      "kind": "denial_ingested",
+      "payload": {
+        "payer": "Sample MA Plan",
+        "service": "MRI lumbar spine without contrast (CPT 72148)",
+        "reason": "Insufficient documentation of failed conservative treatment (>=6 weeks) prior to advanced imaging."
+      },
+      "human_authority": null,
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "content_hash": "50768c41afeea4f21097fcdcf6186121d9b788356876f242788a82936e44aed2",
+      "signature": "0df8c9188329799b717039941f2aa7a271d878ddcc71172206f08417d0633a024a1476c9de91de4b5e3461efaa2b5e39a69feac06aa594c39aa82456c8329b07",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 1,
+      "timestamp": "2026-06-26T01:48:21.579917+00:00",
+      "kind": "clinical_facts_extracted",
+      "payload": {
+        "facts": [
+          [
+            "conservative_therapy_PT",
+            "8 weeks PT, 03/12-05/04"
+          ],
+          [
+            "conservative_therapy_pharm",
+            "naproxen x6wks, no relief"
+          ],
+          [
+            "interventional",
+            "ESI 04/22, transient relief"
+          ],
+          [
+            "neuro_deficit",
+            "L5 dermatome sensory loss, 4/5 EHL, +SLR left"
+          ],
+          [
+            "prior_imaging",
+            "XR lumbar 02/2026, mild DDD"
+          ]
+        ],
+        "engine": "stub (prod: NVIDIA Nemotron on NIM)"
+      },
+      "human_authority": null,
+      "prev_hash": "50768c41afeea4f21097fcdcf6186121d9b788356876f242788a82936e44aed2",
+      "content_hash": "5ca4ae4fa3ae5eedcda7fc2292fa25a5ca614681d0cb73ae400a44d9ce948b9b",
+      "signature": "fa8028d44db8a09cf5cfc041e58b304e3147e35d872be05b218051e9e7ca27448474ca538cd2860b4a06c637ee2c7a2809147af473704b4bcb65bef6347a0e0e",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 2,
+      "timestamp": "2026-06-26T01:48:21.579964+00:00",
+      "kind": "criteria_matched",
+      "payload": {
+        "met": [
+          "Documented conservative therapy >= 6 weeks",
+          "Documented neurologic deficit",
+          "Prior plain imaging"
+        ],
+        "missing_at_initial_review": [],
+        "finding": "criteria were met; documentation was simply not submitted"
+      },
+      "human_authority": null,
+      "prev_hash": "5ca4ae4fa3ae5eedcda7fc2292fa25a5ca614681d0cb73ae400a44d9ce948b9b",
+      "content_hash": "10bc03d7e5dd26440b4b2a8c9b55393c2acceb9c698df5f66a13a09b22efdb1f",
+      "signature": "9734084f7b51958ada1d0a3698651e113c2fa08c7cbdb1f086cb38ece53fc79b0dbc7f8eb5b908c1479608f52264973dc061716cbe759502b72b27b29f1b4903",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 3,
+      "timestamp": "2026-06-26T01:48:21.579993+00:00",
+      "kind": "appeal_generated",
+      "payload": {
+        "appeal_sha256": "e737fbe34cd16c00cdd883f417afe11f7d54a10bd64c4db94b7acd60da78d189",
+        "criteria_satisfied": 3
+      },
+      "human_authority": "Dr. A. Rivera, MD  (NPI 1234567890)",
+      "prev_hash": "10bc03d7e5dd26440b4b2a8c9b55393c2acceb9c698df5f66a13a09b22efdb1f",
+      "content_hash": "ac5b2cca76e238d7aec8d32e108f7c9d933a7ba1862d2f1dcdf989c7271def1e",
+      "signature": "c50568c8d98ff126a4888a9d2fbcb5b05d0b2fba328f2e1c4a1e4c0392a521cba4d3915a5410b1eded47e60066fbe115055d7383bcaf963e80293c8608c1b209",
+      "algorithm": "Ed25519"
+    },
+    {
+      "ordinal": 4,
+      "timestamp": "2026-06-26T01:48:21.580014+00:00",
+      "kind": "sealed",
+      "payload": {
+        "anchor": "Sigstore Rekor (simulated in demo)",
+        "records": 5
+      },
+      "human_authority": null,
+      "prev_hash": "ac5b2cca76e238d7aec8d32e108f7c9d933a7ba1862d2f1dcdf989c7271def1e",
+      "content_hash": "82c919e9d40c0a5f8145f03d1a02558200f615dd5ea49d8edea7faa3f800c3d2",
+      "signature": "2ac69a4651540066f22e6feee9ebbe1c3f4ce9e406b725e0913e6f2aef579bf5642f49b6a44040b24efedc97816f95e1d421c24038573787ff8b02420013de05",
+      "algorithm": "Ed25519"
+    }
+  ]
+}
