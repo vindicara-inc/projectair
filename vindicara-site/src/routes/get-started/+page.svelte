@@ -1,9 +1,22 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
   import AppShell from '$components/AppShell.svelte';
   import LiveMap from '$components/LiveMap.svelte';
 
   let { data } = $props();
+
+  // Real PyPI install count: baked at build, refreshed live from the endpoint.
+  let installs = $state<number | null>(data?.installsMonth ?? null);
+  onMount(async () => {
+    try {
+      const r = await fetch('/api/live-map');
+      if (r.ok) {
+        const d = await r.json();
+        if (typeof d.installsMonth === 'number' && d.installsMonth > 0) installs = d.installsMonth;
+      }
+    } catch (_) { /* keep baked value */ }
+  });
 
   let plat = $state<'mac' | 'windows' | 'linux'>('mac');
   let copied = $state('');
@@ -43,8 +56,8 @@
 
 <AppShell active="get-started" title="get started" scroll={true} dots={false}>
   <LiveMap />
-  {#if data?.installsMonth}
-    <p class="gs-installs" style="text-align:center;font-family:var(--mono,ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);font-size:12px;letter-spacing:.05em;color:#9aa6bd;margin:0 0 14px;opacity:.9">{data.installsMonth.toLocaleString()} installs this month · MIT · on PyPI</p>
+  {#if installs}
+    <p class="gs-installs" style="text-align:center;font-family:var(--mono,ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);font-size:12px;letter-spacing:.05em;color:#9aa6bd;margin:0 0 14px;opacity:.9">{installs.toLocaleString()} installs in the last 30 days · MIT · on PyPI</p>
   {/if}
   <div class="gs">
     <header class="ghead reveal">

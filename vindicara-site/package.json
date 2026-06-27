@@ -3,12 +3,12 @@
   "private": true,
   "version": "1.0.1",
   "type": "module",
-	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"test": "vitest run",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json"
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^5.5.5",
@@ -22,9 +22,11 @@
     "vitest": "^4.1.9"
   },
   "dependencies": {
+    "@google-analytics/data": "^6.1.0",
     "@noble/curves": "^2.2.0",
     "@noble/hashes": "^2.2.0",
     "d3-geo": "^3.1.1",
+    "geoip-lite": "^2.0.3",
     "three": "^0.160.1",
     "topojson-client": "^3.1.0",
     "world-atlas": "^2.0.2"

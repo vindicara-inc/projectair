@@ -29,7 +29,7 @@
         <li>100 hosted actions / mo</li>
         <li>7-day hosted history, then expires</li>
         <li>Watermarked, no Rekor anchor</li>
-        <li>Read-only viewer, no hosted console</li>
+        <li>Read-only viewer</li>
       </ul>
       <button class="pb" onclick={() => goto('/get-started')}>pip install projectair</button>
     </div>

@@ -7,12 +7,13 @@
 
 <div class="livemap">
   <div class="lm-live"><span class="lm-live-dot" aria-hidden="true"></span>Live</div>
-  <h1>Project <span class="air">AIR</span>, in use around the world right now.</h1>
+  <h1>Project <span class="air">AIR</span>, in use around the world.</h1>
   <div class="lm-map"><DotMap /></div>
-  <p class="lm-cap"><b>Active users</b> light up in white, <b>new arrivals</b> in red, live as they happen.</p>
+  <p class="lm-cap"><b>Gold</b> shows real installs by country. <b>White</b> marks recent site visitors. <b>Red</b> lights up where someone is active right now.</p>
   <div class="lm-legend">
-    <span><i class="lm-dot lm-active"></i>Active users</span>
-    <span><i class="lm-dot lm-new"></i>New users</span>
+    <span><i class="lm-dot lm-install"></i>Installs</span>
+    <span><i class="lm-dot lm-active"></i>Visitors</span>
+    <span><i class="lm-dot lm-new"></i>Active now</span>
   </div>
 </div>
 
@@ -28,6 +29,7 @@
   .lm-map { position: relative; left: 50%; width: 100vw; transform: translateX(-50%); margin-top: 8px; }
   .lm-legend { display: flex; gap: 24px; justify-content: center; margin: 4px 0 12px; font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace); font-size: 12px; letter-spacing: 0.03em; color: #cdd8ec; }
   .lm-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+  .lm-install { background: #ffc45c; box-shadow: 0 0 9px rgba(255, 196, 92, 0.9); }
   .lm-active { background: #fff; box-shadow: 0 0 9px rgba(255, 255, 255, 0.9); }
   .lm-new { background: #ff5763; box-shadow: 0 0 9px rgba(255, 87, 99, 0.9); }
   /* the map hero stands on the clean page background, no dotfield behind it */

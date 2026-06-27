@@ -4,21 +4,21 @@
 
 <svelte:head>
   <title>Introducing Axiisium: Multimodal AI for Blood Cancer, Built to Be Provable | Vindicara Blog</title>
-  <meta name="description" content="Axiisium is Vindicara's healthcare initiative: multimodal AI for acute myeloid leukemia that fuses pathology, flow, cytogenetics, molecular, and clinical data, built on the NVIDIA stack, with every decision a signed, audit-ready record." />
+  <meta name="description" content="Axiisium is Vindicara's healthcare initiative: multimodal AI for acute myeloid leukemia that fuses pathology, flow, cytogenetics, molecular, and clinical data, with every decision a signed, audit-ready record." />
   <link rel="canonical" href="https://vindicara.io/blog/introducing-axiisium" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/introducing-axiisium" />
   <meta property="og:title" content="Introducing Axiisium: Multimodal AI for Blood Cancer, Built to Be Provable" />
-  <meta property="og:description" content="Multimodal AI for acute myeloid leukemia, built on the NVIDIA stack, with every decision a signed, audit-ready record." />
+  <meta property="og:description" content="Multimodal AI for acute myeloid leukemia, with every decision a signed, audit-ready record." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Introducing Axiisium: Multimodal AI for Blood Cancer, Built to Be Provable" />
-  <meta name="twitter:description" content="Multimodal AI for acute myeloid leukemia, built on the NVIDIA stack, with every decision a signed, audit-ready record." />
-  <meta name="keywords" content="acute myeloid leukemia AI, multimodal oncology AI, AML mutation prediction, companion diagnostics, NVIDIA MONAI, federated learning healthcare, auditable medical AI" />
+  <meta name="twitter:description" content="Multimodal AI for acute myeloid leukemia, with every decision a signed, audit-ready record." />
+  <meta name="keywords" content="acute myeloid leukemia AI, multimodal oncology AI, AML mutation prediction, companion diagnostics, clinical trial enrichment, auditable medical AI" />
   {@html `<script type="application/ld+json">${JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": "Introducing Axiisium: Multimodal AI for Blood Cancer, Built to Be Provable",
-    "description": "Axiisium is Vindicara's healthcare initiative: multimodal AI for acute myeloid leukemia, built on the NVIDIA stack, with every decision a signed, audit-ready record.",
+    "description": "Axiisium is Vindicara's healthcare initiative: multimodal AI for acute myeloid leukemia, with every decision a signed, audit-ready record.",
     "datePublished": "2026-06-26",
     "dateModified": "2026-06-26",
     "author": { "@type": "Person", "name": "Kevin Minn", "url": "https://vindicara.io" },
@@ -47,11 +47,8 @@
     <p>The hardest question, whether the way cells look carries genetic signal, is already answered. Eckardt et al. (<i>Leukemia</i>, 2022) predict NPM1 mutation status from bone-marrow smears alone, image data only, at an AUROC of 0.92. Subsequent work extends image-based prediction to more therapy-relevant genetics. So Axiisium is not betting on an unproven hypothesis. It reproduces a published result and extends it.</p>
     <p>Extends it how? Every model in that literature is image-only. Real genetics are not all visible in morphology: some mutations are written in the cells, some are not. Axiisium fuses pathology with flow, cytogenetics, molecular, and clinical data, so the model can reach the genetics a single view misses. Multimodal is not a flourish here. It is the whole point.</p>
 
-    <h2>Built on the NVIDIA stack</h2>
-    <p>Axiisium runs end to end on NVIDIA. <strong>MONAI</strong> drives the imaging pipeline. <strong>Parabricks</strong> handles genomics. <strong>FLARE</strong> lets institutions that cannot legally pool patient data train together without the data ever leaving. <strong>Confidential Computing</strong> on H100 keeps protected health information inside an attested enclave. <strong>NIM and Nemotron</strong> power the reasoning and reporting. Vindicara is a member of the NVIDIA Inception and Digital Health Developer programs, and we build on that stack because it is the one that spans imaging, genomics, federation, and confidential compute in one place.</p>
-
     <h2>The part nobody else has</h2>
-    <p>Here is where Axiisium stops being another medical-imaging model. Every published result in this field is single-institution and research-grade, with no audit trail. Axiisium signs every training run, model version, and prediction with the same evidence substrate behind Project <span class="air">AIR</span>: hash-chained, tamper-evident, bound to a named clinician, anchored to public infrastructure, and independently verifiable. Change one byte and verification fails.</p>
+    <p>Here is where Axiisium stops being another medical-imaging model. Every published result in this field is single-institution and research-grade, with no audit trail. Axiisium signs every model decision so it is tamper-evident, attributable to a named clinician, and independently verifiable, the same trust layer that powers Project <span class="air">AIR</span>. Change one byte and verification fails.</p>
     <p>For a pharmaceutical sponsor submitting a trial-enrollment decision to a regulator, that is not a nice-to-have. It is the difference between a research result and a companion-diagnostic-grade output. The trust layer is the moat that survives even when a competitor's accuracy catches up.</p>
 
     <h2>The first thing it sells</h2>

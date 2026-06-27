@@ -19,6 +19,7 @@
     <div class="tier feat">
       <div class="tn">Enterprise</div><div class="tl">regulated · audit-grade</div>
       <div class="price talk">Talk to us</div>
+      <div class="appm"><span class="p on">Audit</span><span class="p on">Prove</span><span class="p on">Protect</span><span class="p on">Monitor</span></div>
       <ul>
         <li class="plus">Everything in Team, plus</li>
         <li>Custom volume · 6-year retention</li>
@@ -37,6 +38,7 @@
     <div class="tier">
       <div class="tn">Air-gapped</div><div class="tl">sovereign</div>
       <div class="price talk">License</div>
+      <div class="appm"><span class="p on">Audit</span><span class="p on">Prove</span><span class="p on">Protect</span><span class="p on">Monitor</span></div>
       <ul>
         <li class="plus">Everything in Enterprise, plus</li>
         <li>Your infrastructure, unbounded</li>
@@ -84,6 +86,9 @@
   .tl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:3px;margin-bottom:12px}
   .price{font-family:var(--display);font-size:26px;font-weight:600;margin-bottom:12px}
   .price.talk{font-size:15px;color:var(--soft);font-weight:500}
+  .appm{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
+  .appm .p{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);color:var(--faint)}
+  .appm .p.on{color:var(--white);border-color:var(--air);background:var(--airbg)}
   ul{list-style:none;margin:0 0 4px;padding:0;display:flex;flex-direction:column;gap:9px;flex:1}
   li{font-size:12px;color:var(--soft);display:flex;gap:8px;line-height:1.4}
   li::before{content:'›';color:var(--air2);font-weight:700}

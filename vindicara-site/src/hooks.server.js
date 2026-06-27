@@ -7,6 +7,8 @@
 // gateway + Auth0), or the CSP silently blocks it. AIR_API_ORIGIN is injected
 // by the Fargate task; it falls back to the current production API.
 
+import { recordVisit } from '$lib/server/visitors.js';
+
 const API_ORIGIN = process.env.AIR_API_ORIGIN || 'https://qk0ymrk5be.execute-api.us-west-2.amazonaws.com';
 const AUTH0_ORIGIN = 'https://dev-kilt2vkudvbu75ny.us.auth0.com';
 
@@ -35,6 +37,7 @@ const CSP = [
 
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {
+  recordVisit(event); // keyless live-map: tag real visitors (fire-and-forget, never blocks)
   const response = await resolve(event);
   response.headers.set('Content-Security-Policy', CSP);
   response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains');
