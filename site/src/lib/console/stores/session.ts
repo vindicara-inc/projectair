@@ -1,6 +1,7 @@
 // Session + lock state. The lock screen and the route guard both read this.
 import { writable } from 'svelte/store';
 import { env } from '$env/dynamic/public';
+import { buildAuthorizeUrl, type Auth0Connection } from '$lib/console/auth/authorize';
 import {
 	challengeFromVerifier,
 	clearAccessToken,
@@ -21,7 +22,7 @@ export function lockSession() {
 	locked.set(true);
 }
 
-export async function beginAuth0Login(): Promise<void> {
+export async function beginAuth0Login(connection?: Auth0Connection): Promise<void> {
 	authError.set(null);
 	const domain = env.PUBLIC_AUTH0_DOMAIN;
 	const clientId = env.PUBLIC_AUTH0_CLIENT_ID;
@@ -33,16 +34,15 @@ export async function beginAuth0Login(): Promise<void> {
 
 	const verifier = randomVerifier();
 	storeVerifier(verifier);
-	const challenge = await challengeFromVerifier(verifier);
-	const redirect = `${location.origin}/dashboard/auth/callback/`;
-	const url = new URL(`https://${domain}/authorize`);
-	url.searchParams.set('response_type', 'code');
-	url.searchParams.set('client_id', clientId);
-	url.searchParams.set('redirect_uri', redirect);
-	url.searchParams.set('scope', 'openid profile email');
-	url.searchParams.set('code_challenge', challenge);
-	url.searchParams.set('code_challenge_method', 'S256');
-	if (audience) url.searchParams.set('audience', audience);
+	const codeChallenge = await challengeFromVerifier(verifier);
+	const url = buildAuthorizeUrl({
+		domain,
+		clientId,
+		origin: location.origin,
+		codeChallenge,
+		audience,
+		connection
+	});
 	location.assign(url.toString());
 }
 

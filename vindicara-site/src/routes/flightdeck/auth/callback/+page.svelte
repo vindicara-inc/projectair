@@ -5,19 +5,29 @@
 
   let error = $state<string | null>(null);
 
+  function returnToSignIn(message: string) {
+    authError.set(message);
+    void goto(`/flightdeck/sign-in/?error=${encodeURIComponent(message)}`);
+  }
+
   onMount(async () => {
     const params = new URLSearchParams(location.search);
     const code = params.get('code');
     const oauthErr = params.get('error_description') ?? params.get('error');
-    if (oauthErr) { error = oauthErr; authError.set(oauthErr); return; }
-    if (!code) { error = 'No authorization code returned from Auth0.'; return; }
+    if (oauthErr) { error = oauthErr; returnToSignIn(oauthErr); return; }
+    if (!code) {
+      const message = 'No authorization code returned from Auth0.';
+      error = message;
+      returnToSignIn(message);
+      return;
+    }
     try {
       const token = await exchangeAuthCode(code);
       unlock(token);
       goto('/flightdeck');
     } catch (e) {
       error = e instanceof Error ? e.message : 'Sign-in failed.';
-      authError.set(error);
+      returnToSignIn(error);
     }
   });
 </script>

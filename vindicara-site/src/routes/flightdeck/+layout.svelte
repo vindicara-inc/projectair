@@ -1,6 +1,7 @@
 <script lang="ts">
   import '$lib/console/console.css';
   import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
   import { get } from 'svelte/store';
   import { page } from '$app/stores';
   import Rail from '$lib/console/components/Rail.svelte';
@@ -9,7 +10,7 @@
   import LockScreen from '$lib/console/components/LockScreen.svelte';
   import SignIn from '$lib/console/components/forensics/SignIn.svelte';
   import ClockOut from '$lib/console/components/forensics/ClockOut.svelte';
-  import { beginAuth0Login, sessionToken } from '$lib/console/stores/session';
+  import { sessionToken } from '$lib/console/stores/session';
   import { mode } from '$lib/console/stores/mode';
 
   let { children } = $props();
@@ -28,7 +29,7 @@
       mode.set('live');
     }
     if (!onAuthRoute && get(mode) === 'live' && !get(sessionToken)) {
-      void beginAuth0Login();
+      void goto('/flightdeck/sign-in/');
     }
   });
 
@@ -36,7 +37,7 @@
   // and the transient Auth0 callback/logout pages.
   const bareShellPaths = ['/flightdeck', '/flightdeck/'];
   let overviewShell = $derived(
-    bareShellPaths.includes($page.url.pathname) || $page.url.pathname.startsWith('/flightdeck/auth/')
+    bareShellPaths.includes($page.url.pathname) || $page.url.pathname.startsWith('/flightdeck/auth/') || $page.url.pathname.startsWith('/flightdeck/sign-in/')
   );
 </script>
 

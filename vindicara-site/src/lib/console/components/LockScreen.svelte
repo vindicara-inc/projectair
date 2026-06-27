@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { locked, beginAuth0Login, unlock } from '$lib/console/stores/session';
+  import { goto } from '$app/navigation';
+  import { locked, unlock } from '$lib/console/stores/session';
   import { env } from '$env/dynamic/public';
 
   let phase = $state<'idle' | 'halting' | 'off' | 'login'>('idle');
@@ -15,8 +16,7 @@
     setTimeout(() => { phase = 'off'; }, 650);
     setTimeout(() => {
       phase = 'login';
-      // Live: hand off to Auth0 Universal Login. Mock: show the local card.
-      if (env.PUBLIC_AIR_API_MODE === 'live') beginAuth0Login();
+      if (env.PUBLIC_AIR_API_MODE === 'live') void goto('/flightdeck/sign-in/');
     }, 1500);
   }
 

@@ -1,15 +1,25 @@
 <script lang="ts">
 	import '$lib/console/console.css';
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 	import Rail from '$lib/console/components/Rail.svelte';
 	import Drawer from '$lib/console/components/Drawer.svelte';
 	import LockScreen from '$lib/console/components/LockScreen.svelte';
-	import { beginAuth0Login, lockSession, unlock } from '$lib/console/stores/session';
+	import { beginAuth0Login, lockSession, sessionToken, unlock } from '$lib/console/stores/session';
 	import { env } from '$env/dynamic/public';
 
 	let { children } = $props();
 	let drawerOpen = $state(false);
 	const isLive = env.PUBLIC_AIR_API_MODE === 'live';
+
+	onMount(() => {
+		if (!isLive) return;
+		const unsubscribe = sessionToken.subscribe((token) => {
+			if (!token) void goto('/dashboard/sign-in/');
+		});
+		return unsubscribe;
+	});
 
 	function authorize() {
 		if (isLive) void beginAuth0Login();

@@ -185,11 +185,17 @@
       const planetTex = loader.load('/jupiter.jpg');
       planetTex.colorSpace = THREE.SRGBColorSpace;
       planetTex.anisotropy = 4;
+      // Upright carousel rig: this group fixes the planet so its poles point
+      // up/down. The planet spins inside it like a merry-go-round.
+      const planetRig = new THREE.Group();
+      planetRig.scale.setScalar(0.98);
+      scene.add(planetRig);
       const planet = new THREE.Mesh(
         new THREE.SphereGeometry(1, 96, 96),
         new THREE.MeshStandardMaterial({ map: planetTex, roughness: 1, metalness: 0 })
       );
-      spin.add(planet);
+      planetRig.add(planet);
+      planet.rotation.x = 0; // or -Math.PI / 2 if the texture poles are rotated
 
       // White dots circulating around the planet (a tilted orbital band).
       const orbitGroup = new THREE.Group();
@@ -259,7 +265,7 @@
       let t = 0;
       const loop = () => {
         t += 0.016;
-        spin.rotation.y += 0.0011;
+        planet.rotation.y += 0.0011;   // upright merry-go-round spin
         orbit.rotation.y += 0.0012;
 
         // Only the halted node breathes slightly; arc lines stay steady (opacity was flickering).

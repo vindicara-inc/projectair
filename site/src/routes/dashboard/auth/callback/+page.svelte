@@ -5,18 +5,23 @@
 
 	let message = $state('Completing sign-in…');
 
+	function returnToSignIn(error: string): void {
+		authError.set(error);
+		void goto(`/dashboard/sign-in/?error=${encodeURIComponent(error)}`);
+	}
+
 	onMount(async () => {
 		const params = new URLSearchParams(location.search);
 		const code = params.get('code');
 		const error = params.get('error_description') ?? params.get('error');
 		if (error) {
 			message = error;
-			authError.set(error);
+			returnToSignIn(error);
 			return;
 		}
 		if (!code) {
 			message = 'Missing authorization code.';
-			authError.set(message);
+			returnToSignIn(message);
 			return;
 		}
 		try {
@@ -25,7 +30,7 @@
 			goto('/dashboard/');
 		} catch (err) {
 			message = err instanceof Error ? err.message : 'Sign-in failed.';
-			authError.set(message);
+			returnToSignIn(message);
 		}
 	});
 </script>

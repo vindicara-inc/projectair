@@ -8,6 +8,7 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
+		"test": "vitest run",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
@@ -17,12 +18,14 @@
 		"@sveltejs/kit": "^2.50.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
 		"@tailwindcss/vite": "^4.2.2",
+		"@types/node": "^26.0.0",
 		"marked": "^18.0.2",
 		"svelte": "^5.54.0",
 		"svelte-check": "^4.4.2",
 		"tailwindcss": "^4.2.2",
 		"typescript": "^5.9.3",
-		"vite": "^7.3.1"
+		"vite": "^7.3.1",
+		"vitest": "^4.1.9"
 	},
 	"overrides": {
 		"cookie": "^0.7.2"
