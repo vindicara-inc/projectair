@@ -20,15 +20,18 @@
   // Demo mode never redirects (public showcase). Skip on /flightdeck/auth/*.
   onMount(() => {
     const url = get(page).url;
-    const onAuthRoute = url.pathname.startsWith('/flightdeck/auth/');
-    // Routing: ?demo = the public sales showcase; an authenticated operator
-    // always gets Live (their real data); Live with no token -> Auth0 login.
-    if (url.searchParams.has('demo')) {
+    const onAuthRoute =
+      url.pathname.startsWith('/flightdeck/auth/') || url.pathname.startsWith('/flightdeck/sign-in');
+    const isDemo = url.searchParams.has('demo');
+    // ?demo = the explicit public sales showcase (no login). Everyone else,
+    // including Free, MUST sign in first: that is the whole point of the Free
+    // UI (capture the user, then nudge upgrades). A signed-in operator runs Live.
+    if (isDemo) {
       mode.set('demo');
     } else if (get(sessionToken)) {
       mode.set('live');
     }
-    if (!onAuthRoute && get(mode) === 'live' && !get(sessionToken)) {
+    if (!onAuthRoute && !isDemo && !get(sessionToken)) {
       void goto('/flightdeck/sign-in/');
     }
   });

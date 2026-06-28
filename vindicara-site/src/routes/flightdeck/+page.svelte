@@ -1,1 +1,1 @@
-<script lang="ts">import Overview from '$lib/console/screens/Overview.svelte';</script><Overview />
+<script lang="ts">import Inbox from '$lib/console/screens/Inbox.svelte';</script><Inbox />
