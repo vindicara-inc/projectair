@@ -1,6 +1,7 @@
 // Real PyPI installs by country (last 30 days), from the public PyPI BigQuery
 // dataset. Refresh by re-running the query in BigQuery and updating this list.
 // Each entry: [country_code, lon, lat (centroid), installs]. Snapshot: 2026-06-27.
+/** @type {[string, number, number, number][]} */
 const ROWS = [
   ['US', -98.5, 39.8, 914], ['JP', 138.3, 36.2, 107], ['DE', 10.5, 51.2, 103],
   ['CN', 104.2, 35.9, 96], ['SG', 103.82, 1.35, 79], ['FR', 2.2, 46.6, 69],

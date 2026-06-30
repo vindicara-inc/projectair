@@ -7,6 +7,7 @@ import { INSTALLERS, INSTALLER_MAX } from '$lib/server/installs.js';
 
 export const prerender = false;
 
+/** @param {typeof globalThis.fetch} fetch */
 async function installsMonth(fetch) {
   try {
     const res = await fetch('https://pypistats.org/api/packages/projectair/recent');
@@ -21,6 +22,7 @@ async function installsMonth(fetch) {
 
 export async function GET({ fetch, setHeaders }) {
   setHeaders({ 'cache-control': 'public, max-age=30' });
+  /** @type {{ active: any[], footprint: any[], mode: string }} */
   let map = { active: [], footprint: [], mode: 'visitors' };
   try { map = snapshot(); } catch (e) { map = { active: [], footprint: [], mode: 'error' }; }
   const installs = await installsMonth(fetch);

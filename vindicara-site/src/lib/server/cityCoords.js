@@ -2,6 +2,7 @@
 // Map the common ones to [lon, lat]; fall back to a country centroid; else null.
 // Expand CITIES as real traffic surfaces new places (the endpoint logs misses).
 
+/** @type {Record<string, number[]>} */
 const CITIES = {
   // North America
   'new york': [-74.0, 40.71], 'san francisco': [-122.42, 37.77], 'los angeles': [-118.24, 34.05],
@@ -40,6 +41,7 @@ const CITIES = {
   'brisbane': [153.03, -27.47], 'auckland': [174.76, -36.85]
 };
 
+/** @type {Record<string, number[]>} */
 const COUNTRIES = {
   'united states': [-98.5, 39.8], 'canada': [-106.3, 56.1], 'mexico': [-102.5, 23.6],
   'brazil': [-51.9, -14.2], 'argentina': [-63.6, -38.4], 'chile': [-71.5, -35.7],
@@ -60,7 +62,11 @@ const COUNTRIES = {
   'kenya': [37.9, -0.0], 'south africa': [22.9, -30.6], 'morocco': [-7.1, 31.8]
 };
 
-/** Resolve a GA4 city/country to [lon, lat], or null if unknown. */
+/**
+ * Resolve a GA4 city/country to [lon, lat], or null if unknown.
+ * @param {string|null|undefined} city
+ * @param {string|null|undefined} country
+ */
 export function resolveCoords(city, country) {
   const c = (city || '').trim().toLowerCase();
   if (c && CITIES[c]) return CITIES[c];

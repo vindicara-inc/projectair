@@ -16,6 +16,7 @@ const hits = [];
 // reflects true geography from day one. Seeded an hour back so they read as
 // footprint (white), not active (red). Live server tally adds real hits on top;
 // these age out of the 30-day window as genuine traffic accumulates.
+/** @type {[string, number, number][]} */
 const SEED = [
   ['Singapore', 103.82, 1.35], ['Los Angeles', -118.24, 34.05], ['Dublin', -6.26, 53.35],
   ['Haikou', 110.33, 20.03], ['Nanning', 108.32, 22.82], ['Pune', 73.86, 18.52],
@@ -23,6 +24,7 @@ const SEED = [
 ];
 for (const [city, lon, lat] of SEED) hits.push({ lat, lon, city, country: '', t: Date.now() - 3600000 });
 
+/** @type {any} */
 let geoip = null;
 let loaded = false;
 async function getGeo() {
@@ -34,18 +36,23 @@ async function getGeo() {
   return geoip;
 }
 
+/** @param {import('@sveltejs/kit').RequestEvent} event */
 function clientIp(event) {
   const xff = event.request.headers.get('x-forwarded-for');
   if (xff) return xff.split(',')[0].trim();
   try { return event.getClientAddress(); } catch (_) { return null; }
 }
 
+/** @param {string|null|undefined} ip */
 function isPrivate(ip) {
   return !ip || ip === '::1' || ip.startsWith('127.') || ip.startsWith('10.') ||
     ip.startsWith('192.168.') || /^172\.(1[6-9]|2\d|3[01])\./.test(ip);
 }
 
-/** Record a real page visit. Fire-and-forget; never throws into the request. */
+/**
+ * Record a real page visit. Fire-and-forget; never throws into the request.
+ * @param {import('@sveltejs/kit').RequestEvent} event
+ */
 export async function recordVisit(event) {
   try {
     const url = event.url;
@@ -64,6 +71,7 @@ export async function recordVisit(event) {
   } catch (_) { /* never break a page render over analytics */ }
 }
 
+/** @param {number} sinceMs */
 function aggregate(sinceMs) {
   const cut = Date.now() - sinceMs;
   const buckets = new Map();
