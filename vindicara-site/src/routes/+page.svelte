@@ -156,7 +156,10 @@
   <div class="horizon"></div>
   <canvas id="globe"></canvas>
 
-  <a class="skip" href="/home">Project <span class="airx">AIR</span> →</a>
+  <nav class="skip">
+    <a href="/home">Project <span class="airx">AIR</span> →</a>
+    <a href="https://axiisium.com"><span class="axix">AXIISIUM</span> →</a>
+  </nav>
 
   <div class="wordmark">
     <h1>VINDICARA</h1>
@@ -217,9 +220,11 @@
     background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent) 42%,transparent),transparent);
     box-shadow:0 0 18px 1px color-mix(in srgb,var(--accent) 20%,transparent);transition:.8s ease}
 
-  .skip{position:absolute;top:22px;right:26px;z-index:6;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:14px;letter-spacing:.04em;color:#F7FAFF;text-decoration:none;border-bottom:1px solid transparent;opacity:.9}
-  .skip:hover{opacity:1;border-bottom-color:#cdd8ec}
+  .skip{position:absolute;top:22px;right:26px;z-index:6;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+  .skip a{font-family:ui-monospace, Menlo, Consolas, monospace;font-size:14px;letter-spacing:.04em;color:#F7FAFF;text-decoration:none;border-bottom:1px solid transparent;opacity:.9}
+  .skip a:hover{opacity:1;border-bottom-color:#cdd8ec}
   .airx{color:#ff5763;font-weight:700}
+  .axix{color:#F47B20;font-weight:700}
 
   .wordmark{position:absolute;top:11vh;left:0;right:0;z-index:4;text-align:center;pointer-events:none}
   .wordmark h1{margin:0;font-family:'Spectral',serif;font-weight:600;font-size:clamp(40px,9vw,118px);letter-spacing:.14em;line-height:.9;color:#F7FAFF;text-indent:.14em;text-shadow:0 4px 60px rgba(0,0,0,.6)}
