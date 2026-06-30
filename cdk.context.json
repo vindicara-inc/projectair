@@ -1,0 +1,44 @@
+{
+  "vpc-provider:account=399827112476:filter.isDefault=true:region=us-west-2:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-06ec225cbd0d951a3",
+    "vpcCidrBlock": "172.31.0.0/16",
+    "ownerAccountId": "399827112476",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-03db09cba0b8b94e0",
+            "cidr": "172.31.32.0/20",
+            "availabilityZone": "us-west-2a",
+            "routeTableId": "rtb-0b410c0a4bb8ffb72"
+          },
+          {
+            "subnetId": "subnet-06c62d5f745267ee6",
+            "cidr": "172.31.16.0/20",
+            "availabilityZone": "us-west-2b",
+            "routeTableId": "rtb-0b410c0a4bb8ffb72"
+          },
+          {
+            "subnetId": "subnet-02eb21bdb4d248f45",
+            "cidr": "172.31.0.0/20",
+            "availabilityZone": "us-west-2c",
+            "routeTableId": "rtb-0b410c0a4bb8ffb72"
+          },
+          {
+            "subnetId": "subnet-02f07e15d94aabd81",
+            "cidr": "172.31.48.0/20",
+            "availabilityZone": "us-west-2d",
+            "routeTableId": "rtb-0b410c0a4bb8ffb72"
+          }
+        ]
+      }
+    ]
+  },
+  "hosted-zone:account=399827112476:domainName=vindicara.io:region=us-west-2": {
+    "Id": "/hostedzone/Z01585541N209G6UAZ7EO",
+    "Name": "vindicara.io."
+  }
+}

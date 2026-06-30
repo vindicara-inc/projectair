@@ -25,7 +25,8 @@ htmlcov/
 .mypy_cache/
 # CDK
 cdk.out/
-cdk.context.json
+# cdk.context.json is committed on purpose: it caches VPC/Route53 lookups so CI
+# synth does not need live AWS read permissions for those lookups.
 # IDE
 .vscode/
 .idea/
