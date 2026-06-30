@@ -1,6 +1,7 @@
 """CDK application entry point."""
 
 import os
+import pathlib
 
 import aws_cdk as cdk
 
@@ -25,6 +26,13 @@ if not account:
 
 env_workload = cdk.Environment(account=account, region=workload_region)
 env_site = cdk.Environment(account=account, region=site_region)
+
+# Several non-site stacks bundle their Lambda code from the gitignored
+# `lambda_package` asset (built by scripts/build-lambda.sh). The site-only CI
+# deploy doesn't deploy them, but CDK still synthesizes the whole app, so ensure
+# the path exists as an empty placeholder to keep synth from failing on a missing
+# asset. exist_ok never clobbers a real package built for an ops/API deploy.
+pathlib.Path("lambda_package").mkdir(exist_ok=True)
 
 data = DataStack(app, "VindicaraData", env=env_workload)
 events_stack = EventsStack(app, "VindicaraEvents", env=env_workload)
