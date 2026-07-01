@@ -1,6 +1,7 @@
 <script>
   import AppShell from '$components/AppShell.svelte';
   const posts = [
+    { t: 'Acute Myeloid Leukemia in 2026: Symptoms, Diagnosis, Classification, Treatment', d: 'Why WHO 2022 and ICC 2022 can classify the same AML patient differently, the MICM diagnostic workup, and the 2026 treatment landscape from 7+3 to menin inhibitors.', tag: 'Clinical', href: '/blog/acute-myeloid-leukemia-guide', date: 'July 1, 2026' },
     { t: 'Introducing Axiisium', d: "Vindicara's healthcare initiative: multimodal AI for acute myeloid leukemia that fuses pathology, flow, cytogenetics, molecular, and clinical data, with every decision a signed, audit-ready record.", tag: 'Initiative', href: '/blog/introducing-axiisium', date: 'June 26, 2026' },
     { t: 'An NVIDIA-backed second opinion, signed', d: 'How NemoGuard NIM classifier verdicts become signed detector findings in the AIR evidence chain.', tag: 'Engineering', href: '/blog/nvidia-inception-nemoguard-second-opinion', date: '2026-06-10' },
     { t: '88% of AI Agent Deployments Had a Security Incident. 6% Have a Budget to Fix It.', d: 'The state of AI agent accountability in 2026: the incidents, the converging regulatory deadlines, and the evidence infrastructure gap.', tag: 'Strategy', href: '/blog/ai-agent-accountability-crisis-2026', date: 'May 27, 2026' },

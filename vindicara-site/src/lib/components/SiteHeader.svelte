@@ -86,6 +86,7 @@
         </div>
       </a>
       <div class="prod-grid">
+        <a class="pcard ax" href="/axiisium"><div class="pc-h">Axiisium</div><div class="pc-d">The Project AIR trust layer, proving out live on AML diagnosis.</div><div class="pc-l">See the flagship →</div></a>
         <a class="pcard" href="/audit"><div class="pc-h">Audit</div><div class="pc-d">The record you take into your audit.</div><div class="pc-l">Learn more →</div></a>
         <a class="pcard" href="/prove"><div class="pc-h">Prove</div><div class="pc-d">Signed, anchored, independently verifiable.</div><div class="pc-l">Learn more →</div></a>
         <a class="pcard" href="/protect"><div class="pc-h">Protect</div><div class="pc-d">Halt agents before harm, not after.</div><div class="pc-l">Learn more →</div></a>
@@ -196,6 +197,9 @@
   .pc-h{color:#fff;font-weight:700;font-size:15px}
   .pc-d{color:var(--soft);font-size:12.5px;margin-top:5px;line-height:1.42;flex:1}
   .pc-l{color:var(--air2);font-size:12px;font-weight:600;margin-top:12px}
+  .pcard.ax{border-color:rgba(244,123,32,.35)}
+  .pcard.ax:hover{border-color:var(--ax)}
+  .pcard.ax .pc-l{color:var(--ax2)}
   @media(max-width:880px){ .mega-in{grid-template-columns:1fr 1fr} .prod-grid{grid-template-columns:1fr 1fr} }
   /* nav / .right are hidden by industry.css at <=900; the burger (no global rule
      competes for it) is shown here at the same breakpoint so they swap in lockstep. */
