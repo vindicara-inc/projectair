@@ -73,7 +73,7 @@
       <p>We are looking for clinical and pharma design partners in hematology. If you run acute myeloid leukemia trials or hold aligned multimodal data, we would like to talk.</p>
       <div class="ctas">
         <a class="btn axbtn" href="/design-partner">Become a design partner</a>
-        <a class="btn ghost" href="/axiisium/how-it-works#demo">See the live demo</a>
+        <a class="btn ghost" href="https://axiisium.com/demo" target="_blank" rel="noopener">See the live demo</a>
       </div>
     </div>
   </div>

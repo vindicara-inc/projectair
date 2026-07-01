@@ -46,8 +46,8 @@
       <h3>See the four-rung signed diagnosis</h3>
       <p>The demo scores a sample patient slide, fuses the four rungs, applies WHO 2022 and ICC 2022, and returns one signed, independently verifiable call, with a what-if control that shows the molecular rung overriding the blast threshold in real time.</p>
       <div class="ctas">
-        <a class="btn axbtn" href="/design-partner">Become a design partner</a>
-        <a class="btn ghost" href="/contact">Request demo access</a>
+        <a class="btn axbtn" href="https://axiisium.com/demo" target="_blank" rel="noopener">Run the live demo</a>
+        <a class="btn ghost" href="/design-partner">Become a design partner</a>
       </div>
     </div>
 
