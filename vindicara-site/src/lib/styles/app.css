@@ -6,6 +6,7 @@
   --white:#F6F8FC; --soft:#AEB9D0; --faint:#6E7C99;
   --line:rgba(255,255,255,.1); --line2:rgba(255,255,255,.06);
   --air:#E63946; --air2:#ff5763; --airbg:rgba(230,57,70,.12);
+  --ax:#F47B20; --ax2:#ff9a4d; --axbg:rgba(244,123,32,.13); --axline:rgba(244,123,32,.4);
   --good:#3fd99b; --goodbg:rgba(63,217,155,.1);
   --display:'Spectral',serif; --ui:'Inter',system-ui,sans-serif; --mono:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 22px 50px -28px rgba(0,0,0,.8);

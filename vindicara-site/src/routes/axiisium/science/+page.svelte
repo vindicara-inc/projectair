@@ -57,17 +57,17 @@
 <style>
   .prose h1{font-size:40px;margin:10px 0 0}
   .big{font-size:18px;color:var(--white);line-height:1.6;margin:14px 0 8px;font-family:var(--display)}
-  .prose a{color:var(--air2)}
+  .prose a{color:var(--ax2)}
   .crumb{font-weight:600}
   .reads{display:flex;flex-direction:column;gap:10px;margin:16px 0 8px}
   .r{border:1px solid var(--line);background:var(--navy1);padding:14px 16px;border-left-width:3px}
   .r.good{border-left-color:var(--good)}
-  .r.defer{border-left-color:var(--air)}
+  .r.defer{border-left-color:var(--ax)}
   .rh{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .rm{font-size:14.5px;font-weight:700;color:var(--white)}
   .rs{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
   .r.good .rs{color:var(--good)}
-  .r.defer .rs{color:var(--air2)}
+  .r.defer .rs{color:var(--ax2)}
   .rd{font-size:13px;color:var(--soft);line-height:1.55;margin-top:7px}
   .callout{padding:18px 20px;margin:26px 0}
   .callout h3{margin-top:0}
