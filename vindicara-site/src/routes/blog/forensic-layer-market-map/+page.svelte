@@ -5,7 +5,6 @@
 <svelte:head>
   <title>What happens after an AI agent does something it shouldn't? | Vindicara Blog</title>
   <meta name="description" content="A map of AI agent security tooling, and the layer most teams don't realize they're missing. Pre-incident, during-incident, post-incident: who builds what, and where the gaps are." />
-  <link rel="canonical" href="https://vindicara.io/blog/forensic-layer-market-map" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/forensic-layer-market-map" />
   <meta property="og:title" content="What happens after an AI agent does something it shouldn't?" />

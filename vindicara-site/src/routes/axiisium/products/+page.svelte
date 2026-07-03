@@ -13,7 +13,6 @@
 <svelte:head>
   <title>Axiisium · Two products | Vindicara</title>
   <meta name="description" content="Axiisium Enrich ranks who to sequence for pharma trials. Axiisium Decide gives hematologists a signed, evolving multimodal assessment. One engine, two standards of reliability." />
-  <link rel="canonical" href="https://vindicara.io/axiisium/products" />
 </svelte:head>
 
 <AppShell active="axiisium" title="axiisium products" scroll={true}>

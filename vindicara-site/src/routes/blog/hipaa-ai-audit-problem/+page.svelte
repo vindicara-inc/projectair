@@ -5,7 +5,6 @@
 <svelte:head>
   <title>The New HIPAA AI Audit Problem (and How to Solve It) | Vindicara Blog</title>
   <meta name="description" content="The January 2025 HIPAA Security Rule NPRM eliminates addressable safeguards for AI systems accessing PHI. Audit trails are now mandatory, not optional. Learn how cryptographic evidence chains solve the compliance gap for healthcare AI agents." />
-  <link rel="canonical" href="https://vindicara.io/blog/hipaa-ai-audit-problem" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/hipaa-ai-audit-problem" />
   <meta property="og:title" content="The New HIPAA AI Audit Problem (and How to Solve It)" />

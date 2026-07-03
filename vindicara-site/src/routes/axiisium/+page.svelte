@@ -12,7 +12,6 @@
 <svelte:head>
   <title>Axiisium · Provable multimodal AI for blood cancer | Vindicara</title>
   <meta name="description" content="Axiisium is Vindicara's flagship: multimodal AI for acute myeloid leukemia that fuses the four MICM rungs (morphology, immunophenotype, cytogenetics, molecular) into one signed, independently verifiable decision." />
-  <link rel="canonical" href="https://vindicara.io/axiisium" />
 </svelte:head>
 
 <AppShell active="axiisium" title="axiisium" scroll={true}>

@@ -5,7 +5,6 @@
 <svelte:head>
   <title>Forensic Evidence for NemoClaw: HIPAA Audit Trails for Sandboxed Clinical AI | Vindicara Blog</title>
   <meta name="description" content="NVIDIA NemoClaw controls what clinical AI agents can do. Project AIR proves what they did. Together they deliver both prevention and cryptographic evidence for HIPAA-regulated healthcare AI deployments." />
-  <link rel="canonical" href="https://vindicara.io/blog/nemoclaw-forensic-evidence" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/nemoclaw-forensic-evidence" />
   <meta property="og:title" content="Forensic Evidence for NemoClaw: HIPAA Audit Trails for Sandboxed Clinical AI" />

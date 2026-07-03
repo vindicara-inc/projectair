@@ -51,7 +51,6 @@
 <svelte:head>
   <title>Project AIR · Get started</title>
   <meta name="description" content="Install Project AIR and produce your first signed forensic report in minutes. A plain-language, step-by-step guide for macOS, Windows, and Linux, written for people who do not write code." />
-  <link rel="canonical" href="https://vindicara.io/get-started" />
 </svelte:head>
 
 <AppShell active="get-started" title="get started" scroll={true} dots={false}>

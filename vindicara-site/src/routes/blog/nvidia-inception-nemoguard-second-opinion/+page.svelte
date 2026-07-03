@@ -5,7 +5,6 @@
 <svelte:head>
   <title>An NVIDIA-Backed Second Opinion, Signed: NemoGuard Verdicts as Forensic Evidence | Vindicara Blog</title>
   <meta name="description" content="Vindicara is an NVIDIA Inception program member. Project AIR ships NVIDIA integrations today: NeMo Guardrails decisions captured as signed records, NemoGuard NIM classifier verdicts recorded as detector findings, and any OpenAI-compatible NIM endpoint instrumented in-process." />
-  <link rel="canonical" href="https://vindicara.io/blog/nvidia-inception-nemoguard-second-opinion" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/nvidia-inception-nemoguard-second-opinion" />
   <meta property="og:title" content="An NVIDIA-Backed Second Opinion, Signed: NemoGuard Verdicts as Forensic Evidence" />

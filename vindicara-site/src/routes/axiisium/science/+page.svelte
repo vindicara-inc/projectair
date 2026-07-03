@@ -11,7 +11,6 @@
 <svelte:head>
   <title>Axiisium · How it works | Vindicara</title>
   <meta name="description" content="The science behind Axiisium, stated precisely: which signals morphology carries, which are deferred to molecular, and how every decision is bound to a verifiable record." />
-  <link rel="canonical" href="https://vindicara.io/axiisium/science" />
 </svelte:head>
 
 <AppShell active="axiisium" title="axiisium science" scroll={true}>

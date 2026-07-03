@@ -5,7 +5,6 @@
 <svelte:head>
   <title>88% of AI Agent Deployments Had a Security Incident. 6% Have a Budget to Fix It. | Vindicara Blog</title>
   <meta name="description" content="88% of organizations running AI agents reported a security incident in the past year. The EU AI Act enforcement deadline is August 2, 2026. Here is the state of AI agent accountability, the incidents that prove the gap, and the infrastructure that needs to exist." />
-  <link rel="canonical" href="https://vindicara.io/blog/ai-agent-accountability-crisis-2026" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/ai-agent-accountability-crisis-2026" />
   <meta property="og:title" content="88% of AI Agent Deployments Had a Security Incident. 6% Have a Budget to Fix It." />

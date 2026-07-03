@@ -12,7 +12,6 @@
 <svelte:head>
   <title>Axiisium · How it works | Vindicara</title>
   <meta name="description" content="How Axiisium fuses the four MICM rungs into a single signed call: a clinically correct blast count, a genetics-aware threshold under WHO 2022 and ICC 2022, and a tamper-evident record." />
-  <link rel="canonical" href="https://vindicara.io/axiisium/how-it-works" />
 </svelte:head>
 
 <AppShell active="axiisium" title="how it works" scroll={true}>

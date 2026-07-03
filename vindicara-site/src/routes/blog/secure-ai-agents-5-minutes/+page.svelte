@@ -5,7 +5,6 @@
 <svelte:head>
   <title>Run your first `air trace` in 5 minutes | Vindicara Blog</title>
   <meta name="description" content="From pip install projectair to a signed forensic timeline of your LangChain agent in under five minutes. The air CLI and airsdk are MIT-licensed and open source today." />
-  <link rel="canonical" href="https://vindicara.io/blog/secure-ai-agents-5-minutes" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/secure-ai-agents-5-minutes" />
   <meta property="og:title" content="Run your first `air trace` in 5 minutes" />

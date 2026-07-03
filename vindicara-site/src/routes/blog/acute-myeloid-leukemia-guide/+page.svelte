@@ -5,7 +5,6 @@
 <svelte:head>
   <title>Acute Myeloid Leukemia in 2026: Symptoms, Diagnosis, Classification, Treatment | Vindicara Blog</title>
   <meta name="description" content="A physician-grade guide to acute myeloid leukemia: symptoms, the MICM diagnostic workup, why WHO 2022 and ICC 2022 classify the same patient differently, and the 2026 treatment landscape." />
-  <link rel="canonical" href="https://vindicara.io/blog/acute-myeloid-leukemia-guide" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/acute-myeloid-leukemia-guide" />
   <meta property="og:title" content="Acute Myeloid Leukemia in 2026: Symptoms, Diagnosis, Classification, Treatment" />

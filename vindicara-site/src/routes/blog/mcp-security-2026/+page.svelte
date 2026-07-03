@@ -5,7 +5,6 @@
 <svelte:head>
   <title>The State of MCP Security in 2026 | Vindicara Blog</title>
   <meta name="description" content="92% of MCP servers lack proper OAuth. We scanned real MCP server configurations and found critical vulnerabilities including missing authentication, dangerous tools, and no rate limiting." />
-  <link rel="canonical" href="https://vindicara.io/blog/mcp-security-2026" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/mcp-security-2026" />
   <meta property="og:title" content="The State of MCP Security in 2026" />

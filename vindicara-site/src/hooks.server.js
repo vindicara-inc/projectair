@@ -35,8 +35,35 @@ const CSP = [
   'upgrade-insecure-requests'
 ].join('; ');
 
+// Canonical host for the site. www.vindicara.io serves the same app (the ACM
+// cert carries it as a SAN), so without this both hosts return 200 and Google
+// treats them as duplicates. Collapse www -> apex with a 301 so there is exactly
+// one indexable host. Built literally (not by mutating event.url) to avoid the
+// ":443" artifact the ALB's http->https redirect leaves in its Location header.
+const CANONICAL_HOST = 'vindicara.io';
+
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {
+  // Host header reflects the real request (no ORIGIN pinned in the Fargate task,
+  // so adapter-node derives event.url from it). Redirect www -> apex first, then
+  // the moved console URL, so a request to www/dashboard resolves in one hop each.
+  const host = event.request.headers.get('host') || event.url.host;
+  if (host === `www.${CANONICAL_HOST}`) {
+    return new Response(null, {
+      status: 301,
+      headers: { location: `https://${CANONICAL_HOST}${event.url.pathname}${event.url.search}` }
+    });
+  }
+  // The Flightdeck console moved from /dashboard to /flightdeck. Keep the old
+  // human-facing URL working with a permanent redirect.
+  if (event.url.pathname === '/dashboard' || event.url.pathname.startsWith('/dashboard/')) {
+    const rest = event.url.pathname.slice('/dashboard'.length);
+    return new Response(null, {
+      status: 301,
+      headers: { location: `https://${CANONICAL_HOST}/flightdeck${rest}${event.url.search}` }
+    });
+  }
+
   recordVisit(event); // keyless live-map: tag real visitors (fire-and-forget, never blocks)
   const response = await resolve(event);
   response.headers.set('Content-Security-Policy', CSP);

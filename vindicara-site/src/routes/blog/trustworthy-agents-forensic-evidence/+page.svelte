@@ -5,7 +5,6 @@
 <svelte:head>
   <title>Implementing Trustworthy Agents: A Forensic Evidence Layer for Production | Vindicara Blog</title>
   <meta name="description" content="Anthropic's April 9 paper on trustworthy agents names three ecosystem gaps. Project AIR is our answer to evidence sharing and open standards." />
-  <link rel="canonical" href="https://vindicara.io/blog/trustworthy-agents-forensic-evidence" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/trustworthy-agents-forensic-evidence" />
   <meta property="og:title" content="Implementing Trustworthy Agents: A Forensic Evidence Layer for Production" />

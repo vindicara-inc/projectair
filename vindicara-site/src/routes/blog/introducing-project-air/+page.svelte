@@ -5,7 +5,6 @@
 <svelte:head>
   <title>Introducing Project AIR: Evidence-Grade Infrastructure for Accountable AI Agents | Vindicara Blog</title>
   <meta name="description" content="Project AIR 1.0 ships a five-layer forensic stack for AI agents: signed intent capsules, 16 OWASP-mapped detectors, causal explanation, Auth0 containment, and cross-agent chain of custody. MIT-licensed, open source, on PyPI today." />
-  <link rel="canonical" href="https://vindicara.io/blog/introducing-project-air" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/introducing-project-air" />
   <meta property="og:title" content="Introducing Project AIR: Evidence-Grade Infrastructure for Accountable AI Agents" />

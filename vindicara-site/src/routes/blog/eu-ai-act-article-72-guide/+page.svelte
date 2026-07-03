@@ -5,7 +5,6 @@
 <svelte:head>
   <title>EU AI Act Article 72: A Developer's Guide to Post-Market Monitoring | Vindicara Blog</title>
   <meta name="description" content="The EU AI Act enforcement deadline is August 2, 2026. Article 72 requires post-market monitoring for high-risk AI systems. Here is what engineering teams need to know and how to automate compliance." />
-  <link rel="canonical" href="https://vindicara.io/blog/eu-ai-act-article-72-guide" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/eu-ai-act-article-72-guide" />
   <meta property="og:title" content="EU AI Act Article 72: A Developer's Guide to Post-Market Monitoring" />

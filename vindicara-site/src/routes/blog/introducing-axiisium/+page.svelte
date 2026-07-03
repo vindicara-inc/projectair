@@ -5,7 +5,6 @@
 <svelte:head>
   <title>Introducing Axiisium: Multimodal AI for Blood Cancer, Built to Be Provable | Vindicara Blog</title>
   <meta name="description" content="Axiisium is Vindicara's healthcare initiative: multimodal AI for acute myeloid leukemia that fuses pathology, flow, cytogenetics, molecular, and clinical data, with every decision a signed, audit-ready record." />
-  <link rel="canonical" href="https://vindicara.io/blog/introducing-axiisium" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/introducing-axiisium" />
   <meta property="og:title" content="Introducing Axiisium: Multimodal AI for Blood Cancer, Built to Be Provable" />

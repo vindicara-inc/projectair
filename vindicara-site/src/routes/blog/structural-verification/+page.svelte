@@ -5,7 +5,6 @@
 <svelte:head>
   <title>They Check Messages. We Check Missions. | Vindicara Blog</title>
   <meta name="description" content="Intent Capsules record what the agent declared it would do. Structural Verification checks whether the agent's actual behavior served that declaration. The deterministic floor cannot be prompt-injected." />
-  <link rel="canonical" href="https://vindicara.io/blog/structural-verification" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://vindicara.io/blog/structural-verification" />
   <meta property="og:title" content="They Check Messages. We Check Missions." />
