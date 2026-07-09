@@ -65,7 +65,7 @@
       <p>We are looking for clinical and pharma design partners in hematology. If you run AML trials or hold aligned multimodal data, we would like to talk.</p>
       <div class="ctas">
         <a class="btn" href="/contact">Talk to us</a>
-        <a class="btn ghost" href="/axiisium">See Axiisium</a>
+        <a class="btn ghost" href="https://axiisium.com">See Axiisium</a>
       </div>
     </div>
 

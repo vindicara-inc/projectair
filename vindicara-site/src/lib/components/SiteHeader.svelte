@@ -86,7 +86,7 @@
         </div>
       </a>
       <div class="prod-grid">
-        <a class="pcard ax" href="/axiisium"><div class="pc-h">Axiisium</div><div class="pc-d">The Project AIR trust layer, proving out live on AML diagnosis.</div><div class="pc-l">See the flagship →</div></a>
+        <a class="pcard ax" href="https://axiisium.com"><div class="pc-h">Axiisium</div><div class="pc-d">The Project AIR trust layer, proving out live on AML diagnosis.</div><div class="pc-l">See the flagship →</div></a>
         <a class="pcard" href="/audit"><div class="pc-h">Audit</div><div class="pc-d">The record you take into your audit.</div><div class="pc-l">Learn more →</div></a>
         <a class="pcard" href="/prove"><div class="pc-h">Prove</div><div class="pc-d">Signed, anchored, independently verifiable.</div><div class="pc-l">Learn more →</div></a>
         <a class="pcard" href="/protect"><div class="pc-h">Protect</div><div class="pc-d">Halt agents before harm, not after.</div><div class="pc-l">Learn more →</div></a>

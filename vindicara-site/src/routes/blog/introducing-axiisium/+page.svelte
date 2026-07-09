@@ -61,7 +61,7 @@
       <p>We are looking for clinical and pharma partners in hematology. If you run acute myeloid leukemia trials, hold aligned multimodal data, or want auditable AI in a regulated workflow, we would like to talk.</p>
       <div class="ctas">
         <a class="btn" href="/contact">Talk to us</a>
-        <a class="btn ghost" href="/axiisium">See Axiisium</a>
+        <a class="btn ghost" href="https://axiisium.com">See Axiisium</a>
       </div>
     </div>
   </article>

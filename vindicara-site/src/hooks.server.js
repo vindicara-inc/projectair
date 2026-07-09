@@ -63,6 +63,15 @@ export async function handle({ event, resolve }) {
       headers: { location: `https://${CANONICAL_HOST}/flightdeck${rest}${event.url.search}` }
     });
   }
+  // Axiisium now has its own product site (axiisium.com). The old vindicara.io
+  // /axiisium pages are stale; send the whole tree there with a permanent redirect
+  // so there is one canonical, polished destination.
+  if (event.url.pathname === '/axiisium' || event.url.pathname.startsWith('/axiisium/')) {
+    return new Response(null, {
+      status: 301,
+      headers: { location: `https://axiisium.com${event.url.search}` }
+    });
+  }
 
   recordVisit(event); // keyless live-map: tag real visitors (fire-and-forget, never blocks)
   const response = await resolve(event);

@@ -30,5 +30,8 @@
     "three": "^0.160.1",
     "topojson-client": "^3.1.0",
     "world-atlas": "^2.0.2"
+  },
+  "overrides": {
+    "brace-expansion": "2.1.2"
   }
 }
