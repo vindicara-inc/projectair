@@ -148,6 +148,7 @@
 
 <svelte:head>
   <title>Vindicara — the accountability layer for AI agents</title>
+  <meta name="description" content="Vindicara is the accountability layer for AI agents. Project AIR produces signed, tamper-evident, independently verifiable records of what an AI agent did and who authorized it, so every automated action traces back to a named human." />
   <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </svelte:head>
 
@@ -164,7 +165,16 @@
   <div class="wordmark">
     <h1>VINDICARA</h1>
     <div class="rule"></div>
+    <p class="tagline">The accountability layer for AI agents</p>
   </div>
+
+  <section class="seo-narrative">
+    <h2>Vindicara: the accountability layer for AI agents</h2>
+    <p>Vindicara builds the accountability layer for AI agents. Our product, Project AIR, produces signed, tamper-evident, and independently verifiable records of what an AI agent did and who authorized it, so every automated action traces back to a named human.</p>
+    <p>Project AIR spans detection (surfacing what went wrong), verification (proving the record is real), explanation (showing why an action happened), containment (halting an agent and binding the action to a human approval), and cross-agent trust (preserving the chain of custody when one agent delegates to another). It ships as an open-source SDK and command-line tool on PyPI, alongside hosted and enterprise tiers.</p>
+    <p>Teams adopt Vindicara three ways: by industry, such as healthcare; by use case, such as audit readiness; and by compliance framework, such as SOC 2. Vindicara runs Project AIR on its own production infrastructure and publishes a verifiable record of its own operations.</p>
+    <p>Read more on our <a href="/about">About</a> page, explore the product on the <a href="/home">Project AIR</a> page, see <a href="/pricing">pricing</a>, or view our flagship medical AI at <a href="https://axiisium.com">Axiisium</a>.</p>
+  </section>
 
   {#if !entered}
     <div class="lens" style="--accent:{css(STAGES[stage].rgb)}">
@@ -229,6 +239,9 @@
   .wordmark{position:absolute;top:11vh;left:0;right:0;z-index:4;text-align:center;pointer-events:none}
   .wordmark h1{margin:0;font-family:'Spectral',serif;font-weight:600;font-size:clamp(40px,9vw,118px);letter-spacing:.14em;line-height:.9;color:#F7FAFF;text-indent:.14em;text-shadow:0 4px 60px rgba(0,0,0,.6)}
   .rule{width:min(560px,68vw);height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);margin:22px auto 0}
+  .tagline{margin:16px auto 0;max-width:90vw;font-family:'Inter',system-ui,sans-serif;font-weight:400;font-size:clamp(13px,1.5vw,16px);letter-spacing:.05em;color:#aab6cf}
+  /* accessible, crawler-readable company/product description; visually hidden (screen readers + search engines read it) */
+  .seo-narrative{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:normal;border:0}
 
   .lens{position:absolute;left:0;right:0;bottom:15vh;z-index:5;text-align:center;pointer-events:none}
   .lnum{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:13px;letter-spacing:.2em;color:var(--accent);font-weight:500;text-shadow:0 0 18px color-mix(in srgb,var(--accent) 55%,transparent)}
