@@ -62,3 +62,18 @@ jobs:
             echo '```'
             echo "_SBOM (CycloneDX) attached as artifact \`sca-${{ github.sha }}\`._"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # Gate: fail the check on fixable CRITICAL/HIGH vulns. Runs last so the
+      # report + SBOM artifacts are always produced first. ignore-unfixed keeps
+      # it from going permanently red over unpatchable transitive deps.
+      - name: Fail on fixable CRITICAL/HIGH vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          format: table
+          exit-code: "1"
+          skip-dirs: cdk.out,.venv-air,node_modules
