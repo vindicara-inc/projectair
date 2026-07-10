@@ -1,0 +1,64 @@
+name: SCA
+
+# Software Composition Analysis (Trivy): dependency vulnerabilities + license
+# compliance + SBOM. Report-only — never fails the build (exit-code 0). Findings
+# land in the job summary; the SBOM + full report upload as artifacts.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trivy:
+    name: Trivy SCA (vuln + license + SBOM)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan dependencies and licenses
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,license
+          severity: CRITICAL,HIGH,MEDIUM
+          format: table
+          output: trivy-report.txt
+          exit-code: "0"
+          skip-dirs: cdk.out,.venv-air,node_modules
+
+      - name: Generate SBOM (CycloneDX)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: cyclonedx
+          output: sbom.cdx.json
+          exit-code: "0"
+          skip-dirs: cdk.out,.venv-air,node_modules
+
+      - name: Upload SCA report + SBOM
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sca-${{ github.sha }}
+          path: |
+            trivy-report.txt
+            sbom.cdx.json
+          retention-days: 30
+
+      - name: Write findings to job summary
+        if: always()
+        run: |
+          {
+            echo "## Trivy SCA — vulnerabilities & licenses"
+            echo '```'
+            head -c 55000 trivy-report.txt 2>/dev/null || echo "(no report produced)"
+            echo '```'
+            echo "_SBOM (CycloneDX) attached as artifact \`sca-${{ github.sha }}\`._"
+          } >> "$GITHUB_STEP_SUMMARY"
