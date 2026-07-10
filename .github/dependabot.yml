@@ -1,0 +1,81 @@
+version: 2
+updates:
+  # ---------- npm ----------
+  # live product site + Flightdeck console (the deployed dir)
+  - package-ecosystem: npm
+    directory: "/vindicara-site"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        update-types:
+          - minor
+          - patch
+
+  # AIR Cloud dashboard
+  - package-ecosystem: npm
+    directory: "/packages/air-dashboard"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        update-types:
+          - minor
+          - patch
+
+  # ---------- pip ----------
+  # public MIT package on PyPI (highest priority)
+  - package-ecosystem: pip
+    directory: "/packages/projectair"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      pip-minor-patch:
+        update-types:
+          - minor
+          - patch
+
+  # commercial pro tier
+  - package-ecosystem: pip
+    directory: "/packages/projectair-pro"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      pip-minor-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Apache-2.0 engine substrate (root)
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      pip-minor-patch:
+        update-types:
+          - minor
+          - patch
+
+  # axiisium app
+  - package-ecosystem: pip
+    directory: "/axiisium"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      pip-minor-patch:
+        update-types:
+          - minor
+          - patch
+
+  # ---------- github actions ----------
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
