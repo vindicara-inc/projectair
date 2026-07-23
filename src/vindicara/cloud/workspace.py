@@ -32,12 +32,20 @@ def generate_api_key() -> str:
 
 @dataclass(frozen=True)
 class Workspace:
-    """A single tenant on AIR Cloud."""
+    """A single tenant on AIR Cloud.
+
+    ``tier`` is the plan the workspace is on and the single source of truth for
+    what it can *do*. Free tier is read-only: it sees every finding but cannot
+    act. Paid tiers (pro / team / enterprise) unlock actions. Defaults to
+    ``"free"`` so a legacy workspace persisted before this field verifies and
+    loads unchanged (read-only, fail-safe).
+    """
 
     workspace_id: str
     name: str
     owner_email: str
     created_at: str = field(default_factory=_now_iso)
+    tier: str = "free"
 
 
 @dataclass(frozen=True)
