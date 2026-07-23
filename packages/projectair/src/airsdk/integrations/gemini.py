@@ -35,7 +35,52 @@ from airsdk.integrations._gemini_streams import (
     SyncStreamProxy,
     resolve_async_stream,
 )
+from airsdk.integrations._provenance import normalize_stop
 from airsdk.recorder import AIRRecorder
+from airsdk.types import DecisionProvenance, LogprobsSummary
+
+
+def _cfg(config: Any, name: str) -> Any:
+    """Read a field from a Gemini ``config`` that may be an object or a dict."""
+    if config is None:
+        return None
+    if isinstance(config, dict):
+        return config.get(name)
+    return getattr(config, name, None)
+
+
+def _gemini_logprobs(response: Any) -> LogprobsSummary:
+    """Gemini exposes a single ``avg_logprobs`` float on the candidate, not per-token."""
+    candidates = getattr(response, "candidates", None) or []
+    if not candidates:
+        return LogprobsSummary(available=False)
+    avg = getattr(candidates[0], "avg_logprobs", None)
+    if avg is None:
+        return LogprobsSummary(available=False)
+    return LogprobsSummary(available=True, mean_logprob=float(avg))
+
+
+def _build_provenance(kwargs: dict[str, Any], response: Any) -> DecisionProvenance:
+    """Assemble provenance from a ``generate_content`` request and response."""
+    config = kwargs.get("config")
+    candidates = getattr(response, "candidates", None) or []
+    finish_reason = getattr(candidates[0], "finish_reason", None) if candidates else None
+    usage = getattr(response, "usage_metadata", None)
+    return DecisionProvenance(
+        provider="google",
+        model=kwargs.get("model"),
+        model_version=getattr(response, "model_version", None),
+        temperature=_cfg(config, "temperature"),
+        top_p=_cfg(config, "top_p"),
+        top_k=_cfg(config, "top_k"),
+        seed=_cfg(config, "seed"),
+        max_tokens=_cfg(config, "max_output_tokens"),
+        stop=normalize_stop(_cfg(config, "stop_sequences")),
+        finish_reason=str(finish_reason) if finish_reason is not None else None,
+        prompt_tokens=getattr(usage, "prompt_token_count", None),
+        completion_tokens=getattr(usage, "candidates_token_count", None),
+        logprobs=_gemini_logprobs(response),
+    )
 
 
 def _format_contents(contents: Any, system_instruction: str | None = None) -> str:
@@ -114,7 +159,10 @@ class _ModelsProxy:
         prompt = _format_contents(contents, _system_instruction(kwargs.get("config")))
         self._recorder.llm_start(prompt=prompt)
         response = self._wrapped.generate_content(contents=contents, **kwargs)
-        self._recorder.llm_end(response=_extract_response_text(response))
+        self._recorder.llm_end(
+            response=_extract_response_text(response),
+            provenance=_build_provenance(kwargs, response),
+        )
         return response
 
     def generate_content_stream(self, *, contents: Any, **kwargs: Any) -> SyncStreamProxy:
@@ -136,7 +184,10 @@ class _AsyncModelsProxy:
         prompt = _format_contents(contents, _system_instruction(kwargs.get("config")))
         self._recorder.llm_start(prompt=prompt)
         response = await self._wrapped.generate_content(contents=contents, **kwargs)
-        self._recorder.llm_end(response=_extract_response_text(response))
+        self._recorder.llm_end(
+            response=_extract_response_text(response),
+            provenance=_build_provenance(kwargs, response),
+        )
         return response
 
     async def generate_content_stream(self, *, contents: Any, **kwargs: Any) -> AsyncStreamProxy:

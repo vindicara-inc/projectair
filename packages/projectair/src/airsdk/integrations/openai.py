@@ -30,9 +30,79 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any, TypeVar
 
+from airsdk.integrations._provenance import normalize_stop
 from airsdk.recorder import AIRRecorder
+from airsdk.types import DecisionProvenance, LogprobsSummary
 
 _T = TypeVar("_T")
+
+
+def _summarize_logprobs(response: Any) -> LogprobsSummary:
+    """Summarize chosen-token logprobs from a chat completion, if present.
+
+    OpenAI returns ``choices[0].logprobs.content`` as a list of tokens each
+    carrying a ``.logprob``. The distribution the output was sampled from is
+    the closest thing to the model showing its work for a stochastic choice,
+    so record its shape (mean / min chosen-token logprob, token count). The
+    full distribution is intentionally not dumped here to keep the signed
+    chain lean; a caller who wants it sets ``LogprobsSummary.full``.
+    """
+    choices = getattr(response, "choices", None) or []
+    if not choices:
+        return LogprobsSummary(available=False)
+    logprobs = getattr(choices[0], "logprobs", None)
+    content = getattr(logprobs, "content", None) if logprobs is not None else None
+    if not content:
+        return LogprobsSummary(available=False)
+    values = [lp for lp in (getattr(tok, "logprob", None) for tok in content) if lp is not None]
+    if not values:
+        return LogprobsSummary(available=True, token_count=len(content))
+    return LogprobsSummary(
+        available=True,
+        mean_logprob=sum(values) / len(values),
+        min_logprob=min(values),
+        token_count=len(values),
+    )
+
+
+def _build_provenance(kwargs: dict[str, Any], response: Any) -> DecisionProvenance:
+    """Assemble decision provenance from the request kwargs and the response.
+
+    Request kwargs supply the sampling parameters (the mechanics of the
+    non-determinism); the response supplies the resolved snapshot, backend
+    fingerprint, finish reason, token usage, and logprobs.
+    """
+    usage = getattr(response, "usage", None)
+    choices = getattr(response, "choices", None) or []
+    finish_reason = getattr(choices[0], "finish_reason", None) if choices else None
+    return DecisionProvenance(
+        provider="openai",
+        model=kwargs.get("model"),
+        model_version=getattr(response, "model", None),
+        system_fingerprint=getattr(response, "system_fingerprint", None),
+        temperature=kwargs.get("temperature"),
+        top_p=kwargs.get("top_p"),
+        seed=kwargs.get("seed"),
+        max_tokens=kwargs.get("max_tokens") or kwargs.get("max_completion_tokens"),
+        stop=normalize_stop(kwargs.get("stop")),
+        finish_reason=finish_reason,
+        prompt_tokens=getattr(usage, "prompt_tokens", None),
+        completion_tokens=getattr(usage, "completion_tokens", None),
+        logprobs=_summarize_logprobs(response),
+    )
+
+
+def _request_provenance(kwargs: dict[str, Any]) -> DecisionProvenance:
+    """Provenance known before the response arrives (streaming path)."""
+    return DecisionProvenance(
+        provider="openai",
+        model=kwargs.get("model"),
+        temperature=kwargs.get("temperature"),
+        top_p=kwargs.get("top_p"),
+        seed=kwargs.get("seed"),
+        max_tokens=kwargs.get("max_tokens") or kwargs.get("max_completion_tokens"),
+        stop=normalize_stop(kwargs.get("stop")),
+    )
 
 
 def _format_messages(messages: list[dict[str, Any]]) -> str:
@@ -80,11 +150,17 @@ def _extract_response_text(response: Any) -> str:
 class _StreamProxy:
     """Wrap a streaming chat completion iterator, accumulate text, emit llm_end on exhaust."""
 
-    def __init__(self, stream: Iterator[Any], recorder: AIRRecorder) -> None:
+    def __init__(
+        self,
+        stream: Iterator[Any],
+        recorder: AIRRecorder,
+        provenance: DecisionProvenance | None = None,
+    ) -> None:
         self._stream = stream
         self._recorder = recorder
         self._chunks: list[str] = []
         self._emitted = False
+        self._provenance = provenance
 
     def __iter__(self) -> _StreamProxy:
         return self
@@ -103,13 +179,24 @@ class _StreamProxy:
                 text = getattr(delta, "content", None)
                 if text:
                     self._chunks.append(str(text))
+            finish_reason = getattr(choices[0], "finish_reason", None)
+            if finish_reason and self._provenance is not None:
+                self._provenance.finish_reason = finish_reason
+        # Resolved snapshot and backend fingerprint ride on the chunks.
+        if self._provenance is not None:
+            model_version = getattr(chunk, "model", None)
+            if model_version:
+                self._provenance.model_version = model_version
+            fingerprint = getattr(chunk, "system_fingerprint", None)
+            if fingerprint:
+                self._provenance.system_fingerprint = fingerprint
         return chunk
 
     def _flush(self) -> None:
         if self._emitted:
             return
         self._emitted = True
-        self._recorder.llm_end(response="".join(self._chunks))
+        self._recorder.llm_end(response="".join(self._chunks), provenance=self._provenance)
 
     def close(self) -> None:
         """Best-effort stream close; also flushes the llm_end record if not yet written."""
@@ -129,8 +216,11 @@ class _CompletionsProxy:
         self._recorder.llm_start(prompt=prompt_text)
         response = self._wrapped.create(messages=messages, **kwargs)
         if kwargs.get("stream"):
-            return _StreamProxy(iter(response), self._recorder)
-        self._recorder.llm_end(response=_extract_response_text(response))
+            return _StreamProxy(iter(response), self._recorder, _request_provenance(kwargs))
+        self._recorder.llm_end(
+            response=_extract_response_text(response),
+            provenance=_build_provenance(kwargs, response),
+        )
         return response
 
     def __getattr__(self, name: str) -> Any:

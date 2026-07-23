@@ -38,7 +38,9 @@ import inspect
 from collections.abc import Callable
 from typing import Any
 
+from airsdk.integrations._provenance import normalize_stop
 from airsdk.recorder import AIRRecorder
+from airsdk.types import DecisionProvenance
 
 _CALLBACK_FIELDS = (
     "before_model_callback",
@@ -46,6 +48,32 @@ _CALLBACK_FIELDS = (
     "before_tool_callback",
     "after_tool_callback",
 )
+
+
+def _request_provenance(llm_request: Any) -> DecisionProvenance:
+    """Sampling parameters off the ADK ``LlmRequest`` (config is a GenerateContentConfig)."""
+    config = getattr(llm_request, "config", None)
+    return DecisionProvenance(
+        provider="google",
+        model=getattr(llm_request, "model", None),
+        temperature=getattr(config, "temperature", None),
+        top_p=getattr(config, "top_p", None),
+        top_k=getattr(config, "top_k", None),
+        seed=getattr(config, "seed", None),
+        max_tokens=getattr(config, "max_output_tokens", None),
+        stop=normalize_stop(getattr(config, "stop_sequences", None)),
+    )
+
+
+def _enrich_provenance(prov: DecisionProvenance, llm_response: Any) -> DecisionProvenance:
+    """Add response-side facts (usage, finish reason) from the ADK ``LlmResponse``."""
+    usage = getattr(llm_response, "usage_metadata", None)
+    prov.prompt_tokens = getattr(usage, "prompt_token_count", None)
+    prov.completion_tokens = getattr(usage, "candidates_token_count", None)
+    finish_reason = getattr(llm_response, "finish_reason", None)
+    if finish_reason is not None:
+        prov.finish_reason = str(finish_reason)
+    return prov
 
 
 def _format_llm_request(llm_request: Any) -> str:
@@ -123,8 +151,11 @@ async def _maybe_await(value: Any) -> Any:
     return value
 
 
-def _chain_before_model(recorder: AIRRecorder, existing: Any) -> Callable[..., Any]:
+def _chain_before_model(
+    recorder: AIRRecorder, existing: Any, holder: dict[str, DecisionProvenance]
+) -> Callable[..., Any]:
     async def _air_before_model(callback_context: Any, llm_request: Any) -> Any:
+        holder["provenance"] = _request_provenance(llm_request)
         recorder.llm_start(prompt=_format_llm_request(llm_request))
         if existing is None:
             return None
@@ -133,9 +164,17 @@ def _chain_before_model(recorder: AIRRecorder, existing: Any) -> Callable[..., A
     return _air_before_model
 
 
-def _chain_after_model(recorder: AIRRecorder, existing: Any) -> Callable[..., Any]:
+def _chain_after_model(
+    recorder: AIRRecorder, existing: Any, holder: dict[str, DecisionProvenance]
+) -> Callable[..., Any]:
     async def _air_after_model(callback_context: Any, llm_response: Any) -> Any:
-        recorder.llm_end(response=_extract_llm_response_text(llm_response))
+        # The request-side provenance was stashed by before_model; enrich it
+        # with response-side facts. A single slot matches the recorder's
+        # existing sequential llm_start/llm_end pairing.
+        prov = holder.pop("provenance", None)
+        if prov is not None:
+            _enrich_provenance(prov, llm_response)
+        recorder.llm_end(response=_extract_llm_response_text(llm_response), provenance=prov)
         if existing is None:
             return None
         return await _maybe_await(existing(callback_context, llm_response))
@@ -199,9 +238,10 @@ def make_air_callbacks(recorder: AIRRecorder) -> dict[str, Callable[..., Any]]:
     All four callbacks are async so they compose cleanly with user-supplied
     async callbacks; ADK awaits the return value either way.
     """
+    holder: dict[str, DecisionProvenance] = {}
     return {
-        "before_model_callback": _chain_before_model(recorder, None),
-        "after_model_callback": _chain_after_model(recorder, None),
+        "before_model_callback": _chain_before_model(recorder, None, holder),
+        "after_model_callback": _chain_after_model(recorder, None, holder),
         "before_tool_callback": _chain_before_tool(recorder, None),
         "after_tool_callback": _chain_after_tool(recorder, None),
     }
@@ -223,8 +263,9 @@ def instrument_adk(agent: Any, recorder: AIRRecorder) -> Any:
     for field in _CALLBACK_FIELDS:
         if not hasattr(agent, field):
             raise AttributeError(f"agent has no field {field!r}; not an LlmAgent-shaped object")
-    agent.before_model_callback = _chain_before_model(recorder, agent.before_model_callback)
-    agent.after_model_callback = _chain_after_model(recorder, agent.after_model_callback)
+    holder: dict[str, DecisionProvenance] = {}
+    agent.before_model_callback = _chain_before_model(recorder, agent.before_model_callback, holder)
+    agent.after_model_callback = _chain_after_model(recorder, agent.after_model_callback, holder)
     agent.before_tool_callback = _chain_before_tool(recorder, agent.before_tool_callback)
     agent.after_tool_callback = _chain_after_tool(recorder, agent.after_tool_callback)
     return agent

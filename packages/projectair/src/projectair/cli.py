@@ -21,6 +21,7 @@ from airsdk._healthcare_demo import (
     build_healthcare_demo_log,
 )
 from airsdk.agdr import Signer, filter_records_by_date_range, load_chain, verify_chain
+from airsdk.alcoa import generate_alcoa_report
 from airsdk.alerting import LocalAlerter
 from airsdk.article72 import generate_article72_report
 from airsdk.detections import (
@@ -779,6 +780,67 @@ def _run_healthcare_demo(
     typer.secho("    45 CFR 164.312(c) integrity controls: SATISFIED.", fg=typer.colors.GREEN)
     typer.secho(f"  Artifacts written to: {workdir.resolve()}", fg=typer.colors.BRIGHT_BLACK)
     typer.echo()
+
+
+@report_app.command("alcoa")
+def report_alcoa(
+    log: Path = typer.Argument(..., exists=True, readable=True, help="Path to a JSON-lines AgDR log."),
+    output: Path = typer.Option(
+        Path("alcoa-report.md"),
+        "--output", "-o",
+        help="Where to write the generated ALCOA+ evidence report (Markdown).",
+    ),
+    system_name: str = typer.Option(
+        "[AI system name]", "--system-name", help="Human-readable name of the AI system.",
+    ),
+    operator: str = typer.Option(
+        "[Provider / Operator entity]", "--operator", help="Legal entity operating the system.",
+    ),
+) -> None:
+    """Generate an ALCOA+ data-integrity evidence report from an AgDR log (beta).
+
+    Maps each ALCOA+ principle to the cryptographic evidence the signed chain
+    carries. This evidences a faithful, tamper-evident record; it is NOT an
+    assertion of a validated (CSV/GAMP 5) system. A qualified person must
+    review it before it is used in any regulated context.
+    """
+    typer.secho(f"[ALCOA+] Loading {log}...", fg=typer.colors.WHITE, bold=True)
+    records = load_chain(log)
+    verification = verify_chain(records)
+
+    report = ForensicReport(
+        air_version=airsdk_version,
+        report_id=str(uuid4()),
+        source_log=str(log.resolve()),
+        generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        records=len(records),
+        conversations=_count_conversations(records),
+        verification=verification,
+        findings=[],
+    )
+    markdown = generate_alcoa_report(
+        report, records, system_name=system_name, operator_entity=operator,
+    )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(markdown, encoding="utf-8")
+
+    if verification.status != VerificationStatus.OK:
+        typer.secho(
+            f"[WARNING] Chain verification did NOT pass: {verification.reason}. "
+            "Integrity-dependent principles are downgraded in the report.",
+            fg=typer.colors.YELLOW, err=True,
+        )
+    else:
+        typer.secho(
+            f"[Chain verified] {verification.records_verified} signatures valid.",
+            fg=typer.colors.GREEN,
+        )
+    typer.secho(f"[ALCOA+] Wrote report to {output.resolve()} ({len(records)} records).", fg=typer.colors.CYAN)
+    typer.secho(
+        "[Reminder] Evidence for a qualified reviewer, not a certificate of compliance. "
+        "'Faithful capture' is necessary, not sufficient, for GxP.",
+        fg=typer.colors.BRIGHT_BLACK,
+    )
 
 
 @report_app.command("article72")

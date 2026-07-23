@@ -12,13 +12,21 @@ explicit ``transports=`` list.
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
-from airsdk.agdr import _HAS_MLDSA, MLDSA65PrivateKey, Signer, SigningKey, _require_mldsa, _uuid7
+from airsdk.agdr import (
+    _HAS_MLDSA,
+    MLDSA65PrivateKey,
+    Signer,
+    SigningKey,
+    _require_mldsa,
+    _uuid7,
+)
 from airsdk.containment import (
     ApprovalInvalidError,
     Auth0Verifier,
@@ -30,16 +38,21 @@ from airsdk.containment import (
     StepUpRequiredError,
     evaluate_require_delegation,
 )
+from airsdk.reference_vault import ReferenceVault, salted_digest
 from airsdk.transport import FileTransport, Transport
 from airsdk.types import (
     GENESIS_PREV_HASH,
     AgDRPayload,
     AgDRRecord,
+    AuditReview,
+    CapturePolicy,
     DataAssetRef,
     DataSubjectRef,
+    DecisionProvenance,
     DelegationGrant,
     HumanApproval,
     IntentSpec,
+    SignatureMeaning,
     SigningAlgorithm,
     StepKind,
 )
@@ -50,14 +63,6 @@ if TYPE_CHECKING:
     from airsdk.anchoring import AnchoringOrchestrator
     from airsdk.attestation import AttestationProvider, GPUAttestationConfig
     from airsdk.types import Finding
-
-# Accepted private-key instance types. ML-DSA-65 is only present when
-# cryptography>=48 is installed; on older cryptography the package still imports
-# and Ed25519 works unchanged (see airsdk.agdr).
-_PRIVATE_KEY_TYPES: tuple[type, ...] = (
-    (Ed25519PrivateKey, MLDSA65PrivateKey) if _HAS_MLDSA else (Ed25519PrivateKey,)
-)
-
 
 def resolve_signing_key(
     key: str | SigningKey | None,
@@ -71,12 +76,15 @@ def resolve_signing_key(
     """
     if key is None:
         return None
-    if isinstance(key, _PRIVATE_KEY_TYPES):
+    if not isinstance(key, str):
+        # Already a key instance (SigningKey = Ed25519PrivateKey | MLDSA65PrivateKey).
         return key
     data = key.strip()
     if data.startswith("-----BEGIN"):
         priv = load_pem_private_key(data.encode(), password=None)
-        if isinstance(priv, _PRIVATE_KEY_TYPES):
+        if isinstance(priv, Ed25519PrivateKey):
+            return priv
+        if _HAS_MLDSA and isinstance(priv, MLDSA65PrivateKey):
             return priv
         raise ValueError(f"key PEM must hold Ed25519 or ML-DSA-65, got {type(priv).__name__}")
     try:
@@ -132,6 +140,8 @@ class AIRRecorder:
         containment: ContainmentPolicy | None = None,
         delegation_policy: DelegationPolicy | None = None,
         auth0_verifier: Auth0Verifier | None = None,
+        capture_policy: CapturePolicy | None = None,
+        reference_vault: ReferenceVault | None = None,
         signing_algorithm: SigningAlgorithm = SigningAlgorithm.ED25519,
         verify_on_step: bool = False,
     ) -> None:
@@ -159,6 +169,8 @@ class AIRRecorder:
         self._containment = containment
         self._delegation_policy = delegation_policy
         self._auth0 = auth0_verifier
+        self._capture_policy = capture_policy
+        self._reference_vault = reference_vault
         self._pending: dict[str, dict[str, Any]] = {}
         # Single-use ledger of consumed approval-token JTIs. A valid token may
         # approve at most one challenge: replaying it (same jti) is rejected.
@@ -206,21 +218,39 @@ class AIRRecorder:
         self,
         *,
         prompt: str,
+        provenance: DecisionProvenance | None = None,
         data_assets: list[DataAssetRef] | None = None,
         data_subjects: list[DataSubjectRef] | None = None,
         **extra: Any,
     ) -> AgDRRecord:
         """Agent is about to call an LLM with ``prompt``."""
         fields: dict[str, Any] = {"prompt": prompt, **extra}
+        if provenance is not None:
+            fields["provenance"] = provenance
         if data_assets is not None:
             fields["data_assets"] = data_assets
         if data_subjects is not None:
             fields["data_subjects"] = data_subjects
         return self._emit(StepKind.LLM_START, fields)
 
-    def llm_end(self, *, response: str, **extra: Any) -> AgDRRecord:
-        """LLM returned ``response``."""
-        return self._emit(StepKind.LLM_END, {"response": response, **extra})
+    def llm_end(
+        self,
+        *,
+        response: str,
+        provenance: DecisionProvenance | None = None,
+        **extra: Any,
+    ) -> AgDRRecord:
+        """LLM returned ``response``.
+
+        ``provenance`` records the stochastic conditions that produced the
+        output (model snapshot, backend fingerprint, sampling parameters,
+        logprobs) so the signed record is faithful for a non-deterministic
+        decision. See :class:`airsdk.types.DecisionProvenance`.
+        """
+        fields: dict[str, Any] = {"response": response, **extra}
+        if provenance is not None:
+            fields["provenance"] = provenance
+        return self._emit(StepKind.LLM_END, fields)
 
     def tool_start(
         self,
@@ -418,7 +448,13 @@ class AIRRecorder:
         """
         self._prior_findings = list(findings)
 
-    def approve(self, challenge_id: str, auth0_token: str) -> AgDRRecord:
+    def approve(
+        self,
+        challenge_id: str,
+        auth0_token: str,
+        *,
+        signature_meaning: SignatureMeaning = SignatureMeaning.APPROVAL,
+    ) -> AgDRRecord:
         """Verify a step-up approval token and resume the halted action.
 
         Validates ``auth0_token`` against the configured ``Auth0Verifier``,
@@ -427,6 +463,10 @@ class AIRRecorder:
         then re-emits the originally-halted tool_start as a real (non-
         blocked) record. The agent that was awaiting approval now
         resumes with that record's step_id.
+
+        ``signature_meaning`` records the 21 CFR Part 11 §11.50 meaning of the
+        signature (approval / review / responsibility / authorship) so the
+        HUMAN_APPROVAL is a complete Part 11 electronic signature.
 
         Raises ``ApprovalInvalidError`` if the token does not verify or has
         already been used to approve another challenge (single-use jti), or
@@ -464,6 +504,7 @@ class AIRRecorder:
             issued_at=claims.issued_at,
             expires_at=claims.expires_at,
             signed_token=auth0_token,
+            meaning=signature_meaning,
         )
         approval_record = self._emit(
             StepKind.HUMAN_APPROVAL,
@@ -481,6 +522,49 @@ class AIRRecorder:
         }
         self._emit(StepKind.TOOL_START, resumed_fields)
         return approval_record
+
+    def record_audit_review(
+        self,
+        reviewer_token: str,
+        *,
+        reviewed_from_step: str,
+        reviewed_to_step: str,
+        outcome: str = "accepted",
+        notes: str | None = None,
+        reason: str | None = None,
+    ) -> AgDRRecord:
+        """Record an IdP-verified audit-trail review (Part 11 §11.10(e) / Annex 11 §9).
+
+        Verifies ``reviewer_token`` against the configured ``Auth0Verifier`` and
+        writes a signed, tamper-evident ``AUDIT_REVIEW`` record attributing the
+        review of steps ``reviewed_from_step``..``reviewed_to_step`` to the named
+        reviewer, with an ``outcome`` ("accepted" / "exceptions_noted"). ``reason``
+        carries a reason-for-change note when the review records a correction.
+
+        Unlike ``approve``, a review token is not single-use: the same qualified
+        reviewer may review multiple ranges. Raises ``ChallengeNotFoundError`` if
+        no ``Auth0Verifier`` is configured; the token itself must verify.
+        """
+        if self._auth0 is None:
+            raise ChallengeNotFoundError(
+                "no Auth0Verifier configured; pass auth0_verifier= to AIRRecorder",
+            )
+        claims = self._auth0.verify(reviewer_token)
+        review = AuditReview(
+            reviewer_sub=claims.sub,
+            reviewer_email=claims.email,
+            issuer=claims.issuer,
+            audience=claims.audience,
+            token_jti=claims.jti,
+            reviewed_at=claims.issued_at,
+            signed_token=reviewer_token,
+            reviewed_from_step=reviewed_from_step,
+            reviewed_to_step=reviewed_to_step,
+            outcome=outcome,
+            notes=notes,
+            reason=reason,
+        )
+        return self._emit(StepKind.AUDIT_REVIEW, {"audit_review": review})
 
     def attach_orchestrator(self, orchestrator: AnchoringOrchestrator) -> None:
         """Wire an :class:`AnchoringOrchestrator` to this recorder.
@@ -503,9 +587,36 @@ class AIRRecorder:
         self._orchestrator = orchestrator
         orchestrator.register_atexit()
 
+    def _apply_capture_policy(self, fields: dict[str, Any]) -> dict[str, Any]:
+        """Replace plaintext of policy-named fields with a per-record **salted**
+        BLAKE3 digest so PHI never enters the signed chain, and the digest is
+        neither reversible nor correlatable. The salt + plaintext go to the
+        reference vault (access-controlled, erasable), never the chain. See
+        :class:`airsdk.types.CapturePolicy` and
+        :class:`airsdk.reference_vault.ReferenceVault`."""
+        policy = self._capture_policy
+        if policy is None or not policy.hash_fields:
+            return fields
+        out = dict(fields)
+        refs: dict[str, str] = dict(out.get("content_refs") or {})
+        for name in policy.hash_fields:
+            value = out.get(name)
+            if value is None:
+                continue
+            salt = os.urandom(16)
+            ref = salted_digest(value, salt)
+            refs[name] = ref
+            if self._reference_vault is not None:
+                self._reference_vault.store(ref, salt, name, value)
+            out[name] = None
+        if refs:
+            out["content_refs"] = refs
+        return out
+
     def _emit(self, kind: StepKind, fields: dict[str, Any]) -> AgDRRecord:
         if self._user_intent and "user_intent" not in fields:
             fields = {**fields, "user_intent": self._user_intent}
+        fields = self._apply_capture_policy(fields)
         payload = AgDRPayload.model_validate(fields)
         record = self._signer.sign(kind=kind, payload=payload)
         for transport in self._transports:

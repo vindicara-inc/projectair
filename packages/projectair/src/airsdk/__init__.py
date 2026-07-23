@@ -5,6 +5,7 @@
     agent = AgentExecutor(callbacks=[handler])
 """
 from airsdk.agdr import Signer, load_chain, verify_chain, verify_record
+from airsdk.alcoa import generate_alcoa_report
 from airsdk.article72 import generate_article72_report
 from airsdk.callback import AIRCallbackHandler
 from airsdk.delegation import mint_grant_from_auth0, open_delegation
@@ -28,6 +29,7 @@ from airsdk.detections import (
     detect_untraceable_action,
     run_detectors,
 )
+from airsdk.esignature import is_part11_signature, signature_manifestation
 from airsdk.exports import export_json, export_pdf, export_siem
 from airsdk.integrations.adk import instrument_adk, make_air_callbacks
 from airsdk.integrations.gemini import instrument_gemini
@@ -41,6 +43,7 @@ from airsdk.key_custody import (
     verify_key_custody,
 )
 from airsdk.recorder import AIRRecorder, resolve_signing_key
+from airsdk.reference_vault import ReferenceVault
 from airsdk.registry import (
     AgentDescriptor,
     AgentRegistry,
@@ -52,9 +55,12 @@ from airsdk.types import (
     AGDR_VERSION,
     AgDRPayload,
     AgDRRecord,
+    AuditReview,
     AuthMethod,
+    CapturePolicy,
     DataAssetRef,
     DataSubjectRef,
+    DecisionProvenance,
     DelegationGrant,
     EntityScope,
     Finding,
@@ -62,6 +68,8 @@ from airsdk.types import (
     GPUAttestation,
     IntentSpec,
     KeyTransition,
+    LogprobsSummary,
+    SignatureMeaning,
     SigningAlgorithm,
     StepKind,
     VerificationResult,
@@ -87,10 +95,13 @@ __all__ = [
     "AgDRRecord",
     "AgentDescriptor",
     "AgentRegistry",
+    "AuditReview",
     "AuthMethod",
     "BehavioralScope",
+    "CapturePolicy",
     "DataAssetRef",
     "DataSubjectRef",
+    "DecisionProvenance",
     "DelegationGrant",
     "EntityScope",
     "FileTransport",
@@ -105,7 +116,10 @@ __all__ = [
     "KeyCustodyResult",
     "KeyCustodyStatus",
     "KeyTransition",
+    "LogprobsSummary",
     "NemoGuardClient",
+    "ReferenceVault",
+    "SignatureMeaning",
     "Signer",
     "SigningAlgorithm",
     "StepKind",
@@ -134,11 +148,13 @@ __all__ = [
     "export_json",
     "export_pdf",
     "export_siem",
+    "generate_alcoa_report",
     "generate_article72_report",
     "instrument_adk",
     "instrument_gemini",
     "instrument_nemo_guardrails",
     "instrument_nemoclaw",
+    "is_part11_signature",
     "load_chain",
     "load_registry",
     "make_air_callbacks",
@@ -147,6 +163,7 @@ __all__ = [
     "resolve_signing_key",
     "rotate_signer",
     "run_detectors",
+    "signature_manifestation",
     "verify_chain",
     "verify_intent",
     "verify_key_custody",

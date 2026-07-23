@@ -1,12 +1,11 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 Project AIR by Vindicara: forensic accountability SDK for AI agents. MIT CLI (`air`) + library (`airsdk`) on PyPI as `projectair`. Five-layer architecture: detection, anchoring, causal reasoning, containment, cross-agent trust, data governance.
 
 ## Brand hierarchy
 
-## Current state (2026-05-10)
-
-Brand hierarchy:
 - Company: Vindicara
 - Flagship initiative (external-facing, gravity surfaces): Project AIR
 - Product tier names (developer-facing, light surfaces): AIR SDK, AIR Cloud, AIR Enterprise
@@ -14,7 +13,9 @@ Brand hierarchy:
 
 Rule: use "Project AIR" on hero pages, pitch decks, whitepapers, legal documents, press, investor materials. Use "AIR" in code, docs, CLI, and technical copy where brevity matters.
 
-The AIR pivot shipped. The OSS promise is live on PyPI. Read this before doing anything substantive.
+## Release history & layered architecture (through 0.7.1)
+
+The AIR pivot shipped. The OSS promise is live on PyPI. Read this before doing anything substantive. (For what is live now, see **Current state** below; this section is the release lineage and layer detail that current state builds on.)
 
 ### On PyPI
 
@@ -104,7 +105,7 @@ Use "Project AIR" on hero pages, pitch decks, whitepapers, legal, press, investo
 - `vindicara` 0.2.0 live (server-side engine behind AIR Cloud).
 - AgDR schema **v0.7** (`AGDR_VERSION = "0.7"`). Records now set `meta_signed=True`: the signature covers step_id / timestamp / kind / signature_algorithm in addition to prev_hash + content_hash. Additive and back-compatible: legacy records (no `meta_signed`) verify over prev_hash + content_hash unchanged. "Signed Intent Capsule" is the public-facing term for AgDR records.
 - Layer 4 verifier: `air handoff verify` fails closed by default when a handoff carries no issuer-signed capability-token JWT (`--allow-unverified-token` opts into the sidecar model). `VerificationResult.jwt_reverified` records whether the JWT was cryptographically re-verified; the library default is permissive with the `require_capability_token_jwt` knob.
-- Pricing is retention-metered (site is the source of truth): Free $0, **Pro $45/mo**, Team **Talk to us**, Enterprise **Talk to us**. `air upgrade` and CLAUDE.md mirror the site; the older flat Individual $39 / Team $599 model is retired.
+- Pricing is retention-metered (site is the source of truth): Free $0, **Pro $99/mo**, **Team $599/mo base** (5 seats + 250k actions/mo, overage $1.50/1k, +$99/seat to 15), Enterprise **Talk to us**, Air-gapped **License**. `air upgrade` and CLAUDE.md mirror the site; the older Pro $45 / Individual $39 model is retired.
 - Working venv: `.venv-air/` (Python 3.13).
 
 ## Claims discipline (enforced on every response)
@@ -263,18 +264,12 @@ See `feedback_four_quality_gates.md` in memory for the full discipline.
 
 - Never use em dashes in any output. Use commas, semicolons, colons, or separate sentences.
 - Never mention Emirates Airlines.
+- The "AIR" wordmark is ALWAYS rendered in brand red (`--air` / `#e63946`) everywhere it appears (site, dashboard, mockups, docs, OG images, logo lockups). The full brand lockup is `V/P AIR` with "AIR" in red. Never render "AIR" in a neutral / non-red color.
 - Never use the SF Mono typeface anywhere in the stack (site, dashboard, mockups, docs, OG images). Its shapes read as weak and wishy-washy and are off-brand. Use the approved monospace instead wherever a mono font is needed.
 - No `Any` types, no bare `except`, no `print` in production paths. `mypy --strict` is the bar.
 - No dynamic code evaluation (`eval`, `exec`, `pickle`, unsafe YAML) on untrusted input.
 - 300 lines max per file. If you need "and" to describe a function, split it.
 - Root cause fixes only. No band-aids, no "temporary" patches.
-
-## Quality gates (every roadmap item)
-
-1. **End-to-End Proof** -- runnable demo under 60 seconds.
-2. **Test Coverage Proof** -- 80% floor enforced by `./scripts/test.sh`.
-3. **Deployment / Readiness Boundary** -- `experimental` / `beta` / `production` label.
-4. **Customer-Facing Value** -- one-sentence customer-language description before engineering starts.
 
 ## Context
 

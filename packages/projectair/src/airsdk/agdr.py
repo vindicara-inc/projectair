@@ -23,9 +23,13 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 from airsdk._compat import UTC
 
 try:
+    # `X as X` marks these as explicit re-exports so downstream modules can
+    # import them from airsdk.agdr under mypy --strict (no-implicit-reexport).
     from cryptography.hazmat.primitives.asymmetric.mldsa import (
-        MLDSA65PrivateKey,
-        MLDSA65PublicKey,
+        MLDSA65PrivateKey as MLDSA65PrivateKey,
+    )
+    from cryptography.hazmat.primitives.asymmetric.mldsa import (
+        MLDSA65PublicKey as MLDSA65PublicKey,
     )
     _HAS_MLDSA = True
 except ImportError:
@@ -65,14 +69,6 @@ def _require_mldsa() -> None:
     """Raise a clear RuntimeError when ML-DSA-65 is requested but unavailable."""
     if not _HAS_MLDSA:
         raise RuntimeError(_MLDSA_UNAVAILABLE)
-
-
-# Accepted private-key instance types. On cryptography <48 (no ML-DSA),
-# MLDSA65PrivateKey is None, so it must be excluded from isinstance checks
-# (isinstance(x, None) raises TypeError).
-_PRIVATE_KEY_TYPES: tuple[type, ...] = (
-    (Ed25519PrivateKey, MLDSA65PrivateKey) if _HAS_MLDSA else (Ed25519PrivateKey,)
-)
 
 
 def _canonical_json(obj: Any) -> bytes:
@@ -176,7 +172,9 @@ class Signer:
         data = raw.strip()
         if data.startswith("-----BEGIN"):
             priv = load_pem_private_key(data.encode(), password=None)
-            if isinstance(priv, _PRIVATE_KEY_TYPES):
+            if isinstance(priv, Ed25519PrivateKey):
+                return cls(priv)
+            if _HAS_MLDSA and isinstance(priv, MLDSA65PrivateKey):
                 return cls(priv)
             raise ValueError(f"{env_var} must hold an Ed25519 or ML-DSA-65 key, got {type(priv).__name__}")
         try:

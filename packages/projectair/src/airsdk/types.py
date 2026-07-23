@@ -52,6 +52,21 @@ class SigningAlgorithm(StrEnum):
     ML_DSA_65 = "ml-dsa-65"
 
 
+class SignatureMeaning(StrEnum):
+    """The meaning of an electronic signature (21 CFR Part 11 §11.50(a)(3)).
+
+    A compliant e-signature manifestation must state what the signature means:
+    that the signer reviewed, approved, takes responsibility for, or authored
+    the record. AIR records this explicitly so a `HUMAN_APPROVAL` is a complete
+    Part 11 signature, not just an authenticated click.
+    """
+
+    APPROVAL = "approval"
+    REVIEW = "review"
+    RESPONSIBILITY = "responsibility"
+    AUTHORSHIP = "authorship"
+
+
 class StepKind(StrEnum):
     LLM_START = "llm_start"
     LLM_END = "llm_end"
@@ -61,6 +76,7 @@ class StepKind(StrEnum):
     AGENT_MESSAGE = "agent_message"
     ANCHOR = "anchor"
     HUMAN_APPROVAL = "human_approval"
+    AUDIT_REVIEW = "audit_review"  # Part 11 §11.10(e) / Annex 11 §9 trail review
     INTENT_DECLARATION = "intent_declaration"
     DELEGATION = "delegation"  # session-genesis human authorization
     GPU_ATTESTATION = "gpu_attestation"  # hardware root of trust, session genesis (v0.7)
@@ -176,6 +192,37 @@ class HumanApproval(BaseModel):
     issued_at: int  # Unix seconds, from JWT iat claim
     expires_at: int  # Unix seconds, from JWT exp claim
     signed_token: str  # the original JWT, for offline re-verification
+    # 21 CFR Part 11 §11.50(a)(3): the meaning of the signature. Optional for
+    # back-compat; set it (via AIRRecorder.approve(..., signature_meaning=))
+    # to make the record a complete Part 11 electronic signature.
+    meaning: SignatureMeaning | None = None
+
+
+class AuditReview(BaseModel):
+    """An IdP-verified review of a range of the forensic chain.
+
+    21 CFR Part 11 §11.10(e) and EU Annex 11 §9 expect the audit trail to be
+    reviewed. This records that a named, authenticated reviewer reviewed steps
+    ``reviewed_from_step``..``reviewed_to_step`` and the outcome, as a signed,
+    tamper-evident record inside the chain itself. ``reason`` carries a
+    reason-for-change / reason-for-correction note where the review annotates
+    or corrects a prior record (Part 11 change-control expectation).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    reviewer_sub: str  # IdP subject claim of the reviewer
+    reviewer_email: str | None = None
+    issuer: str  # IdP issuer URL
+    audience: str
+    token_jti: str | None = None
+    reviewed_at: int  # Unix seconds, from the reviewer token iat claim
+    signed_token: str  # the reviewer's JWT, for offline re-verification
+    reviewed_from_step: str  # first step_id in the reviewed range
+    reviewed_to_step: str  # last step_id in the reviewed range
+    outcome: str  # "accepted" | "exceptions_noted"
+    notes: str | None = None
+    reason: str | None = None  # reason-for-change, when the review records a correction
 
 
 class EntityScope(BaseModel):
@@ -300,6 +347,116 @@ class DataSubjectRef(BaseModel):
     jurisdiction: str = ""
 
 
+class CapturePolicy(BaseModel):
+    """Capture-time content policy for regulated / PHI-bearing chains.
+
+    ALCOA+ "Complete" wants the content of each step recorded, but an
+    immutable, externally-anchored chain must not become a permanent store
+    of PHI or other data a subject can demand be erased. This policy replaces
+    the plaintext of the named payload fields with a per-record **salted**
+    BLAKE3 digest at the moment of capture, before signing. The salt makes the
+    digest non-reversible (a low-entropy value like an SSN cannot be brute-
+    forced from the digest) and non-correlatable (identical plaintexts get
+    different salts, so equal values do not produce equal digests in the chain
+    or in any public anchor). The salt and plaintext go to an access-controlled,
+    erasable :class:`airsdk.reference_vault.ReferenceVault`, never the chain;
+    pass ``reference_vault=`` to ``AIRRecorder`` to enable later verification
+    and erasure. Without a vault the salt is discarded, which makes the digest
+    permanently non-reversible but also unverifiable (a pure shred mode).
+
+    This is capture-time reference, distinct from publish-time redaction:
+    publish-time redaction still leaves the plaintext in the at-rest source
+    record; capture-time reference never writes it to the chain at all. The
+    digest is written to ``AgDRPayload.content_refs[field] = "blake3:<hex>"``.
+
+    Tradeoff: referencing a field blinds the content-based detectors that read
+    it. On a ``phi_safe`` chain, AIR-01 (prompt injection), AIR-02 (sensitive-
+    data), tool-misuse, and the causal ``explain`` layer see nothing on the
+    referenced fields, so "PHI-safe capture" and "full content-detector
+    coverage" cannot both be claimed. This is inherent to data minimization,
+    not a defect. Decision ``provenance`` is NOT referenced (model / snapshot /
+    fingerprint / sampling params are not PHI), so the ALCOA+ "Accurate"
+    evidence for a non-deterministic decision survives PHI mode intact.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    hash_fields: frozenset[str] = frozenset()  # payload fields to reference instead of store
+
+    @classmethod
+    def phi_safe(cls) -> CapturePolicy:
+        """Reference the common free-text/content fields so no plaintext (and
+        thus no PHI carried in prompts, responses, or tool I/O) enters the
+        signed chain. Pair with ``reference_vault=`` on the recorder to keep
+        the erasable plaintext. ``user_intent`` is intentionally not referenced
+        so goal anchoring (ASI01) still works; hash it too if it may carry PHI."""
+        return cls(
+            hash_fields=frozenset(
+                {"prompt", "response", "tool_output", "tool_args", "message_content", "final_output"}
+            )
+        )
+
+
+class LogprobsSummary(BaseModel):
+    """Compact summary of the token-level probability distribution a
+    non-deterministic decision was sampled from.
+
+    A stochastic model output is drawn from a distribution; the sampled
+    tokens' logprobs are the closest thing to the model "showing its work".
+    Full per-token logprobs can be large, and the signed chain doubles as
+    the anchoring spool, so the summary (mean / min chosen-token logprob and
+    token count) is captured by default and ``full`` is opt-in for callers
+    that want the complete distribution in the record.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    available: bool = False  # did the provider expose logprobs at all
+    mean_logprob: float | None = None  # mean chosen-token logprob (confidence proxy)
+    min_logprob: float | None = None  # least-confident sampled token
+    token_count: int | None = None  # number of tokens the summary covers
+    full: list[dict[str, Any]] | None = None  # opt-in complete distribution, verbatim
+
+
+class DecisionProvenance(BaseModel):
+    """Provenance of a non-deterministic model decision.
+
+    Captures the stochastic conditions that produced an LLM output so the
+    signed record is faithful in the ALCOA+ sense (Accurate + Complete):
+    which model, at what resolved snapshot and backend fingerprint, under
+    what sampling parameters, and drawn from what probability distribution.
+
+    This makes the *record* of the decision faithful and independently
+    checkable. It does NOT make the decision reproducible: hosted stochastic
+    inference is not bitwise reproducible even with a fixed seed (batching,
+    non-deterministic kernels, MoE routing, float non-associativity, silent
+    backend changes). ``system_fingerprint`` is recorded precisely so a
+    silent backend change is a detectable fact rather than a hidden one.
+
+    Every field is optional; providers expose different subsets. Attach to
+    the LLM record that represents the decision (typically ``llm_end``).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    provider: str | None = None  # "openai" | "anthropic" | ...
+    model: str | None = None  # model id as requested, e.g. "gpt-4o"
+    model_version: str | None = None  # resolved snapshot, e.g. "gpt-4o-2024-08-06"
+    system_fingerprint: str | None = None  # backend-config fingerprint; a change signals a silent backend change
+    # Sampling parameters: the mechanics of the non-determinism.
+    temperature: float | None = None
+    top_p: float | None = None
+    top_k: int | None = None
+    seed: int | None = None
+    max_tokens: int | None = None
+    stop: list[str] | None = None
+    # Outcome metadata.
+    finish_reason: str | None = None  # "stop" | "length" | "tool_calls" | ...
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    logprobs: LogprobsSummary | None = None
+
+
 class AgDRPayload(BaseModel):
     """Kind-specific payload. Structured but extensible via `extra`."""
 
@@ -307,6 +464,16 @@ class AgDRPayload(BaseModel):
 
     prompt: str | None = None
     response: str | None = None
+    # Provenance of a non-deterministic model decision. Attached to LLM
+    # records so the signed chain captures which model, at what snapshot and
+    # fingerprint, under what sampling parameters, and from what distribution
+    # the output was sampled. Additive and optional; legacy records omit it.
+    provenance: DecisionProvenance | None = None
+    # Capture-time content references (CapturePolicy). Maps a payload field
+    # name to a ``"blake3:<hex>"`` digest of the plaintext that was NOT stored
+    # in the chain. Lets a PHI-bearing deployment prove content integrity by
+    # digest while keeping the plaintext out of the immutable, anchored record.
+    content_refs: dict[str, str] | None = None
     tool_name: str | None = None
     tool_args: dict[str, Any] | None = None
     tool_output: str | None = None
@@ -335,6 +502,9 @@ class AgDRPayload(BaseModel):
     challenge_id: str | None = None
     # Human approval (Layer 3). Used when kind == HUMAN_APPROVAL.
     human_approval: HumanApproval | None = None
+    # Audit-trail review (Part 11 §11.10(e) / Annex 11 §9). Used when
+    # kind == AUDIT_REVIEW.
+    audit_review: AuditReview | None = None
     # Delegation (session genesis). Used when kind == DELEGATION. Binds the
     # whole chain to the human who authorized the agent to run.
     delegation: DelegationGrant | None = None

@@ -32,7 +32,33 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any
 
+from airsdk.integrations._provenance import normalize_stop
 from airsdk.recorder import AIRRecorder
+from airsdk.types import DecisionProvenance
+
+
+def _request_provenance(model: str | None, kwargs: dict[str, Any]) -> DecisionProvenance:
+    """Sampling parameters known at request time (Anthropic exposes no logprobs)."""
+    return DecisionProvenance(
+        provider="anthropic",
+        model=model,
+        temperature=kwargs.get("temperature"),
+        top_p=kwargs.get("top_p"),
+        top_k=kwargs.get("top_k"),
+        max_tokens=kwargs.get("max_tokens"),
+        stop=normalize_stop(kwargs.get("stop_sequences")),
+    )
+
+
+def _build_provenance(model: str | None, kwargs: dict[str, Any], response: Any) -> DecisionProvenance:
+    """Assemble provenance from the request plus the Message response."""
+    prov = _request_provenance(model, kwargs)
+    prov.model_version = getattr(response, "model", None)
+    prov.finish_reason = getattr(response, "stop_reason", None)
+    usage = getattr(response, "usage", None)
+    prov.prompt_tokens = getattr(usage, "input_tokens", None)
+    prov.completion_tokens = getattr(usage, "output_tokens", None)
+    return prov
 
 
 def _format_messages(messages: list[dict[str, Any]], system: str | None = None) -> str:
@@ -86,11 +112,17 @@ def _extract_response_text(response: Any) -> str:
 class _MessageStreamProxy:
     """Wrap a streaming message iterator: accumulate text deltas, emit llm_end on exhaust."""
 
-    def __init__(self, stream: Iterator[Any], recorder: AIRRecorder) -> None:
+    def __init__(
+        self,
+        stream: Iterator[Any],
+        recorder: AIRRecorder,
+        provenance: DecisionProvenance | None = None,
+    ) -> None:
         self._stream = stream
         self._recorder = recorder
         self._chunks: list[str] = []
         self._emitted = False
+        self._provenance = provenance
 
     def __iter__(self) -> _MessageStreamProxy:
         return self
@@ -109,13 +141,25 @@ class _MessageStreamProxy:
                 text = getattr(delta, "text", None)
                 if text:
                     self._chunks.append(str(text))
+        elif event_type == "message_start" and self._provenance is not None:
+            # The opening event carries the resolved model and input token count.
+            message = getattr(event, "message", None)
+            self._provenance.model_version = getattr(message, "model", None)
+            usage = getattr(message, "usage", None)
+            self._provenance.prompt_tokens = getattr(usage, "input_tokens", None)
+        elif event_type == "message_delta" and self._provenance is not None:
+            # The closing delta carries stop_reason and output token count.
+            delta = getattr(event, "delta", None)
+            self._provenance.finish_reason = getattr(delta, "stop_reason", None)
+            usage = getattr(event, "usage", None)
+            self._provenance.completion_tokens = getattr(usage, "output_tokens", None)
         return event
 
     def _flush(self) -> None:
         if self._emitted:
             return
         self._emitted = True
-        self._recorder.llm_end(response="".join(self._chunks))
+        self._recorder.llm_end(response="".join(self._chunks), provenance=self._provenance)
 
     def close(self) -> None:
         closer = getattr(self._stream, "close", None)
@@ -138,13 +182,17 @@ class _MessagesProxy:
     ) -> Any:
         prompt_text = _format_messages(messages, system=system)
         self._recorder.llm_start(prompt=prompt_text)
+        model = kwargs.get("model")
         call_kwargs: dict[str, Any] = {"messages": messages, **kwargs}
         if system is not None:
             call_kwargs["system"] = system
         response = self._wrapped.create(**call_kwargs)
         if kwargs.get("stream"):
-            return _MessageStreamProxy(iter(response), self._recorder)
-        self._recorder.llm_end(response=_extract_response_text(response))
+            return _MessageStreamProxy(iter(response), self._recorder, _request_provenance(model, kwargs))
+        self._recorder.llm_end(
+            response=_extract_response_text(response),
+            provenance=_build_provenance(model, kwargs, response),
+        )
         return response
 
     def __getattr__(self, name: str) -> Any:
