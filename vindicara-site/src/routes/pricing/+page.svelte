@@ -24,12 +24,13 @@
     <div class="tier">
       <div class="tn">Free</div><div class="tl">community · evaluate</div>
       <div class="price">$0</div>
+      <div class="appm"><span class="p on">Audit</span><span class="p">Prove</span><span class="p">Protect</span><span class="p">Monitor</span></div>
       <ul>
         <li>Unlimited local capture (open-source CLI)</li>
-        <li>100 hosted actions / mo</li>
+        <li>All 16 detectors on your own agent</li>
         <li>7-day hosted history, then expires</li>
         <li>Watermarked, no Rekor anchor</li>
-        <li>Read-only viewer</li>
+        <li>Read-only: see every finding, all actions locked</li>
       </ul>
       <button class="pb" onclick={() => goto('/get-started')}>pip install projectair</button>
     </div>
@@ -90,29 +91,29 @@
   .tier{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column}
   .tier.feat{border-color:var(--air);box-shadow:0 18px 46px -22px rgba(230,57,70,.5)}
   .tn{font-family:var(--display);font-size:20px;font-weight:600}
-  .tl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:3px;margin-bottom:12px}
+  .tl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--white);margin-top:3px;margin-bottom:12px}
   .price{font-family:var(--display);font-size:26px;font-weight:600;margin-bottom:12px}
-  .price span{font-family:var(--mono);font-size:11px;color:var(--faint);font-weight:400}
-  .price.talk{font-size:15px;color:var(--soft);font-weight:500}
-  .subprice{font-family:var(--mono);font-size:10px;color:var(--faint);margin:-8px 0 12px;line-height:1.4}
-  .seclink{display:block;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--faint);text-decoration:none;margin-top:8px}
-  .seclink:hover{color:var(--soft)}
+  .price span{font-family:var(--mono);font-size:11px;color:var(--white);font-weight:400}
+  .price.talk{font-size:15px;color:var(--white);font-weight:500}
+  .subprice{font-family:var(--mono);font-size:10px;color:var(--white);margin:-8px 0 12px;line-height:1.4}
+  .seclink{display:block;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--white);text-decoration:none;margin-top:8px}
+  .seclink:hover{color:var(--white)}
   .appm{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
-  .appm .p{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);color:var(--faint)}
+  .appm .p{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);color:var(--white)}
   .appm .p.on{color:var(--white);border-color:var(--air);background:var(--airbg)}
   ul{list-style:none;margin:0 0 4px;padding:0;display:flex;flex-direction:column;gap:9px;flex:1}
-  li{font-size:12px;color:var(--soft);display:flex;gap:8px;line-height:1.4}
+  li{font-size:12px;color:var(--white);display:flex;gap:8px;line-height:1.4}
   li::before{content:'›';color:var(--air2);font-weight:700}
   li.plus{color:var(--white);font-weight:600}
   li.plus::before{content:'+';color:var(--air2)}
   .pb{display:block;text-align:center;text-decoration:none;padding:11px;border:1px solid var(--line);font-weight:600;font-size:12px;cursor:pointer;background:none;color:var(--white);margin-top:14px}
   .pb.buy{background:var(--air);color:#fff;border-color:var(--air)}
   .pb.buy:hover{filter:brightness(1.08)}
-  .note{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:18px;text-align:center;line-height:1.6;max-width:84ch;margin-left:auto;margin-right:auto}
+  .note{font-family:var(--mono);font-size:10.5px;color:var(--white);margin-top:18px;text-align:center;line-height:1.6;max-width:84ch;margin-left:auto;margin-right:auto}
   .next{display:flex;align-items:center;gap:18px;background:var(--airbg);border:1px solid rgba(230,57,70,.28);padding:18px 22px;margin-top:24px;text-decoration:none}
   .next:hover{border-color:var(--air)}
   .nh{font-family:var(--display);font-size:16px;font-weight:600;color:var(--white)}
-  .nd{font-size:12px;color:var(--soft);margin-top:3px}
+  .nd{font-size:12px;color:var(--white);margin-top:3px}
   .na{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--air2);white-space:nowrap}
   @media (max-width:900px){ .tiers{grid-template-columns:1fr} .next{flex-direction:column;align-items:flex-start;gap:12px} .na{margin-left:0} }
 </style>

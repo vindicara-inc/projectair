@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Orbitron:wght@500;600;700&display=swap');
 
 :root {
-  --bg: #05060a; --ink: #f4f5f9; --muted: #9aa1ad; --faint: #646b78;
+  --bg: #0b1020; --ink: #f4f5f9; --muted: rgba(255,255,255,.88); --faint: rgba(255,255,255,.72);
   --air: #E63946; --air2: #ff5d68;
   --teal: #48e6a4; --blue: #6db5ff; --amber: #ffb454; --orange: #ff8a5c; --vio: #9b6bff; --slate: #8a92a0;
   --stroke: rgba(255,255,255,.13); --hair: rgba(255,255,255,.08);

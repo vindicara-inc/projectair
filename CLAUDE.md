@@ -266,6 +266,7 @@ See `feedback_four_quality_gates.md` in memory for the full discipline.
 - Never mention Emirates Airlines.
 - The "AIR" wordmark is ALWAYS rendered in brand red (`--air` / `#e63946`) everywhere it appears (site, dashboard, mockups, docs, OG images, logo lockups). The full brand lockup is `V/P AIR` with "AIR" in red. Never render "AIR" in a neutral / non-red color.
 - Never use the SF Mono typeface anywhere in the stack (site, dashboard, mockups, docs, OG images). Its shapes read as weak and wishy-washy and are off-brand. Use the approved monospace instead wherever a mono font is needed.
+- No dim / low-contrast text ever. Never use faint or muted greys (`--faint`, `--soft`, or any similar low-contrast value) for readable text on any user-facing surface (site, dashboard, console, mockups, docs, OG images). Readable text must be full-contrast white (`--white`). Dim body copy, dim labels, dim captions, and dim "off/disabled" text are all bugs; if something must read as de-emphasized, use weight/size/position, not a dim color. Apply this on any surface you create or edit; fix existing dim text opportunistically when you are already in that file, not via a dedicated mass retrofit.
 - No `Any` types, no bare `except`, no `print` in production paths. `mypy --strict` is the bar.
 - No dynamic code evaluation (`eval`, `exec`, `pickle`, unsafe YAML) on untrusted input.
 - 300 lines max per file. If you need "and" to describe a function, split it.
