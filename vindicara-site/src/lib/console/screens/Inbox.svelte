@@ -1,5 +1,6 @@
 <script>
   // @ts-nocheck
+  import { goto } from '$app/navigation';
   // FlightDeck findings inbox — ported from design-mockups/air-flightdeck-inbox.html.
   // Only the main content area is reproduced here; the app layout supplies the
   // page shell, top nav, and left rail.
@@ -61,12 +62,18 @@
 
   const TIERS = { free: 0, pro: 1, team: 2 };
   const SEV_VAR = { c: 'crit', h: 'high', m: 'med', l: 'low' };
+  const SEV_LABEL = { c: 'Critical', h: 'High', m: 'Medium', l: 'Low' };
 
   let tier = $state('free');
   let refined = $state(false);
   let tipShown = $state(false);
   let slideOpen = $state(false);
   let current = $state(0);
+  let activeTab = $state('overview');
+  let typeFilter = $state('all');
+  let typeOpen = $state(false);
+  let actionsOpen = $state(false);
+  let profileOpen = $state(false);
 
   // Modals
   let wallOpen = $state(false);
@@ -76,7 +83,9 @@
   // Gated action button states (keyed by intent).
   let gatedDone = $state({ pro: false, team: false });
 
-  const rows = $derived(refined ? FINDINGS : [...FINDINGS, ...NOISE]);
+  const rows = $derived(
+    (refined ? FINDINGS : [...FINDINGS, ...NOISE]).filter((r) => typeFilter === 'all' || r.sev === typeFilter)
+  );
   const tierLvl = $derived(TIERS[tier]);
   const finding = $derived(rows[current] ?? rows[0]);
 
@@ -94,6 +103,22 @@
 
   function setRefined(v) {
     refined = v;
+  }
+
+  function selType(v) {
+    typeFilter = v;
+    typeOpen = false;
+  }
+
+  function actMenu(need) {
+    actionsOpen = false;
+    if (tierLvl >= TIERS[need]) return;
+    openWall('plan');
+  }
+
+  function nav(p) {
+    profileOpen = false;
+    goto(p);
   }
 
   function openRow(i) {
@@ -160,7 +185,27 @@
       <div class="bar"><div class="fill" style="width:{meter.width}%;background:{meter.fill}"></div></div>
     </div>
     <button class="upg" onclick={() => openWall('plan')}>Upgrade</button>
-    <div class="av">G</div>
+    <div class="sel" style="position:relative">
+      <button class="av" aria-label="Account menu" onclick={() => { profileOpen = !profileOpen; typeOpen = false; actionsOpen = false; }}>G</button>
+      {#if profileOpen}
+        <div class="menu profile-menu">
+          <div class="pm-head"><b>Get-sltr!</b><span>get-sltr@example.com</span></div>
+          <div class="pm-sep"></div>
+          <button onclick={() => nav('/flightdeck/settings')}>Profile</button>
+          <button onclick={() => nav('/flightdeck/settings')}>Account settings</button>
+          <div class="pm-sep"></div>
+          <div class="pm-lbl">Console</div>
+          <button onclick={() => nav('/flightdeck')}>Overview</button>
+          <button onclick={() => nav('/flightdeck/rules')}>Agents</button>
+          <button onclick={() => nav('/flightdeck/incidents')}>Incidents</button>
+          <button onclick={() => nav('/flightdeck/report')}>Forensics</button>
+          <button onclick={() => nav('/flightdeck/readiness')}>Compliance</button>
+          <div class="pm-sep"></div>
+          <button onclick={() => nav('/flightdeck/auth/logout/')}>Sign out</button>
+          <button class="danger" onclick={() => nav('/flightdeck/settings')}>Delete account</button>
+        </div>
+      {/if}
+    </div>
   </div>
 
   <div class="content">
@@ -219,9 +264,29 @@
           <div class="captxt">AIR's causal engine collapsed 5 duplicate / non-load-bearing findings into their root cause.</div>
         </div>
       </div>
-      <div class="chip">All types ▾</div>
+      <div class="sel">
+        <button class="chip" onclick={() => { typeOpen = !typeOpen; actionsOpen = false; }}>{typeFilter === 'all' ? 'All types' : SEV_LABEL[typeFilter]} ▾</button>
+        {#if typeOpen}
+          <div class="menu">
+            <button onclick={() => selType('all')}>All types</button>
+            <button onclick={() => selType('c')}>Critical</button>
+            <button onclick={() => selType('h')}>High</button>
+            <button onclick={() => selType('m')}>Medium</button>
+            <button onclick={() => selType('l')}>Low</button>
+          </div>
+        {/if}
+      </div>
       <div class="chip act">⚑ Filtered to <b>recently discovered</b></div>
-      <div class="chip" style="margin-left:auto">Actions ▾</div>
+      <div class="sel" style="margin-left:auto">
+        <button class="chip" onclick={() => { actionsOpen = !actionsOpen; typeOpen = false; }}>Actions ▾</button>
+        {#if actionsOpen}
+          <div class="menu" style="right:0;left:auto">
+            <button onclick={() => actMenu('pro')}>{tierLvl >= TIERS.pro ? '' : '🔒 '}Export findings</button>
+            <button onclick={() => actMenu('pro')}>{tierLvl >= TIERS.pro ? '' : '🔒 '}Anchor all findings</button>
+            <button onclick={() => actMenu('team')}>{tierLvl >= TIERS.team ? '' : '🔒 '}Engage containment</button>
+          </div>
+        {/if}
+      </div>
     </div>
 
     <!-- TABLE -->
@@ -275,9 +340,9 @@
     </div>
   </div>
   <div class="tabs">
-    <button class="on">Overview</button>
-    <button>Activity {#if tierLvl < 2}<span class="lk">🔒 Team</span>{/if}</button>
-    <button>Tasks {#if tierLvl < 1}<span class="lk">🔒 Pro</span>{/if}</button>
+    <button class:on={activeTab === 'overview'} onclick={() => (activeTab = 'overview')}>Overview</button>
+    <button class:on={activeTab === 'activity'} onclick={() => (tierLvl >= TIERS.team ? (activeTab = 'activity') : openWall('plan'))}>Activity {#if tierLvl < 2}<span class="lk">🔒 Team</span>{/if}</button>
+    <button class:on={activeTab === 'tasks'} onclick={() => (tierLvl >= TIERS.pro ? (activeTab = 'tasks') : openWall('plan'))}>Tasks {#if tierLvl < 1}<span class="lk">🔒 Pro</span>{/if}</button>
   </div>
   <div class="sl-body">
     <div class="sec">
@@ -285,10 +350,10 @@
       <p>{finding.tldr}</p>
     </div>
     <div class="sec">
-      <div class="hd"><h4>How do I contain it?</h4><button class="ghostbtn" onclick={() => (instrOpen = true)}>⧉ Agent instructions</button></div>
+      <div class="hd"><h4>How do I contain it?</h4><button class="ghostbtn lk" onclick={() => (tierLvl >= TIERS.pro ? (instrOpen = true) : openWall('plan'))}>{#if tierLvl >= TIERS.pro}⧉ Agent instructions{:else}🔒 Agent instructions <span class="mono" style="font-size:9px">Pro</span>{/if}</button></div>
       <p style="margin-bottom:14px">Add a containment rule so this pattern is blocked (or stepped-up to a human) before it reaches a tool call. AIR generates the ready snippet for your stack.</p>
       <div class="gactions">
-        <button class="ghostbtn" onclick={() => (instrOpen = true)}>⧉ Copy containment rule</button>
+        <button class="ghostbtn lk" onclick={() => (tierLvl >= TIERS.pro ? (instrOpen = true) : openWall('plan'))}>{#if tierLvl >= TIERS.pro}⧉ Copy containment rule{:else}🔒 Copy containment rule <span class="mono" style="font-size:9px">Pro</span>{/if}</button>
         <button class="ghostbtn lk" class:done={gatedDone.pro} onclick={() => gatedClick('pro')}>
           {#if gatedDone.pro}✓ Anchored{:else}🔒 Anchor finding <span class="mono" style="font-size:9px">Pro</span>{/if}
         </button>
@@ -321,7 +386,7 @@
       <h2>{wallCopy.title}</h2>
       <p>{wallCopy.body} View <a href="/pricing">pricing details</a>.</p>
       <div class="btns">
-        <button class="btn-primary" onclick={() => (wallOpen = false)}>Upgrade Now</button>
+        <button class="btn-primary" onclick={() => { wallOpen = false; goto('/pricing'); }}>Upgrade Now</button>
         <button class="btn-ghost" onclick={() => (wallOpen = false)}>Talk To A Human</button>
       </div>
     </div>
@@ -394,7 +459,7 @@ policy = ContainmentPolicy(
   .meter .bar { height: 6px; border-radius: 8px 3px 3px 8px; background: rgba(255,255,255,.08); overflow: hidden; }
   .meter .fill { height: 100%; background: linear-gradient(90deg, var(--c-air), var(--c-air2)); }
   .upg { background: var(--c-air); color: #fff; border: 0; border-radius: 16px 8px 8px 16px; padding: 8px 14px; font-weight: 600; font-size: 12px; }
-  .av { width: 32px; height: 32px; border-radius: 50%; background: var(--c-air); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+  .av { width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--c-air); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; cursor: pointer; }
 
   /* CONTENT */
   .content { padding: 14px clamp(20px,4vw,44px) 24px; }
@@ -421,6 +486,19 @@ policy = ContainmentPolicy(
   .toggle button { background: transparent; border: 0; color: var(--c-muted); font-size: 12px; padding: 6px 14px; border-radius: 16px; }
   .toggle button.on { background: rgba(255,255,255,.92); color: #0b1020; font-weight: 600; }
   .chip { background: rgba(255,255,255,.05); backdrop-filter: blur(3px) saturate(180%) brightness(1.08); -webkit-backdrop-filter: blur(3px) saturate(180%) brightness(1.08); border: 1px solid rgba(255,255,255,.40); box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 0 16px -5px rgba(255,255,255,.18); border-radius: 20px; padding: 8px 14px; color: var(--c-muted); font-size: 12px; display: flex; align-items: center; gap: 7px; }
+  .sel { position: relative; display: inline-flex; }
+  .sel .chip { cursor: pointer; }
+  .menu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 45; min-width: 168px; display: flex; flex-direction: column; padding: 6px; border-radius: 14px; background: rgba(18,26,50,.98); backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%); border: 1px solid rgba(255,255,255,.30); box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 18px 38px -14px rgba(0,0,0,.6); }
+  .menu button { background: transparent; border: 0; text-align: left; color: rgba(255,255,255,.9); font-size: 12px; padding: 8px 10px; border-radius: 8px; white-space: nowrap; }
+  .menu button:hover { background: rgba(255,255,255,.1); color: #fff; }
+  .profile-menu { right: 0; left: auto; min-width: 212px; }
+  .pm-head { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; }
+  .pm-head b { color: #fff; font-size: 13px; }
+  .pm-head span { color: var(--c-muted); font-size: 11px; }
+  .pm-lbl { padding: 6px 10px 3px; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--c-faint); }
+  .pm-sep { height: 1px; background: rgba(255,255,255,.14); margin: 5px 6px; }
+  .menu button.danger { color: #ff8a8a; }
+  .menu button.danger:hover { background: rgba(230,57,70,.20); color: #ffb3b3; }
   .chip.act { color: #6b46c1; border-color: rgba(107,70,193,.4); }
   .chip.act b { color: #6b46c1; }
 
