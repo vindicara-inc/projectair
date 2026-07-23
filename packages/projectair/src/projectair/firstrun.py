@@ -26,7 +26,7 @@ import typer
 from projectair.config import config_dir, get_config, set_config
 
 # Same Vindicara API origin the update checker uses (single source of truth).
-_REGISTER_URL = "https://api.vindicara.io/api/v1/identity/register"
+_REGISTER_URL = "https://cloud.vindicara.io/v1/identity/register"
 _REGISTERED_MARKER = "registered"
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 

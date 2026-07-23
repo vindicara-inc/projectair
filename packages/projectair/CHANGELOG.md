@@ -4,6 +4,15 @@ All notable changes to `projectair` are documented here. Format: [Keep a Changel
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-07-23
+
+### Fixed
+- **First-run email capture now reaches a live endpoint.** The activation email collected on first run was POSTed to `api.vindicara.io`, a host that no longer resolves, so no registration was ever recorded. The CLI now posts to the live `https://cloud.vindicara.io/v1/identity/register` route (public, best-effort, always non-blocking on the install). Every earlier install that thought it registered did not; this release is the first that actually captures.
+
+### Changed
+- **Free tier stripped to `air demo` and `air trace`.** The 16 detectors run free on a single chain with printed findings. Ongoing and compliance-grade features (`air watch`, `air report alcoa`, `air report article72`) now require a license and print an upgrade prompt when run unlicensed. Detector taxonomy unchanged: 10 OWASP Agentic + 3 OWASP LLM + 3 AIR-native = 16 total.
+- **`air upgrade` pricing aligned to the canonical model:** Free $0 (demo + trace), Pro $99/mo (reports, `air watch`, exports, 90-day retention), Team $599/mo (1-year retention), Enterprise talk-to-us (6-year retention, self-hosted, SSO/RBAC, BAA).
+
 ## [1.3.0] - 2026-07-23
 
 ### Changed

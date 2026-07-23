@@ -113,14 +113,26 @@ class AirCloudStack(Stack):
                 "AIR_CLOUD_SSO_ISSUER": "https://dev-kilt2vkudvbu75ny.us.auth0.com/",
                 "AIR_CLOUD_SSO_AUDIENCE": "GszbWqSkD65eUjv7FrRWYO4IkmGWdd4y",
                 "AIR_CLOUD_SSO_DEFAULT_ROLE": "admin",
+                # First-run lead capture: the public /v1/identity/register route
+                # writes install emails here (table owned by the data stack).
+                "VINDICARA_IDENTITY_TABLE": "vindicara-identity-registrations",
             },
             log_retention=logs.RetentionDays.ONE_MONTH,
             tracing=lambda_.Tracing.ACTIVE,
         )
 
+        # Existing identity-registrations table (defined in the data stack). Import
+        # by name and grant write so the register route can persist install emails.
+        identity_registrations_table = dynamodb.Table.from_table_name(
+            self,
+            "IdentityRegistrationsImport",
+            "vindicara-identity-registrations",
+        )
+
         self.capsules_table.grant_read_write_data(self.api_function)
         self.workspaces_table.grant_read_write_data(self.api_function)
         self.api_keys_table.grant_read_write_data(self.api_function)
+        identity_registrations_table.grant_write_data(self.api_function)
         self.admin_token_secret.grant_read(self.api_function)
 
         self.http_api = apigw.HttpApi(

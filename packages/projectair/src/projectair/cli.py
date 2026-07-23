@@ -427,14 +427,16 @@ def watch(
         ),
     ),
 ) -> None:
-    """Watch a chain in real time and alert the instant a detector fires.
+    """Watch a chain in real time and alert the instant a detector fires (licensed).
 
-    Free, local, unlimited. Leave it running in a second terminal while your
-    agent writes its chain; AIR prints an alert the moment it catches something.
-    Hosted delivery (Slack / email / team routing) is Pro.
+    Leave it running in a second terminal while your agent writes its chain;
+    AIR prints an alert the moment it catches something. Requires a license;
+    `air demo` and `air trace` are the free tier. Hosted delivery (Slack /
+    email / team routing) is Pro.
     """
     import time as _time
 
+    _require_license_or_exit("air watch")
     registry = _load_registry_or_exit(agent_registry)
     alerter = LocalAlerter(registry=registry)
     typer.secho(
@@ -804,6 +806,7 @@ def report_alcoa(
     assertion of a validated (CSV/GAMP 5) system. A qualified person must
     review it before it is used in any regulated context.
     """
+    _require_license_or_exit("air report alcoa")
     typer.secho(f"[ALCOA+] Loading {log}...", fg=typer.colors.WHITE, bold=True)
     records = load_chain(log)
     verification = verify_chain(records)
@@ -893,6 +896,7 @@ def report_article72(
     artefact. The provider must review, adapt, and have a qualified person
     sign the attestation before the report is legally usable.
     """
+    _require_license_or_exit("air report article72")
     registry = _load_registry_or_exit(agent_registry)
     parsed_from = _parse_date_option(from_date, "--from")
     parsed_to = _parse_date_option(to_date, "--to")
@@ -976,6 +980,35 @@ def _pro_unavailable_message() -> str:
         "  air install-license --license <token>\n\n"
         "Buy a license at https://vindicara.io/pricing"
     )
+
+
+def _require_license_or_exit(feature: str) -> None:
+    """Gate ``feature`` behind a valid license. Exits(2) with an upgrade prompt
+    when no valid license is installed.
+
+    Free tier is intentionally minimal: `air demo` and `air trace` (run the 16
+    detectors on one chain, print findings). Everything with ongoing or
+    compliance value (real-time watch, the ALCOA+ / Article 72 / NIST / SOC 2
+    reports, exports) requires a license, which routes through the existing
+    Stripe checkout.
+    """
+    try:
+        from airsdk_pro.license import current_license
+        licensed = current_license() is not None
+    except ImportError:
+        licensed = False
+    if licensed:
+        return
+    typer.secho(
+        f"{feature} requires a Project AIR license.\n\n"
+        "  Free:  air demo   and   air trace <log>   (16 detectors, printed).\n"
+        f"  Paid:  {feature} and all ongoing / report / export features.\n\n"
+        "  Start or buy:      https://vindicara.io/pricing\n"
+        "  Already licensed:  air install-license --license <token>",
+        fg=typer.colors.YELLOW,
+        err=True,
+    )
+    raise typer.Exit(2)
 
 
 @app.command(name="install-license")
@@ -1141,10 +1174,10 @@ def upgrade() -> None:
     """Print the upgrade URL and what each tier unlocks."""
     typer.secho("Project AIR tiers (retention-metered)", fg=typer.colors.BRIGHT_WHITE, bold=True)
     typer.echo("")
-    typer.echo("  Free          $0          7-day retention, read-only viewer")
-    typer.echo("  Pro           $45/mo      individual, self-serve, 90-day retention")
-    typer.echo("  Team          Talk to us  1-year retention for your whole team (SOC 2 window)")
-    typer.echo("  Enterprise    Talk to us  6-year retention, tamper-evident retention-locked storage, SSO/RBAC, BAA")
+    typer.echo("  Free          $0          air demo + air trace (16 detectors, printed)")
+    typer.echo("  Pro           $99/mo      reports, air watch, exports, 90-day retention")
+    typer.echo("  Team          $599/mo     1-year retention for your whole team (SOC 2 window)")
+    typer.echo("  Enterprise    Talk to us  6-year retention, self-hosted, SSO/RBAC, BAA")
     typer.echo("")
     typer.echo("How long you keep the record is the only lever that moves price.")
     typer.echo("https://vindicara.io/pricing")

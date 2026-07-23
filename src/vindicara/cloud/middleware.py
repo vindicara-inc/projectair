@@ -45,6 +45,9 @@ UNAUTHED_PATHS: frozenset[str] = frozenset(
         # /v1/sso/login is the authentication step itself; it cannot require
         # an API key because the caller does not have one yet.
         "/v1/sso/login",
+        # /v1/identity/register is first-run lead capture; a fresh installer
+        # has no API key yet, so it must be public.
+        "/v1/identity/register",
     }
 )
 
