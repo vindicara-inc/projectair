@@ -24,8 +24,11 @@ classifiers = [
 dependencies = [
     # Pro extends OSS: same AgDRRecord schema, same crypto primitives, same CLI host.
     # Lockstep on the OSS surface AIR Cloud commits to receiving from.
-    "projectair>=0.3.1,<0.5",
-    "cryptography>=48.0.0,<49.0",
+    "projectair>=1.3.0,<2.0",
+    # Mirror projectair's core cryptography floor so pip can resolve both together.
+    # The license gate only needs Ed25519; ML-DSA-65 (cryptography>=48) is opt-in
+    # via the [pqc] extra, identical to projectair's split.
+    "cryptography>=42.0.0,<47.0",
 ]
 
 [project.optional-dependencies]
@@ -42,6 +45,28 @@ dev = [
 s3 = [
     "boto3>=1.34,<2.0",
 ]
+# Post-quantum signing (ML-DSA-65 / FIPS 204). Mirrors projectair[pqc]; needed
+# only when the deployment signs chains with ML-DSA rather than the default Ed25519.
+pqc = [
+    "cryptography>=48.0.0,<49.0",
+]
+# HL7 v2 / FHIR clinical sidecar. Optional heavy dependency; when absent the
+# top-level `airsdk_pro` import degrades gracefully (the sidecar names are None)
+# so the rest of the package, including the self-hosted license gate, still loads.
+hl7 = [
+    "fhir.resources>=7.1.0,<8.0",
+]
+# Self-hosted / air-gapped deployable unit. `air-server` boots the AIR Cloud
+# ingest app behind uvicorn after the offline license gate passes. The engine
+# package (`vindicara`, which owns `vindicara.cloud`) is installed from source in
+# the deployment image, so it is not pinned here.
+deploy = [
+    "uvicorn[standard]>=0.30.0,<1.0",
+]
+
+[project.scripts]
+# Container entrypoint for the self-hosted / air-gapped Enterprise unit.
+air-server = "airsdk_pro.serve:main"
 
 [project.urls]
 Homepage = "https://vindicara.io"

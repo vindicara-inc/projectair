@@ -89,3 +89,7 @@ docs/pitch/
 docs/workforce-accountability-spec.md
 cloudrun/
 packages/projectair/air-demo-out/
+
+# Minted demo/self-hosted licenses must never be committed
+deploy/license.json
+deploy/*.license.json

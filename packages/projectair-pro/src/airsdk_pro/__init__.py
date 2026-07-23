@@ -58,16 +58,25 @@ from airsdk_pro.license import (
     load_license,
     verify_token,
 )
-from airsdk_pro.hl7 import (
-    HL7_FHIR_FEATURE,
-    ClinicalSidecar,
-    FHIRClient,
-    MLLPListener,
-    RedactionPolicy,
-    create_hl7_router,
-    instrument_hl7,
-    parse_hl7v2,
-)
+try:
+    from airsdk_pro.hl7 import (
+        HL7_FHIR_FEATURE,
+        ClinicalSidecar,
+        FHIRClient,
+        MLLPListener,
+        RedactionPolicy,
+        create_hl7_router,
+        instrument_hl7,
+        parse_hl7v2,
+    )
+except ModuleNotFoundError:
+    # The HL7/FHIR clinical sidecar needs the optional `fhir.resources` dependency
+    # (install `projectair-pro[hl7]`). Its absence must not break importing the
+    # rest of the package: the self-hosted unit boots through airsdk_pro.serve,
+    # which imports this package for the license gate and does not need HL7.
+    HL7_FHIR_FEATURE = "hl7-fhir-sidecar"
+    ClinicalSidecar = FHIRClient = MLLPListener = RedactionPolicy = None  # type: ignore[assignment,misc]
+    create_hl7_router = instrument_hl7 = parse_hl7v2 = None  # type: ignore[assignment]
 from airsdk_pro.report_nist_rmf import NIST_RMF_FEATURE, generate_nist_rmf_report
 from airsdk_pro.report_soc2_ai import SOC2_AI_FEATURE, generate_soc2_ai_report
 from airsdk_pro.siem import (

@@ -1,0 +1,22 @@
+# Keep the build context small and reproducible.
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/node_modules/
+**/dist/
+**/build/
+**/*.egg-info/
+.venv*/
+cdk.out/
+lambda_package/
+.git/
+**/.DS_Store
+*.log
+site/
+vindicara-site/
+packages/air-dashboard/
+design-mockups/
+docs/
+tests/
