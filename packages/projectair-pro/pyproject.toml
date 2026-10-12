@@ -28,7 +28,7 @@ dependencies = [
     # Mirror projectair's core cryptography floor so pip can resolve both together.
     # The license gate only needs Ed25519; ML-DSA-65 (cryptography>=48) is opt-in
     # via the [pqc] extra, identical to projectair's split.
-    "cryptography>=42.0.0,<47.0",
+    "cryptography>=42.0.0,<49.0",
 ]
 
 [project.optional-dependencies]
