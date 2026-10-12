@@ -41,8 +41,10 @@ from airsdk.types import (
     VerificationStatus,
 )
 from airsdk.verification import IntentVerdict, verify_intent
+from projectair.firstrun import HELP_REQUESTED, IdentityGatedGroup
 
 app = typer.Typer(
+    cls=IdentityGatedGroup,
     name="air",
     help="Project AIR: forensic reconstruction and incident response for AI agents.",
     no_args_is_help=True,
@@ -219,9 +221,10 @@ def _app_callback(ctx: typer.Context) -> None:
     """Global pre-command hook: require an activation email, then check updates.
 
     ``config`` is exempt so the email can always be set non-interactively
-    (``air config set identity.email ...``) without being gated behind itself.
+    (``air config set identity.email ...``) without being gated behind itself,
+    and ``--help`` anywhere on the line is exempt so the docs are always readable.
     """
-    if ctx.invoked_subcommand is None:
+    if ctx.invoked_subcommand is None or ctx.meta.get(HELP_REQUESTED):
         return
     if ctx.invoked_subcommand != "config":
         from projectair.firstrun import ensure_identity

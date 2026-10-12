@@ -22,6 +22,8 @@ All notable changes to `projectair` are documented here. Format: [Keep a Changel
 - **`AIRCallbackHandler` default log path** moved from `air-trace-<unix>.log` in the working directory to `.air/air-trace-<unix>.log`; the banner prints the path.
 
 ### Fixed
+- **`pip install 'projectair[pqc]'` resolves again.** Since 1.3.0 the core dependency capped `cryptography<47` while the `[pqc]` extra needs `cryptography>=48`, so pip reported ResolutionImpossible and ML-DSA-65 could not be installed at all. The core cap is now `<49`; the core floor stays `>=42`. `projectair-pro` gets the same cap.
+- **`--help` is never gated behind the first-run email.** `air <command> --help` exited 2 with "needs an email" in any non-interactive shell with no email configured, so a new user (or CI) could not read the docs for a subcommand. Help at any depth now prints; real commands are still gated.
 - **AIR-04 no longer flags a policy-halted `tool_start` as untraceable.** A `tool_start` with `blocked=True` can never be followed by a `tool_end`; its outcome is the block itself, which is recorded. Treating it as a gap turned every containment decision into a high-severity finding about missing evidence.
 
 ## [1.3.1] - 2026-07-23

@@ -41,3 +41,29 @@ def test_non_tty_without_email_fails_closed(monkeypatch: pytest.MonkeyPatch, tmp
     monkeypatch.delenv("AIR_EMAIL", raising=False)
     with pytest.raises(typer.Exit):
         ensure_identity()
+
+
+@pytest.mark.parametrize("argv", [["--help"], ["verify", "--help"], ["report", "alcoa", "--help"]])
+def test_help_is_never_gated(monkeypatch: pytest.MonkeyPatch, tmp_path, argv: list[str]) -> None:
+    # Reading the docs must not require an email, at any depth of subcommand.
+    from typer.testing import CliRunner
+
+    from projectair.cli import app
+
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    monkeypatch.delenv("AIR_EMAIL", raising=False)
+    result = CliRunner().invoke(app, argv)
+    assert result.exit_code == 0, result.output
+    assert "Usage:" in result.output
+
+
+def test_real_command_is_still_gated(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+    from typer.testing import CliRunner
+
+    from projectair.cli import app
+
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    monkeypatch.delenv("AIR_EMAIL", raising=False)
+    result = CliRunner().invoke(app, ["trace", str(tmp_path / "missing.log")])
+    assert result.exit_code == 2
+    assert "needs an email" in result.output

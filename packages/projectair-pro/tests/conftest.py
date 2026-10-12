@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -19,6 +20,18 @@ for extra in (str(TESTS_DIR), str(TOOLS_DIR)):
 from issue_license import issue as _issue_token  # noqa: E402
 
 from _helpers import VENDOR_KEY_PATH  # noqa: E402
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _activation_isolation(tmp_path_factory: pytest.TempPathFactory) -> None:
+    """Satisfy the `air` first-run email gate offline, as projectair's suite does."""
+    cfg = tmp_path_factory.mktemp("air-config")
+    os.environ["XDG_CONFIG_HOME"] = str(cfg)
+    os.environ.setdefault("AIR_EMAIL", "ci@vindicara.io")
+    os.environ.setdefault("AIR_LIVE", "0")
+    marker_dir = cfg / "projectair"
+    marker_dir.mkdir(parents=True, exist_ok=True)
+    (marker_dir / "registered").touch()
 
 
 @pytest.fixture
