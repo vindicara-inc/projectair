@@ -215,9 +215,12 @@ class NemoGuardClient:
         url = urljoin(base_url + "/", path.lstrip("/"))
         if self._client is not None:
             resp = self._client.post(url, json=payload, headers=self._headers())
+            body: dict[str, Any]
             if hasattr(resp, "json"):
-                return resp.json() if callable(resp.json) else resp.json
-            return json.loads(str(resp.text))
+                body = resp.json() if callable(resp.json) else resp.json
+            else:
+                body = json.loads(str(resp.text))
+            return body
 
         if not _HTTPX:
             raise ImportError(
@@ -227,7 +230,8 @@ class NemoGuardClient:
         with httpx.Client(timeout=30.0) as client:
             resp = client.post(url, json=payload, headers=self._headers())
             resp.raise_for_status()
-            return resp.json()
+            result: dict[str, Any] = resp.json()
+            return result
 
     def check_jailbreak(self, text: str) -> JailbreakResult:
         """Classify ``text`` for jailbreak attempts via NemoGuard JailbreakDetect."""

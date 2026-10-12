@@ -18,9 +18,9 @@ import json
 import os
 import sys
 
-try:
+if sys.version_info >= (3, 11):
     import tomllib
-except ModuleNotFoundError:  # Python 3.10 backport
+else:  # Python 3.10 backport
     import tomli as tomllib
 from pathlib import Path
 from typing import Any
@@ -65,7 +65,8 @@ def _read_toml() -> dict[str, Any]:
     if not path.exists():
         return {}
     with path.open("rb") as fh:
-        return tomllib.load(fh)
+        data: dict[str, Any] = tomllib.load(fh)
+    return data
 
 
 def _write_toml(data: dict[str, Any]) -> None:
@@ -138,7 +139,8 @@ def load_session() -> dict[str, Any] | None:
     sp = session_path()
     if not sp.exists():
         return None
-    return json.loads(sp.read_text(encoding="utf-8"))
+    session: dict[str, Any] = json.loads(sp.read_text(encoding="utf-8"))
+    return session
 
 
 def save_session(data: dict[str, Any]) -> None:
