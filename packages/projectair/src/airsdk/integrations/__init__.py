@@ -8,6 +8,10 @@ Available:
     - anthropic   (instrument_anthropic)
     - llamaindex  (instrument_llamaindex)
 
+Observability sinks (a transport, not a wrapper: covers every integration
+above at once because the recorder fans each record out to every transport):
+    - langfuse    (LangfuseTransport)
+
 Planned:
     - crewai
     - autogen
