@@ -2,6 +2,17 @@
 
 All notable changes to `projectair` are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [1.5.0] - 2026-10-21
+
+### Added
+- **Pattern-based step-up approval in `ContainmentPolicy`.** New `step_up_arg_patterns` (tool name to `{arg: regex}`) halts a matching tool call for authenticated human approval instead of denying it outright, for rules like "`http_post` is fine, but a body carrying a private key needs a human to sign off". Until now step-up rules could only match exact argument values. Deny rules still override step-up rules, and the verdict reason names the argument and never echoes its value. The halted `tool_start` is written with `blocked=True` and a `challenge_id`, the same as every other step-up.
+
+### Fixed
+- **`instrument_anthropic` now signs the tool result content the model actually read.** The `llm_start` prompt rendered each `tool_result` block as a bare `[tool_result <id>]` marker and dropped its content. Tool results are where indirect prompt injection reaches a model (a README, a web page, a RAG document), so AIR-01 could never see an injection that arrived that way in a real Anthropic tool loop. The prompt now carries the result text, marks error results as `tool_result error`, and renders list content block by block.
+- **`instrument_anthropic` renders SDK content blocks by type.** Replaying an assistant turn as `response.content` (the documented pattern) passed SDK block objects that the formatter stringified as raw Python reprs, thinking signatures included. Blocks given as SDK objects now render the same way as dicts: text as text, `tool_use` as `[tool_use name(input)]`, anything else as `[<type> block]`.
+- **`instrument_openai` signs assistant tool calls and tool result IDs.** Assistant messages that only carried `tool_calls` were recorded as `assistant: None`, so the signed prompt never showed which tool the model had asked for. Tool calls (dicts or SDK objects) now render as `[tool_call name(args)]`, tool messages carry `[tool_result <tool_call_id>]` ahead of their content, and `None` content renders as empty.
+- **No em dashes in CLI output, docs, or comments.** The ALCOA+ report headings (`air report alcoa`) used an em dash between the principle letter and its name; they now use a colon. Docstrings, comments, the Part 11 gap assessment, and the Layer 4 e2e script were cleaned the same way.
+
 ## [1.4.0] - 2026-10-12
 
 ### Changed

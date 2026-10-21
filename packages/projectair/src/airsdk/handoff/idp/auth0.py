@@ -231,7 +231,7 @@ class Auth0Adapter(IdPAdapter):
         attached to the ``credentials-exchange`` trigger that lifts these
         into custom access-token claims (Section 7.3.1). Without the Action,
         the issued token will fail Layer 4 verification with
-        ``CustomClaimMissingError`` — that is the canonical signal that
+        ``CustomClaimMissingError``: that is the canonical signal that
         the Action is missing or not deployed.
         """
         body = {

@@ -23,7 +23,7 @@ from server.chain_path import CHAIN_LOG_ROOT, safe_chain_path
 ROOT = CHAIN_LOG_ROOT.resolve()
 
 # Inputs an attacker would use to escape the chain root. Each must EITHER be
-# confined to a bare filename under ROOT or rejected — never resolve outside.
+# confined to a bare filename under ROOT or rejected, never resolve outside.
 MALICIOUS = [
     "../../etc/passwd",
     "../../../../../../etc/passwd",
@@ -35,7 +35,7 @@ MALICIOUS = [
     "/",
     "foo/../../bar",
     "subdir/evil.jsonl",
-    "a b.jsonl",          # space — outside the allowlist
+    "a b.jsonl",          # space: outside the allowlist
     "name;rm -rf.jsonl",  # shell metacharacters
     "evil\n.jsonl",       # control character
     "..%2f..%2fpasswd",   # literal, un-decoded percent-encoding
@@ -56,7 +56,7 @@ def test_malicious_names_never_escape_root(evil: str) -> None:
     try:
         result = safe_chain_path(evil)
     except ValueError:
-        return  # rejected outright — safe
+        return  # rejected outright, safe
     # If not rejected, it MUST be contained under the root.
     assert result.is_relative_to(ROOT), f"{evil!r} escaped to {result}"
 

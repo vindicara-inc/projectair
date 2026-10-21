@@ -61,6 +61,47 @@ def _build_provenance(model: str | None, kwargs: dict[str, Any], response: Any) 
     return prov
 
 
+def _block_get(block: Any, name: str, default: Any = None) -> Any:
+    """Read a field from a content block given as a dict or an SDK object."""
+    if isinstance(block, dict):
+        return block.get(name, default)
+    return getattr(block, name, default)
+
+
+def _render_tool_result_content(content: Any) -> str:
+    """Tool results carry a string or a list of text blocks; render the text."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "\n".join(
+            str(_block_get(part, "text", "")) if _block_get(part, "type") == "text"
+            else f"[{_block_get(part, 'type', 'content')} block]"
+            for part in content
+        )
+    return "" if content is None else str(content)
+
+
+def _render_block(block: Any) -> str:
+    """Render one content block. Tool results keep their content: that is
+    where indirect prompt injection reaches the model, so the signed prompt
+    must carry it."""
+    block_type = _block_get(block, "type")
+    if block_type is None:
+        return str(block)
+    if block_type == "text":
+        return str(_block_get(block, "text", ""))
+    if block_type == "tool_use":
+        return f"[tool_use {_block_get(block, 'name', 'tool')}({_block_get(block, 'input', {})})]"
+    if block_type == "tool_result":
+        marker = "tool_result error" if _block_get(block, "is_error") else "tool_result"
+        body = _render_tool_result_content(_block_get(block, "content"))
+        header = f"[{marker} {_block_get(block, 'tool_use_id', '')}]"
+        return f"{header}\n{body}" if body else header
+    if block_type == "image":
+        return "[image block]"
+    return f"[{block_type} block]"
+
+
 def _format_messages(messages: list[dict[str, Any]], system: str | None = None) -> str:
     """Flatten Anthropic messages (plus optional system prompt) into a prompt string."""
     parts: list[str] = []
@@ -70,22 +111,7 @@ def _format_messages(messages: list[dict[str, Any]], system: str | None = None) 
         role = str(message.get("role", "user"))
         content = message.get("content", "")
         if isinstance(content, list):
-            rendered: list[str] = []
-            for block in content:
-                if isinstance(block, dict):
-                    if block.get("type") == "text":
-                        rendered.append(str(block.get("text", "")))
-                    elif block.get("type") == "tool_use":
-                        rendered.append(f"[tool_use {block.get('name', 'tool')}({block.get('input', {})})]")
-                    elif block.get("type") == "tool_result":
-                        rendered.append(f"[tool_result {block.get('tool_use_id', '')}]")
-                    elif block.get("type") == "image":
-                        rendered.append("[image block]")
-                    else:
-                        rendered.append(f"[{block.get('type', 'content')} block]")
-                else:
-                    rendered.append(str(block))
-            content = "\n".join(rendered)
+            content = "\n".join(_render_block(block) for block in content)
         parts.append(f"{role}: {content}")
     return "\n".join(parts)
 

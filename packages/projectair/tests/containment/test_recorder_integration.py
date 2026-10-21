@@ -175,3 +175,19 @@ def test_recorder_without_policy_works_unchanged(tmp_path: Path) -> None:
     records = load_chain(tmp_path / "chain.jsonl")
     assert len(records) == 2
     assert all(r.payload.blocked is None for r in records)
+
+
+def test_step_up_arg_pattern_halts_tool_start_on_the_chain(tmp_path: Path) -> None:
+    rec = _recorder(
+        tmp_path,
+        policy=ContainmentPolicy(step_up_arg_patterns={"http_post": {"body": r"PRIVATE KEY"}}),
+    )
+    rec.llm_start(prompt="setup")
+    rec.tool_start(tool_name="http_post", tool_args={"url": "https://example.com", "body": "status ok"})
+
+    with pytest.raises(StepUpRequiredError) as exc_info:
+        rec.tool_start(tool_name="http_post", tool_args={"url": "https://example.com", "body": "PRIVATE KEY"})
+
+    starts = [r for r in load_chain(tmp_path / "chain.jsonl") if r.kind == StepKind.TOOL_START]
+    assert [r.payload.blocked for r in starts] == [None, True]
+    assert starts[1].payload.challenge_id == exc_info.value.challenge_id

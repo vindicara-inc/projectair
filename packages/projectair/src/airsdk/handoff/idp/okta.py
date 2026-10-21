@@ -1,4 +1,4 @@
-"""Okta IdP adapter — placeholder for v1.5.
+"""Okta IdP adapter: placeholder for v1.5.
 
 The interface exists so enterprise prospects can see the protocol is
 identity-provider-agnostic. Production Okta support requires either Token

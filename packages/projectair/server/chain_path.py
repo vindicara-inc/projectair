@@ -3,7 +3,7 @@
 The ``chain`` field on ``POST /authorize/verify`` is attacker-controlled, and it
 selects the file the tamper-evident AgDR chain is written to. Left unchecked, a
 value like ``"../../etc/cron.d/x"`` or ``"/etc/passwd"`` would steer forensic
-evidence to an arbitrary path — the worst possible outcome for an evidence
+evidence to an arbitrary path: the worst possible outcome for an evidence
 product (CodeQL ``py/path-injection`` alert #18).
 
 The fix lives at this trust boundary, not in :class:`airsdk.recorder.AIRRecorder`:

@@ -67,14 +67,20 @@ class ContainmentPolicy:
         the action description (``{"tool": "stripe_charge"}`` or
         ``{"tool": "send_email", "to_domain": "external"}``). When all
         keys match, the action requires human approval.
+    step_up_arg_patterns:
+        Map of tool_name -> {arg_name: regex_pattern}. When the regex
+        matches, the action requires human approval instead of being
+        denied. Use for "http_post is fine, but a body carrying a private
+        key needs a human to sign off".
 
-    All four lists default to empty; an empty policy is permissive.
+    All five rule sets default to empty; an empty policy is permissive.
     """
 
     deny_tools: list[str] = field(default_factory=list)
     deny_arg_patterns: dict[str, dict[str, str]] = field(default_factory=dict)
     block_on_findings: list[str] = field(default_factory=list)
     step_up_for_actions: list[dict[str, Any]] = field(default_factory=list)
+    step_up_arg_patterns: dict[str, dict[str, str]] = field(default_factory=dict)
     delegation_policy: DelegationPolicy | None = None
 
     def evaluate(
@@ -144,6 +150,19 @@ class ContainmentPolicy:
                 return PolicyVerdict(
                     decision=Decision.STEP_UP,
                     reason=f"action {action!r} matches step-up rule {rule!r}",
+                    challenge_id=_new_challenge_id(),
+                )
+
+        # 5. Step-up: an argument matches a step-up pattern.
+        for arg_name, pattern in self.step_up_arg_patterns.get(tool_name, {}).items():
+            value = _stringify(args.get(arg_name))
+            if value is not None and re.search(pattern, value):
+                return PolicyVerdict(
+                    decision=Decision.STEP_UP,
+                    reason=(
+                        f"tool {tool_name!r} arg {arg_name!r} matches step-up "
+                        f"pattern; human approval required"
+                    ),
                     challenge_id=_new_challenge_id(),
                 )
 

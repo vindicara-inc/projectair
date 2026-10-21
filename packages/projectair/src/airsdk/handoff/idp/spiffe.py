@@ -1,4 +1,4 @@
-"""SPIFFE / SPIRE IdP adapter — placeholder for v1.5.
+"""SPIFFE / SPIRE IdP adapter: placeholder for v1.5.
 
 Production SPIFFE support uses workload-defined claims at SVID issuance
 time via the SPIRE registration entry's selectors; the integration ships

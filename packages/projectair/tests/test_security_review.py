@@ -121,7 +121,7 @@ def test_report_renders_summary_questions_findings_and_remediation(tmp_path: Pat
     assert "**Draft answer.**" in md
     assert REMEDIATION["anchoring"] in md  # anchoring is NOT EVIDENCED on a plain chain
     assert "Appendix B: how the reviewer verifies this pack" in md
-    assert "—" not in md
+    assert "\u2014" not in md
 
 
 def test_report_lists_findings_when_present(tmp_path: Path) -> None:

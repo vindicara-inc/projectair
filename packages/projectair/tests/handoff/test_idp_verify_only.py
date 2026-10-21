@@ -60,7 +60,7 @@ def test_default_rejects_cross_tenant(rsa_signer) -> None:
         parent_trace_id=PTID,
         delegation_payload_hash="blake3:" + "0" * 64,
     )
-    # Same adapter verifies its own iss claim — passes
+    # Same adapter verifies its own iss claim, so it passes
     adapter.verify_capability_token(
         raw_jwt=tok.raw_jwt,
         expected_audience="agent:cabinet-coach.v2",

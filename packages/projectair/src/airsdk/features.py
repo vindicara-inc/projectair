@@ -1,4 +1,4 @@
-"""Canonical entitlement-feature vocabulary — the single source of truth.
+"""Canonical entitlement-feature vocabulary: the single source of truth.
 
 Every feature flag the product gates on is defined here exactly once, in the
 OSS base package that all three enforcement sites depend on:

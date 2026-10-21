@@ -123,8 +123,24 @@ def _format_messages(messages: list[dict[str, Any]]) -> str:
                 else:
                     rendered.append(str(block))
             content = "\n".join(rendered)
-        parts.append(f"{role}: {content}")
+        elif content is None:
+            content = ""
+        tool_calls = message.get("tool_calls") or []
+        calls = [_render_tool_call(call) for call in tool_calls]
+        if role == "tool" and message.get("tool_call_id"):
+            content = f"[tool_result {message['tool_call_id']}]\n{content}"
+        parts.append(f"{role}: " + "\n".join(part for part in [str(content), *calls] if part))
     return "\n".join(parts)
+
+
+def _render_tool_call(call: Any) -> str:
+    """Render an assistant tool call (dict or SDK object) as ``[tool_call name(args)]``."""
+    function = call.get("function", {}) if isinstance(call, dict) else getattr(call, "function", None)
+    if isinstance(function, dict):
+        name, args = function.get("name", "tool"), function.get("arguments", "")
+    else:
+        name, args = getattr(function, "name", "tool"), getattr(function, "arguments", "")
+    return f"[tool_call {name}({args})]"
 
 
 def _extract_response_text(response: Any) -> str:

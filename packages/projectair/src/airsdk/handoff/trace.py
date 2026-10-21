@@ -37,7 +37,7 @@ _TRACEPARENT_RE = re.compile(
     r"(?P<trace_flags>[0-9a-f]{2})$"
 )
 
-# Sentinel "all zero" values per W3C spec section 3.2.2.3 — invalid for use.
+# Sentinel "all zero" values per W3C spec section 3.2.2.3, invalid for use.
 _ALL_ZERO_TRACE_ID = "0" * 32
 _ALL_ZERO_SPAN_ID = "0" * 16
 

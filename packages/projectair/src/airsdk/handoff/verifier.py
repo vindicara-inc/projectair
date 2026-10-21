@@ -107,7 +107,7 @@ def _load_jsonl(path: Path) -> list[dict[str, Any]]:
 
 @dataclass(slots=True)
 class Chain:
-    """One agent's chain — a list of mixed legacy and Layer 4 records."""
+    """One agent's chain: a list of mixed legacy and Layer 4 records."""
 
     path: Path
     records: list[dict[str, Any]]

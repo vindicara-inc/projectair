@@ -1,4 +1,4 @@
-"""Layer 4: AgDR Handoff Protocol (A2A) — cross-agent chain of custody.
+"""Layer 4: AgDR Handoff Protocol (A2A): cross-agent chain of custody.
 
 Wave 1 surface (single-tenant + Rekor counter-attestation). Wave 2 lifts the
 cross-tenant feature flag once Wave 1 has at least one reference deployment.

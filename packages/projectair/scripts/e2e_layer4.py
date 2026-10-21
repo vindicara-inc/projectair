@@ -1,6 +1,6 @@
 """End-to-end demo of Project AIR Layer 4 Wave 1.
 
-Two modes — pick one explicitly, no silent default:
+Two modes. Pick one explicitly, no silent default:
 
   --live-auth0
       Talks to your real Auth0 tenant. Reads credentials from env:
@@ -145,7 +145,7 @@ def _live_auth0_adapter_from_env() -> tuple[Auth0Adapter, str]:
     """Build a production-mode Auth0Adapter from AIR_AUTH0_* env vars.
 
     Returns (adapter, audience). Fails loudly if any required env var is
-    missing — the operator wants live, not silent fallback to mock.
+    missing: the operator wants live, not silent fallback to mock.
     """
     required = ["AIR_AUTH0_DOMAIN", "AIR_AUTH0_CLIENT_ID", "AIR_AUTH0_CLIENT_SECRET", "AIR_AUTH0_AUDIENCE"]
     missing = [k for k in required if not os.environ.get(k)]
@@ -235,7 +235,7 @@ def main() -> int:
             ea_path = Path(tmp) / "ea_chain.jsonl"
             coach_path = Path(tmp) / "coach_chain.jsonl"
 
-            _section("1. Generate agent identities (LOCAL_DEV — Wave 1)")
+            _section("1. Generate agent identities (LOCAL_DEV, Wave 1)")
             ea_id = "agent:cabinet-ea.v3"
             ea = generate_local_dev_identity(ea_id, code_commit="git:demo")
             coach = generate_local_dev_identity(

@@ -1,4 +1,4 @@
-"""Microsoft Entra ID IdP adapter — placeholder for v1.5.
+"""Microsoft Entra ID IdP adapter: placeholder for v1.5.
 
 Production Entra support requires a claims-mapping policy attached to the
 service principal to inject the four ``air_*`` custom claims; that policy

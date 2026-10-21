@@ -109,3 +109,34 @@ def test_deny_overrides_step_up() -> None:
     )
     verdict = policy.evaluate("shell_exec", {})
     assert verdict.decision == Decision.BLOCK
+
+
+def test_step_up_arg_pattern_requires_approval() -> None:
+    policy = ContainmentPolicy(
+        step_up_arg_patterns={"http_post": {"body": r"-----BEGIN [A-Z ]*PRIVATE KEY-----"}},
+    )
+    verdict = policy.evaluate("http_post", {"url": "https://example.com", "body": "-----BEGIN OPENSSH PRIVATE KEY-----"})
+    assert verdict.decision == Decision.STEP_UP
+    assert verdict.challenge_id is not None
+    assert "step-up pattern" in verdict.reason
+
+
+def test_step_up_arg_pattern_allows_non_matching_args() -> None:
+    policy = ContainmentPolicy(step_up_arg_patterns={"http_post": {"body": r"PRIVATE KEY"}})
+    assert policy.evaluate("http_post", {"body": "hello"}).decision == Decision.ALLOW
+    assert policy.evaluate("read_file", {"body": "PRIVATE KEY"}).decision == Decision.ALLOW
+
+
+def test_step_up_arg_pattern_reason_does_not_echo_the_value() -> None:
+    policy = ContainmentPolicy(step_up_arg_patterns={"http_post": {"body": r"secret"}})
+    verdict = policy.evaluate("http_post", {"body": "secret-value-123"})
+    assert "secret-value-123" not in verdict.reason
+
+
+def test_deny_arg_pattern_overrides_step_up_arg_pattern() -> None:
+    policy = ContainmentPolicy(
+        deny_arg_patterns={"http_post": {"url": r"evil\.example"}},
+        step_up_arg_patterns={"http_post": {"body": r"PRIVATE KEY"}},
+    )
+    verdict = policy.evaluate("http_post", {"url": "https://evil.example", "body": "PRIVATE KEY"})
+    assert verdict.decision == Decision.BLOCK

@@ -1,4 +1,4 @@
-# Part 11 / Annex 11 Controls Gap Assessment — Project AIR
+# Part 11 / Annex 11 Controls Gap Assessment: Project AIR
 
 **Readiness: beta. Supplier technical-controls assessment, not a validation deliverable.**
 
@@ -26,7 +26,7 @@ part; customer configuration or additional code needed) · **Gap** (not yet in A
 tracked for the control-code sprint) · **Procedural** (customer or vendor process,
 not a software control).
 
-## 21 CFR Part 11 Subpart B — Electronic Records
+## 21 CFR Part 11 Subpart B: Electronic Records
 
 | § | Requirement (paraphrased) | AIR control | Status |
 |---|---|---|---|
@@ -38,14 +38,14 @@ not a software control).
 | 11.10(f) | Operational checks enforcing permitted step sequencing | `prev_hash` chain enforces immutable ordering; containment policy gates tool actions. | Partial |
 | 11.10(g) | Authority checks: only authorized individuals use the system, sign, access | Layer 3 IdP-verified approval binds an authorized human to a halted action. No general authority/role model. | Partial → Gap (RBAC) |
 | 11.10(h) | Device checks validating the source of data input | Agent registry (Zero-Trust identity) + GPU attestation (hardware root of trust, experimental) establish input source. | Partial |
-| 11.10(i) | Personnel education, training, experience | — | Procedural |
-| 11.10(j) | Written accountability policy for signature use | — | Procedural |
+| 11.10(i) | Personnel education, training, experience | n/a | Procedural |
+| 11.10(j) | Written accountability policy for signature use | n/a | Procedural |
 | 11.10(k) | Controls over systems documentation and change control | Vendor SDLC + customer document control. | Procedural (feeds supplier qualification) |
 | 11.30 | Open-system additional controls (encryption, digital signatures) | Ed25519 / ML-DSA-65 signatures and BLAKE3 hashing protect record authenticity and integrity end to end. | Provided |
 | 11.50 | Signature manifestation: printed name, date/time, and **meaning** of the signature | `HUMAN_APPROVAL` records the verified signer (`approver_sub` / `approver_email`), signing time (`issued_at`), and the decision. It does **not** carry the §11.50 **meaning** (review / approval / responsibility / authorship) or a defined human-readable manifestation. | Gap (control-code sprint, item B1) |
 | 11.70 | Signature/record linking to prevent copy or transfer to falsify | `HUMAN_APPROVAL` is a record inside the signed chain, bound by `prev_hash` to the exact halted action; it cannot be excised or moved without breaking verification. | Provided |
 
-## 21 CFR Part 11 Subpart C — Electronic Signatures
+## 21 CFR Part 11 Subpart C: Electronic Signatures
 
 | § | Requirement | AIR control | Status |
 |---|---|---|---|
@@ -58,7 +58,7 @@ not a software control).
 | Clause | Theme | AIR posture |
 |---|---|---|
 | 1 | Risk management | Customer performs; AIR provides the risk-relevant controls below. |
-| 3 | Suppliers / service providers | Supplier-qualification packet (SDLC, test evidence, change control) — separate deliverable D. |
+| 3 | Suppliers / service providers | Supplier-qualification packet (SDLC, test evidence, change control). Separate deliverable D. |
 | 4 | Validation | Customer's, for intended use. AIR supplies validatability. |
 | 5 | Data (accuracy checks) | Chain integrity + decision provenance (model, snapshot, fingerprint, sampling params) evidence data faithfulness. |
 | 7.1 / 8 | Data storage, printouts, audit trail | See 11.10(b)/(c)/(e). Audit trail is a core strength. |
@@ -80,13 +80,13 @@ are provided today. Decision provenance strengthens Annex 11 clause 5 data-accur
 evidence for non-deterministic model steps.
 
 **Ranked gaps for the control-code sprint (B):**
-1. **B1 — Part 11 §11.50 e-signature semantics.** Add signature **meaning** and a
+1. **B1: Part 11 §11.50 e-signature semantics.** Add signature **meaning** and a
    defined manifestation to `HUMAN_APPROVAL`. Highest value, cleanly scoped, builds
    on existing Layer 3. *Closes 11.50; completes the 11.70 story.*
-2. **B2 — Audit-trail review + reason-for-change.** A reviewer-attestation record over
+2. **B2: Audit-trail review + reason-for-change.** A reviewer-attestation record over
    a step range (Annex 11 §9, 11.10(e)) and an optional reason-for-change on operator
    modifications.
-3. **B3 — RBAC + unique-user attribution.** A role/authority model for read / verify /
+3. **B3: RBAC + unique-user attribution.** A role/authority model for read / verify /
    export / approve (11.10(d),(g), 11.300). Largest effort; recommended as a follow-on,
    not folded into B1/B2.
 

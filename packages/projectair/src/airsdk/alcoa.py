@@ -44,7 +44,7 @@ def _principle(letter: str, name: str, status: str, evidence: str, caveat: str) 
     """Render one ALCOA+ principle as a Markdown block."""
     caveat_line = f"\n- **Caveat:** {caveat}" if caveat else ""
     return (
-        f"### {letter} — {name}\n\n"
+        f"### {letter}: {name}\n\n"
         f"- **Status:** {status}\n"
         f"- **Evidence:** {evidence}{caveat_line}\n"
     )
